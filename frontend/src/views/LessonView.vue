@@ -1,33 +1,29 @@
 <template>
   <div>
-    <Problem />
+    <Problem v-for="p in problems" :key="p.id" :problemProp="p"/>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import Problem from '@/components/Problem.vue';
 import CourseModel from '@/models/CourseModel';
+import ProblemModel from '@/models/ProblemModel';
+import { mainStore } from '@/store';
+import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
-  name: 'CourseView',
+  name: 'LessonView',
+  components: { Problem },
   props: {
     todo: {
       type: Object as PropType<CourseModel>,
       required: true,
     },
   },
-  data() {
-    return {
-      editable: false,
-    };
-  },
-  methods: {
-    onTextChange(e: { target: { value: string } }) { this.$emit('update-todo', e.target.value); },
-  },
+  methods: {},
   computed: {
-    checked: {
-      get(): boolean { return true; },
-      set(value: boolean) { this.$emit('checkbox-click', value); },
+    problems(): Array<ProblemModel> {
+      return mainStore.getProblems;
     },
   },
 });

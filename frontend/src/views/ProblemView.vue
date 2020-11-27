@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Problem/>
+    Lorem10
   </div>
 </template>
 

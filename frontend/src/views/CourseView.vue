@@ -1,37 +1,53 @@
 <template>
   <div>
+    <span>Список курсов</span>
+
     <ul>
-      <Lesson
-        v-for="(todo, id) in note.todos"
-        :todo="todo"
-        :key="id"
-      />
+      <li v-for="el in course.activeLessons" :key="el.id">
+        <Lesson :lesson="el"/>
+      </li>
     </ul>
   </div>
 </template>
 
 <script lang="ts">
+import Lesson from '@/components/Lesson.vue';
 import CourseModel from '@/models/CourseModel';
-import { defineComponent, PropType } from 'vue';
+import { mainStore } from '@/store';
+import { computed, defineComponent, PropType } from 'vue';
 
 export default defineComponent({
   name: 'CourseView',
+  components: { Lesson },
   props: {
-    todo: {
-      type: Object as PropType<CourseModel>,
+    courseId: {
+      type: Number,
       required: true,
     },
-  },
-  data() { return { editable: false }; },
-  methods: {
-    onTextChange(e: { target: { value: string } }) { this.$emit('update-todo', e.target.value); },
-  },
-  computed: {
-    checked: {
-      get(): boolean { return true; },
-      set(value: boolean) { this.$emit('checkbox-click', value); },
+    courseProp: {
+      type: Object as PropType<CourseModel>,
+      required: false,
     },
   },
+
+  setup() {
+    const course = computed(() => mainStore.getCourse);
+    const fetchCourse = (): void => {
+      // const courseFull = store.course;
+      // course.activeLessons = courseFull.activeLessons;
+      // course.name = courseFull.name;
+      // course.completed = courseFull.completed;
+    };
+    //
+    // onMounted(fetchCourse);
+    return {
+      // store,
+      course,
+      fetchCourse,
+      // lessons: computed((): LessonModel[] => course.activeLessons),
+    };
+  },
+
 });
 </script>
 

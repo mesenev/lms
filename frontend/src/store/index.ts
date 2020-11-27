@@ -1,8 +1,12 @@
-import Counter2 from '@/store/main';
-import { createStore } from 'vuex';
+import Vuex from 'vuex';
+import { getModule } from 'vuex-module-decorators';
+import MainStore from './MainStorage';
 
-export default createStore({
+export const store = new Vuex.Store({
+  state: {},
   modules: {
-    Counter2,
+    MainStore,
   },
 });
+
+export const mainStore = getModule(MainStore, store);

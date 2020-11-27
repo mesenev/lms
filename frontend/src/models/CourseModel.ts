@@ -1,7 +1,7 @@
-import Lesson from '@/models/LessonModel.ts';
+import LessonModel from '@/models/LessonModel.ts';
 
 export default interface CourseModel {
   name: string;
-  activeLessons: Array<Lesson>;
+  activeLessons: Array<LessonModel>;
   completed: boolean;
 }
