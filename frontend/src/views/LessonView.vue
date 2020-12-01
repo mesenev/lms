@@ -9,9 +9,9 @@ import Problem from '@/components/Problem.vue';
 import CourseModel from '@/models/CourseModel';
 import ProblemModel from '@/models/ProblemModel';
 import { mainStore } from '@/store';
-import { defineComponent, PropType } from 'vue';
+import { PropType } from 'vue';
 
-export default defineComponent({
+export default {
   name: 'LessonView',
   components: { Problem },
   props: {
@@ -26,7 +26,7 @@ export default defineComponent({
       return mainStore.getProblems;
     },
   },
-});
+};
 </script>
 
 <style scoped>

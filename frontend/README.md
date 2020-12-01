@@ -1,4 +1,4 @@
-# frontend
+# dvfu-lms
 
 ## Project setup
 ```

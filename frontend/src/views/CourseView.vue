@@ -10,13 +10,10 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import Lesson from '@/components/Lesson.vue';
-import CourseModel from '@/models/CourseModel';
-import { mainStore } from '@/store';
-import { computed, defineComponent, PropType } from 'vue';
 
-export default defineComponent({
+export default {
   name: 'CourseView',
   components: { Lesson },
   props: {
@@ -25,32 +22,12 @@ export default defineComponent({
       required: true,
     },
     courseProp: {
-      type: Object as PropType<CourseModel>,
       required: false,
     },
   },
 
-  setup() {
-    const course = computed(() => mainStore.getCourse);
-    const fetchCourse = (): void => {
-      // const courseFull = store.course;
-      // course.activeLessons = courseFull.activeLessons;
-      // course.name = courseFull.name;
-      // course.completed = courseFull.completed;
-    };
-    //
-    // onMounted(fetchCourse);
-    return {
-      // store,
-      course,
-      fetchCourse,
-      // lessons: computed((): LessonModel[] => course.activeLessons),
-    };
-  },
-
-});
+};
 </script>
 
 <style scoped>
-
 </style>

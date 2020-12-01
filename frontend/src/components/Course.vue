@@ -10,9 +10,9 @@
 
 <script lang="ts">
 import CourseModel from '@/models/CourseModel';
-import { defineComponent, PropType } from 'vue';
+import { PropType } from 'vue';
 
-export default defineComponent({
+export default {
   name: 'Course',
   props: {
     course: {
@@ -20,5 +20,5 @@ export default defineComponent({
       required: true,
     },
   },
-});
+})
 </script>

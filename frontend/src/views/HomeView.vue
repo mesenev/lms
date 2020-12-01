@@ -13,16 +13,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
 
-export default defineComponent({
+export default {
   name: 'HomeView',
   data() {
     return {};
   },
   methods: {},
   computed: {},
-});
+};
 </script>
 
 <style scoped>

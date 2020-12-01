@@ -4,27 +4,23 @@
   </router-link>
 </template>
 
-<script lang="ts">
-import ProblemModel from '@/models/ProblemModel';
-import { defineComponent, PropType } from 'vue';
+<script>
 
-export default defineComponent({
+export default {
   name: 'Lesson',
   props: {
     problemProp: {
       required: true,
-      type: Object as PropType<ProblemModel>, // TODO: investigate this Object as PropType<ololo>
     },
   },
   computed: {
-    problem(): ProblemModel {
+    problem() {
       return this.problemProp;
     },
   },
 
-});
+};
 </script>
 
 <style scoped lang="stylus">
-
 </style>

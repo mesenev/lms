@@ -5,9 +5,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
 
-export default defineComponent({
+export default {
   name: 'ProblemView',
   props: {},
   data() {
@@ -15,7 +14,7 @@ export default defineComponent({
   },
   methods: {},
   computed: {},
-});
+};
 </script>
 
 <style scoped>

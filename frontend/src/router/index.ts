@@ -2,9 +2,11 @@ import CourseView from '@/views/CourseView.vue';
 import HomeView from '@/views/HomeView.vue';
 import LessonView from '@/views/LessonView.vue';
 import ProblemView from '@/views/ProblemView.vue';
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import Vue from 'vue';
+import VueRouter, { RouteConfig } from 'vue-router';
 
-const routes: Array<RouteRecordRaw> = [
+Vue.use(VueRouter);
+const routes: Array<RouteConfig> = [
   {
     path: '/',
     name: 'Home',
@@ -15,7 +17,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/course/:courseId',
     name: 'CourseView',
     component: CourseView,
-    props: (route?) => {
+    props: (route) => {
       const courseId = Number.parseInt(route.params.courseId as string, 10);
       return { courseId };
     },
@@ -24,7 +26,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/lesson/:lessonId',
     name: 'LessonView',
     component: LessonView,
-    props: (route?) => {
+    props: (route) => {
       const courseId = Number.parseInt(route.params.problemId as string, 10);
       return { courseId };
     },
@@ -33,15 +35,15 @@ const routes: Array<RouteRecordRaw> = [
     path: '/problem/:problemId',
     name: 'ProblemView',
     component: ProblemView,
-    props: (route?) => {
+    props: (route) => {
       const courseId = Number.parseInt(route.params.problemId as string, 10);
       return { courseId };
     },
   },
 ];
 
-const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+const router = new VueRouter({
+  mode: 'history',
   routes,
 });
 

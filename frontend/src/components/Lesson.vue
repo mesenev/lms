@@ -6,9 +6,9 @@
 
 <script lang="ts">
 import LessonModel from '@/models/LessonModel';
-import { defineComponent, PropType } from 'vue';
+import { PropType } from 'vue';
 
-export default defineComponent({
+export default {
   name: 'Lesson',
   props: {
     lesson: {
@@ -16,7 +16,7 @@ export default defineComponent({
       type: Object as PropType<LessonModel>,
     },
   },
-});
+};
 </script>
 
 <style scoped lang="stylus">
