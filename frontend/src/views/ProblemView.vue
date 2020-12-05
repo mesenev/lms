@@ -1,13 +1,45 @@
 <template>
-  <div>
-    <h1>
-      {{ problem.name }}
-      <span v-if="problem.completed">done!</span>
-      <span v-else>not done yet!</span>
-    </h1>
-    <p> {{ problem.description }}</p>
+  <div class="bx--grid">
+    <div class="bx--row">
+      <div class="bx--col-lg-10">
+        <h1> Задание {{problem.id}}. {{ problem.name }} </h1>
+        <h3> Описание:
+          {{problem.description}}</h3>
+      </div>
+      <div class="bx--col-lg-6">
+        <cv-inline-notification v-if="problem.completed"
+                                kind="success"
+                                :title="'Вы успешно сдали задачу!'"
+                                @close="close()">
+        </cv-inline-notification>
+        <cv-inline-notification v-else
+                                kind="error"
+                                :title="'Ваше решение не сдано, или не верно.'"
+                                action-label="Сдать"
+                                @close="close()" @action="problem.completed = true">
+        </cv-inline-notification>
+      </div>
+      <div class="bx--col-lg-10">
+        <label>
+<TextArea
+  cols="130"
+  placeHolder="Сюда кодить надо"
+  rows="20">
+</TextArea>
+        </label>
+        <cv-dropdown
+          :placeholder="'Выберите язык программирования'"
+          :value="value">
+          <cv-dropdown-item value="YoptaScript">YoptaScript</cv-dropdown-item>
+          <cv-dropdown-item value="Lolcat">LOLCODE</cv-dropdown-item>
+          <cv-dropdown-item value="Brainfuck">Brainfuck</cv-dropdown-item>
+        </cv-dropdown>
+      </div>
+    </div>
   </div>
 </template>
+
+<!--    TODO: notification work + grid and style work pls hlp -->
 
 <script lang="ts">
 
