@@ -1,24 +1,31 @@
+<script lang="ts">
+import CourseModel from '@/models/CourseModel';
+import router from '@/router';
+import { Component, Prop, Vue } from 'vue-property-decorator';
+
+@Component
+export default class Course extends Vue {
+  @Prop() courseProp!: CourseModel; // TODO: change on VModel
+
+  openCourse(): void { // TODO: check possibility to change id to number
+    router.push({ name: 'CourseView', params: { courseId: this.course.id.toString() } });
+  }
+
+  get course(): CourseModel {
+    return this.courseProp;
+  }
+}
+</script>
+
 <template>
-  <div>
-    <router-link :to="{ name: 'CourseView', params: { courseId: course.id }}">
-      <div class="wrapper">
-        <span>{{ course.name }}</span>
-      </div>
-    </router-link>
+  <div class="course" v-on:click="openCourse">
+      <h5>{{ course.name }}</h5>
+      <span>Преподаватель: </span> Сущенко Андрей Андреевич <br>
+      <span>Следующий урок:</span> 24/1
   </div>
 </template>
 
-<script lang="ts">
-import CourseModel from '@/models/CourseModel';
-import { PropType } from 'vue';
-
-export default {
-  name: 'Course',
-  props: {
-    course: {
-      type: Object as PropType<CourseModel>,
-      required: true,
-    },
-  },
-})
-</script>
+<style scoped lang="stylus">
+.course
+  padding 20px
+</style>

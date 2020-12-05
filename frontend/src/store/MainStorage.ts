@@ -6,10 +6,13 @@ import { Module, VuexModule } from 'vuex-module-decorators';
 @Module({ name: 'MainStorage' })
 export default class MainStorage extends VuexModule {
   private course: CourseModel = {
-    activeLessons: [{ id: 1, name: 'Урок 1' }, { id: 2, name: 'Урок 2' }] as Array<LessonModel>,
+    id: 8,
+    lessons: [{ id: 1, name: 'Урок 1' }, { id: 2, name: 'Урок 2' }] as Array<LessonModel>,
     completed: false,
     name: 'Алгоритмы и структуры данных (введение)',
   }
+
+  private courses: Array<CourseModel> = [this.course, this.course, this.course, this.course]
 
   private problems: Array<ProblemModel> = [{
     id: 1,
@@ -24,5 +27,9 @@ export default class MainStorage extends VuexModule {
 
   get getProblems() {
     return this.problems;
+  }
+
+  get getCourses() {
+    return this.courses;
   }
 }

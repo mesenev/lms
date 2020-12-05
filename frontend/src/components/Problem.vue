@@ -7,7 +7,7 @@
 <script>
 
 export default {
-  name: 'Lesson',
+  name: 'Problem',
   props: {
     problemProp: {
       required: true,

@@ -1,20 +1,18 @@
 <template>
   <div class="layout">
-    <header class="layout-header">
-      <h1 class="title">Курсы</h1>
-    </header>
+    <lms-header class="layout-header"></lms-header>
     <main class="layout-content">
-      <cv-button>button</cv-button>
-      <div class="items">
-        <div class="item" v-for="{ id } of courses" :key="id">
-          Курс номер {{ id }}
-        </div>
-      </div>
-<!--      <cv-content>-->
-        <router-view/>
-<!--      </cv-content>-->
+      <router-view/>
     </main>
-    <footer class="layout-footer"> (c) pocony</footer>
+    <footer class="layout-footer">
+      <div class="layout-footer-label">
+        <span>dvfu/imcs/staff & Daria-squad</span><br>
+        <span>
+          feel free to contribute
+          <cv-link to="https://github.com/mesenev/lms"><logo-github /></cv-link>
+        </span>
+      </div>
+    </footer>
   </div>
 </template>
 <style scoped lang="stylus">
@@ -32,34 +30,44 @@
   flex-flow column
   //background gray
 
+  &-content
+    background-color var(--cds-ui-01)
+    padding-bottom var(--cds-spacing-05)
+
   &-header, &-footer
     flex-shrink 0
 
+  &-footer
+    min-height 100px
+    background-color var(--cds-ui-05)
+    color var(--cds-text-05)
+    font-size 0.7em
+
+    &-label
+      margin 30px 30px
+
   &-content
     flex-grow 1
+    width: 100%
 </style>
-<script>
-// import Notification32 from '@carbon/icons-vue/es/notification/20';
-// import UserAvatar32 from '@carbon/icons-vue/es/user--avatar/20';
-// import AppSwitcher32 from '@carbon/icons-vue/es/app-switcher/20';
 
-export default {
-  name: 'App',
-  data: () => ({
-    courses: [
-      { id: 1 },
-      { id: 2 },
-      { id: 3 },
-      { id: 4 },
-      { id: 5 },
-    ],
-  }),
-};
+<script lang="ts">
+import LmsHeader from '@/components/LmsHeader.vue';
+import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
+import { Component, Vue } from 'vue-property-decorator';
+
+@Component({ components: { LmsHeader, LogoGithub } })
+export default class App extends Vue {
+
+}
 </script>
+
 <style lang="scss">
 @import "styles/carbon";
 
 html, body, body > div {
   height: 100%;
+  background-color: var(--cds-ui-background);
+  color: var(--cds-text-01);
 }
 </style>

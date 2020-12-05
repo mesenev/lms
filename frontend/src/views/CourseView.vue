@@ -1,21 +1,13 @@
 <template>
   <div>
-    <span>Список курсов</span>
-
-    <ul>
-      <li v-for="el in course.activeLessons" :key="el.id">
-        <Lesson :lesson="el"/>
-      </li>
-    </ul>
+    <h1>Список уроков</h1>
   </div>
 </template>
 
 <script>
-import Lesson from '@/components/Lesson.vue';
 
 export default {
   name: 'CourseView',
-  components: { Lesson },
   props: {
     courseId: {
       type: Number,
