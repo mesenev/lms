@@ -15,10 +15,12 @@ export default class MainStorage extends VuexModule {
   private courses: Array<CourseModel> = [this.course, this.course, this.course, this.course]
 
   private problems: Array<ProblemModel> = [{
-    id: 1,
-    name: '123',
-    description: '456',
-    completed: true,
+    id: 7,
+    name: 'Чё тебе надо у меня дома, мент?',
+    description: 'К джентельмену вломились силовые структуры.'
+      + ' Помогите ему выяснить причину их появления и, по возможности,'
+      + ' получить компенсацию за поломанное имущество.',
+    completed: false,
   } as ProblemModel];
 
   get getCourse() {

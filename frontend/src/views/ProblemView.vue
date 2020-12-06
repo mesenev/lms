@@ -43,27 +43,23 @@
 
 <script lang="ts">
 
-import ProblemModel from '@/models/ProblemModel';
+import Component from 'vue-class-component';
+import Problem from '@/components/Problem.vue';
+import Vue from 'vue';
+import { mainStore } from '@/store';
 
-export default {
-  name: 'ProblemView',
-  props: {},
-  data() {
-    return {
-      problem: {
-        id: 7,
-        name: 'Чё тебе надо у меня дома, мент',
-        description: 'К джентельмену вломились силовые структуры.'
-          + ' Помогите ему выяснить причину их появления и, по возможности,'
-          + ' получить компенсацию за поломанное имущество.',
-        completed: false,
-      } as ProblemModel,
-    };
-  },
-  methods: {},
-  computed: {},
-};
+@Component({ components: { Problem } })
+export default class ProblemView extends Vue {
+  private store = mainStore;
+
+  problemsArray = this.store.getProblems;
+
+  get problem() {
+    return this.problemsArray[0];
+  }
+}
 </script>
+<!--    TODO: solve a problem w/ getting single problem from array -->
 
 <style scoped>
 
