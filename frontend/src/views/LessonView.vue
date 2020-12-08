@@ -2,33 +2,33 @@
   <div class="bx--grid">
     <div class="bx--row">
       <div class="bx--col-lg-16">
-          <cv-tile kind="standard">
-          <h1>{{lesson.name}}</h1>
-          <p>{{lesson.deadline}}</p>
+        <cv-tile kind="standard">
+          <h1>{{ lesson.name }}</h1>
+          <p>{{ lesson.deadline }}</p>
         </cv-tile>
-          <h4> Задачи урока: </h4>
-        </div>
+        <h4> Задачи урока: </h4>
+      </div>
       <div class="bx--col-lg-10">
-          </div>
+      </div>
       <div class="add bx--col-lg-6">
         <p>Пользователи</p>
       </div>
       <div class="less bx--col-lg-10">
         <div class="classwork">
           <h4>Классная работа</h4>
-            <cv-accordion align="align" v-for="less in classwork" :key="less.id">
-              <Problem :problem-prop='less'/>
-            </cv-accordion>
-          </div>
+          <cv-accordion align="align" v-for="less in classwork" :key="less.id">
+            <Problem :problem-prop='less'/>
+          </cv-accordion>
+        </div>
         <div class="homework">
           <h4>Домашнаяя работа</h4>
-            <cv-accordion align="align" v-for="less in homework" :key="less.id">
-              <Problem :problem-prop="less"/>
-            </cv-accordion>
-          </div>
+          <cv-accordion align="align" v-for="less in homework" :key="less.id">
+            <Problem :problem-prop="less"/>
+          </cv-accordion>
+        </div>
       </div>
       <div class="add bx--col-lg-6">
-        <p>{{lesson.lessoncontent}}</p>
+        <p>{{ lesson.lessoncontent }}</p>
       </div>
     </div>
   </div>
@@ -64,6 +64,7 @@ export default class HomeView extends Vue {
 .less
   background-color var(--cds-ui-02)
   padding var(--cds-spacing-05)
+
 .add
   background-color ghostwhite
 </style>

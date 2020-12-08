@@ -2,9 +2,10 @@
   <div class="bx--grid">
     <div class="bx--row">
       <div class="bx--col-lg-10">
-        <h1> Задание {{problem.id}}. {{ problem.name }} </h1>
-        <h3> Описание:
-          {{problem.description}}</h3>
+        <br>
+        <h3> Задание {{problem.id}}. {{ problem.name }} </h3>
+        <h4> Описание: {{problem.description}} </h4>
+        <br>
       </div>
       <div class="bx--col-lg-6">
         <cv-inline-notification v-if="problem.completed"
@@ -14,18 +15,18 @@
         </cv-inline-notification>
         <cv-inline-notification v-else
                                 kind="error"
-                                :title="'Ваше решение не сдано, или не верно.'"
+                                :title="'Ваше решение не сдано, или решено неверно.'"
                                 action-label="Сдать"
-                                @close="close()" @action="problem.completed = true">
+                                @close="this.close()" @action="problem.completed = true">
         </cv-inline-notification>
       </div>
       <div class="bx--col-lg-10">
         <label>
-<TextArea
-  cols="130"
-  placeHolder="Сюда кодить надо"
-  rows="20">
-</TextArea>
+          <TextArea
+            cols="130"
+            placeHolder="Сюда кодить надо"
+            rows="20">
+          </TextArea>
         </label>
         <cv-dropdown
           :placeholder="'Выберите язык программирования'"
@@ -39,7 +40,7 @@
   </div>
 </template>
 
-<!--    TODO: notification work + grid and style work pls hlp -->
+<!--    TODO: notification work (close action, animation (?)) -->
 
 <script lang="ts">
 

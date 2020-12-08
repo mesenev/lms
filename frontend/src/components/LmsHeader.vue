@@ -3,9 +3,9 @@
     <cv-skip-to-content href="#main-content">
       Skip to content
     </cv-skip-to-content>
-<!--    TODO: insert whitespace (gg) -->
+<!--    TODO: insert whitespace (doned) -->
     <cv-header-name to="/" prefix="dvfu">
-      <span class="lms">lms</span>
+      <span class="lms">⠀lms</span>
     </cv-header-name>
 
     <cv-header-nav aria-label="">
@@ -41,6 +41,4 @@ export default class LmsHeader extends Vue {
 <style scoped lang="stylus">
 .bx--header
   position: unset
-.lms
-  padding-left 5px
 </style>
