@@ -22,21 +22,20 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { mainStore } from '@/store';
 
 @Component({})
 export default class Progress extends Vue {
   name!: 'Progress';
 
-  columns = ['Ученики'].concat(mainStore.getColumns).concat(['Рейтинг']);
+  // columns = ['Ученики'].concat(mainStore.getColumns).concat(['Рейтинг']);
 
-  users = mainStore.getUsers;
+  // users = mainStore.getUsers;
 
-  avarage(id: number): number {
-    const sum = (marks: number[]) => marks.reduce((total, value) => total + value);
-    const { marks } = this.users[id].course;
-    return sum(marks) / marks.length;
-  }
+  // avarage(id: number): number {
+  //   const sum = (marks: number[]) => marks.reduce((total, value) => total + value);
+  //   const { marks } = this.users[id].course;
+  //   return sum(marks) / marks.length;
+  // }
 }
 </script>
 
