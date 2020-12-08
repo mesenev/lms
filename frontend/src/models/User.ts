@@ -1,5 +1,5 @@
-import CourseModel from "@/models/CourseModel";
-import PairModel from "@/models/UserProgress";
+import CourseModel from '@/models/CourseModel';
+import PairModel from '@/models/UserProgress';
 
 export default interface User {
   id: number;
