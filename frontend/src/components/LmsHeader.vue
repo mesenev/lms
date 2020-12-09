@@ -3,7 +3,6 @@
     <cv-skip-to-content href="#main-content">
       Skip to content
     </cv-skip-to-content>
-<!--    TODO: insert whitespace (doned) -->
     <cv-header-name to="/" prefix="dvfu">
       <span class="lms">⠀lms</span>
     </cv-header-name>
@@ -14,7 +13,7 @@
 
     <template slot="header-global">
       <cv-header-global-action aria-label="Notifications">
-        <notification-20 />
+        <notification-20/>
       </cv-header-global-action>
       <cv-header-global-action aria-label="User avatar">
         <user-avatar-20/>
