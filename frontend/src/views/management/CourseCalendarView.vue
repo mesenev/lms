@@ -1,0 +1,45 @@
+<template>
+  <div class="bx--grid">
+    <div class="bx--row header">
+      <h1>Расписание занятий</h1>
+    </div>
+    <div class=" bx--row">
+      <div class="items bx--col-lg-8">
+        <cv-search
+          label="label"
+          placeholder="search"
+        >
+        </cv-search>
+        <div>work in process</div>
+      </div>
+      <div class="bx--col-lg-8">
+      </div>
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import { Prop, Component, Vue } from 'vue-property-decorator';
+
+@Component({ components: {} })
+export default class CourseCalendarView extends Vue {
+  @Prop() courseId!: number;
+
+}
+</script>
+
+<style lang="stylus">
+.header
+  padding-bottom: 1.5rem
+  padding-top: 1rem
+
+.items
+  background-color var(--cds-ui-02)
+  padding var(--cds-spacing-05)
+
+  .bx--structured-list-thead
+    display none
+
+.item
+  min-height 85px
+</style>

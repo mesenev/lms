@@ -12,7 +12,7 @@ except:
 
 def build_message(code):
     answer = f'Build branch: ' \
-             f'{subprocess.check_output(["git", "branch", "--show-current"]).decode("utf-8")}\n'
+             f'{subprocess.check_output(["git", "branch", "--show-current"]).decode("utf-8")}'
     answer += subprocess.check_output(['git', 'log', '--pretty=format:%h - %an: %s', '-1']).decode('utf-8')
     if not code:
         answer += f'<b>npm run build</b> was successful! {random.choice(["🚀🎉", "💅💃"])}\n Gj, gl and proceed.'
@@ -23,5 +23,5 @@ def build_message(code):
 
 
 bot = telegram.Bot(token=os.getenv('BOT_TOKEN'))
-bot.send_message(os.getenv('CHAT_ID'), build_message(c))
+bot.send_message(os.getenv('CHAT_ID'), build_message(c),parse_mode='HTML')
 bot.close()

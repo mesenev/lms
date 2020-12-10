@@ -1,3 +1,4 @@
+// TODO: import as obj from @/views
 import CourseView from '@/views/CourseView.vue';
 import HomeView from '@/views/HomeView.vue';
 import LessonView from '@/views/LessonView.vue';
@@ -5,6 +6,7 @@ import ProblemView from '@/views/ProblemView.vue';
 import RegistrationView from '@/views/RegistrationView.vue';
 import Vue from 'vue';
 import VueRouter, { RouteConfig } from 'vue-router';
+import managementRoutes from './CourseManagement';
 
 Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
@@ -46,6 +48,7 @@ const routes: Array<RouteConfig> = [
     name: 'RegistrationView',
     component: RegistrationView,
   },
+  ...managementRoutes
 ];
 
 const router = new VueRouter({
