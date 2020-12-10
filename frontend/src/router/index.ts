@@ -2,6 +2,7 @@ import CourseView from '@/views/CourseView.vue';
 import HomeView from '@/views/HomeView.vue';
 import LessonView from '@/views/LessonView.vue';
 import ProblemView from '@/views/ProblemView.vue';
+import RegistrationView from '@/views/RegistrationView.vue';
 import Vue from 'vue';
 import VueRouter, { RouteConfig } from 'vue-router';
 
@@ -39,6 +40,11 @@ const routes: Array<RouteConfig> = [
       const courseId = Number.parseInt(route.params.problemId as string, 10);
       return { courseId };
     },
+  },
+  {
+    path: '/registration',
+    name: 'RegistrationView',
+    component: RegistrationView,
   },
 ];
 

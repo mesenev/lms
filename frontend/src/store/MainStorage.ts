@@ -1,7 +1,6 @@
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
-import ProblemModel from '@/models/ProblemModel';
-import { Module, VuexModule } from 'vuex-module-decorators';
+import ProblemModel from '@/models/ProblemModel';import { Module, VuexModule } from 'vuex-module-decorators';
 
 @Module({ name: 'MainStorage' })
 export default class MainStorage extends VuexModule {

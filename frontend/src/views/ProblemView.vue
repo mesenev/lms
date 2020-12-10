@@ -3,8 +3,8 @@
     <div class="bx--row">
       <div class="bx--col-lg-10">
         <br>
-        <h3> Задание {{problem.id}}. {{ problem.name }} </h3>
-        <h4> Описание: {{problem.description}} </h4>
+        <h3> Задание {{ problem.id }}. {{ problem.name }} </h3>
+        <h4> Описание: {{ problem.description }} </h4>
         <br>
       </div>
       <div class="bx--col-lg-6">
@@ -17,7 +17,7 @@
                                 kind="error"
                                 :title="'Ваше решение не сдано, или решено неверно.'"
                                 action-label="Сдать"
-                                @close="this.close()" @action="problem.completed = true">
+                                @close="close()" @action="problem.completed = true">
         </cv-inline-notification>
       </div>
       <div class="bx--col-lg-10">
