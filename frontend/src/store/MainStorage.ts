@@ -4,7 +4,8 @@ import ProblemModel from '@/models/ProblemModel';
 import {
   Module, VuexModule, Mutation,
 } from 'vuex-module-decorators';
-import User from '@/models/User';
+// import User from '@/models/User';
+import UserProgress from "@/models/UserProgress";
 
 @Module({ name: 'MainStorage' })
 export default class MainStorage extends VuexModule {
@@ -32,7 +33,7 @@ export default class MainStorage extends VuexModule {
       completed: true,
     }as ProblemModel];
 
-  private users: Array<User> = [
+  private users: Array<UserProgress> = [
     {
       id: 0,
       name: 'Vlad Maximov',

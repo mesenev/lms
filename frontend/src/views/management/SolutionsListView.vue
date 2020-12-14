@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import { Prop, Component, Vue } from 'vue-property-decorator';
-import { mainStore } from '@/store';
+// import { mainStore } from '@/store';
 
 @Component({ components: {} })
 export default class SolutionsListView extends Vue {
