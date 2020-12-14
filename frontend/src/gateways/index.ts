@@ -5,6 +5,6 @@ export default axios.create({
   timeout: 1000,
   headers: {
     'X-Auth-Token': '',
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });

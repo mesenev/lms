@@ -1,8 +1,7 @@
-import CourseModel from "@/models/CourseModel";
-import PairModel from "@/models/UserProgress";
-
 export default interface User {
   id: number;
   name: string;
-  course: PairModel;
+  courseLength: number;
+  marks: Array<number>;
+  attendance: Array<boolean>;
 }

@@ -4,6 +4,7 @@ import LessonView from '@/views/LessonView.vue';
 import ProblemView from '@/views/ProblemView.vue';
 import Vue from 'vue';
 import VueRouter, { RouteConfig } from 'vue-router';
+import ProgressView from '@/views/ProgressView.vue';
 
 Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
@@ -21,6 +22,11 @@ const routes: Array<RouteConfig> = [
       const courseId = Number.parseInt(route.params.courseId as string, 10);
       return { courseId };
     },
+  },
+  {
+    path: '/course/:courseId/progress',
+    name: 'ProgressView',
+    component: ProgressView,
   },
   {
     path: '/lesson/:lessonId',
