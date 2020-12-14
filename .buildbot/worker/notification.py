@@ -1,7 +1,9 @@
 import os
-import subprocess
 import random
+import subprocess
+
 import telegram
+from env import *
 
 try:
     os.chdir('frontend')
@@ -22,6 +24,6 @@ def build_message(code):
     return answer
 
 
-bot = telegram.Bot(token=os.getenv('BOT_TOKEN'))
-bot.send_message(os.getenv('CHAT_ID'), build_message(c),parse_mode='HTML')
+bot = telegram.Bot(token=os.getenv(BOT_TOKEN))
+bot.send_message(os.getenv(CHAT_ID), build_message(c), parse_mode='HTML')
 bot.close()

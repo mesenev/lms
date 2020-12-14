@@ -38,6 +38,9 @@ factory.addStep(steps.ShellCommand(
     command=['cp', '../../notification.py', 'notification.py']
 ))
 factory.addStep(steps.ShellCommand(
+    command=['cp', '../../.env', 'env.py']
+))
+factory.addStep(steps.ShellCommand(
     command=['cd', 'frontend']
 ))
 factory.addStep(steps.ShellCommand(
