@@ -6,9 +6,8 @@ $feature-flags: (
 $carbon--theme: $carbon--theme--white;
 @include carbon--theme($carbon--theme);
 
-@import '~carbon-components/scss/globals/grid/grid';
+@import '~@carbon/grid/scss/grid';
 @import '~carbon-components/css/carbon-components.css';
-@import '~carbon-components/scss/globals/scss/theme';
 
 :root {
   @include carbon--theme($carbon--theme, true);

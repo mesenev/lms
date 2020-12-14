@@ -1,7 +1,10 @@
+import PairModel from '@/models/UserProgress';
+
 export default interface User {
   id: number;
   name: string;
-  courseLength: number;
-  marks: Array<number>;
-  attendance: Array<boolean>;
+  course: PairModel;
+  group: string;
+  mail: string;
+  login: string;
 }

@@ -3,16 +3,41 @@
     <cv-skip-to-content href="#main-content">
       Skip to content
     </cv-skip-to-content>
-<!--    TODO: insert whitespace (gg) -->
-    <cv-header-name to="/" prefix="dvfu"> lms</cv-header-name>
+    <cv-header-name to="/" prefix="dvfu">
+      <span class="lms">lms</span>
+    </cv-header-name>
 
-    <cv-header-nav aria-label="">
-      <cv-header-menu-item to="/overall">Overall page</cv-header-menu-item>
+    <cv-header-nav v-if="courseSelected">
+      <cv-header-menu-item
+        :to="{
+          name: 'course-solutions-list',
+          params: { courseId: this.$route.params.courseId }
+        }">
+        Решения
+      </cv-header-menu-item>
+    </cv-header-nav>
+    <cv-header-nav v-if="courseSelected">
+      <cv-header-menu-item
+        :to="{
+          name: 'course-progress',
+          params: { courseId: this.$route.params.courseId }
+        }">
+        Успеваемость
+      </cv-header-menu-item>
+    </cv-header-nav>
+    <cv-header-nav v-if="courseSelected">
+      <cv-header-menu-item
+        :to="{
+          name: 'course-calendar',
+          params: { courseId: this.$route.params.courseId }
+        }">
+        Календарь
+      </cv-header-menu-item>
     </cv-header-nav>
 
     <template slot="header-global">
       <cv-header-global-action aria-label="Notifications">
-        <notification-20 />
+        <notification-20/>
       </cv-header-global-action>
       <cv-header-global-action aria-label="User avatar">
         <user-avatar-20/>
@@ -33,10 +58,18 @@ import Component from 'vue-class-component';
 
 @Component({ components: { Notification20, UserAvatar20, AppSwitcher20 } })
 export default class LmsHeader extends Vue {
+
+  get courseSelected(): boolean {
+    return this.$route.params.hasOwnProperty('courseId');
+  }
+
 }
 </script>
 
 <style scoped lang="stylus">
 .bx--header
   position: unset
+
+.lms
+  padding-left 5px
 </style>

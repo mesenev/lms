@@ -1,26 +1,48 @@
 <template>
-  <router-link :to="{ name: 'ProblemView', params: { problemId: 1 }}">
-    <span> {{ problem.name }}</span>
-  </router-link>
+  <!--TODO: padding for status of lesson and fix the the router open the same problem -->
+  <cv-accordion >
+    <cv-accordion-item>
+      <template slot="title">
+        <div v-on:click="openProblem">{{problem.name}}</div>
+        <div class="aw">
+          <cv-tag v-if="problem.completed"
+                    label = "OK"
+                    kind="green">
+          </cv-tag>
+          <cv-tag v-if="!problem.completed"
+                    label = "Не выполненно"
+                    kind="red">
+          </cv-tag>
+        </div>
+      </template>
+      <template slot="content">
+        <p>{{problem.description}}</p>
+      </template>
+    </cv-accordion-item>
+  </cv-accordion>
 </template>
 
 <script>
 
-export default {
-  name: 'Problem',
-  props: {
-    problemProp: {
-      required: true,
-    },
-  },
-  computed: {
-    problem() {
-      return this.problemProp;
-    },
-  },
+import { Component, Vue, Prop } from 'vue-property-decorator';
+import ProblemModel from '@/models/ProblemModel';
+import router from '@/router';
 
-};
+@Component
+export default class Problem extends Vue {
+  @Prop() problemProp = ProblemModel;
+
+  openProblem() {
+    router.push({ name: 'ProblemView', params: { problemId: this.problem.id.toString() } });
+  }
+
+  get problem() {
+    return this.problemProp;
+  }
+}
 </script>
-
+// TO-DO Prop?
 <style scoped lang="stylus">
+.aw
+  text-align right
 </style>

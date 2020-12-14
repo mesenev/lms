@@ -1,10 +1,13 @@
+// TODO: import as obj from @/views
 import CourseView from '@/views/CourseView.vue';
 import HomeView from '@/views/HomeView.vue';
 import LessonView from '@/views/LessonView.vue';
 import ProblemView from '@/views/ProblemView.vue';
 import Vue from 'vue';
+import RegistrationView from '@/views/RegistrationView.vue';
 import VueRouter, { RouteConfig } from 'vue-router';
 import ProgressView from '@/views/ProgressView.vue';
+import managementRoutes from './CourseManagement';
 
 Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
@@ -29,6 +32,11 @@ const routes: Array<RouteConfig> = [
     component: ProgressView,
   },
   {
+    path: '/course/:courseId/progress',
+    name: 'ProgressView',
+    component: ProgressView,
+  },
+  {
     path: '/lesson/:lessonId',
     name: 'LessonView',
     component: LessonView,
@@ -46,6 +54,12 @@ const routes: Array<RouteConfig> = [
       return { courseId };
     },
   },
+  {
+    path: '/registration',
+    name: 'RegistrationView',
+    component: RegistrationView,
+  },
+  ...managementRoutes
 ];
 
 const router = new VueRouter({

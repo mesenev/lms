@@ -9,7 +9,7 @@
         <span>dvfu/imcs/staff & Daria-squad</span><br>
         <span>
           feel free to contribute
-          <cv-link to="https://github.com/mesenev/lms"><logo-github /></cv-link>
+          <cv-link href="https://github.com/mesenev/lms"><logo-github /></cv-link>
         </span>
       </div>
     </footer>
