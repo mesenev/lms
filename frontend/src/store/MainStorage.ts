@@ -16,6 +16,31 @@ export default class MainStorage extends VuexModule {
     name: 'Алгоритмы и структуры данных (введение)',
   }
 
+  @Mutation
+  changeCourseName(payload: string) {
+    this.course = { ...this.course, name: payload } as CourseModel;
+  }
+
+  @Mutation
+  changeCourseDescription(payload: string) {
+    this.course = { ...this.course, description: payload } as CourseModel;
+  }
+
+  @Mutation
+  addLesson(payload: LessonModel) {
+    this.course = { ...this.course, lessons: this.course.lessons.concat(payload) };
+  }
+
+  @Mutation
+  deleteLesson(payload: LessonModel) {
+    this.course = {
+      ...this.course,
+      lessons: this.course.lessons.filter(
+        (lesson) => lesson !== payload
+      )
+    };
+  }
+
   private courses: Array<CourseModel> = [this.course, this.course, this.course, this.course]
 
   private problems: Array<ProblemModel> = [{

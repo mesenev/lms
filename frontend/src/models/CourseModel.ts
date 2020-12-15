@@ -5,4 +5,5 @@ export default interface CourseModel {
   name: string;
   lessons: Array<LessonModel>;
   completed: boolean;
+  description?: string;
 }

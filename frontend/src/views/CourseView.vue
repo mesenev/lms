@@ -1,7 +1,6 @@
 <template>
   <div>
     <h1>Список уроков</h1>
-    <router-link :to="{ name: 'ProgressView' }">Результаты</router-link>
   </div>
 </template>
 

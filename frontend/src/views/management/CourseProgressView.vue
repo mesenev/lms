@@ -10,7 +10,10 @@
           placeholder="search"
         >
         </cv-search>
-        <div>work in process</div>
+        <!-- TODO по-человечески отверстать -->
+        <div>
+          <Progress></Progress>
+        </div>
       </div>
       <div class="bx--col-lg-8">
       </div>
@@ -20,12 +23,12 @@
 
 <script lang="ts">
 import { Prop, Component, Vue } from 'vue-property-decorator';
+import Progress from '@/components/Progress.vue';
 // import { mainStore } from '@/store';
 
-@Component({ components: {} })
+@Component({ components: { Progress } })
 export default class CourseProgressView extends Vue {
   @Prop() courseId!: number;
-
 }
 </script>
 

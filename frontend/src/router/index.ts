@@ -27,16 +27,6 @@ const routes: Array<RouteConfig> = [
     },
   },
   {
-    path: '/course/:courseId/progress',
-    name: 'ProgressView',
-    component: ProgressView,
-  },
-  {
-    path: '/course/:courseId/progress',
-    name: 'ProgressView',
-    component: ProgressView,
-  },
-  {
     path: '/lesson/:lessonId',
     name: 'LessonView',
     component: LessonView,
