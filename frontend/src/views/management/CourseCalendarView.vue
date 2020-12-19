@@ -6,7 +6,7 @@
     <div class="bx--row header">
       <div class="items bx--col-lg-10">
         <span>
-          Понедельник: 15:30-16:00, Вторник: 8:30-10:00
+          {{ scheduleCurrent }}
           <cv-icon-button v-on:click="showModal" kind="secondary" tip-position="hidden" :icon="icon" size='small'/>
         </span>
 
@@ -17,11 +17,13 @@
           @modal-hide-request="actionHideRequest"
           @after-modal-hidden="actionAfterHidden"
           :auto-hide-off="false">
-          <template slot="title">Выберите дни и время</template>
-          <template slot="content"><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, seed
-            do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-            exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p></template>
-          <template v-if="use_primaryButton" slot="primary-button">primary</template>
+          <template slot="title">Редактирование расписания</template>
+          <template slot="content">
+            <div>
+              <cv-checkbox label="Понедельник" :checked="checked" :value=""/>
+            </div>
+          </template>
+          <template v-if="use_primaryButton" :active="isScheduleChanged" slot="primary-button">Сохранить изменения</template>
         </cv-modal>
 
 
@@ -59,6 +61,7 @@
 <script lang="ts">
 import { Prop, Component, Vue } from 'vue-property-decorator';
 import Edit from '@carbon/icons-vue/es/edit/20';
+import _ from 'lodash';
 
 @Component({ components: { Edit } })
 export default class CourseCalendarView extends Vue {
@@ -66,12 +69,49 @@ export default class CourseCalendarView extends Vue {
   public icon = Edit;
   public modalVisible = false;
 
+  private schedule: Record<string, string | null> = {
+    1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null,
+  }
+  private newSchedule: Record<string, string | null> = {};
+
   showModal() {
+    this.newSchedule = this.schedule;
     this.modalVisible = true;
   }
+
   actionHidden() {
     this.modalVisible = false;
   }
+  activateDay(day: number) {
+    return() => {
+      this.newSchedule = {...this.newSchedule, [day]: '00:00'};
+    }
+  }
+  get workingDays() {
+    return Object.keys(this.schedule)
+      .filter(key => this.schedule[key] != null)
+      .reduce((obj: Record<string, string>, key: string) => {
+        obj[key] = this.schedule[key] as string;
+        return obj;
+      }, {});
+  }
+
+  private alias = [
+    'Понедельник', 'Вторник', "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье",
+  ];
+
+  get scheduleCurrent() {
+    let result = '';
+    Object.keys(this.workingDays).forEach(
+      value => result += `${this.alias[parseInt(value) - 1]}: ${this.workingDays[value]}`,
+    );
+    return result;
+  }
+
+  get isScheduleChanged(){
+    return
+  }
+
 }
 </script>
 
