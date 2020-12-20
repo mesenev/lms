@@ -7,23 +7,66 @@
       <div class="items bx--col-lg-10">
         <span>
           {{ scheduleCurrent }}
-          <cv-icon-button v-on:click="showModal" kind="secondary" tip-position="hidden" :icon="icon" size='small'/>
+          <cv-icon-button
+            v-on:click="showModal" kind="secondary" tip-position="hidden"
+            :icon="icon" size='small'
+          />
         </span>
 
         <cv-modal
           close-aria-label="Закрыть"
           :visible="modalVisible"
           @modal-hidden="actionHidden"
-          @modal-hide-request="actionHideRequest"
-          @after-modal-hidden="actionAfterHidden"
           :auto-hide-off="false">
           <template slot="title">Редактирование расписания</template>
           <template slot="content">
-            <div>
-              <cv-checkbox label="Понедельник" :checked="checked" :value=""/>
+            <div class="modal-container">
+              <div class="daytime-container">
+                <cv-checkbox label="Понедельник" value='123' v-model="monday"/>
+                <cv-time-picker
+                  label=""
+                  ampm="24" :disabled="!monday" :time.sync="newSchedule[0]" :form-item="true"
+                />
+              </div>
+              <div class="daytime-container">
+                <cv-checkbox label="Вторник" value='123' v-model="tuesday"/>
+                <cv-time-picker
+                  label="" ampm="24" :disabled="!tuesday"
+                  :time.sync="newSchedule[1]" :form-item="true"/>
+              </div>
+              <div class="daytime-container">
+                <cv-checkbox label="Среда" value='123' v-model="wednesday"/>
+                <cv-time-picker
+                  label="" ampm="24" :disabled="!wednesday"
+                  :time.sync="newSchedule[2]" :form-item="true"/>
+              </div>
+              <div class="daytime-container">
+                <cv-checkbox label="Четверг" value='123' v-model="thursday"/>
+                <cv-time-picker
+                  label="" ampm="24" :disabled="!thursday"
+                  :time.sync="newSchedule[3]" :form-item="true"/>
+              </div>
+              <div class="daytime-container">
+                <cv-checkbox label="Пятница" value='123' v-model="friday"/>
+                <cv-time-picker
+                 label="" ampm="24" :disabled="!friday"
+                 :time.sync="newSchedule[4]" :form-item="true"/>
+              </div>
+              <div class="daytime-container">
+                <cv-checkbox label="Суббота" value='123' v-model="saturday"/>
+                <cv-time-picker
+                  label="" ampm="24" :disabled="!saturday"
+                  :time.sync="newSchedule[5]" :form-item="true"/>
+              </div>
+              <div class="daytime-container">
+                <cv-checkbox label="Воскресенье" value='123' v-model="sunday"/>
+                <cv-time-picker
+                  label="" ampm="24" :disabled="!sunday"
+                  :time.sync="newSchedule[6]" :form-item="true"/>
+              </div>
             </div>
           </template>
-          <template v-if="use_primaryButton" :active="isScheduleChanged" slot="primary-button">Сохранить изменения</template>
+          <template :active="isScheduleChanged" slot="primary-button">Сохранить изменения</template>
         </cv-modal>
 
 
@@ -69,8 +112,88 @@ export default class CourseCalendarView extends Vue {
   public icon = Edit;
   public modalVisible = false;
 
+  private monday_ = false;
+  private tuesday_ = false;
+  private wednesday_ = false;
+  private thursday_ = false;
+  private friday_ = false;
+  private saturday_ = false;
+  private sunday_ = false;
+
+  set monday(value: boolean) {
+    this.monday_ = value;
+    this.newSchedule = { ...this.newSchedule, 0: null };
+  }
+
+  get monday() {
+    return this.monday_;
+  }
+
+
+  get tuesday() {
+    return this.tuesday_;
+  }
+
+  set tuesday(value: boolean) {
+    this.tuesday_ = value;
+    this.newSchedule = { ...this.newSchedule, 1: null };
+  }
+
+
+  get wednesday() {
+    return this.wednesday_;
+  }
+
+  set wednesday(value: boolean) {
+    this.wednesday_ = value;
+    this.newSchedule = { ...this.newSchedule, 2: '00:00' };
+  }
+
+
+  get thursday() {
+    return this.thursday_;
+  }
+
+  set thursday(value: boolean) {
+    this.thursday_ = value;
+    this.newSchedule = { ...this.newSchedule, 3: '00:00' };
+  }
+
+
+  get friday() {
+    return this.friday_;
+  }
+
+  set friday(value: boolean) {
+    this.friday_ = value;
+    this.newSchedule = { ...this.newSchedule, 4: '00:00' };
+  }
+
+
+  get saturday() {
+    return this.saturday_;
+  }
+
+  set saturday(value: boolean) {
+    this.saturday_ = value;
+    this.newSchedule = { ...this.newSchedule, 5: '00:00' };
+  }
+
+  onUpdateTime(n: number) {
+    return (value: string) => this.newSchedule = { ...this.newSchedule, [n]: value };
+  }
+
+  get sunday() {
+    return this.sunday_;
+  }
+
+  set sunday(value: boolean) {
+    this.sunday_ = value;
+    this.newSchedule = { ...this.newSchedule, 5: '00:00' };
+  }
+
   private schedule: Record<string, string | null> = {
-    1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null,
+    0: null, 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null,
   }
   private newSchedule: Record<string, string | null> = {};
 
@@ -81,12 +204,9 @@ export default class CourseCalendarView extends Vue {
 
   actionHidden() {
     this.modalVisible = false;
+    this.schedule = this.newSchedule;
   }
-  activateDay(day: number) {
-    return() => {
-      this.newSchedule = {...this.newSchedule, [day]: '00:00'};
-    }
-  }
+
   get workingDays() {
     return Object.keys(this.schedule)
       .filter(key => this.schedule[key] != null)
@@ -103,19 +223,19 @@ export default class CourseCalendarView extends Vue {
   get scheduleCurrent() {
     let result = '';
     Object.keys(this.workingDays).forEach(
-      value => result += `${this.alias[parseInt(value) - 1]}: ${this.workingDays[value]}`,
+      value => result += `${this.alias[parseInt(value)]}: ${this.workingDays[value]}`,
     );
     return result;
   }
 
-  get isScheduleChanged(){
-    return
+  get isScheduleChanged() {
+    return !_.isEqual(this.schedule, this.newSchedule);
   }
 
 }
 </script>
 
-<style lang="stylus">
+<style scoped lang="stylus">
 .header
   padding-bottom: 1.5rem
   padding-top: 1rem
@@ -126,6 +246,14 @@ export default class CourseCalendarView extends Vue {
 
   .bx--structured-list-thead
     display none
+
+.modal-container
+  display flex
+  flex-wrap wrap
+
+.daytime-container
+  padding-bottom 5px
+  display inline-flex
 
 .item
   min-height 85px
