@@ -6,6 +6,7 @@ import {
 } from 'vuex-module-decorators';
 // import User from '@/models/User';
 import UserProgress from "@/models/UserProgress";
+import LessonContent from "@/models/LessonContent";
 
 @Module({ name: 'MainStorage' })
 export default class MainStorage extends VuexModule {
@@ -99,15 +100,35 @@ export default class MainStorage extends VuexModule {
     completed: false,
   }];
 
+  private material: Array<LessonContent> = [{
+    id: 1,
+    name: 'FAQ к уроку',
+    text: 'Кто такие менты?'
+  },
+    {
+    id: 2,
+    name: 'Документация GIT',
+  }
+  ];
+
   private lesson1: LessonModel = {
     id: 5,
     name: 'Введение',
     deadline: '31.12.2020',
     classwork: this.problems,
     homework: this.homework,
-    lessoncontent: 'Статья',
+    materials: this.material
   }
 
+  private lessons: Array<LessonModel> = [this.lesson1, this.lesson1, this.lesson1, this.lesson1]
+
+  private language: Array<string> = [
+    'C++', 'Python','C'
+  ]
+
+  get lang() {
+    return this.language;
+  }
   get getCourse() {
     return this.course;
   }
@@ -122,5 +143,9 @@ export default class MainStorage extends VuexModule {
 
   get getLesson() {
     return this.lesson1;
+  }
+
+  get getLessons() {
+    return this.lessons;
   }
 }
