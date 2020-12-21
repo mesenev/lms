@@ -8,26 +8,23 @@
         <br>
       </div>
       <div class="bx--col-lg-6">
-        <cv-inline-notification v-if="problem.completed"
-                                kind="success"
-                                :title="'Вы успешно сдали задачу!'"
-                                @close="close()">
-        </cv-inline-notification>
-        <cv-inline-notification v-else
-                                kind="error"
-                                :title="'Ваше решение не сдано, или решено неверно.'"
-                                action-label="Сдать"
-                                @close="close()" @action="problem.completed = true">
-        </cv-inline-notification>
+        <ul>
+          <li v-for="todo in submits" :key="todo.id">
+            <h5> Check submit number {{todo.id}} </h5>
+          </li>
+        </ul>
       </div>
       <div class="bx--col-lg-10">
         <label>
-          <TextArea
+          <textarea
+            v-model="areaData"
+            id="text"
             cols="130"
             placeHolder="Сюда кодить надо"
             rows="20">
-          </TextArea>
+          </textarea>
         </label>
+        <cv-button v-on:click="buttonHandler"> Print in log</cv-button>
         <cv-dropdown
           :placeholder="'Выберите язык программирования'"
           :value="value">
@@ -40,7 +37,8 @@
   </div>
 </template>
 
-<!--    TODO: notification work (close action, animation (?)) -->
+<!--  TODO: need to improve list of user`s pushes -->
+<!-- TODO: (add style (probably, tag?) and links like: press tag -> label.text = text of submit -->
 
 <script lang="ts">
 
@@ -52,12 +50,24 @@ import { mainStore } from '@/store';
 @Component({ components: { Problem } })
 export default class ProblemView extends Vue {
   private store = mainStore;
-
+  public areaData = '';
+  private submits = [];
+  nextTodoId = 1;
   problemsArray = this.store.getProblems;
 
   get problem() {
     return this.problemsArray[0];
   }
+  buttonHandler() {
+    this.submits.push({
+      id: this.nextTodoId,
+      title: this.areaData,
+    })
+    this.nextTodoId++;
+    console.log(this.submits);
+  }
+
+
 }
 </script>
 <!--    TODO: solve a problem w/ getting single problem from array -->
