@@ -3,7 +3,12 @@
     <div class="bx--row">
       <div class="bx--col-lg-10">
         <br>
-        <h3> Задание {{ problem.id }}. {{ problem.name }} </h3>
+        <h3> Задание {{ problem.id }}. {{ problem.name }}
+          <cv-button kind="secondary" size="small">Accept</cv-button>
+          <cv-button kind="danger" size="small">Reject</cv-button> </h3>
+
+        <!-- TODO: "Accept" button color: grey -> green -->
+
         <h4> Описание: {{ problem.description }} </h4>
         <br>
         <label>
@@ -16,7 +21,7 @@
           </textarea>
         </label>
         <div>
-          <cv-button v-on:click="buttonHandler"> Print in log</cv-button>
+          <br>
           <cv-dropdown
             :placeholder="'Выберите язык программирования'"
             :value="value">
@@ -24,24 +29,36 @@
             <cv-dropdown-item value="Lolcat">LOLCODE</cv-dropdown-item>
             <cv-dropdown-item value="Brainfuck">Brainfuck</cv-dropdown-item>
           </cv-dropdown>
+          <br>
+          <cv-button v-on:click="buttonHandler"> Submit! </cv-button>
         </div>
       </div>
-      <div class="bx--col-lg-6">
+      <div class="bx--col-lg-3">
         <br>
         <ul>
-          <li v-for="todo in submits" :key="todo.id">
+          <li v-for="sub in submits" :key="sub.id">
             <cv-tile light>
-              <h5>Check your submit number {{todo.id}}</h5>
+              <cv-button size="small" kind="ghost"> <h5> Sub #{{sub.id}} </h5> </cv-button>
             </cv-tile>
           </li>
+        </ul>
+      </div>
+      <div class="bx--col-lg-3">
+        <br>
+        <ul>
+        <li v-for="sub in submits" :key="sub.id">
+        <cv-tile light>
+          <cv-button size="small" kind="ghost"> <h5> Student: {{studentsArray[Math.floor(Math.random() * 2)].name}} </h5> </cv-button>
+        </cv-tile>
+          <!-- TODO: students submit realisation -->
+        </li>
         </ul>
       </div>
     </div>
   </div>
 </template>
 
-<!--  TODO: need to improve list of user`s pushes -->
-<!-- TODO: (add style (probably, tag?) and links like: press tag -> label.text = text of submit -->
+<!-- TODO: links like: press tag -> label.text = text of submit -->
 
 <script lang="ts">
 
@@ -53,9 +70,10 @@ import { mainStore } from '@/store';
 @Component({ components: { Problem } })
 export default class ProblemView extends Vue {
   private store = mainStore;
+  studentsArray = this.store.getUsers;
   public areaData = '';
-  private submits = [];
-  nextTodoId = 1;
+  private submits: object [] = [];
+  submitCounter = 1;
   problemsArray = this.store.getProblems;
 
   get problem() {
@@ -64,14 +82,12 @@ export default class ProblemView extends Vue {
   buttonHandler() {
     if (this.areaData !== ''){
       this.submits.push({
-        id: this.nextTodoId,
+        id: this.submitCounter,
         title: this.areaData,
       })
-      this.nextTodoId++;
-      console.log(this.submits);
+      this.submitCounter++;
     } else {
-     alert('Type some code!'
-     )
+     alert('Type some code!')
     }
   }
 
