@@ -44,7 +44,15 @@
         </cv-form>
       </div>
       <div class="bx--col-lg-9">
-        <!-- TO-DO:  avatar component + mainStorage adding -->
+        <!-- TODO:  avatar component + mainStorage adding -->
+        <cv-file-uploader
+          accept="image/jpg,image/png"
+          clear-on-reselect
+          initial-state-uploading
+          multiple
+          removable
+          label="Загрузите аватарку">
+        </cv-file-uploader>
         <label>
           <TextArea
             cols="50"
@@ -57,7 +65,7 @@
   </div>
 </template>
 
-<!-- TO-DO: password work w/ backend -->
+<!-- TODO: password work w/ backend -->
 
 <script lang="ts">
 import {mainStore} from '@/store';
