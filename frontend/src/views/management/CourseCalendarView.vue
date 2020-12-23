@@ -22,6 +22,7 @@
           :visible="modalVisible"
           @modal-hidden="actionHidden"
           :primaryButtonDisabled="!isScheduleChanged"
+          @primary-click="changeSchedule"
           :auto-hide-off="false">
           <template slot="title">Редактирование расписания</template>
           <template slot="content">
@@ -97,9 +98,9 @@
       </div>
     </div>
     <div class="bx--row">
-      <div  v-if="result != null" class="items bx--col-lg-10">
+      <div v-if="result != null" class="items bx--col-lg-10">
         <div v-for="record in result" :key="record.date">
-        <span> {{ record.date }} </span><span> {{ record.lesson.name }} </span>
+          <span> {{ record.date }} </span><span> {{ record.lesson.name }} </span>
         </div>
       </div>
     </div>
@@ -216,6 +217,10 @@ export default class CourseCalendarView extends Vue {
 
   actionHidden() {
     this.modalVisible = false;
+  }
+
+  changeSchedule() {
+    this.modalVisible = false;
     this.schedule = { ...this.newSchedule };
     this.startDate = this.changedStartDate;
     this.generateSchedule();
@@ -228,15 +233,15 @@ export default class CourseCalendarView extends Vue {
     const date = new Date(Date.parse(this.startDate));
     const schedule = [];
     for (let i = 0; i < lessons.length; i++) {
-      while (!Object.keys(this.workingDays).includes(((date.getDay() + 6) % 7).toString())){
+      while (!Object.keys(this.workingDays).includes(((date.getDay() + 6) % 7).toString())) {
         date.setDate(date.getDate() + 1);
       }
       debugger;
       schedule.push({
         date: date.toLocaleDateString(
           'ru-RU',
-          { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
-          ),
+          { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
+        ),
         lesson: lessons[i],
       })
       date.setDate(date.getDate() + 1);
@@ -260,7 +265,7 @@ export default class CourseCalendarView extends Vue {
   get scheduleCurrent() {
     let result = '';
     Object.keys(this.workingDays).forEach(
-      value => result += `${this.alias[parseInt(value)]}: ${this.workingDays[value]}`,
+      value => result += `${this.alias[parseInt(value)]}: ${this.workingDays[value]} `,
     );
     return result;
   }
@@ -278,10 +283,6 @@ export default class CourseCalendarView extends Vue {
   padding-bottom: 1.5rem
   padding-top: 1rem
 
-//.lessons-start-container
-//  display inline-flex
-//  span
-//    padding-right 5px
 .items
   background-color var(--cds-ui-02)
   padding var(--cds-spacing-05)
