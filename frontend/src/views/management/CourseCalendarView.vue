@@ -5,29 +5,36 @@
     </div>
     <div class="bx--row header">
       <div class="items bx--col-lg-10">
+        <span>Начало занятий {{ startDate }}</span><br>
+        <hr>
         <span>
           {{ scheduleCurrent }}
-          <cv-icon-button
-            v-on:click="showModal" kind="secondary" tip-position="hidden"
-            :icon="icon" size='small'
-          />
         </span>
+        <br>
+        <br>
+        <cv-button
+          v-on:click="showModal" kind="secondary" tip-position="hidden"
+          :icon="icon" size='small'
+        >Изменить</cv-button>
         <cv-modal
           close-aria-label="Закрыть"
           :visible="modalVisible"
           @modal-hidden="actionHidden"
+          :primaryButtonDisabled="!isScheduleChanged"
           :auto-hide-off="false">
           <template slot="title">Редактирование расписания</template>
           <template slot="content">
             <cv-grid>
               <cv-row>
                 <cv-column :sm="1">
-                  <h4 class="bx--row-padding">Начало занятий</h4>
+                  <h4 class="">Начало занятий</h4>
                 </cv-column>
                 <cv-column :sm="1">
                   <cv-date-picker
-                    dateLabel=""
-                  />
+                    date-label=""
+                    kind="single"
+                    v-model="startDate">
+                  </cv-date-picker>
                 </cv-column>
                 <cv-column :sm="5"></cv-column>
               </cv-row>
@@ -84,7 +91,7 @@
               </cv-row>
             </cv-grid>
           </template>
-          <template :active="isScheduleChanged" slot="primary-button">Сохранить изменения</template>
+          <template slot="primary-button">Сохранить изменения</template>
         </cv-modal>
       </div>
     </div>
@@ -109,6 +116,7 @@ export default class CourseCalendarView extends Vue {
   public icon = Edit;
   public modalVisible = false;
   public startDate: Date | null = null;
+  public changedStartDate: Date | null = null;
   private store = mainStore;
 
   private monday_ = false;
@@ -197,13 +205,15 @@ export default class CourseCalendarView extends Vue {
   private newSchedule: Record<string, string | null> = {};
 
   showModal() {
-    this.newSchedule = this.schedule;
+    this.newSchedule = {...this.schedule};
+    this.changedStartDate = this.startDate;
     this.modalVisible = true;
   }
 
   actionHidden() {
     this.modalVisible = false;
-    this.schedule = this.newSchedule;
+    this.schedule = { ...this.newSchedule };
+    this.startDate = this.changedStartDate;
   }
 
   generateSchedule(): void {
@@ -237,7 +247,8 @@ export default class CourseCalendarView extends Vue {
   }
 
   get isScheduleChanged() {
-    return !_.isEqual(this.schedule, this.newSchedule);
+    return !_.isEqual(this.schedule, this.newSchedule)
+      || !_.isEqual(this.startDate, this.changedStartDate);
   }
 
 }
