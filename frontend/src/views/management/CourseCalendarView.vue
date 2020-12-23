@@ -14,8 +14,9 @@
         <br>
         <cv-button
           v-on:click="showModal" kind="secondary" tip-position="hidden"
-          :icon="icon" size='small'
-        >Изменить</cv-button>
+          :icon="icon" size='small'>
+          Изменить
+        </cv-button>
         <cv-modal
           close-aria-label="Закрыть"
           :visible="modalVisible"
@@ -33,7 +34,7 @@
                   <cv-date-picker
                     date-label=""
                     kind="single"
-                    v-model="startDate">
+                    v-model="changedStartDate">
                   </cv-date-picker>
                 </cv-column>
                 <cv-column :sm="5"></cv-column>
@@ -96,8 +97,10 @@
       </div>
     </div>
     <div class="bx--row">
-      <div class="items bx--col-lg-10">
-
+      <div  v-if="result != null" class="items bx--col-lg-10">
+        <div v-for="record in result" :key="record.date">
+        <span> {{ record.date }} </span><span> {{ record.lesson.name }} </span>
+        </div>
       </div>
     </div>
   </div>
@@ -115,9 +118,10 @@ export default class CourseCalendarView extends Vue {
   @Prop() courseId!: number;
   public icon = Edit;
   public modalVisible = false;
-  public startDate: Date | null = null;
-  public changedStartDate: Date | null = null;
+  public startDate: string | null = null;
+  public changedStartDate: string | null = null;
   private store = mainStore;
+  private result: Array<object> | null = null;
 
   private monday_ = false;
   private tuesday_ = false;
@@ -200,12 +204,12 @@ export default class CourseCalendarView extends Vue {
   }
 
   private schedule: Record<string, string | null> = {
-    0: null, 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null,
+    0: null, 1: null, 2: null, 3: null, 4: null, 5: null, 6: null,
   }
   private newSchedule: Record<string, string | null> = {};
 
   showModal() {
-    this.newSchedule = {...this.schedule};
+    this.newSchedule = { ...this.schedule };
     this.changedStartDate = this.startDate;
     this.modalVisible = true;
   }
@@ -214,15 +218,30 @@ export default class CourseCalendarView extends Vue {
     this.modalVisible = false;
     this.schedule = { ...this.newSchedule };
     this.startDate = this.changedStartDate;
+    this.generateSchedule();
   }
 
   generateSchedule(): void {
-    if (Object.keys(this.schedule).length === 0)
+    if (Object.keys(this.schedule).length === 0 || this.startDate === null)
       return;
     const lessons = this.store.getCourse.lessons;
-    // let date = this.startDate;
-    // const schedule = lessons.reduce(
-    // )
+    const date = new Date(Date.parse(this.startDate));
+    const schedule = [];
+    for (let i = 0; i < lessons.length; i++) {
+      while (!Object.keys(this.workingDays).includes(((date.getDay() + 6) % 7).toString())){
+        date.setDate(date.getDate() + 1);
+      }
+      debugger;
+      schedule.push({
+        date: date.toLocaleDateString(
+          'ru-RU',
+          { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+          ),
+        lesson: lessons[i],
+      })
+      date.setDate(date.getDate() + 1);
+    }
+    this.result = schedule;
   }
 
   get workingDays() {

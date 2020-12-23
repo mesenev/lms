@@ -25,7 +25,7 @@ const routes: Array<RouteConfig> = [
     },
   },
   {
-    path: '/course/:courseId/results',
+    path: '/course/:courseId/schedule',
     name: 'course-calendar',
     component: CourseCalendarView,
     props: (route) => {
