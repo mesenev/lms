@@ -134,7 +134,7 @@ export default class CourseCalendarView extends Vue {
 
   set monday(value: boolean) {
     this.monday_ = value;
-    this.newSchedule = { ...this.newSchedule, 0: null };
+    this.newSchedule = { ...this.newSchedule, 0: (value) ? '00:00' : null };
   }
 
   get monday() {
@@ -148,7 +148,7 @@ export default class CourseCalendarView extends Vue {
 
   set tuesday(value: boolean) {
     this.tuesday_ = value;
-    this.newSchedule = { ...this.newSchedule, 1: null };
+    this.newSchedule = { ...this.newSchedule, 1: (value) ? '00:00' : null };
   }
 
 
@@ -158,7 +158,7 @@ export default class CourseCalendarView extends Vue {
 
   set wednesday(value: boolean) {
     this.wednesday_ = value;
-    this.newSchedule = { ...this.newSchedule, 2: '00:00' };
+    this.newSchedule = { ...this.newSchedule, 2: (value) ? '00:00' : null };
   }
 
 
@@ -168,7 +168,7 @@ export default class CourseCalendarView extends Vue {
 
   set thursday(value: boolean) {
     this.thursday_ = value;
-    this.newSchedule = { ...this.newSchedule, 3: '00:00' };
+    this.newSchedule = { ...this.newSchedule, 3: (value) ? '00:00' : null };
   }
 
 
@@ -178,7 +178,7 @@ export default class CourseCalendarView extends Vue {
 
   set friday(value: boolean) {
     this.friday_ = value;
-    this.newSchedule = { ...this.newSchedule, 4: '00:00' };
+    this.newSchedule = { ...this.newSchedule, 4: (value) ? '00:00' : null };
   }
 
 
@@ -188,7 +188,7 @@ export default class CourseCalendarView extends Vue {
 
   set saturday(value: boolean) {
     this.saturday_ = value;
-    this.newSchedule = { ...this.newSchedule, 5: '00:00' };
+    this.newSchedule = { ...this.newSchedule, 5: (value) ? '00:00' : null };
   }
 
   onUpdateTime(n: number) {
@@ -201,7 +201,7 @@ export default class CourseCalendarView extends Vue {
 
   set sunday(value: boolean) {
     this.sunday_ = value;
-    this.newSchedule = { ...this.newSchedule, 5: '00:00' };
+    this.newSchedule = { ...this.newSchedule, 6: (value) ? '00:00' : null };
   }
 
   private schedule: Record<string, string | null> = {
