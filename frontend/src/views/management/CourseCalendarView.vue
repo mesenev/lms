@@ -12,7 +12,6 @@
             :icon="icon" size='small'
           />
         </span>
-
         <cv-modal
           close-aria-label="Закрыть"
           :visible="modalVisible"
@@ -20,97 +19,97 @@
           :auto-hide-off="false">
           <template slot="title">Редактирование расписания</template>
           <template slot="content">
-            <div class="modal-container">
-              <div class="daytime-container">
-                <cv-checkbox label="Понедельник" value='123' v-model="monday"/>
-                <cv-time-picker
-                  label=""
-                  ampm="24" :disabled="!monday" :time.sync="newSchedule[0]" :form-item="true"
-                />
-              </div>
-              <div class="daytime-container">
-                <cv-checkbox label="Вторник" value='123' v-model="tuesday"/>
-                <cv-time-picker
-                  label="" ampm="24" :disabled="!tuesday"
-                  :time.sync="newSchedule[1]" :form-item="true"/>
-              </div>
-              <div class="daytime-container">
-                <cv-checkbox label="Среда" value='123' v-model="wednesday"/>
-                <cv-time-picker
-                  label="" ampm="24" :disabled="!wednesday"
-                  :time.sync="newSchedule[2]" :form-item="true"/>
-              </div>
-              <div class="daytime-container">
-                <cv-checkbox label="Четверг" value='123' v-model="thursday"/>
-                <cv-time-picker
-                  label="" ampm="24" :disabled="!thursday"
-                  :time.sync="newSchedule[3]" :form-item="true"/>
-              </div>
-              <div class="daytime-container">
-                <cv-checkbox label="Пятница" value='123' v-model="friday"/>
-                <cv-time-picker
-                 label="" ampm="24" :disabled="!friday"
-                 :time.sync="newSchedule[4]" :form-item="true"/>
-              </div>
-              <div class="daytime-container">
-                <cv-checkbox label="Суббота" value='123' v-model="saturday"/>
-                <cv-time-picker
-                  label="" ampm="24" :disabled="!saturday"
-                  :time.sync="newSchedule[5]" :form-item="true"/>
-              </div>
-              <div class="daytime-container">
-                <cv-checkbox label="Воскресенье" value='123' v-model="sunday"/>
-                <cv-time-picker
-                  label="" ampm="24" :disabled="!sunday"
-                  :time.sync="newSchedule[6]" :form-item="true"/>
-              </div>
-            </div>
+            <cv-grid>
+              <cv-row>
+                <cv-column :sm="1">
+                  <h4 class="bx--row-padding">Начало занятий</h4>
+                </cv-column>
+                <cv-column :sm="1">
+                  <cv-date-picker
+                    dateLabel=""
+                  />
+                </cv-column>
+                <cv-column :sm="5"></cv-column>
+              </cv-row>
+              <cv-row>
+                <cv-column :sm="1">
+                  <div class="daytime-container">
+                    <cv-checkbox label="Понедельник" value='123' v-model="monday"/>
+                    <cv-time-picker
+                      label=""
+                      ampm="24" :disabled="!monday" :time.sync="newSchedule[0]" :form-item="true"
+                    />
+                  </div>
+                  <div class="daytime-container">
+                    <cv-checkbox label="Вторник" value='123' v-model="tuesday"/>
+                    <cv-time-picker
+                      label="" ampm="24" :disabled="!tuesday"
+                      :time.sync="newSchedule[1]" :form-item="true"/>
+                  </div>
+                  <div class="daytime-container">
+                    <cv-checkbox label="Среда" value='123' v-model="wednesday"/>
+                    <cv-time-picker
+                      label="" ampm="24" :disabled="!wednesday"
+                      :time.sync="newSchedule[2]" :form-item="true"/>
+                  </div>
+                </cv-column>
+                <cv-column :sm="1">
+                  <div class="daytime-container">
+                    <cv-checkbox label="Четверг" value='123' v-model="thursday"/>
+                    <cv-time-picker
+                      label="" ampm="24" :disabled="!thursday"
+                      :time.sync="newSchedule[3]" :form-item="true"/>
+                  </div>
+                  <div class="daytime-container">
+                    <cv-checkbox label="Пятница" value='123' v-model="friday"/>
+                    <cv-time-picker
+                      label="" ampm="24" :disabled="!friday"
+                      :time.sync="newSchedule[4]" :form-item="true"/>
+                  </div>
+                  <div class="daytime-container">
+                    <cv-checkbox label="Суббота" value='123' v-model="saturday"/>
+                    <cv-time-picker
+                      label="" ampm="24" :disabled="!saturday"
+                      :time.sync="newSchedule[5]" :form-item="true"/>
+                  </div>
+                </cv-column>
+                <cv-column :sm="1">
+                  <div class="daytime-container">
+                    <cv-checkbox label="Воскресенье" value='123' v-model="sunday"/>
+                    <cv-time-picker
+                      label="" ampm="24" :disabled="!sunday"
+                      :time.sync="newSchedule[6]" :form-item="true"/>
+                  </div>
+                </cv-column>
+              </cv-row>
+            </cv-grid>
           </template>
           <template :active="isScheduleChanged" slot="primary-button">Сохранить изменения</template>
         </cv-modal>
-
-
       </div>
     </div>
     <div class="bx--row">
       <div class="items bx--col-lg-10">
-        <cv-tabs selected="0" aria-label="Tabs navigation">
-          <cv-tab label="1 Семестр">
-            <p class="landing-page__p">
-              Carbon is IBM’s open-source design system for digital
-              products and experiences. With the IBM Design Language as
-              its foundation, the system consists of working code, design
-              tools and resources, human interface guidelines, and a
-              vibrant community of contributors.
-            </p>
-          </cv-tab>
-          <cv-tab label="2 Семестр">
-            <p class="landing-page__p">
-              <span class="10">Lorem ipsum dolor sit amet,
-                consectetur adipisicing elit.
-                Molestias obcaecati
-                officiis pariatur quibusdam quo ratione, sapiente vel veniam?
-                Consequatur debitis incidunt
-                inventore, ipsa iusto maiores temporibus vero voluptates?
-                Alias, cupiditate?</span>
-            </p>
-          </cv-tab>
-        </cv-tabs>
+
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import LessonModel from '@/models/LessonModel';
 import { Prop, Component, Vue } from 'vue-property-decorator';
 import Edit from '@carbon/icons-vue/es/edit/20';
 import _ from 'lodash';
+import { mainStore } from '@/store';
 
 @Component({ components: { Edit } })
 export default class CourseCalendarView extends Vue {
   @Prop() courseId!: number;
   public icon = Edit;
   public modalVisible = false;
+  public startDate: Date | null = null;
+  private store = mainStore;
 
   private monday_ = false;
   private tuesday_ = false;
@@ -207,6 +206,15 @@ export default class CourseCalendarView extends Vue {
     this.schedule = this.newSchedule;
   }
 
+  generateSchedule(): void {
+    if (Object.keys(this.schedule).length === 0)
+      return;
+    const lessons = this.store.getCourse.lessons;
+    // let date = this.startDate;
+    // const schedule = lessons.reduce(
+    // )
+  }
+
   get workingDays() {
     return Object.keys(this.schedule)
       .filter(key => this.schedule[key] != null)
@@ -240,6 +248,10 @@ export default class CourseCalendarView extends Vue {
   padding-bottom: 1.5rem
   padding-top: 1rem
 
+//.lessons-start-container
+//  display inline-flex
+//  span
+//    padding-right 5px
 .items
   background-color var(--cds-ui-02)
   padding var(--cds-spacing-05)
@@ -250,10 +262,6 @@ export default class CourseCalendarView extends Vue {
 .modal-container
   display flex
   flex-wrap wrap
-
-.daytime-container
-  padding-bottom 5px
-  display inline-flex
 
 .item
   min-height 85px
