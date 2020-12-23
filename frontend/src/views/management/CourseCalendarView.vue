@@ -236,7 +236,6 @@ export default class CourseCalendarView extends Vue {
       while (!Object.keys(this.workingDays).includes(((date.getDay() + 6) % 7).toString())) {
         date.setDate(date.getDate() + 1);
       }
-      debugger;
       schedule.push({
         date: date.toLocaleDateString(
           'ru-RU',
