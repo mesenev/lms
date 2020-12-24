@@ -69,11 +69,9 @@
 </template>
 
 <script lang="ts">
-
-import Component from 'vue-class-component';
 import Problem from '@/components/Problem.vue';
-import Vue from 'vue';
 import { mainStore } from '@/store';
+import { Prop, Vue, Component } from 'vue-property-decorator';
 
 @Component({ components: { Problem } })
 export default class ProblemView extends Vue {
@@ -83,6 +81,7 @@ export default class ProblemView extends Vue {
   private submits: object [] = [];
   submitCounter = 1;
   problemsArray = this.store.getProblems;
+  @Prop() problemId!: number;
 
   get problem() {
     return this.problemsArray[0];

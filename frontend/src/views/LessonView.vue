@@ -46,14 +46,14 @@
 import Problem from '@/components/Problem.vue';
 import ProblemModel from '@/models/ProblemModel';
 import { mainStore } from '@/store';
-import Vue from 'vue';
-import Component from 'vue-class-component';
 import LessonModel from '@/models/LessonModel';
 import LessonContent from "@/models/LessonContent";
+import { Prop, Vue, Component } from 'vue-property-decorator';
 
 @Component({ components: { Problem } })
 export default class HomeView extends Vue {
   private store = mainStore;
+  @Prop() lessonId!: number;
 
   get lesson(): LessonModel {
     return this.store.getLesson;
