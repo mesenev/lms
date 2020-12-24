@@ -6,5 +6,5 @@ export default interface LessonModel {
     deadline: string;
     classwork: Array<ProblemModel>;
     homework: Array<ProblemModel>;
-    lessoncontent?: string;
+    lessonContent?: string;
 }

@@ -1,13 +1,17 @@
 <template>
   <div class="bx--grid">
     <!-- TODO ссылка на задачу -->
-    <cv-data-table :columns="columns"
-                   title="Успеваемость курса">
+    <cv-data-table title="Успеваемость курса">
       <template slot="helper-text">
         <router-link :to="{ name: 'CourseView', params: { courseId: course.id } }"
                      tag="p" class="course--title">
           {{ course.name }}
         </router-link>
+      </template>
+      <template slot="headings">
+        <cv-data-table-heading v-for="(column, id) in columns" :key="id">
+          {{ column }}
+        </cv-data-table-heading>
       </template>
       <template slot="data">
         <cv-data-table-row v-for="user in users" :key="user.id">
@@ -16,19 +20,20 @@
             {{ user.name }}
           </cv-data-table-cell>
           <cv-data-table-cell class="mark"
-                              v-for="lessonId in user.courseLength"
+                              v-for="lessonId in course.lessons.length"
                               :key="lessonId - 1">
             <!-- TODO цвет в зависимости от оценки по-человечески -->
-            <cv-tag :label="`${user.marks[lessonId - 1]}`"
-                    :kind="kind(user.id, lessonId - 1)">
+            <cv-tag v-if="userMarks(user.id - 1, lessonId - 1)"
+                    :label="`${userMarks(user.id - 1, lessonId - 1)}`"
+                    :kind="kind(user, lessonId - 1)">
             </cv-tag>
-            <cv-checkbox :value="`${user.attendance[lessonId - 1]}`"
-                         @click="changeAttendance(user.id, lessonId - 1)"
+            <cv-checkbox :value="`${userAttendance(user.id - 1, lessonId - 1)}`"
+                         @change="changeAttendance(user.id - 1, lessonId - 1)"
                          class="attendance">
             </cv-checkbox>
           </cv-data-table-cell>
           <cv-data-table-cell>
-            {{ avarage(user.id) }}
+            {{ avarage(user) }}
           </cv-data-table-cell>
         </cv-data-table-row>
       </template>
@@ -39,6 +44,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { mainStore } from '@/store';
+import UserProgress from '@/models/UserProgress';
 
 @Component
 export default class Progress extends Vue {
@@ -46,9 +52,9 @@ export default class Progress extends Vue {
 
   store = mainStore;
 
-  kind(userId: number, lessonId: number) {
+  kind(user: UserProgress, lessonId: number) {
     const colors = ['red', 'magenta', 'cyan', 'green'];
-    const mark = this.store.getUsers[userId].marks[lessonId] - 2;
+    const mark = user.marks[lessonId] - 2;
     return colors[mark % colors.length];
   }
 
@@ -61,16 +67,24 @@ export default class Progress extends Vue {
   }
 
   get columns() {
-    return ['Ученики'].concat(this.store.getColumns).concat(['Рейтинг']);
+    return ['Ученики'].concat(this.course.lessons.map((l) => l.name)).concat('Рейтинг');
+  }
+
+  userMarks(userId: number, lessonId: number) {
+    return this.users[userId].marks[lessonId];
+  }
+
+  userAttendance(userId: number, lessonId: number) {
+    return this.users[userId].attendance[lessonId];
   }
 
   changeAttendance(userId: number, lessonId: number) {
     this.$store.commit('changeAttendance', { userId, lessonId });
   }
 
-  avarage(userId: number): number {
+  avarage(user: UserProgress): number {
     const sum = (marks: number[]) => marks.reduce((total, value) => total + value);
-    const { marks } = this.users[userId];
+    const { marks } = user;
     return sum(marks) / marks.length;
   }
 }
