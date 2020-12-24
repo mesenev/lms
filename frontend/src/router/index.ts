@@ -6,7 +6,6 @@ import ProblemView from '@/views/ProblemView.vue';
 import Vue from 'vue';
 import RegistrationView from '@/views/RegistrationView.vue';
 import VueRouter, { RouteConfig } from 'vue-router';
-import ProgressView from '@/views/ProgressView.vue';
 import managementRoutes from './CourseManagement';
 
 Vue.use(VueRouter);

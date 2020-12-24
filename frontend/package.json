@@ -13,6 +13,7 @@
     "@carbon/icons-vue": "^10.21.0",
     "@carbon/themes": "^10.23.0",
     "@carbon/vue": "^2.35.0",
+    "@types/lodash": "^4.14.165",
     "axios": "^0.21.0",
     "carbon-components": "^10.25.0",
     "core-js": "^3.6.5",

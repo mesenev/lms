@@ -8,4 +8,5 @@ export default interface LessonModel {
     classwork: Array<ProblemModel>;
     homework: Array<ProblemModel>;
     materials: Array<LessonContent>;
+    lessonContent?: string;
 }

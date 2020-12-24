@@ -17,31 +17,6 @@ export default class MainStorage extends VuexModule {
     name: 'Алгоритмы и структуры данных (введение)',
   }
 
-  @Mutation
-  changeCourseName(payload: string) {
-    this.course = { ...this.course, name: payload } as CourseModel;
-  }
-
-  @Mutation
-  changeCourseDescription(payload: string) {
-    this.course = { ...this.course, description: payload } as CourseModel;
-  }
-
-  @Mutation
-  addLesson(payload: LessonModel) {
-    this.course = { ...this.course, lessons: this.course.lessons.concat(payload) };
-  }
-
-  @Mutation
-  deleteLesson(payload: LessonModel) {
-    this.course = {
-      ...this.course,
-      lessons: this.course.lessons.filter(
-        (lesson) => lesson !== payload
-      )
-    };
-  }
-
   private courses: Array<CourseModel> = [this.course, this.course, this.course, this.course]
 
   private language: Array<string> = ['C++', 'Python', 'C', 'Java']
@@ -50,15 +25,28 @@ export default class MainStorage extends VuexModule {
     return this.language;
   }
 
-  private problem: ProblemModel = {
+  private problems: Array<ProblemModel> = [{
     id: 1,
     name: 'Чё тебе надо у меня дома, мент?',
     description: 'К джентельмену вломились силовые структуры.'
       + ' Помогите ему выяснить причину их появления и, по возможности,'
       + ' получить компенсацию за поломанное имущество.',
+    completed: false,
+    language: ['Java'],
+    manual: true,
+  } as ProblemModel,
+  {
+    id: 2,
+    name: 'Контроль версий',
+    description: 'что это такое ',
     completed: true,
     language: ['Java'],
     manual: true,
+  } as ProblemModel];
+
+
+  get problem() {
+    return this.problems[0];
   }
 
   @Mutation
@@ -81,23 +69,16 @@ export default class MainStorage extends VuexModule {
     this.problem.language = payload;
   }
 
-  private problems: Array<ProblemModel> = [this.problem,this.problem]
+  private temporaryUserProgress: UserProgress = {
+    id: 1,
+    name: 'Vlad Maximov',
+    marks: this.course.lessons.map(() => Math.floor(Math.random() * 4) + 2),
+    attendance: this.course.lessons.map(() => false),
+  }
 
   private users: Array<UserProgress> = [
-    {
-      id: 0,
-      name: 'Vlad Maximov',
-      courseLength: this.getCourse.lessons.length,
-      marks: this.getCourse.lessons.map(() => Math.floor(Math.random() * 4) + 2),
-      attendance: this.getCourse.lessons.map(() => false),
-    },
-    {
-      id: 1,
-      name: 'Max Vladov',
-      courseLength: this.getCourse.lessons.length,
-      marks: this.getCourse.lessons.map(() => Math.floor(Math.random() * 4) + 2),
-      attendance: this.getCourse.lessons.map(() => false),
-    },
+    { ...this.temporaryUserProgress, id: 1, attendance: this.course.lessons.map(() => false) },
+    { ...this.temporaryUserProgress, id: 2, name: 'Max Vladov', attendance: this.course.lessons.map(() => false) },
   ];
 
   @Mutation
@@ -113,11 +94,16 @@ export default class MainStorage extends VuexModule {
     return this.users;
   }
 
+  private homework: Array<ProblemModel> = [{
+    id: 3,
+    name: 'Контроль версий',
+    description: 'что это такое ',
+    completed: false,
+  } as ProblemModel];
+
   get getColumns() {
     return this.getCourse.lessons.map((l) => l.name);
   }
-
-  private homework: Array<ProblemModel> = [this.problem];
 
   private material: Array<LessonContent> = [{
     id: 1,
@@ -144,6 +130,7 @@ export default class MainStorage extends VuexModule {
   get lang() {
     return this.language;
   }
+
   get getCourse() {
     return this.course;
   }
@@ -158,6 +145,52 @@ export default class MainStorage extends VuexModule {
 
   get getLesson() {
     return this.lesson1;
+  }
+
+  private allLessons: LessonModel[] = [
+    { ...this.getLesson, id: 1, name: 'Урок 1' },
+    { ...this.getLesson, id: 2, name: 'Урок 2' },
+    { ...this.getLesson, id: 3, name: 'Урок 3' },
+    { ...this.getLesson, id: 4, name: 'Урок 4' },
+    { ...this.getLesson, id: 5, name: 'Урок 5' },
+  ];
+
+  get getNextLessonId(): number {
+    return this.allLessons.length + 1;
+  }
+
+  get getAllLessons(): LessonModel[] {
+    return this.allLessons;
+  }
+
+  @Mutation
+  changeCourseName(payload: string) {
+    this.course = { ...this.course, name: payload } as CourseModel;
+  }
+
+  @Mutation
+  changeCourseDescription(payload: string) {
+    this.course = { ...this.course, description: payload } as CourseModel;
+  }
+
+  @Mutation
+  addLessonToCourse(payload: LessonModel) {
+    this.course = { ...this.course, lessons: this.course.lessons.concat(payload) } as CourseModel;
+  }
+
+  @Mutation
+  addLessonToAllLesson(payload: LessonModel) {
+    this.allLessons = [...this.allLessons, payload];
+  }
+
+  @Mutation
+  deleteLesson(payload: LessonModel) {
+    this.course = {
+      ...this.course,
+      lessons: this.course.lessons.filter(
+        (lesson) => lesson.id !== payload.id
+      )
+    };
   }
 
   get getLessons() {

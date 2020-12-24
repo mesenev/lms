@@ -1,24 +1,5 @@
 <template>
-  <div class="bx--grid">
-    <div class="bx--row header">
-      <h1>Успехи учеников</h1>
-    </div>
-    <div class=" bx--row">
-      <div class="items bx--col-lg-8">
-        <cv-search
-          label="label"
-          placeholder="search"
-        >
-        </cv-search>
-        <!-- TODO по-человечески отверстать -->
-        <div>
-          <Progress></Progress>
-        </div>
-      </div>
-      <div class="bx--col-lg-8">
-      </div>
-    </div>
-  </div>
+  <Progress></Progress>
 </template>
 
 <script lang="ts">
