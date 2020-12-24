@@ -1,14 +1,19 @@
 <template>
   <div class="bx--grid">
-    <EditCourseName :course="getCourse"
-                    class="bx--col-lg-8 edit__course__props">
-    </EditCourseName>
-    <EditCourseDescription :course="getCourse"
-                           class="bx--col-lg-8 edit__course__props">>
-    </EditCourseDescription>
-    <EditCourseLessons :course="getCourse"
-                       class="bx--col-lg-8 edit__course__props">
-    </EditCourseLessons>
+    <div class="bx--col-lg-8">
+      <EditCourseName :course="getCourse"
+                    class="edit__course__props">
+      </EditCourseName>
+      <EditCourseDescription :course="getCourse"
+                             class="edit__course__props">>
+      </EditCourseDescription>
+      <EditCourseLessons :course="getCourse"
+                         class="edit__course__props">
+      </EditCourseLessons>
+      <EditCourseModal :course="getCourse"
+                       class="edit__course__props">
+      </EditCourseModal>
+      </div>
   </div>
 </template>
 
@@ -18,12 +23,14 @@ import { mainStore } from '@/store';
 import EditCourseName from '@/components/courseEdit/EditCourseName.vue';
 import EditCourseDescription from '@/components/courseEdit/EditCourseDescription.vue';
 import EditCourseLessons from '@/components/courseEdit/EditCourseLessons.vue';
+import EditCourseModal from '@/components/courseEdit/EditCourseModal.vue';
 import CourseModel from '@/models/CourseModel';
 
 @Component({components: {
   EditCourseLessons,
   EditCourseDescription,
   EditCourseName,
+  EditCourseModal,
 }})
 export default class CourseEditView extends Vue {
   @Prop() courseId!: number;
@@ -39,8 +46,8 @@ export default class CourseEditView extends Vue {
 <style lang="stylus">
 .edit__course__props
   margin-top 10px
-  & .change__btn:not([disabled = disabled])
+  .change__btn:not([disabled = disabled])
     background-color var(--cds-ui-05)
-  & .change__btn
+  .change__btn
     margin-top 10px
 </style>
