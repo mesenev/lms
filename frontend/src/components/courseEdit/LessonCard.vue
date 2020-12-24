@@ -2,8 +2,8 @@
   <div class="card">
     <div class="title">
       <h5>{{ lesson.name }}</h5>
-      <cv-tag v-for="(problem, id) in getLessonProblems"
-              :key="id"
+      <cv-tag v-for="problem in getLessonProblems"
+              :key="problem"
               kind="red"
               :label="problem">
       </cv-tag>
@@ -15,7 +15,6 @@
                  @click="editLesson">
       </component>
       <component class="icon"
-                 v-if="getIcon"
                  :is="getIcon"
                  @click="manipulation(lesson); changeIcon()">
       </component>
@@ -30,16 +29,16 @@ import router from '@/router';
 import _ from 'lodash';
 
 @Component({})
-export default class CourseCalendarView extends Vue {
+export default class LessonCard extends Vue {
   @Prop({ required: true }) lesson!: LessonModel;
   @Prop({ required: true }) manipulation!: Function;
-  @Prop({ required: false }) icon!: object;
-  @Prop({ required: false }) onClickIcon!: object;
+  @Prop({ required: true }) mainIcon!: object;
+  @Prop({ required: false }) changeMainIcon!: object;
   @Prop({ required: false }) secondIcon!: object;
 
   currentIcon = 0;
 
-  icons = [this.icon, this.onClickIcon];
+  icons = [this.mainIcon, this.changeMainIcon || this.mainIcon];
 
   get getIcon() {
     return this.icons[this.currentIcon];
