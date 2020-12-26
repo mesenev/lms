@@ -26,21 +26,21 @@ const routes: Array<RouteConfig> = [
     },
   },
   {
-    path: '/lesson/:lessonId',
+    path: '/course/:courseId/lesson/:lessonId',
     name: 'LessonView',
     component: LessonView,
     props: (route) => {
-      const courseId = Number.parseInt(route.params.problemId as string, 10);
-      return { courseId };
+      const lessonId = Number.parseInt(route.params.lessonId as string, 10);
+      return { lessonId };
     },
   },
   {
-    path: '/problem/:problemId',
+    path: '/course/:courseId/lesson/:lessonId/problem/:problemId',
     name: 'ProblemView',
     component: ProblemView,
     props: (route) => {
-      const courseId = Number.parseInt(route.params.problemId as string, 10);
-      return { courseId };
+      const problemId = Number.parseInt(route.params.problemId as string, 10);
+      return { problemId };
     },
   },
   {

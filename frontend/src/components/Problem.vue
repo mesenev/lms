@@ -1,28 +1,23 @@
-<template>
+<template xmlns:cv-tag="http://www.w3.org/1999/html">
   <!--TODO: padding for status of lesson and fix the the router open the same problem -->
-  <cv-accordion >
-    <cv-accordion-item>
-      <template slot="title">
-        <div v-on:click="openProblem">{{problem.name}}</div>
-        <div class="aw">
-          <cv-tag v-if="problem.completed"
-                    label = "OK"
-                    kind="green">
-          </cv-tag>
-          <cv-tag v-if="!problem.completed"
-                    label = "Не выполненно"
-                    kind="red">
-          </cv-tag>
-        </div>
-      </template>
-      <template slot="content">
-        <p>{{problem.description}}</p>
-      </template>
-    </cv-accordion-item>
-  </cv-accordion>
+  <cv-accordion-item>
+    <template slot="title">
+      <div v-on:click="openProblem">{{problem.name}}
+        <cv-tag :label = problemStatus[0]
+                :kind = problemStatus[1]>
+        </cv-tag>
+        <cv-tag :label = problemStatus[2]
+                kind="gray">
+        </cv-tag>
+      </div>
+    </template>
+    <template slot="content">
+      <p>{{problem.description}}</p>
+    </template>
+  </cv-accordion-item>
 </template>
 
-<script>
+<script lang="ts">
 
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import ProblemModel from '@/models/ProblemModel';
@@ -30,7 +25,7 @@ import router from '@/router';
 
 @Component
 export default class Problem extends Vue {
-  @Prop() problemProp = ProblemModel;
+  @Prop() problemProp!: ProblemModel;
 
   openProblem() {
     router.push({ name: 'ProblemView', params: { problemId: this.problem.id.toString() } });
@@ -39,9 +34,16 @@ export default class Problem extends Vue {
   get problem() {
     return this.problemProp;
   }
+  get problemStatus() {
+    const status = [];
+    (this.problem.completed) ? status.push("OK","green"): status.push("Не выполнено","red");
+    (this.problem.manual) ? status.push("РУЧН"): status.push("АВТ");
+    return status;
+  }
+
 }
 </script>
-// TO-DO Prop?
+<!-- TODO: Prop -->
 <style scoped lang="stylus">
 .aw
   text-align right

@@ -3,4 +3,6 @@ export default interface ProblemModel {
   name: string;
   description: string;
   completed: boolean;
+  manual: boolean;
+  language: Array<string>;
 }

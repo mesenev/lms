@@ -7,4 +7,5 @@ export default interface User {
   group: string;
   mail: string;
   login: string;
+  about: string;
 }

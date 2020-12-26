@@ -6,6 +6,7 @@ import {
 } from 'vuex-module-decorators';
 // import User from '@/models/User';
 import UserProgress from "@/models/UserProgress";
+import LessonContent from "@/models/LessonContent";
 
 @Module({ name: 'MainStorage' })
 export default class MainStorage extends VuexModule {
@@ -18,21 +19,44 @@ export default class MainStorage extends VuexModule {
 
   private courses: Array<CourseModel> = [this.course, this.course, this.course, this.course]
 
-  private problems: Array<ProblemModel> = [
-  {
+  private language: Array<string> = ['C++', 'Python', 'C', 'Java']
+
+  get avLang() {
+    return this.language;
+  }
+
+  private problem: ProblemModel = {
     id: 1,
     name: 'Чё тебе надо у меня дома, мент?',
     description: 'К джентельмену вломились силовые структуры.'
       + ' Помогите ему выяснить причину их появления и, по возможности,'
       + ' получить компенсацию за поломанное имущество.',
-    completed: false,
-  },
-  {
-      id: 2,
-      name: 'Контроль версий',
-      description: 'что это такое ',
-      completed: true,
-  } as ProblemModel];
+    completed: true,
+    language: ['Java'],
+    manual: true,
+  }
+
+  @Mutation
+  changeProblemName(payload: string) {
+    this.problem.name = payload;
+  }
+
+  @Mutation
+  changeProblemDescription(payload: string) {
+    this.problem.description = payload;
+  }
+
+  @Mutation
+  changeProblemManual(payload: boolean) {
+    this.problem.manual = payload;
+  }
+
+  @Mutation
+  changeProblemLanguage(payload: Array<string>) {
+    this.problem.language = payload;
+  }
+
+  private problems: Array<ProblemModel> = [this.problem,this.problem]
 
   private temporaryUserProgress: UserProgress = {
     id: 1,
@@ -64,7 +88,18 @@ export default class MainStorage extends VuexModule {
     name: 'Контроль версий',
     description: 'что это такое ',
     completed: false,
-  }];
+  } as ProblemModel];
+
+  private material: Array<LessonContent> = [{
+    id: 1,
+    name: 'FAQ к уроку',
+    text: 'Кто такие менты?'
+  },
+    {
+    id: 2,
+    name: 'Документация GIT',
+  }
+  ];
 
   private lesson1: LessonModel = {
     id: 5,
@@ -72,7 +107,13 @@ export default class MainStorage extends VuexModule {
     deadline: '31.12.2020',
     classwork: this.problems,
     homework: this.homework,
-    lessonContent: 'Статья',
+    materials: this.material
+  }
+
+  private lessons: Array<LessonModel> = [this.lesson1, this.lesson1, this.lesson1, this.lesson1]
+
+  get lang() {
+    return this.language;
   }
 
   get getCourse() {
@@ -89,6 +130,10 @@ export default class MainStorage extends VuexModule {
 
   get getLesson() {
     return this.lesson1;
+  }
+
+  get getLessons() {
+    return this.lessons;
   }
 
   private allLessons: LessonModel[] = [

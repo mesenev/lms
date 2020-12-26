@@ -1,4 +1,5 @@
 import ProblemModel from '@/models/ProblemModel';
+import LessonContent from "@/models/LessonContent";
 
 export default interface LessonModel {
     id: number;
@@ -6,5 +7,5 @@ export default interface LessonModel {
     deadline: string;
     classwork: Array<ProblemModel>;
     homework: Array<ProblemModel>;
-    lessonContent?: string;
+    materials: Array<LessonContent>;
 }

@@ -1,19 +1,58 @@
 <template>
-  <div>
-    <h1>Список уроков</h1>
+  <div class="bx--grid">
+    <div class="bx--row header">
+      <h1>{{this.store.getCourse.name}}</h1>
+      <!-- TODO: take the name of open course -->
+    </div>
+    <div class=" bx--row">
+      <div class="items bx--col-lg-8">
+        <cv-search
+          label="label"
+          placeholder="search"
+          v-model.trim="searchValue"
+        >
+        </cv-search>
+        <cv-structured-list selectable>
+          <template slot="items">
+            <cv-structured-list-item class="item" v-for="less in filterLessons" :key="less.id">
+              <Lesson :lesson-prop='less'/>
+            </cv-structured-list-item>
+          </template>
+        </cv-structured-list>
+      </div>
+      <div class="bx--col-lg-8">
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import CourseModel from '@/models/CourseModel';
-
-@Component
+import LessonModel from "@/models/LessonModel";
+import {mainStore} from "@/store";
+import Lesson from "@/components/Lesson.vue";
+@Component({
+  components: {Lesson}
+})
 export default class CourseView extends Vue {
+  private store = mainStore;
   @Prop() courseId!: number;
 
   @Prop() courseProp!: CourseModel;
+
+  searchValue = "";
+
+  get lessons(): Array<LessonModel> {
+    return this.store.getLessons;
+  }
+  get filterLessons() {
+    return this.lessons.filter( l => {
+      return l.name.toLowerCase().includes(this.searchValue.toLowerCase())
+    })
+  }
 }
+
 </script>
 
 <style scoped>
