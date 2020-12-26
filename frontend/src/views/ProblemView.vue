@@ -32,10 +32,7 @@
           <br>
           <cv-dropdown
             :placeholder="'Выберите язык программирования'"
-            :value="value">
-            <cv-dropdown-item value="YoptaScript">YoptaScript</cv-dropdown-item>
-            <cv-dropdown-item value="Lolcat">LOLCODE</cv-dropdown-item>
-            <cv-dropdown-item value="Brainfuck">Brainfuck</cv-dropdown-item>
+            :items="problem.language">
           </cv-dropdown>
           <br>
           <cv-button v-on:click="buttonHandler" v-if="problem.completed == false"> Submit! </cv-button>

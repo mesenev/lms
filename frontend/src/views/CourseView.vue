@@ -9,11 +9,12 @@
         <cv-search
           label="label"
           placeholder="search"
+          v-model.trim="searchValue"
         >
         </cv-search>
         <cv-structured-list selectable>
           <template slot="items">
-            <cv-structured-list-item class="item" v-for="less in lessons" :key="less.id">
+            <cv-structured-list-item class="item" v-for="less in filterLessons" :key="less.id">
               <Lesson :lesson-prop='less'/>
             </cv-structured-list-item>
           </template>
@@ -40,8 +41,15 @@ export default class CourseView extends Vue {
 
   @Prop() courseProp!: CourseModel;
 
+  searchValue = "";
+
   get lessons(): Array<LessonModel> {
     return this.store.getLessons;
+  }
+  get filterLessons() {
+    return this.lessons.filter( l => {
+      return l.name.toLowerCase().includes(this.searchValue.toLowerCase())
+    })
   }
 }
 

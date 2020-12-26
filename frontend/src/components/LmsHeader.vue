@@ -43,6 +43,15 @@
         Изменить
       </cv-header-menu-item>
     </cv-header-nav>
+    <cv-header-nav v-if="problemSelected">
+      <cv-header-menu-item
+        :to="{
+          name: 'problem-edit',
+          params: { courseId: this.$route.params.problemId }
+        }">
+        Изменить задание
+      </cv-header-menu-item>
+    </cv-header-nav>
 
     <template slot="header-global">
       <cv-header-global-action aria-label="Notifications">
@@ -70,6 +79,10 @@ export default class LmsHeader extends Vue {
 
   get courseSelected(): boolean {
     return this.$route.params.hasOwnProperty('courseId');
+  }
+
+  get problemSelected(): boolean {
+    return this.$route.params.hasOwnProperty('problemId');
   }
 
 }

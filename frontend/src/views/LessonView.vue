@@ -23,7 +23,7 @@
         <div class="homework">
           <h4>Домашнаяя работа</h4>
           <cv-accordion v-for="less in homework" :key="less.id">
-            <Problem :problem-prop="less"/>
+            <Problem :problem-prop='less'/>
           </cv-accordion>
         </div>
       </div>
@@ -59,7 +59,6 @@ export default class HomeView extends Vue {
     return this.store.getLesson;
   }
   get materials(): Array<LessonContent> {
-    console.log(this.lesson.materials);
     return this.lesson.materials;
   }
 

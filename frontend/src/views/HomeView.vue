@@ -8,11 +8,12 @@
         <cv-search
           label="label"
           placeholder="search"
+          v-model.trim="searchValue"
         >
         </cv-search>
         <cv-structured-list selectable>
           <template slot="items">
-            <cv-structured-list-item class="item" v-for="course in courses" :key="course.id">
+            <cv-structured-list-item class="item" v-for="course in filterCourses" :key="course.id">
               <Course :courseProp='course'/>
             </cv-structured-list-item>
           </template>
@@ -34,9 +35,16 @@ import Component from 'vue-class-component';
 @Component({ components: { Course } })
 export default class HomeView extends Vue {
   private store = mainStore;
+  searchValue = "";
 
   get courses(): Array<CourseModel> {
     return this.store.getCourses;
+  }
+
+  get filterCourses() {
+    return this.courses.filter( c => {
+      return c.name.toLowerCase().includes(this.searchValue.toLowerCase())
+    })
   }
 }
 </script>

@@ -44,20 +44,44 @@ export default class MainStorage extends VuexModule {
 
   private courses: Array<CourseModel> = [this.course, this.course, this.course, this.course]
 
-  private problems: Array<ProblemModel> = [{
+  private language: Array<string> = ['C++', 'Python', 'C', 'Java']
+
+  get avLang() {
+    return this.language;
+  }
+
+  private problem: ProblemModel = {
     id: 1,
     name: 'Чё тебе надо у меня дома, мент?',
     description: 'К джентельмену вломились силовые структуры.'
       + ' Помогите ему выяснить причину их появления и, по возможности,'
       + ' получить компенсацию за поломанное имущество.',
-    completed: false,
-  },
-    {
-      id: 2,
-      name: 'Контроль версий',
-      description: 'что это такое ',
-      completed: true,
-    }as ProblemModel];
+    completed: true,
+    language: ['Java'],
+    manual: true,
+  }
+
+  @Mutation
+  changeProblemName(payload: string) {
+    this.problem.name = payload;
+  }
+
+  @Mutation
+  changeProblemDescription(payload: string) {
+    this.problem.description = payload;
+  }
+
+  @Mutation
+  changeProblemManual(payload: boolean) {
+    this.problem.manual = payload;
+  }
+
+  @Mutation
+  changeProblemLanguage(payload: Array<string>) {
+    this.problem.language = payload;
+  }
+
+  private problems: Array<ProblemModel> = [this.problem,this.problem]
 
   private users: Array<UserProgress> = [
     {
@@ -93,12 +117,7 @@ export default class MainStorage extends VuexModule {
     return this.getCourse.lessons.map((l) => l.name);
   }
 
-  private homework: Array<ProblemModel> = [{
-    id: 3,
-    name: 'Контроль версий',
-    description: 'что это такое ',
-    completed: false,
-  }];
+  private homework: Array<ProblemModel> = [this.problem];
 
   private material: Array<LessonContent> = [{
     id: 1,
@@ -121,10 +140,6 @@ export default class MainStorage extends VuexModule {
   }
 
   private lessons: Array<LessonModel> = [this.lesson1, this.lesson1, this.lesson1, this.lesson1]
-
-  private language: Array<string> = [
-    'C++', 'Python','C'
-  ]
 
   get lang() {
     return this.language;
