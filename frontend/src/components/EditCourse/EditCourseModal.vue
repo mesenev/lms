@@ -1,6 +1,6 @@
 <template>
   <div>
-    <cv-button class="change__btn" @click="showModal">
+    <cv-button class="change-btn" @click="showModal">
       Добавить урок
     </cv-button>
     <cv-modal size="default"
@@ -72,7 +72,7 @@ import {Component, Prop, Vue} from 'vue-property-decorator';
 import { mainStore } from '@/store';
 import LessonModel from '@/models/LessonModel';
 import CourseModel from '@/models/CourseModel';
-import LessonCard from '@/components/courseEdit/LessonCard.vue';
+import LessonCard from '@/components/EditCourse/LessonCard.vue';
 import searchByLessons from '@/common/searchByLessons';
 import { AddAlt32, SubtractAlt32 } from '@carbon/icons-vue/es/index';
 

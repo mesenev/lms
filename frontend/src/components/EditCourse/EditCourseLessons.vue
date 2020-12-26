@@ -1,6 +1,6 @@
 <template>
   <div>
-    <cv-structured-list class="lesson__list" v-if="course.lessons.length">
+    <cv-structured-list class="lesson--list" v-if="course.lessons.length">
       <template slot="headings">
         <cv-structured-list-heading>
           <h4>Уроки</h4>
@@ -29,7 +29,7 @@ import {Component, Prop, Vue} from 'vue-property-decorator';
 import { mainStore } from '@/store';
 import LessonModel from '@/models/LessonModel';
 import CourseModel from '@/models/CourseModel';
-import LessonCard from '@/components/courseEdit/LessonCard.vue';
+import LessonCard from '@/components/EditCourse/LessonCard.vue';
 import { TrashCan32, Settings32 } from '@carbon/icons-vue/es/index';
 import searchByLessons from '@/common/searchByLessons';
 
@@ -63,7 +63,7 @@ export default class EditCourseLessons extends Vue {
   .bx--modal-content:focus
     outline none
 
-  .lesson_list
+  .lesson--list
     margin-bottom 0
 
   .lesson-card:hover

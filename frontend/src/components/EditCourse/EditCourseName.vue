@@ -2,7 +2,7 @@
   <div>
     <cv-text-input label="Название курса" v-model.trim="courseTitle">
     </cv-text-input>
-    <cv-button class="change__btn"
+    <cv-button class="change-btn"
                :disabled="canChangeCourseName"
                @click="changeCourseName">
       Сменить название
