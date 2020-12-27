@@ -1,14 +1,9 @@
-from django.db import models
 from django.contrib import admin
+from django.contrib.auth.models import AbstractUser
 
 
-class Person(models.Model):
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
-
-
-class PersonAdmin(admin.ModelAdmin):
+class User(AbstractUser):
     pass
 
 
-admin.site.register(Person, PersonAdmin)
+admin.site.register(User)

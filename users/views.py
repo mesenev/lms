@@ -1,15 +1,13 @@
-from django.http import HttpResponse
+import json
 
 from django.shortcuts import render
 
-# Create your views here.
-from users.models import Person
+from users.models import User
+from users.serializers import DefaultUserSerializer
 
 
-def my_first_view(request):
-    p: Person = Person.objects.filter(first_name__contains='123')
-    a = Person()
-    a.first_name = '123'
-    a.last_name = 'last'
-    a.save()
-    return HttpResponse(f'name: {p.first_name}, surname: {p.last_name}')
+# @login_required(login_url=reverse_lazy('account_login'))
+def index(request, *args, **kwargs):
+    user = User.objects.get(pk=request.user.id)
+    user_data = json.dumps(DefaultUserSerializer(instance=user).data)
+    return render(request, 'index.html', context=dict(user_data=user_data))

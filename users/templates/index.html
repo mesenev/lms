@@ -1,0 +1,26 @@
+{% load extra_tags %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang=ru>
+<head>
+    <meta charset=utf-8>
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width,initial-scale=1">
+    <title>dvfu lms</title>
+</head>
+<body>
+<noscript>
+    <strong>
+        We're sorry but lms doesn't work properly without JavaScript enabled.
+        Please enable it to continue.
+    </strong>
+</noscript>
+<script type="text/javascript">
+    window.userData = {{ user_data | safe }};
+</script>
+<div id=app></div>
+{% hmr_script "app.js" %}
+{% hmr_script "chunk-vendors.js" %}
+</body>
+</html>
