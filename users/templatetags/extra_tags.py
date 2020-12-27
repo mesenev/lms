@@ -11,7 +11,7 @@ register = template.Library()
 def hmr_script(path):
     script_origin = ''
     if settings.DEBUG and settings.WEBPACK_DEV_SERVER:
-        script_origin = f'http://{settings.WEBPACK_DEV_SERVER}/js/'
+        script_origin = f'http://{settings.WEBPACK_DEV_SERVER}/'
     else:
         path = static('js/' + path)
 
