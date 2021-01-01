@@ -68,13 +68,13 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from 'vue-property-decorator';
-import { mainStore } from '@/store';
-import LessonModel from '@/models/LessonModel';
-import CourseModel from '@/models/CourseModel';
-import LessonCard from '@/components/EditCourse/LessonCard.vue';
 import searchByLessons from '@/common/searchByLessons';
+import LessonCard from '@/components/EditCourse/LessonCard.vue';
+import CourseModel from '@/models/CourseModel';
+import LessonModel from '@/models/LessonModel';
+import { mainStore } from '@/store';
 import { AddAlt32, SubtractAlt32 } from '@carbon/icons-vue/es/index';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({components: {
   LessonCard,
@@ -127,6 +127,7 @@ export default class EditCourseModal extends Vue {
       lessonContent: '',
       classwork: [],
       homework: [],
+      materials: [],
       deadline: '',
     } as LessonModel;
   }
