@@ -4,6 +4,8 @@ from problem.models import Problem, Submit
 
 
 class SubmitSerializer(serializers.Serializer):
+    id = serializers.ReadOnlyField()
+
     def update(self, instance, validated_data):
         pass
 
@@ -16,17 +18,18 @@ class SubmitSerializer(serializers.Serializer):
 
 
 class ProblemSerializer(serializers.Serializer):
-    def update(self, instance, validated_data):
-        pass
-
-    def create(self, validated_data):
-        pass
-
+    id = serializers.ReadOnlyField()
     lesson = serializers.PrimaryKeyRelatedField(read_only=True)
     author = serializers.PrimaryKeyRelatedField(read_only=True)
     name = serializers.CharField()
     description = serializers.CharField()
     submits = SubmitSerializer(many=True)
+
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        pass
 
     class Meta:
         model = Problem

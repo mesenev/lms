@@ -7,10 +7,11 @@ from users.serializers import DefaultUserSerializer
 
 
 class LessonSerializer(serializers.Serializer):
+    id = serializers.ReadOnlyField()
     name = serializers.CharField(max_length=500)
     description = serializers.CharField()
     author = DefaultUserSerializer()
-    problems = ProblemSerializer(many=True)
+    problems = ProblemSerializer(many=True, default=list())
 
     def create(self, validated_data):
         user = None

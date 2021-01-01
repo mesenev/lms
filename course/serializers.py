@@ -6,10 +6,11 @@ from users.serializers import DefaultUserSerializer
 
 
 class CourseSerializer(serializers.Serializer):
+    id = serializers.ReadOnlyField()
     name = serializers.CharField(max_length=500)
     description = serializers.CharField()
-    author = DefaultUserSerializer(read_only=True)
-    lessons = LessonSerializer(many=True, required=False)
+    author = DefaultUserSerializer()
+    lessons = LessonSerializer(many=True, required=False, default=list())
 
     def create(self, validated_data):
         user = None
@@ -27,7 +28,6 @@ class CourseSerializer(serializers.Serializer):
 
     class Meta:
         model = Course
-        fields = ('id', 'name', 'lessons')
 
 
 class ScheduleSerializer(serializers.Serializer):
