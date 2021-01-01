@@ -1,15 +1,16 @@
 from rest_framework import serializers
 
-from course.models import Course, CourseSchedule
-from lesson.serializers import LessonSerializer
+from course.models import Course
+from lesson.models import Lesson
+from problem.serializers import ProblemSerializer
 from users.serializers import DefaultUserSerializer
 
 
-class CourseSerializer(serializers.Serializer):
+class LessonSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=500)
     description = serializers.CharField()
-    author = DefaultUserSerializer(read_only=True)
-    lessons = LessonSerializer(many=True, required=False)
+    author = DefaultUserSerializer()
+    problems = ProblemSerializer(many=True)
 
     def create(self, validated_data):
         user = None
@@ -26,17 +27,5 @@ class CourseSerializer(serializers.Serializer):
         return instance
 
     class Meta:
-        model = Course
-        fields = ('id', 'name', 'lessons')
-
-
-class ScheduleSerializer(serializers.Serializer):
-    def update(self, instance, validated_data):
-        pass
-
-    def create(self, validated_data):
-        pass
-
-    class Meta:
-        model = CourseSchedule
-        fields = '__all__'
+        model = Lesson
+        fields = ('id', 'name', 'description', 'author_id')
