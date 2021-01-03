@@ -1,23 +1,21 @@
 import CourseModel from '@/models/CourseModel';
+import LessonContent from "@/models/LessonContent";
 import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
-import {
-  Module, VuexModule, Mutation,
-} from 'vuex-module-decorators';
 // import User from '@/models/User';
 import UserProgress from "@/models/UserProgress";
-import LessonContent from "@/models/LessonContent";
+import { Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
 @Module({ name: 'MainStorage' })
 export default class MainStorage extends VuexModule {
-  private course: CourseModel = {
+  course: CourseModel | null = {
     id: 8,
     lessons: [{ id: 1, name: 'Урок 1' }, { id: 2, name: 'Урок 2' }] as Array<LessonModel>,
     completed: false,
     name: 'Алгоритмы и структуры данных (введение)',
   }
 
-  private courses: Array<CourseModel> = [this.course, this.course, this.course, this.course]
+  private courses: Array<CourseModel|null> = [this.course, this.course, this.course, this.course]
 
   private language: Array<string> = ['C++', 'Python', 'C', 'Java']
 
@@ -35,18 +33,24 @@ export default class MainStorage extends VuexModule {
     language: ['Java'],
     manual: true,
   } as ProblemModel,
-  {
-    id: 2,
-    name: 'Контроль версий',
-    description: 'что это такое ',
-    completed: true,
-    language: ['Java'],
-    manual: true,
-  } as ProblemModel];
+    {
+      id: 2,
+      name: 'Контроль версий',
+      description: 'что это такое ',
+      completed: true,
+      language: ['Java'],
+      manual: true,
+    } as ProblemModel];
 
 
   get problem() {
     return this.problems[0];
+  }
+
+  @Mutation
+  setCourses(payload: Array<CourseModel>) {
+    debugger
+    this.courses = payload;
   }
 
   @Mutation
@@ -78,7 +82,12 @@ export default class MainStorage extends VuexModule {
 
   private users: Array<UserProgress> = [
     { ...this.temporaryUserProgress, id: 1, attendance: this.course.lessons.map(() => false) },
-    { ...this.temporaryUserProgress, id: 2, name: 'Max Vladov', attendance: this.course.lessons.map(() => false) },
+    {
+      ...this.temporaryUserProgress,
+      id: 2,
+      name: 'Max Vladov',
+      attendance: this.course.lessons.map(() => false),
+    },
   ];
 
   @Mutation
@@ -102,18 +111,18 @@ export default class MainStorage extends VuexModule {
   } as ProblemModel];
 
   get getColumns() {
-    return this.getCourse.lessons.map((l) => l.name);
+    return this.getCourse?.lessons.map((l) => l.name);
   }
 
   private material: Array<LessonContent> = [{
     id: 1,
     name: 'FAQ к уроку',
-    text: 'Кто такие менты?'
+    text: 'Кто такие менты?',
   },
     {
-    id: 2,
-    name: 'Документация GIT',
-  }
+      id: 2,
+      name: 'Документация GIT',
+    },
   ];
 
   private lesson1: LessonModel = {
@@ -122,7 +131,7 @@ export default class MainStorage extends VuexModule {
     deadline: '31.12.2020',
     classwork: this.problems,
     homework: this.homework,
-    materials: this.material
+    materials: this.material,
   }
 
   private lessons: Array<LessonModel> = [this.lesson1, this.lesson1, this.lesson1, this.lesson1]
@@ -188,8 +197,8 @@ export default class MainStorage extends VuexModule {
     this.course = {
       ...this.course,
       lessons: this.course.lessons.filter(
-        (lesson) => lesson.id !== payload.id
-      )
+        (lesson) => lesson.id !== payload.id,
+      ),
     };
   }
 

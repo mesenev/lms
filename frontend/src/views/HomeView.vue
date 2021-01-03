@@ -27,8 +27,8 @@
 
 <script lang="ts">
 import Course from '@/components/Course.vue';
-import CourseModel from '@/models/CourseModel';
 import { mainStore } from '@/store';
+import axios from 'axios';
 import Vue from 'vue';
 import Component from 'vue-class-component';
 
@@ -36,13 +36,28 @@ import Component from 'vue-class-component';
 export default class HomeView extends Vue {
   private store = mainStore;
   searchValue = "";
+  private loading = true;
+  private errored = false;
 
-  get courses(): Array<CourseModel> {
+  async created() {
+
+    axios.get('http://localhost:8000/api/course/')
+      .then(response => {
+        this.store.setCourses(response.data);
+      })
+      .catch(error => {
+        console.log(error);
+        this.errored = true;
+      })
+      .finally(() => (this.loading = false));
+  }
+
+  get courses() {
     return this.store.getCourses;
   }
 
   get filterCourses() {
-    return this.courses.filter( c => {
+    return this.courses.filter(c => {
       return c.name.toLowerCase().includes(this.searchValue.toLowerCase())
     })
   }
@@ -57,6 +72,7 @@ export default class HomeView extends Vue {
 .items
   background-color var(--cds-ui-02)
   padding var(--cds-spacing-05)
+
   .bx--structured-list-thead
     display none
 
