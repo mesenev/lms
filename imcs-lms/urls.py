@@ -5,7 +5,7 @@ from rest_framework.routers import DefaultRouter
 from course.views import CourseViewSet
 from lesson.views import LessonViewSet
 from problem.views import ProblemViewSet, SubmitViewSet
-from users.views import index
+from users.views import index, user_login
 
 router = DefaultRouter()
 router.register('course', CourseViewSet, basename='course')
@@ -17,5 +17,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls')),
+    path('login/', user_login, name='account_login'),
     re_path(r"^.*$", index),
 ]

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+    <title>Login page</title>
+    <style>
+        .content {
+            font-family: 'LiberationSerifRegular', sans-serif;
+            font-weight: normal;
+            font-style: normal;
+            text-align: center;
+            width: 400px;
+            color: white;
+            margin: 0 auto;
+            background-color: #081B41;
+            border-radius: 20px;
+        }
+        body {
+            background-color: #03102A;
+        }
+        input {
+            width: 100%;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-shadow: inset 0 1px 3px #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            padding: 12px 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="content">
+    <h1>Login page</h1>
+    <form action="." method="post">
+        {{ form.as_p }}
+        {% csrf_token %}
+        <p><input type="submit" value="Login"></p>
+    </form>
+</div>
+</body>
+</html>
