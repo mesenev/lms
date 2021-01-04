@@ -43,6 +43,15 @@
         Изменить
       </cv-header-menu-item>
     </cv-header-nav>
+    <cv-header-nav v-if="lessonSelected">
+      <cv-header-menu-item
+        :to="{
+          name: 'lesson-edit',
+          params: { lessonId: this.$route.params.lessonId }
+        }">
+        Изменить
+      </cv-header-menu-item>
+    </cv-header-nav>
     <cv-header-nav v-if="problemSelected">
       <cv-header-menu-item
         :to="{
@@ -79,6 +88,9 @@ export default class LmsHeader extends Vue {
 
   get courseSelected(): boolean {
     return this.$route.params.hasOwnProperty('courseId');
+  }
+  get lessonSelected(): boolean {
+    return this.$route.params.hasOwnProperty('lessonId');
   }
 
   get problemSelected(): boolean {

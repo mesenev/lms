@@ -3,6 +3,8 @@ import CourseEditView from '@/views/management/CourseEditView.vue';
 import CourseProgressView from '@/views/management/CourseProgressView.vue';
 import ProblemEditView from '@/views/management/ProblemEditView.vue';
 import SolutionsListView from '@/views/management/SolutionsListView.vue';
+import LessonEditView from "@/views/management/LessonEditView.vue";
+
 import { RouteConfig } from 'vue-router';
 
 // TODO: consult is it optimal (I bet it's not)
@@ -59,6 +61,15 @@ const routes: Array<RouteConfig> = [
     props: (route) => {
       const problemId = Number.parseInt(route.params.problemId as string, 10);
       return { problemId };
+    },
+  },
+  {
+    path: '/course/:courseId/lesson/:lessonId/edit',
+    name: 'lesson-edit',
+    component: LessonEditView,
+    props: (route) => {
+      const lessonId = Number.parseInt(route.params.lessonId as string, 10);
+      return { lessonId };
     },
   },
 ];

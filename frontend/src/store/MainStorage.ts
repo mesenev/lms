@@ -1,6 +1,8 @@
 import CourseModel from '@/models/CourseModel';
 import LessonContent from "@/models/LessonContent";
 import LessonModel from '@/models/LessonModel';
+import ProblemModel from '@/models/ProblemModel';import { Module, VuexModule } from 'vuex-module-decorators';
+import LessonContent from "@/models/LessonContent";
 import ProblemModel from '@/models/ProblemModel';
 // import User from '@/models/User';
 import UserProgress from "@/models/UserProgress";
@@ -15,6 +17,7 @@ export default class MainStorage extends VuexModule {
     name: 'Алгоритмы и структуры данных (введение)',
   }
 
+  private courses: Array<CourseModel> = [this.course, this.course, this.course, this.course]
   private courses: Array<CourseModel|null> = [this.course, this.course, this.course, this.course]
 
   private language: Array<string> = ['C++', 'Python', 'C', 'Java']
@@ -205,4 +208,5 @@ export default class MainStorage extends VuexModule {
   get getLessons() {
     return this.lessons;
   }
+
 }
