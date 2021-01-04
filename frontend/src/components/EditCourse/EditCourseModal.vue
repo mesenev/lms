@@ -7,15 +7,14 @@
               class="add_lesson_modal"
               :visible="modalVisible"
               @modal-hidden="modalHidden"
-              :primary-button-disabled="!arrayOfLessons.length && !currentLesson.name"
+              :primary-button-disabled="!lessons.length && !currentLesson.name"
               @primary-click="addLesson"
               @secondary-click="() => {}">
       <template slot="label">{{ course.name }}</template>
       <template slot="title">
         Добавить урок
         <cv-content-switcher class="switcher" @selected="currentLesson = emptyLesson">
-          <cv-content-switcher-button content-selector=".content-1"
-                                      selected>
+          <cv-content-switcher-button content-selector=".content-1" selected>
             Выбрать из существующих
           </cv-content-switcher-button>
           <cv-content-switcher-button content-selector=".content-2">
@@ -46,8 +45,7 @@
             </div>
           </div>
           <div class="content-2" hidden>
-            <cv-text-input label="Название урока"
-                           v-model.trim="currentLesson.name">
+            <cv-text-input label="Название урока" v-model.trim="currentLesson.name">
             </cv-text-input>
             <cv-date-picker kind="single"
                             date-label="Время окончания"
@@ -74,21 +72,39 @@ import searchByLessons from '@/common/searchByLessons';
 import LessonCard from '@/components/EditCourse/LessonCard.vue';
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
-import { courseStore } from '@/store';
+import { courseStore, lessonStore } from '@/store';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: { LessonCard, AddAlt20, SubtractAlt20, }, })
+@Component({ components: { LessonCard, AddAlt20, SubtractAlt20 } })
 export default class EditCourseModal extends Vue {
   @Prop({ required: true }) course!: CourseModel;
 
   AddAlt32 = AddAlt20;
   SubtractAlt32 = SubtractAlt20;
-  store = courseStore;
+  courseStore = courseStore;
+  lessonStore = lessonStore;
+  currentLesson: LessonModel = this.emptyLesson;
 
+  lessons: LessonModel[] = [];
   modalVisible = false;
+  searchQueryForAllLessons = '';
+
+  get allLessons(): LessonModel[] {
+    return searchByLessons(this.searchQueryForAllLessons, this.freeLessons);
+  }
+
+  get freeLessons(): LessonModel[] {
+    return this.lessonStore.lessons.filter((l) => {
+      return !this.course.lessons.map((courseLesson) => courseLesson.id).includes(l.id);
+    });
+  }
+
+  async created() {
+    await this.lessonStore.fetchLessons();
+  }
 
   showModal() {
     this.modalVisible = true;
@@ -99,20 +115,11 @@ export default class EditCourseModal extends Vue {
     this.currentLesson = this.emptyLesson;
   }
 
-  get freeLessons(): LessonModel[] {
-    return this.store.getAllLessons.filter((l) => {
-      return !this.course.lessons.map((courseLesson) => courseLesson.id).includes(l.id);
-    });
-  }
 
-  searchQueryForAllLessons = '';
 
-  get allLessons(): LessonModel[] {
-    return searchByLessons(this.searchQueryForAllLessons, this.freeLessons);
-  }
 
   get getSelected(): string {
-    return this.arrayOfLessons.concat(this.currentLesson)
+    return this.lessons.concat(this.currentLesson)
       .map((l) => l.name)
       .sort((a, b) => a < b ? -1 : 1)
       .join(' ');
@@ -120,7 +127,6 @@ export default class EditCourseModal extends Vue {
 
   get emptyLesson(): LessonModel {
     return {
-      id: this.store.getNextLessonId,
       name: '',
       lessonContent: '',
       classwork: [],
@@ -130,26 +136,23 @@ export default class EditCourseModal extends Vue {
     } as LessonModel;
   }
 
-  currentLesson: LessonModel = this.emptyLesson;
-
-  arrayOfLessons: LessonModel[] = [];
 
   chooseLesson(lesson: LessonModel) {
-    if (!this.arrayOfLessons.includes(lesson)) {
-      this.arrayOfLessons.push(lesson);
+    if (!this.lessons.includes(lesson)) {
+      this.lessons.push(lesson);
     } else {
-      this.arrayOfLessons = this.arrayOfLessons.filter((l) => lesson !== l);
+      this.lessons = this.lessons.filter((l) => lesson !== l);
     }
   }
 
   addLesson() {
     if (this.currentLesson.name) {
-      this.arrayOfLessons.push(this.currentLesson);
-      this.store.addLessonToAllLesson(this.currentLesson);
+      this.lessons.push(this.currentLesson);
+      this.lessonStore.addLessonToAllLesson(this.currentLesson);
     }
-    if (this.arrayOfLessons.every((l) => l.name)) {
-      this.arrayOfLessons.forEach((lesson) => this.store.addLessonToCourse(lesson));
-      this.arrayOfLessons = [];
+    if (this.lessons.every((l) => l.name)) {
+      this.lessons.forEach((lesson) => this.store.addLessonToCourse(lesson));
+      this.lessons = [];
     }
     this.modalHidden();
   }

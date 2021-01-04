@@ -16,7 +16,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 export default class CourseCalendarView extends Vue {
   @Prop() problem!: ProblemModel;
   @Prop() deleteProblem!: Function;
-  //TrashCan20 = TrashCan20;
+  // TrashCan20 = TrashCan20;
 }
 </script>
 

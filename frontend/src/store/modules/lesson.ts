@@ -2,7 +2,7 @@ import CourseModel from '@/models/CourseModel';
 import axios from 'axios';
 import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
-@Module({ name: 'course' })
+@Module({ name: 'lesson' })
 export default class LessonModule extends VuexModule {
 
   lessons: Array<CourseModel> = [];
@@ -14,9 +14,8 @@ export default class LessonModule extends VuexModule {
 
   @Action
   async fetchLessons() {
-    await axios.get('http://localhost:8000/api/course/')
+    await axios.get('http://localhost:8000/api/lesson/')
       .then(response => {
-        console.log(response.data);
         this.setLessons(response.data);
       }).catch(error => { console.log(error); })
   }

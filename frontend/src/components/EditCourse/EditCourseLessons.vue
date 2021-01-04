@@ -14,8 +14,8 @@
                                  v-for="lesson in courseLessons"
                                  :key="lesson.id">
           <LessonCard :lesson="lesson"
-                      :main-icon="TrashCan32"
-                      :second-icon="Settings32"
+                      :main-icon="TrashCan"
+                      :second-icon="Settings"
                       :manipulation="deleteLesson">
           </LessonCard>
         </cv-structured-list-item>
@@ -29,23 +29,26 @@ import searchByLessons from '@/common/searchByLessons';
 import LessonCard from '@/components/EditCourse/LessonCard.vue';
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
+import { modBStore } from '@/store';
 import Settings20 from '@carbon/icons-vue/es/settings/20';
 import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({components: {
-  LessonCard,
-  TrashCan20,
-  Settings20,
-}})
+@Component({
+  components: {
+    LessonCard,
+    TrashCan20,
+    Settings20,
+  },
+})
 export default class EditCourseLessons extends Vue {
   @Prop({ required: true }) course!: CourseModel;
 
-  TrashCan32 = TrashCan20;
+  TrashCan = TrashCan20;
 
-  Settings32 = Settings20;
+  Settings = Settings20;
 
-  store = mainStore;
+  store = modBStore;
 
   searchQueryForCourseLessons = '';
 
@@ -60,12 +63,12 @@ export default class EditCourseLessons extends Vue {
 </script>
 
 <style lang="stylus">
-  .bx--modal-content:focus
-    outline none
+.bx--modal-content:focus
+  outline none
 
-  .lesson--list
-    margin-bottom 0
+.lesson--list
+  margin-bottom 0
 
-  .lesson-card:hover
-    border-bottom 1px solid var(--cds-ui-05)
+.lesson-card:hover
+  border-bottom 1px solid var(--cds-ui-05)
 </style>

@@ -53,7 +53,6 @@ export default class MainStorage extends VuexModule {
   }
 
   @Mutation setCourses(payload: Array<CourseModel>) {
-    debugger
     this.courses = payload;
   }
 

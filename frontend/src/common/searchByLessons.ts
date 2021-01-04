@@ -1,7 +1,8 @@
 import LessonModel from '@/models/LessonModel';
 
-export default function searchByLessons(query: string,
-                                        arrayOfLessons: LessonModel[]): LessonModel[] {
+export default function searchByLessons(
+  query: string, arrayOfLessons: LessonModel[]
+): LessonModel[] {
   // if there is no query
   if (!query) {
     return arrayOfLessons;

@@ -16,7 +16,6 @@ export default class CourseModule extends VuexModule {
   async fetchCourses() {
     await axios.get('http://localhost:8000/api/course/')
       .then(response => {
-        console.log(response.data);
         this.setCourses(response.data);
       })
       .catch(error => {

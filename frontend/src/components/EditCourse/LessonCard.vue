@@ -23,10 +23,10 @@
 </template>
 
 <script lang="ts">
-import { Prop, Component, Vue } from 'vue-property-decorator';
 import LessonModel from "@/models/LessonModel";
 import router from '@/router';
 import _ from 'lodash';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({})
 export default class LessonCard extends Vue {
@@ -65,7 +65,7 @@ export default class LessonCard extends Vue {
 }
 </script>
 
-<style lang="stylus">
+<style scoped lang="stylus">
   .card
     padding 20px
     display flex

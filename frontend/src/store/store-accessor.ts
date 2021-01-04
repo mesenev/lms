@@ -32,7 +32,7 @@ export function initializeStores (store: Store<unknown>): void {
 export const modules = {
   'user': UserModule,
   'course': CourseModule,
-  'lessonStore': LessonModule,
+  'lesson': LessonModule,
   'modBStore': MainStorage
 }
 
