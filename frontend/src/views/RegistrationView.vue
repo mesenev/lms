@@ -68,15 +68,15 @@
 <!-- TODO: password work w/ backend -->
 
 <script lang="ts">
-import {mainStore} from '@/store';
-import Component from 'vue-class-component';
-import Vue from 'vue';
 import Registration from '@/components/Registration.vue';
+import { modBStore } from '@/store';
+import Vue from 'vue';
+import Component from 'vue-class-component';
 
 @Component({ components: { Registration } })
 export default class RegistrationView extends Vue {
 
-  private store = mainStore;
+  private store = modBStore;
 
   courseArray = this.store.getCourse;
 }

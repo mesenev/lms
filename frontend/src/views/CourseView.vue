@@ -1,7 +1,7 @@
 <template>
   <div class="bx--grid">
     <div class="bx--row header">
-      <h1>{{this.store.getCourse.name}}</h1>
+      <h1>{{ this.store.getCourse.name }}</h1>
       <!-- TODO: take the name of open course -->
     </div>
     <div class=" bx--row">
@@ -27,16 +27,17 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator';
+import Lesson from "@/components/Lesson.vue";
 import CourseModel from '@/models/CourseModel';
 import LessonModel from "@/models/LessonModel";
-import {mainStore} from "@/store";
-import Lesson from "@/components/Lesson.vue";
+import { modBStore } from "@/store";
+import { Component, Prop, Vue } from 'vue-property-decorator';
+
 @Component({
-  components: {Lesson}
+  components: { Lesson },
 })
 export default class CourseView extends Vue {
-  private store = mainStore;
+  private store = modBStore;
   @Prop() courseId!: number;
 
   @Prop() courseProp!: CourseModel;
@@ -46,8 +47,9 @@ export default class CourseView extends Vue {
   get lessons(): Array<LessonModel> {
     return this.store.getLessons;
   }
+
   get filterLessons() {
-    return this.lessons.filter( l => {
+    return this.lessons.filter(l => {
       return l.name.toLowerCase().includes(this.searchValue.toLowerCase())
     })
   }

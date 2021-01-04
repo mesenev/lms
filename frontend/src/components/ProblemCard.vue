@@ -6,9 +6,9 @@
 </template>
 
 <script lang="ts">
-import {Prop, Component, Vue} from 'vue-property-decorator';
 import ProblemModel from '@/models/ProblemModel';
 import TrashCan20 from '@carbon/icons-vue/es/trash-can/20'
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({components: {
   TrashCan20,
@@ -20,7 +20,7 @@ export default class CourseCalendarView extends Vue {
 }
 </script>
 
-<style lang="stylus">
+<style scoped lang="stylus">
   .problem
     padding 20px
     display flex

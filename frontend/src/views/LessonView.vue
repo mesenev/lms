@@ -44,15 +44,15 @@
 
 <script lang="ts">
 import Problem from '@/components/Problem.vue';
-import ProblemModel from '@/models/ProblemModel';
-import { mainStore } from '@/store';
-import LessonModel from '@/models/LessonModel';
 import LessonContent from "@/models/LessonContent";
-import { Prop, Vue, Component } from 'vue-property-decorator';
+import LessonModel from '@/models/LessonModel';
+import ProblemModel from '@/models/ProblemModel';
+import { modBStore } from '@/store';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: { Problem } })
 export default class HomeView extends Vue {
-  private store = mainStore;
+  private store = modBStore;
   @Prop() lessonId!: number;
 
   get lesson(): LessonModel {

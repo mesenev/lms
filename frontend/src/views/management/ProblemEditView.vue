@@ -59,13 +59,13 @@
 
 <script lang="ts">
 import Problem from '@/components/Problem.vue';
-import { mainStore } from '@/store';
-import { Prop, Vue, Component } from 'vue-property-decorator';
+import { modBStore } from '@/store';
 import _ from 'lodash';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: { Problem } })
 export default class ProblemEditView extends Vue {
-  private store = mainStore;
+  private store = modBStore;
   problemsArray = this.store.getProblems;
 
   @Prop() problemId!: number;

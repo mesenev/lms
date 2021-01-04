@@ -5,12 +5,12 @@
       <div class="bx--col">
         <h4>Название урока</h4>
         <input :class="`bx--text-input`"
-                 type="text"
-                 v-model="lessonTitle">
+               type="text"
+               v-model="lessonTitle">
         <cv-button class="change__btn"
                    :disabled="canChangeLessonName"
                    @click="changeLessonName">
-                   Изменить название
+          Изменить название
         </cv-button>
       </div>
       <div class="bx--col">
@@ -24,20 +24,20 @@
         <cv-button class="change__btn"
                    :disabled="canChangeLessonDeadline"
                    @click="changeLessonDeadline">
-                   Изменить срок
+          Изменить срок
         </cv-button>
       </div>
       <div class="bx--col">
         <h4>Добавить материалы к уроку</h4>
         <cv-button class="add__btn"
                    @click="addMaterials">
-                   Добавить
+          Добавить
         </cv-button>
       </div>
       <div class="bx--col">
         <div class="bx--col-lg-10">
-            <h4>Добавить новое задание</h4>
-            <cv-button class="add__problem__btn"
+          <h4>Добавить новое задание</h4>
+          <cv-button class="add__problem__btn"
                      @click="addProblem">
             Добавить
           </cv-button>
@@ -54,7 +54,7 @@
               <div class="bx--row">
                 <div class="bx--col, works-col">
                   <ProblemCard class="card" :problem="problem"
-                                :delete-problem="deleteProblem"/>
+                               :delete-problem="deleteProblem"/>
                 </div>
               </div>
             </div>
@@ -67,7 +67,7 @@
               <div class="bx--row row">
                 <div class="bx--col, works-col">
                   <ProblemCard class="card" :problem="problem"
-                                :delete-problem="deleteProblem"/>
+                               :delete-problem="deleteProblem"/>
                 </div>
               </div>
             </div>
@@ -79,22 +79,23 @@
 </template>
 
 <script lang="ts">
-import {Prop, Component, Vue} from 'vue-property-decorator';
-import {mainStore} from '@/store';
 import LessonCard from '@/components/LessonCard.vue';
-import LessonModel from '@/models/LessonModel';
-import ProblemModel from "@/models/ProblemModel";
 import Problem from '@/components/Problem.vue';
 import ProblemCard from "@/components/ProblemCard.vue";
+import ProblemModel from "@/models/ProblemModel";
+import { modBStore } from '@/store';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({components: {
+@Component({
+  components: {
     ProblemCard,
     LessonCard, Problem,
-}})
+  },
+})
 export default class CourseCalendarView extends Vue {
   @Prop() courseId!: number;
 
-  store = mainStore;
+  store = modBStore;
 
   get getLesson() {
     return this.store.getLesson;
@@ -118,40 +119,49 @@ export default class CourseCalendarView extends Vue {
 }
 </script>
 
-<style lang="stylus">
-  .head-content
-    margin: 50px
-  .bx--col
-    margin: 2rem
-  .works-col
-    margin-right 0
-    margin-bottom 1rem
-    margin-left 1rem
-    margin-top 1rem
-    display flex
-    //border black 1px solid
-  .main-content
-    border 2px black solid;
-    margin: 50px
-  .bx--text-input
-    border: 2px solid #222;
-    padding: 5
-    display: block;
-    width: 100%;
-    height: 50px;
-    background: #fff;
-  .change__btn
-    margin-top: 10px
-    background-color: var(--cds-ui-05)
-    &:hover
-      background-color: var(--cds-ui-04)
-  .add__btn
-    margin-top: 10px
-    background-color: var($inverse-link)
-  .delete__btn
-    &:hover
-      background-color: var(--cds-ui-04)
-  .add__problem__btn
-    margin-top: 10px
-    background-color: var($support-03)
+<style scoped lang="stylus">
+.head-content
+  margin: 50px
+
+.bx--col
+  margin: 2rem
+
+.works-col
+  margin-right 0
+  margin-bottom 1rem
+  margin-left 1rem
+  margin-top 1rem
+  display flex
+
+//border black 1px solid
+.main-content
+  border 2px black solid;
+  margin: 50px
+
+.bx--text-input
+  border: 2px solid #222;
+  padding: 5
+  display: block;
+  width: 100%;
+  height: 50px;
+  background: #fff;
+
+.change__btn
+  margin-top: 10px
+  background-color: var(--cds-ui-05)
+
+  &:hover
+    background-color: var(--cds-ui-04)
+
+.add__btn
+  margin-top: 10px
+  background-color: var($inverse-link)
+
+.delete__btn
+  &:hover
+    background-color: var(--cds-ui-04)
+
+.add__problem__btn
+  margin-top: 10px
+  background-color: var($support-03)
 </style>

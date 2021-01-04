@@ -42,15 +42,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import { mainStore } from '@/store';
 import UserProgress from '@/models/UserProgress';
+import { modBStore } from '@/store';
+import { Component, Vue } from 'vue-property-decorator';
 
 @Component
 export default class Progress extends Vue {
   name!: 'Progress';
 
-  store = mainStore;
+  store = modBStore;
 
   kind(user: UserProgress, lessonId: number) {
     const colors = ['red', 'magenta', 'cyan', 'green'];

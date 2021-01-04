@@ -12,7 +12,7 @@
         <br>
         <label>
           <textarea
-            v-if="problem.completed == false"
+            v-if="problem.completed === false"
             v-model="areaData"
             id="text"
             cols="130"
@@ -67,12 +67,12 @@
 
 <script lang="ts">
 import Problem from '@/components/Problem.vue';
-import { mainStore } from '@/store';
-import { Prop, Vue, Component } from 'vue-property-decorator';
+import { modBStore } from '@/store';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: { Problem } })
 export default class ProblemView extends Vue {
-  private store = mainStore;
+  private store = modBStore;
   studentsArray = this.store.getUsers;
   public areaData = '';
   private submits: object [] = [];

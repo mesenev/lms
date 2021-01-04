@@ -1,24 +1,26 @@
 import CourseModel from '@/models/CourseModel';
 import LessonContent from "@/models/LessonContent";
 import LessonModel from '@/models/LessonModel';
-import ProblemModel from '@/models/ProblemModel';import { Module, VuexModule } from 'vuex-module-decorators';
-import LessonContent from "@/models/LessonContent";
 import ProblemModel from '@/models/ProblemModel';
-// import User from '@/models/User';
 import UserProgress from "@/models/UserProgress";
 import { Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
 @Module({ name: 'MainStorage' })
 export default class MainStorage extends VuexModule {
-  course: CourseModel | null = {
+  course: CourseModel = {
     id: 8,
     lessons: [{ id: 1, name: 'Урок 1' }, { id: 2, name: 'Урок 2' }] as Array<LessonModel>,
     completed: false,
+    author: {
+      id: 1,
+      username: 'Антищенко',
+      firstName: 'Антон',
+      lastName: 'Антонович',
+    },
     name: 'Алгоритмы и структуры данных (введение)',
-  }
+  };
 
   private courses: Array<CourseModel> = [this.course, this.course, this.course, this.course]
-  private courses: Array<CourseModel|null> = [this.course, this.course, this.course, this.course]
 
   private language: Array<string> = ['C++', 'Python', 'C', 'Java']
 
@@ -50,24 +52,20 @@ export default class MainStorage extends VuexModule {
     return this.problems[0];
   }
 
-  @Mutation
-  setCourses(payload: Array<CourseModel>) {
+  @Mutation setCourses(payload: Array<CourseModel>) {
     debugger
     this.courses = payload;
   }
 
-  @Mutation
-  changeProblemName(payload: string) {
+  @Mutation changeProblemName(payload: string) {
     this.problem.name = payload;
   }
 
-  @Mutation
-  changeProblemDescription(payload: string) {
+  @Mutation changeProblemDescription(payload: string) {
     this.problem.description = payload;
   }
 
-  @Mutation
-  changeProblemManual(payload: boolean) {
+  @Mutation changeProblemManual(payload: boolean) {
     this.problem.manual = payload;
   }
 
@@ -93,8 +91,7 @@ export default class MainStorage extends VuexModule {
     },
   ];
 
-  @Mutation
-  changeAttendance(payload: { userId: number; lessonId: number }) {
+  @Mutation changeAttendance(payload: { userId: number; lessonId: number }) {
     const user = this.users[payload.userId];
     user.attendance[payload.lessonId] = (
       !user.attendance[payload.lessonId]
@@ -106,12 +103,13 @@ export default class MainStorage extends VuexModule {
     return this.users;
   }
 
-  private homework: Array<ProblemModel> = [{
-    id: 3,
-    name: 'Контроль версий',
-    description: 'что это такое ',
-    completed: false,
-  } as ProblemModel];
+  private homework: Array<ProblemModel> = [
+    {
+      id: 3,
+      name: 'Контроль версий',
+      description: 'что это такое ',
+      completed: false,
+    } as ProblemModel];
 
   get getColumns() {
     return this.getCourse?.lessons.map((l) => l.name);
@@ -175,28 +173,23 @@ export default class MainStorage extends VuexModule {
     return this.allLessons;
   }
 
-  @Mutation
-  changeCourseName(payload: string) {
+  @Mutation changeCourseName(payload: string) {
     this.course = { ...this.course, name: payload } as CourseModel;
   }
 
-  @Mutation
-  changeCourseDescription(payload: string) {
+  @Mutation changeCourseDescription(payload: string) {
     this.course = { ...this.course, description: payload } as CourseModel;
   }
 
-  @Mutation
-  addLessonToCourse(payload: LessonModel) {
+  @Mutation addLessonToCourse(payload: LessonModel) {
     this.course = { ...this.course, lessons: this.course.lessons.concat(payload) } as CourseModel;
   }
 
-  @Mutation
-  addLessonToAllLesson(payload: LessonModel) {
+  @Mutation addLessonToAllLesson(payload: LessonModel) {
     this.allLessons = [...this.allLessons, payload];
   }
 
-  @Mutation
-  deleteLesson(payload: LessonModel) {
+  @Mutation deleteLesson(payload: LessonModel) {
     this.course = {
       ...this.course,
       lessons: this.course.lessons.filter(

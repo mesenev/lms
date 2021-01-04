@@ -108,11 +108,10 @@
 </template>
 
 <script lang="ts">
-import LessonModel from '@/models/LessonModel';
-import { Prop, Component, Vue } from 'vue-property-decorator';
+import { modBStore } from '@/store';
 import Edit from '@carbon/icons-vue/es/edit/20';
 import _ from 'lodash';
-import { mainStore } from '@/store';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: { Edit } })
 export default class CourseCalendarView extends Vue {
@@ -121,7 +120,7 @@ export default class CourseCalendarView extends Vue {
   public modalVisible = false;
   public startDate: string | null = null;
   public changedStartDate: string | null = null;
-  private store = mainStore;
+  private store = modBStore;
   private result: Array<object> | null = null;
 
   private monday_ = false;

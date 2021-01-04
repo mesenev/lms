@@ -11,16 +11,16 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from 'vue-property-decorator';
 import CourseModel from '@/models/CourseModel';
-import { mainStore } from '@/store';
+import { modBStore } from '@/store';
 import _ from 'lodash';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({})
 export default class EditCourseDescription extends Vue {
   @Prop({ required: true }) course!: CourseModel;
 
-  store = mainStore;
+  store = modBStore;
 
   courseDescription: string = this.course.description || '';
 
