@@ -27,33 +27,25 @@
 
 <script lang="ts">
 import Course from '@/components/Course.vue';
-import { mainStore } from '@/store';
-import axios from 'axios';
+import { courseStore } from '@/store';
 import Vue from 'vue';
 import Component from 'vue-class-component';
 
 @Component({ components: { Course } })
 export default class HomeView extends Vue {
-  private store = mainStore;
+  private store = courseStore;
   searchValue = "";
-  private loading = true;
-  private errored = false;
 
   async created() {
+    await this.store.fetchCourses();
+  }
 
-    axios.get('http://localhost:8000/api/course/')
-      .then(response => {
-        this.store.setCourses(response.data);
-      })
-      .catch(error => {
-        console.log(error);
-        this.errored = true;
-      })
-      .finally(() => (this.loading = false));
+  get loading() {
+    return this.store.loading;
   }
 
   get courses() {
-    return this.store.getCourses;
+    return this.store.courses;
   }
 
   get filterCourses() {

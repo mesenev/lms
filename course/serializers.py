@@ -9,14 +9,14 @@ class CourseSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
     name = serializers.CharField(max_length=500)
     description = serializers.CharField()
-    author = DefaultUserSerializer()
+    author = DefaultUserSerializer(required=False, read_only=True)
     lessons = LessonSerializer(many=True, required=False, default=list())
-
+    def validate_author(self, value):
+        return
     def create(self, validated_data):
-        user = None
+        del validated_data['lessons']
         request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            user = request.user
+        user = request.user if request and hasattr(request, "user") else None
         return Course.objects.create(**validated_data, **{'author': user})
 
     def update(self, instance, validated_data):

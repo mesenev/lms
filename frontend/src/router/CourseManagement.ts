@@ -10,12 +10,11 @@ import { RouteConfig } from 'vue-router';
 // TODO: consult is it optimal (I bet it's not)
 const routes: Array<RouteConfig> = [
     {
-    path: '/course/new',
-    name: 'course-new',
+    path: '/course-add',
+    name: 'course-add',
     component: CourseEditView,
-    props: (route) => {
-      const courseId = Number.parseInt(route.params.courseId as string, 10);
-      return { courseId };
+    props: () => {
+      return { courseId: null };
     },
   },
   {

@@ -25,25 +25,25 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from 'vue-property-decorator';
-import { mainStore } from '@/store';
-import LessonModel from '@/models/LessonModel';
-import CourseModel from '@/models/CourseModel';
-import LessonCard from '@/components/EditCourse/LessonCard.vue';
-import { TrashCan32, Settings32 } from '@carbon/icons-vue/es/index';
 import searchByLessons from '@/common/searchByLessons';
+import LessonCard from '@/components/EditCourse/LessonCard.vue';
+import CourseModel from '@/models/CourseModel';
+import LessonModel from '@/models/LessonModel';
+import Settings20 from '@carbon/icons-vue/es/settings/20';
+import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({components: {
   LessonCard,
-  TrashCan32,
-  Settings32,
+  TrashCan20,
+  Settings20,
 }})
 export default class EditCourseLessons extends Vue {
   @Prop({ required: true }) course!: CourseModel;
 
-  TrashCan32 = TrashCan32;
+  TrashCan32 = TrashCan20;
 
-  Settings32 = Settings32;
+  Settings32 = Settings20;
 
   store = mainStore;
 

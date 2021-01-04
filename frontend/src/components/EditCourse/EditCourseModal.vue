@@ -4,12 +4,12 @@
       Добавить урок
     </cv-button>
     <cv-modal size="default"
-            class="add_lesson_modal"
-            :visible="modalVisible"
-            @modal-hidden="modalHidden"
-            :primary-button-disabled="!arrayOfLessons.length && !currentLesson.name"
-            @primary-click="addLesson"
-            @secondary-click="() => {}">
+              class="add_lesson_modal"
+              :visible="modalVisible"
+              @modal-hidden="modalHidden"
+              :primary-button-disabled="!arrayOfLessons.length && !currentLesson.name"
+              @primary-click="addLesson"
+              @secondary-click="() => {}">
       <template slot="label">{{ course.name }}</template>
       <template slot="title">
         Добавить урок
@@ -30,15 +30,17 @@
               <cv-structured-list>
                 <template slot="items">
                   <cv-search v-model="searchQueryForAllLessons"></cv-search>
-                    <cv-structured-list-item class="lesson-card"
-                                             v-for="lesson in allLessons"
-                                             :key="lesson.id">
-                      <LessonCard :lesson="lesson"
-                                  :main-icon="AddAlt32"
-                                  :change-main-icon="SubtractAlt32"
-                                  :manipulation="chooseLesson">
-                      </LessonCard>
-                    </cv-structured-list-item>
+                  <cv-structured-list-item
+                    class="lesson-card"
+                    v-for="lesson in allLessons"
+                    :key="lesson.id">
+                    <LessonCard
+                      :lesson="lesson"
+                      :main-icon="AddAlt32"
+                      :change-main-icon="SubtractAlt32"
+                      :manipulation="chooseLesson">
+                    </LessonCard>
+                  </cv-structured-list-item>
                 </template>
               </cv-structured-list>
             </div>
@@ -72,23 +74,19 @@ import searchByLessons from '@/common/searchByLessons';
 import LessonCard from '@/components/EditCourse/LessonCard.vue';
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
-import { mainStore } from '@/store';
-import { AddAlt32, SubtractAlt32 } from '@carbon/icons-vue/es/index';
+import { courseStore } from '@/store';
+import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
+import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
+
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({components: {
-  LessonCard,
-  AddAlt32,
-  SubtractAlt32,
-}})
+@Component({ components: { LessonCard, AddAlt20, SubtractAlt20, }, })
 export default class EditCourseModal extends Vue {
   @Prop({ required: true }) course!: CourseModel;
 
-  AddAlt32 = AddAlt32;
-
-  SubtractAlt32 = SubtractAlt32;
-
-  store = mainStore;
+  AddAlt32 = AddAlt20;
+  SubtractAlt32 = SubtractAlt20;
+  store = courseStore;
 
   modalVisible = false;
 
@@ -159,37 +157,38 @@ export default class EditCourseModal extends Vue {
 </script>
 
 <style lang="stylus">
-  .bx--modal-content:focus
+.bx--modal-content:focus
+  outline none
+
+.lesson_list
+  margin-bottom 0
+
+.lesson-card:hover
+  border-bottom 1px solid var(--cds-ui-05)
+
+.switcher
+  margin-bottom: 5px
+
+.add_lesson_modal .bx--modal-container
+  height 75vh
+
+.add_lesson_modal .bx--modal-footer
+  height 3.5rem
+
+.add_lesson_modal .bx--btn
+  height 3rem
+  border none
+
+.add_lesson_modal .bx--btn--secondary
+  background-color var(--cds-hover-secondary)
+
+  &:hover, &:active, &:focus
     outline none
-
-  .lesson_list
-    margin-bottom 0
-
-  .lesson-card:hover
-    border-bottom 1px solid var(--cds-ui-05)
-
-  .switcher
-    margin-bottom: 5px
-
-  .add_lesson_modal .bx--modal-container
-    height 75vh
-
-  .add_lesson_modal .bx--modal-footer
-    height 3.5rem
-
-  .add_lesson_modal .bx--btn
-    height 3rem
+    box-shadow none
     border none
 
-  .add_lesson_modal .bx--btn--secondary
-    background-color var(--cds-hover-secondary)
-    &:hover, &:active, &:focus
-      outline none
-      box-shadow none
-      border none
-
-  .add_lesson_modal .bx--btn--primary[disabled = disabled],
-  .add_lesson_modal .bx--btn--primary
-    background-color var(--cds-ui-05)
+.add_lesson_modal .bx--btn--primary[disabled = disabled],
+.add_lesson_modal .bx--btn--primary
+  background-color var(--cds-ui-05)
 
 </style>
