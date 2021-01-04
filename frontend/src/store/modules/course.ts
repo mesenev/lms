@@ -23,6 +23,17 @@ export default class CourseModule extends VuexModule {
         console.log(error);
       })
   }
+  // @Action
+  // async fetchCourseById(id: number) {
+  //   await axios.get(`http://localhost:8000/api/course/${id}/`)
+  //     .then(response => {
+  //       console.log(response.data);
+  //       this.addCourseToArray(response.data);
+  //     })
+  //     .catch(error => {
+  //       console.log(error);
+  //     })
+  // }
 
   @Mutation
   addCourseToArray(element: CourseModel) {

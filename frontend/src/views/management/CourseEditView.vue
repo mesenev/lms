@@ -13,7 +13,7 @@
       <cv-text-input
         label="Автор"
         :disabled="true"
-        :value="`${courseEdit.author.first_name} ${courseEdit.author.last_name}
+        :value="`${courseEdit.author.firstName} ${courseEdit.author.lastName}
          (${courseEdit.author.username})`.trim()"
       />
       <cv-text-input label="Название курса" v-model.trim="courseEdit.name"/>
@@ -70,13 +70,17 @@ export default class CourseEditView extends Vue {
         this.courseEdit = { ...this.course };
         this.fetchingCourse = false;
       });
+    } else {
+      this.course = this.store.courses.find((element) => { return this.courseId === element.id; });
+      this.courseEdit = { ...this.course };
+      this.fetchingCourse = false;
     }
   }
 
   course: CourseModel = {
     id: NaN,
     name: '',
-    author: {...userStore.user},
+    author: { ...userStore.user },
     lessons: [],
     completed: false,
     description: '',
