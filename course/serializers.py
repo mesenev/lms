@@ -11,8 +11,10 @@ class CourseSerializer(serializers.Serializer):
     description = serializers.CharField()
     author = DefaultUserSerializer(required=False, read_only=True)
     lessons = LessonSerializer(many=True, required=False, default=list())
+
     def validate_author(self, value):
         return
+
     def create(self, validated_data):
         del validated_data['lessons']
         request = self.context.get("request")
