@@ -18,6 +18,10 @@
       />
       <cv-text-input label="Название курса" v-model.trim="courseEdit.name"/>
       <cv-text-input label="Описание курса" v-model.trim="courseEdit.description"/>
+      <cv-button v-if="!fetchingCourse" :disabled="!isChanged" v-on:click="createOrUpdate">
+        {{ isNewCourse ? 'Создать' : 'Изменить' }}
+      </cv-button>
+      <cv-button-skeleton v-if="fetchingCourse"></cv-button-skeleton>
       <EditCourseLessons
         v-if="!isNewCourse"
         :course="courseEdit"
@@ -25,11 +29,6 @@
       <EditCourseModal
         :course="courseEdit"
         class="edit--course-props"/>
-
-      <cv-button v-if="!fetchingCourse" :disabled="!isChanged" v-on:click="createOrUpdate">
-        {{ isNewCourse ? 'Создать' : 'Изменить' }}
-      </cv-button>
-      <cv-button-skeleton v-if="fetchingCourse"></cv-button-skeleton>
     </div>
   </div>
 </template>
@@ -66,12 +65,14 @@ export default class CourseEditView extends Vue {
 
     if (this.store.courses.length === 0) {
       this.store.fetchCourses().then(() => {
-        this.course = this.store.courses.find((element) => { return this.courseId === element.id; });
+        this.course = this.store.courses.find(
+          (element) => { return this.courseId === element.id; }) as CourseModel;
         this.courseEdit = { ...this.course };
         this.fetchingCourse = false;
       });
     } else {
-      this.course = this.store.courses.find((element) => { return this.courseId === element.id; });
+      this.course = this.store.courses.find(
+        (element) => { return this.courseId === element.id; }) as CourseModel;
       this.courseEdit = { ...this.course };
       this.fetchingCourse = false;
     }
