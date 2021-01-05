@@ -12,7 +12,7 @@ class Problem(models.Model):
 
 
 class Submit(models.Model):
-    SUBMIT_STATUS = [('WA', 'Wrong answer'), ('OK', 'OK'), ]
+    SUBMIT_STATUS = [('WA', 'Wrong answer'), ('OK', 'OK'), ('NP', 'NP'), ]
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, null=False)
     student = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     content = models.TextField()

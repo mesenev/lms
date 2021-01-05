@@ -12,7 +12,11 @@ class SubmitSerializer(serializers.Serializer):
     status = serializers.CharField()
 
     def update(self, instance, validated_data):
-        pass
+        print(validated_data)
+        instance.content = validated_data.get('content', instance.content)
+        instance.status = validated_data.get('status', instance.status)
+        instance.save()
+        return instance
 
     def create(self, validated_data):
         request = self.context.get('request')
@@ -27,7 +31,6 @@ class SubmitSerializer(serializers.Serializer):
 
     class Meta:
         model = Submit
-        fields = ('id', 'problem', 'student', 'content', 'status')
 
 
 class ProblemSerializer(serializers.Serializer):
