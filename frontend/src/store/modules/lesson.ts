@@ -1,14 +1,14 @@
-import CourseModel from '@/models/CourseModel';
+import LessonModel from '@/models/LessonModel';
 import axios from 'axios';
 import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
 @Module({ name: 'lesson' })
 export default class LessonModule extends VuexModule {
 
-  lessons: Array<CourseModel> = [];
+  lessons: Array<LessonModel> = [];
 
   @Mutation
-  setLessons(payload: Array<CourseModel>) {
+  setLessons(payload: Array<LessonModel>) {
     this.lessons = payload;
   }
 
@@ -21,9 +21,24 @@ export default class LessonModule extends VuexModule {
   }
 
   @Mutation
-  addLessonToArray(element: CourseModel) {
+  addLessonToArray(element: LessonModel) {
     this.lessons.push(element);
     this.lessons = [...this.lessons];
   }
+
+  get getNewLesson(): LessonModel {
+    return {
+      id: NaN,
+      courseId: NaN,
+      name: '',
+      lessonContent: '',
+      classwork: [],
+      homework: [],
+      materials: [],
+      deadline: '',
+    } as LessonModel;
+  }
+
+
 }
 

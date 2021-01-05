@@ -11,20 +11,33 @@
               @primary-click="addLesson"
               @secondary-click="() => {}">
       <template slot="label">{{ course.name }}</template>
+      <cv-inline-notification
+        v-if="showNotification"
+        @close="() => showNotification=false"
+        kind="error"
+        :sub-title="notificationText"
+      />
       <template slot="title">
         Добавить урок
-        <cv-content-switcher class="switcher" @selected="currentLesson = emptyLesson">
+        <cv-content-switcher class="switcher" @selected="actionSelected">
           <cv-content-switcher-button content-selector=".content-1" selected>
-            Выбрать из существующих
+            Создать новый
           </cv-content-switcher-button>
           <cv-content-switcher-button content-selector=".content-2">
-            Создать новый
+            Выбрать из существующих
           </cv-content-switcher-button>
         </cv-content-switcher>
       </template>
       <template slot="content">
-        <section>
+        <section class="modal--content">
           <div class="content-1">
+            <cv-text-input label="Название курса" v-model.trim="course.name" disabled/>
+            <cv-text-input label="Автор" v-model.trim="course.author.username" disabled/>
+            <cv-text-input label="Название урока" v-model.trim="currentLesson.name"/>
+            <cv-text-input label="Описание урока" v-model.trim="currentLesson.description"/>
+            <span>Добавление к уроку материалов и задач доступно после создания урока</span>
+          </div>
+          <div class="content-2" hidden>
             <div>
               <cv-structured-list>
                 <template slot="items">
@@ -44,24 +57,10 @@
               </cv-structured-list>
             </div>
           </div>
-          <div class="content-2" hidden>
-            <cv-text-input label="Название урока" v-model.trim="currentLesson.name">
-            </cv-text-input>
-            <cv-date-picker kind="single"
-                            date-label="Время окончания"
-                            v-model="currentLesson.deadline">
-            </cv-date-picker>
-            <cv-text-input label="Рабочие материалы"
-                           v-model.trim="currentLesson.lessonContent">
-            </cv-text-input>
-          </div>
         </section>
       </template>
       <template slot="primary-button">
         Добавить
-      </template>
-      <template slot="secondary-button">
-        {{ getSelected }}
       </template>
     </cv-modal>
   </div>
@@ -75,6 +74,7 @@ import LessonModel from '@/models/LessonModel';
 import { courseStore, lessonStore } from '@/store';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
+import axios from 'axios';
 
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
@@ -86,7 +86,12 @@ export default class EditCourseModal extends Vue {
   SubtractAlt32 = SubtractAlt20;
   courseStore = courseStore;
   lessonStore = lessonStore;
-  currentLesson: LessonModel = this.emptyLesson;
+  currentLesson: LessonModel = { ...this.lessonStore.getNewLesson, courseId: this.course.id };
+  fetchingLessons = true;
+  selectedNew = true;
+  showNotification = false;
+  notificationText = '';
+  creationLoader = false;
 
   lessons: LessonModel[] = [];
   modalVisible = false;
@@ -103,20 +108,24 @@ export default class EditCourseModal extends Vue {
   }
 
   async created() {
-    await this.lessonStore.fetchLessons();
+    if (this.lessonStore.lessons.length === 0)
+      await this.lessonStore.fetchLessons();
+    this.fetchingLessons = false;
   }
 
   showModal() {
     this.modalVisible = true;
+    this.showNotification = false;
   }
 
   modalHidden() {
     this.modalVisible = false;
-    this.currentLesson = this.emptyLesson;
+    this.currentLesson = { ...this.lessonStore.getNewLesson };
   }
 
-
-
+  actionSelected() {
+    this.selectedNew = !this.selectedNew;
+  }
 
   get getSelected(): string {
     return this.lessons.concat(this.currentLesson)
@@ -124,18 +133,6 @@ export default class EditCourseModal extends Vue {
       .sort((a, b) => a < b ? -1 : 1)
       .join(' ');
   }
-
-  get emptyLesson(): LessonModel {
-    return {
-      name: '',
-      lessonContent: '',
-      classwork: [],
-      homework: [],
-      materials: [],
-      deadline: '',
-    } as LessonModel;
-  }
-
 
   chooseLesson(lesson: LessonModel) {
     if (!this.lessons.includes(lesson)) {
@@ -145,21 +142,35 @@ export default class EditCourseModal extends Vue {
     }
   }
 
-  addLesson() {
-    if (this.currentLesson.name) {
-      this.lessons.push(this.currentLesson);
-      this.lessonStore.addLessonToAllLesson(this.currentLesson);
+  async addLesson() {
+    if (this.selectedNew) {
+      this.creationLoader = true;
+      await this.createNewLesson();
+      this.creationLoader = false;
     }
     if (this.lessons.every((l) => l.name)) {
-      this.lessons.forEach((lesson) => this.store.addLessonToCourse(lesson));
+      this.lessons.forEach((lesson) => this.lessonStore.addLessonToCourse(lesson));
       this.lessons = [];
     }
-    this.modalHidden();
+  }
+
+
+  async createNewLesson() {
+    delete this.currentLesson.id;
+    const request = axios.post('http://localhost:8000/api/lesson/', this.currentLesson);
+    request.then(response => {
+      this.course.lessons.push(response.data as LessonModel);
+      this.modalHidden();
+    });
+    request.catch(error => {
+      this.notificationText = `Что-то пошло не так: ${error.message}`;
+      this.showNotification = true;
+    });
   }
 }
 </script>
 
-<style lang="stylus">
+<style scoped lang="stylus">
 .bx--modal-content:focus
   outline none
 
@@ -194,4 +205,6 @@ export default class EditCourseModal extends Vue {
 .add_lesson_modal .bx--btn--primary
   background-color var(--cds-ui-05)
 
+.modal--content
+  height 500px
 </style>
