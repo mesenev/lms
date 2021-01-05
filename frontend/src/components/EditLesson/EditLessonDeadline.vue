@@ -19,12 +19,12 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { mainStore } from '@/store';
 import LessonModel from "@/models/LessonModel";
 import _ from 'lodash';
-
+import { modBStore } from '@/store';
 @Component({})
 export default class EditLessonDeadline extends Vue {
   @Prop({ required: true }) lesson!: LessonModel;
 
-  store = mainStore;
+  store = modBStore;
 
   lessonDeadline: string = this.lesson.deadline;
 

@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import searchByLessons from '@/common/searchByLessons';
+import searchByProblems from '@/common/searchByProblems';
 import LessonCard from '@/components/EditCourse/LessonCard.vue';
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
@@ -33,6 +33,7 @@ import { modBStore } from '@/store';
 import Settings20 from '@carbon/icons-vue/es/settings/20';
 import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import { modBStore } from '@/store';
 
 @Component({
   components: {

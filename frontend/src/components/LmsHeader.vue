@@ -34,7 +34,7 @@
         Календарь
       </cv-header-menu-item>
     </cv-header-nav>
-    <cv-header-nav v-if="courseSelected">
+    <cv-header-nav v-if="courseSelected && !lessonSelected &&!problemSelected">
       <cv-header-menu-item
         :to="{
           name: 'course-edit',
@@ -43,7 +43,7 @@
         Изменить
       </cv-header-menu-item>
     </cv-header-nav>
-    <cv-header-nav v-if="lessonSelected">
+    <cv-header-nav v-if="lessonSelected && !problemSelected">
       <cv-header-menu-item
         :to="{
           name: 'lesson-edit',
