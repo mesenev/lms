@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from course.models import Course
 from lesson.models import Lesson
 from problem.serializers import ProblemSerializer
 from users.serializers import DefaultUserSerializer
@@ -8,6 +9,7 @@ from users.serializers import DefaultUserSerializer
 class LessonSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
     name = serializers.CharField(max_length=500)
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
     description = serializers.CharField()
     author = DefaultUserSerializer(required=False, read_only=True)
     problems = ProblemSerializer(many=True, required=False, default=list())

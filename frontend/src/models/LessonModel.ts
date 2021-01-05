@@ -3,7 +3,7 @@ import ProblemModel from '@/models/ProblemModel';
 
 export default interface LessonModel {
     id: number;
-    courseId: number;
+    course: number;
     name: string;
     description: string;
     deadline: string;

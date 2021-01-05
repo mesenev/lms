@@ -29,8 +29,9 @@ export default class LessonModule extends VuexModule {
   get getNewLesson(): LessonModel {
     return {
       id: NaN,
-      courseId: NaN,
+      course: NaN,
       name: '',
+      description: '',
       lessonContent: '',
       classwork: [],
       homework: [],

@@ -5,12 +5,10 @@ from lesson.serializers import LessonSerializer
 from users.serializers import DefaultUserSerializer
 
 
-class CourseSerializer(serializers.Serializer):
+class CourseSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
-    name = serializers.CharField(max_length=500)
-    description = serializers.CharField()
     author = DefaultUserSerializer(required=False, read_only=True)
-    lessons = LessonSerializer(many=True, required=False, default=list())
+    lessons = LessonSerializer(many=True, read_only=True)
 
     def validate_author(self, value):
         return
@@ -27,9 +25,9 @@ class CourseSerializer(serializers.Serializer):
         instance.author = validated_data.get('author', instance.author)
         instance.save()
         return instance
-
     class Meta:
         model = Course
+        fields = ['id', 'name', 'description', 'author', 'lessons']
 
 
 class ScheduleSerializer(serializers.Serializer):
