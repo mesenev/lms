@@ -1,7 +1,8 @@
 import ProblemModel from '@/models/ProblemModel';
 
-export default function searchByProblems(query: string,
-                                        arrayOfProblems: ProblemModel[]): ProblemModel[] {
+export default function searchByProblems(
+  query: string, arrayOfProblems: ProblemModel[]
+): ProblemModel[] {
   // if there is no query
   if (!query) {
     return arrayOfProblems;
