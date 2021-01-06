@@ -8,6 +8,7 @@ import LessonModule from '@/store/modules/lesson';
 import MainStorage from '@/store/modules/MainStorage';
 import UserModule from '@/store/modules/user';
 import SubmitModule from '@/store/modules/submit';
+import ProblemModule from "@/store/modules/problem";
 import { Store } from 'vuex'
 import { getModule } from 'vuex-module-decorators';
 
@@ -15,6 +16,7 @@ import { getModule } from 'vuex-module-decorators';
 // Use these -- they have methods for state/getters/mutations/actions
 // (result from getModule(...))
 export let userStore: UserModule;
+export let problemStore: ProblemModule
 export let courseStore: CourseModule;
 export let modBStore: MainStorage;
 export let lessonStore: LessonModule;
@@ -23,6 +25,7 @@ export let submitStore: SubmitModule;
 // initializer plugin: sets up state/getters/mutations/actions for each store
 export function initializeStores (store: Store<unknown>): void {
   userStore = getModule(UserModule, store)
+  problemStore = getModule(ProblemModule, store)
   courseStore = getModule(CourseModule, store)
   modBStore = getModule(MainStorage, store)
   lessonStore = getModule(LessonModule, store)
@@ -33,6 +36,7 @@ export function initializeStores (store: Store<unknown>): void {
 // appears as an element of the root store's state.
 // (This is required!)
 export const modules = {
+  'problem': ProblemModule,
   'user': UserModule,
   'course': CourseModule,
   'lesson': LessonModule,

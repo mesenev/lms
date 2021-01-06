@@ -1,7 +1,6 @@
 from rest_framework import serializers
-
-from problem.models import Problem, Submit
 from users.serializers import DefaultUserSerializer
+from problem.models import Problem, Submit
 
 
 class SubmitSerializer(serializers.Serializer):
@@ -36,16 +35,22 @@ class SubmitSerializer(serializers.Serializer):
 class ProblemSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
     lesson = serializers.PrimaryKeyRelatedField(read_only=True)
-    author = serializers.PrimaryKeyRelatedField(read_only=True)
+    author = DefaultUserSerializer(required=False, read_only=True)
     name = serializers.CharField()
     description = serializers.CharField()
-    submits = SubmitSerializer(many=True)
+    submits = SubmitSerializer(many=True, read_only=True)
 
     def update(self, instance, validated_data):
-        pass
+         instance.name = validated_data.get('name', instance.name)
+         instance.description = validated_data.get('description', instance.description)
+         instance.author = validated_data.get('author', instance.author)
+         instance.save()
+         return instance
 
     def create(self, validated_data):
-        pass
+        request = self.context.get("request")
+        user = request.user if request and hasattr(request, "user") else None
+        return Problem.objects.create(**validated_data, **{'author': user})
 
     class Meta:
         model = Problem
