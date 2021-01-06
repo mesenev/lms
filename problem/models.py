@@ -5,7 +5,7 @@ from users.models import User
 
 
 class Problem(models.Model):
-    lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True)
+    lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, related_name='problems', null=True)
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=500)
     description = models.TextField()

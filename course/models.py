@@ -10,6 +10,6 @@ class Course(models.Model):
 
 
 class CourseSchedule(models.Model):
-    course_id = models.ForeignKey(Course, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
     start_date = models.DateField(null=True)
     week_schedule = models.CharField(max_length=500, null=True)
