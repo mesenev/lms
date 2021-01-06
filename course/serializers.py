@@ -14,7 +14,8 @@ class CourseSerializer(serializers.ModelSerializer):
         return
 
     def create(self, validated_data):
-        del validated_data['lessons']
+        if hasattr(validated_data, 'lessons'):
+            del validated_data['lessons']
         request = self.context.get("request")
         user = request.user if request and hasattr(request, "user") else None
         return Course.objects.create(**validated_data, **{'author': user})
