@@ -114,16 +114,21 @@ export default class MainStorage extends VuexModule {
     return this.getCourse?.lessons.map((l) => l.name);
   }
 
-  private material: Array<LessonContent> = [{
+  material: LessonContent = {
     id: 1,
     name: 'FAQ к уроку',
-    text: 'Кто такие менты?',
-  },
-    {
-      id: 2,
-      name: 'Документация GIT',
-    },
-  ];
+    text: '### Кто такой мент? \n',
+  };
+
+  @Mutation changeMaterialName(payload: string) {
+    this.material = { ...this.material, name: payload } as LessonContent;
+  }
+
+  @Mutation changeMaterial(payload: string) {
+    this.material = { ...this.material, text: payload} as LessonContent;
+  }
+
+  private materials: Array<LessonContent> = [ this.material ];
 
   private lesson1: LessonModel = {
     id: 5,
@@ -131,7 +136,7 @@ export default class MainStorage extends VuexModule {
     deadline: '31.12.2020',
     classwork: this.problems,
     homework: this.homework,
-    materials: this.material,
+    materials: this.materials,
   }
 
   private lessons: Array<LessonModel> = [this.lesson1, this.lesson1, this.lesson1, this.lesson1]

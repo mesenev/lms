@@ -43,7 +43,7 @@
         Изменить
       </cv-header-menu-item>
     </cv-header-nav>
-    <cv-header-nav v-if="lessonSelected && !problemSelected">
+    <cv-header-nav v-if="lessonSelected && !problemSelected && !materialSelected">
       <cv-header-menu-item
         :to="{
           name: 'lesson-edit',
@@ -58,7 +58,16 @@
           name: 'problem-edit',
           params: { courseId: this.$route.params.problemId }
         }">
-        Изменить задание
+        Изменить
+      </cv-header-menu-item>
+    </cv-header-nav>
+    <cv-header-nav v-if="materialSelected">
+      <cv-header-menu-item
+        :to="{
+          name: 'material-edit',
+          params: { materialId: this.$route.params.materialId }
+        }">
+        Изменить
       </cv-header-menu-item>
     </cv-header-nav>
 
@@ -97,6 +106,9 @@ export default class LmsHeader extends Vue {
     return this.$route.params.hasOwnProperty('problemId');
   }
 
+  get materialSelected(): boolean {
+    return this.$route.params.hasOwnProperty('materialId');
+  }
 }
 </script>
 

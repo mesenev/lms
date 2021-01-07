@@ -3,6 +3,7 @@ import CourseView from '@/views/CourseView.vue';
 import HomeView from '@/views/HomeView.vue';
 import LessonView from '@/views/LessonView.vue';
 import ProblemView from '@/views/ProblemView.vue';
+import MaterialView from '@/views/MaterialView.vue';
 import Vue from 'vue';
 import RegistrationView from '@/views/RegistrationView.vue';
 import VueRouter, { RouteConfig } from 'vue-router';
@@ -41,6 +42,15 @@ const routes: Array<RouteConfig> = [
     props: (route) => {
       const problemId = Number.parseInt(route.params.problemId as string, 10);
       return { problemId };
+    },
+  },
+  {
+    path: '/course/:courseId/lesson/:lessonId/material/:materialId',
+    name: 'MaterialView',
+    component: MaterialView,
+    props: (route) => {
+      const materialId = Number.parseInt(route.params.materialId as string, 10);
+      return { materialId };
     },
   },
   {

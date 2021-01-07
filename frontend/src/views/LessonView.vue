@@ -8,18 +8,19 @@
         </cv-tile>
         <h4> Задачи урока: </h4>
       </div>
-      <div class="bx--col-lg-10">
+      <div class="bx--col-lg-9">
       </div>
-      <div class="add bx--col-lg-6">
-        <p>Пользователи</p>
+      <div class="bx--col-lg-1">
       </div>
-      <div class="less bx--col-lg-10">
+      <div class="less bx--col-lg-9">
         <div class="classwork">
           <h4>Классная работа</h4>
           <cv-accordion v-for="less in classwork" :key="less.id">
             <Problem :problem-prop='less'/>
           </cv-accordion>
         </div>
+        <br>
+        <br>
         <div class="homework">
           <h4>Домашнаяя работа</h4>
           <cv-accordion v-for="less in homework" :key="less.id">
@@ -27,31 +28,41 @@
           </cv-accordion>
         </div>
       </div>
-      <div class="add bx--col-lg-6">
-        <h4>Материалы</h4>
-        <cv-structured-list selectable>
-          <template slot="items">
-            <cv-structured-list-item v-for="material in materials" :key="material.id">
-              <h5>{{material.name}}</h5>
-              <span>{{material.text}}</span>
-            </cv-structured-list-item>
-          </template>
-        </cv-structured-list>
+      <div class="bx--col-lg-1">
+      </div>
+      <div class="bx--col-lg-6">
+        <div class="less bx--row-lg-6">
+          <h4>Пользователи:</h4>
         </div>
+        <div class="bx--row-lg-6">
+          <br>
+        </div>
+        <div class="less bx--row-lg-6">
+          <h4>Материалы</h4>
+          <cv-structured-list selectable>
+            <template slot="items">
+              <cv-structured-list-item v-for="material in materials" :key="material.id">
+                <Material :material-prop='material'/>
+              </cv-structured-list-item>
+            </template>
+          </cv-structured-list>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import Problem from '@/components/Problem.vue';
+import Material from "@/components/Material.vue";
 import LessonContent from "@/models/LessonContent";
 import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
 import { modBStore } from '@/store';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: { Problem } })
-export default class HomeView extends Vue {
+@Component({ components: {Material, Problem } })
+export default class LessonView extends Vue {
   private store = modBStore;
   @Prop() lessonId!: number;
 
@@ -72,7 +83,7 @@ export default class HomeView extends Vue {
 }
 </script>
 
-<style lang="stylus">
+<style scoped lang="stylus">
 .less
   background-color var(--cds-ui-02)
   padding var(--cds-spacing-05)
