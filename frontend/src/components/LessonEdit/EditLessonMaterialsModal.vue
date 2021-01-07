@@ -1,7 +1,7 @@
 <template>
   <div>
     <cv-button class="change-btn" @click="showModal">
-      Добавить задание
+      Добавить материал
     </cv-button>
     <cv-modal size="default"
               class="add_lesson_modal"
@@ -18,10 +18,10 @@
         :sub-title="notificationText"
       />
       <template slot="title">
-        Добавить задание
+        Добавить материалы
         <cv-content-switcher class="switcher" @selected="actionSelected">
           <cv-content-switcher-button content-selector=".content-1" selected>
-            Создать новое
+            Создать новый
           </cv-content-switcher-button>
           <cv-content-switcher-button content-selector=".content-2">
             Выбрать из существующих
@@ -32,8 +32,9 @@
         <section class="modal--content">
           <div class="content-1">
             <cv-text-input label="Название урока" v-model.trim="lesson.name" disabled/>
-            <cv-text-input label="Название задания" v-model.trim="currentProblem.name"/>
-            <cv-text-input label="Описание задания" v-model.trim="currentProblem.description"/>
+            <cv-text-input label="Название" v-model.trim="currentProblem.name"/>
+            <span>Редактирование материалов доступно после создания</span>
+
           </div>
           <div class="content-2" hidden>
             <div>
@@ -74,7 +75,7 @@ import axios from 'axios';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: { AddAlt20, SubtractAlt20 } })
-export default class EditLessonModal extends Vue {
+export default class EditLessonMaterialsModal extends Vue {
   @Prop({ required: true }) lesson!: LessonModel;
 
   AddAlt32 = AddAlt20;
@@ -169,6 +170,7 @@ export default class EditLessonModal extends Vue {
   outline none
 .change-btn
   background-color var(--cds-interactive-02)
+  margin-left 25px
 .lesson_list
   margin-bottom 0
 
