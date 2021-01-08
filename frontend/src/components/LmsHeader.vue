@@ -72,15 +72,55 @@
     </cv-header-nav>
 
     <template slot="header-global">
-      <cv-header-global-action aria-label="Notifications">
+      <cv-header-global-action aria-label="Notifications"
+      aria-controls="notifications">
         <notification-20/>
       </cv-header-global-action>
-      <cv-header-global-action aria-label="User avatar">
+      <cv-header-global-action aria-label="User avatar"
+                               aria-controls="account">
         <user-avatar-20/>
       </cv-header-global-action>
-      <cv-header-global-action aria-label="App switcher">
-        <app-switcher-20/>
-      </cv-header-global-action>
+    </template>
+
+    <template slot="right-panels">
+      <cv-header-panel class="" id="account">
+        <span class="acc_text">Управление аккаунтом</span>
+        <cv-switcher>
+          <template>
+            <cv-switcher-item>
+              <cv-switcher-item-link to="/" >
+                Профиль
+              </cv-switcher-item-link>
+            </cv-switcher-item>
+            <!-- About -->
+            <cv-switcher-item>
+              <cv-switcher-item-link to="/">
+                Мои курсы
+              </cv-switcher-item-link>
+              <cv-switcher-item-link to="/">
+                Выйти
+              </cv-switcher-item-link>
+            </cv-switcher-item>
+          </template>
+        </cv-switcher>
+      </cv-header-panel>
+    </template>
+
+    <template slot="right-panels">
+      <cv-header-panel class="" id="notifications">
+        <span class="acc_text">Оповещения </span>
+        <cv-switcher>
+          <template>
+            <cv-switcher-item>
+              <cv-switcher-item-link to="/" >
+                <cv-toast-notification
+                title="тестовое уведомление"
+                caption="текст оповещения"></cv-toast-notification>
+              </cv-switcher-item-link>
+            </cv-switcher-item>
+          </template>
+        </cv-switcher>
+      </cv-header-panel>
     </template>
   </cv-header>
 </template>
@@ -118,4 +158,9 @@ export default class LmsHeader extends Vue {
 
 .lms
   padding-left 5px
+
+.acc_text
+    margin: 32px 1rem 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #525252;
 </style>
