@@ -4,7 +4,7 @@
       <div class="bx--col-lg-16">
         <cv-tile kind="standard">
           <h1>{{ lesson.name }}</h1>
-          <p>{{ lesson.deadline }}</p>
+          <p>дедлайн: {{ lesson.deadline }}</p>
         </cv-tile>
         <h4> Задачи урока: </h4>
       </div>
@@ -58,27 +58,37 @@ import Material from "@/components/Material.vue";
 import LessonContent from "@/models/LessonContent";
 import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
-import { modBStore } from '@/store';
+import { lessonStore } from '@/store';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import CourseModel from "@/models/CourseModel";
 
 @Component({ components: {Material, Problem } })
 export default class LessonView extends Vue {
-  private store = modBStore;
-  @Prop() lessonId!: number;
+  @Prop({required: true}) lessonId!: number;
 
-  get lesson(): LessonModel {
-    return this.store.getLesson;
-  }
-  get materials(): Array<LessonContent> {
-    return this.lesson.materials;
+  @Prop({required: false, default: null}) lessonProp!: LessonModel | null;
+  lesson: LessonModel| null = null;
+  store = lessonStore;
+  loading = true;
+
+  async created() {
+    if(this.lessonProp === null){
+      this.lesson = await this.store.fetchLessonById(this.lessonId);
+    }
+    this.loading = false;
   }
 
-  get classwork(): Array<ProblemModel> {
-    return this.store.getLesson.classwork;
+  get materials(): LessonContent[] | undefined{
+    return this.lesson?.materials;
   }
 
-  get homework(): Array<ProblemModel> {
-    return this.store.getLesson.homework;
+  get classwork(): ProblemModel[] | undefined{
+    console.log(this.lesson);
+    return this.lesson?.problems;
+  }
+
+  get homework() {
+    return this.lesson?.problems;
   }
 }
 </script>
