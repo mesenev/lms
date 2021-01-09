@@ -42,14 +42,13 @@ import { courseStore, userStore } from '@/store';
 import axios from 'axios';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { modBStore } from '@/store';
 
 @Component({ components: { EditCourseLessons, EditCourseModal } })
 export default class CourseEditView extends Vue {
   @Prop() courseId!: number | null;
   sendingInfo = false;
   fetchingCourse = true;
-  store = modBStore;
+  store = courseStore;
   showNotification = false;
   notificationKind = 'success';
   notificationText = '';

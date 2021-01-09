@@ -7,8 +7,7 @@ export default interface LessonModel {
     name: string;
     description: string;
     deadline: string;
-    classwork: Array<ProblemModel>;
-    homework: Array<ProblemModel>;
+    problems: Array<ProblemModel>;
     materials: Array<LessonContent>;
     lessonContent?: string;
 }

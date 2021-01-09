@@ -10,10 +10,8 @@ import ProblemModel from '@/models/ProblemModel';
 import TrashCan20 from '@carbon/icons-vue/es/trash-can/20'
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({components: {
-  TrashCan20,
-}})
-export default class CourseCalendarView extends Vue {
+@Component({components: { TrashCan20, }})
+export default class ProblemCard extends Vue {
   @Prop() problem!: ProblemModel;
   @Prop() deleteProblem!: Function;
   // TrashCan20 = TrashCan20;
