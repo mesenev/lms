@@ -2,15 +2,13 @@
 import LessonModel from "@/models/LessonModel";
 import ProblemModel from "@/models/ProblemModel";
 import router from '@/router';
-import { modBStore } from "@/store";
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component
 export default class Course extends Vue {
-  private store = modBStore;
-  @Prop() lessonProp!: LessonModel; // TODO: change on VModel
+  @Prop({required: true}) lessonProp!: LessonModel;
 
-  openLesson(): void { // TODO: check possibility to change id to number
+  openLesson(): void {
     router.push({ name: 'LessonView', params: { lessonId: this.lesson.id.toString() } });
   }
 
@@ -25,10 +23,9 @@ export default class Course extends Vue {
   }
 
   count(lesson: LessonModel) {
-    const c = lesson.homework.concat(lesson.classwork).length;
+    const c = lesson.problems.concat(lesson.problems).length;
     const check = (c: number) => !(c % 2);
     return check(c) ? c + " задач" : c + " задачи";
-
   }
 }
 </script>
@@ -43,7 +40,7 @@ export default class Course extends Vue {
     <cv-structured-list-data>
     </cv-structured-list-data>
     <cv-structured-list-data class="progress">
-      <span>Прогресс:{{ completed(lesson.classwork.concat(lesson.homework)) }}</span>
+      <span>Прогресс:{{ completed(lesson.problems.concat(lesson.problems)) }}</span>
     </cv-structured-list-data>
 
   </div>

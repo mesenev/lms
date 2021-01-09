@@ -33,8 +33,7 @@ export default class LessonModule extends VuexModule {
       name: '',
       description: '',
       lessonContent: '',
-      classwork: [],
-      homework: [],
+      problems: [],
       materials: [],
       deadline: '',
     } as LessonModel;
