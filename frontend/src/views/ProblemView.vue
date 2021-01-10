@@ -129,9 +129,7 @@ export default class ProblemView extends Vue {
   }
 
   get submits(): SubmitModel[] {
-    return this.submitStore.submits.filter((submit) => {
-      return submit.problem === this.problemId;
-    });
+    return this.submitStore.submits;
   }
 
   private submit: SubmitModel = {
@@ -143,8 +141,11 @@ export default class ProblemView extends Vue {
   }
 
   async created() {
-    await this.problemStore.fetchProblemById(this.problemId);
-    await this.submitStore.fetchSubmits();
+    const problem = await this.problemStore.fetchProblemById(this.problemId);
+    if (problem) {
+      this.problemStore.setCurrentProblem(problem);
+    }
+    await this.submitStore.fetchSubmits(this.problemId);
     if (!_.isEmpty(this.submits)) {
       this.submit = { ...this.submits[this.submits.length - 1] };
       this.submitEdit = { ...this.submit };
@@ -162,7 +163,7 @@ export default class ProblemView extends Vue {
     this.submitEdit = { ...this.submitEdit, status };
 
     axios.patch(`http://localhost:8000/api/submit/${this.submitEdit.id}/`, this.submitEdit)
-      .then((response) => {
+      .then((response: AxiosResponse) => {
         this.submitStore.changeSubmitStatus(response.data);
         this.submit = { ...response.data };
         this.submitEdit = { ...this.submit };
@@ -173,8 +174,9 @@ export default class ProblemView extends Vue {
         this.notificationKind = 'success';
         this.notificationText = 'Работа оценена';
       })
-      .catch(error => {
-        console.error(error)
+      .catch((error: AxiosError) => {
+        this.notificationKind = 'error';
+        this.notificationText = `Что-то пошло не так ${error.message}`
       })
       .finally(() => this.showNotification = true);
   }
@@ -217,7 +219,7 @@ export default class ProblemView extends Vue {
   }
 
   get isNewSubmit(): boolean {
-    return _.isEmpty(this.submitEdit.status);
+    return isNaN(this.submitEdit.id);
   }
 
   get isChanged(): boolean {
