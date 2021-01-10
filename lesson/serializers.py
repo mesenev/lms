@@ -13,6 +13,7 @@ class LessonSerializer(serializers.Serializer):
     description = serializers.CharField()
     author = DefaultUserSerializer(required=False, read_only=True)
     problems = ProblemSerializer(many=True, required=False, default=list())
+    deadline = serializers.DateField()
 
     def create(self, validated_data):
         del validated_data["problems"]
@@ -24,6 +25,7 @@ class LessonSerializer(serializers.Serializer):
         instance.name = validated_data.get('name', instance.name)
         instance.description = validated_data.get('description', instance.description)
         instance.author = validated_data.get('author', instance.author)
+        instance.deadline = validated_data.get('deadline', instance.deadline)
         instance.save()
         return instance
 
