@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from users.serializers import DefaultUserSerializer
 from problem.models import Problem, Submit
-
+from lesson.models import Lesson
 
 class SubmitSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
@@ -34,7 +34,7 @@ class SubmitSerializer(serializers.Serializer):
 
 class ProblemSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
-    lesson = serializers.PrimaryKeyRelatedField(read_only=True)
+    lesson = serializers.PrimaryKeyRelatedField(queryset=Lesson.objects.all())
     author = DefaultUserSerializer(required=False, read_only=True)
     name = serializers.CharField()
     description = serializers.CharField()
