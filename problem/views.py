@@ -15,3 +15,10 @@ class ProblemViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, Updat
 class SubmitViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
     serializer_class = SubmitSerializer
     queryset = Submit.objects.all()
+
+    def get_queryset(self):
+        request = self.get_serializer_context()['request']
+        if request.query_params.get('problem', False):
+            problem = int(request.query_params['problem'][0])
+            return Submit.objects.filter(problem__id=problem)
+        return Submit.objects.all()

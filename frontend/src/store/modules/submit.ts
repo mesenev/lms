@@ -22,8 +22,12 @@ export default class SubmitModule extends VuexModule {
   }
 
   @Action
-  async fetchSubmits() {
-    await axios.get('http://localhost:8000/api/submit/')
+  async fetchSubmits(problemId: number) {
+    await axios.get('http://localhost:8000/api/submit/', {
+      params: {
+        problem: problemId
+      },
+    })
       .then(response => {
         this.setSubmits(response.data);
       })

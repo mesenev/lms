@@ -5,11 +5,15 @@ import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 @Module({ name: 'problem' })
 export default class ProblemModule extends VuexModule {
 
-  problems: Array<ProblemModel> = [];
+  _problems: Array<ProblemModel> = [];
+
+  get problems(): Array<ProblemModel> {
+    return this._problems;
+  }
 
   @Mutation
   setProblems(payload: Array<ProblemModel>) {
-    this.problems = payload;
+    this._problems = payload;
   }
 
   @Action
@@ -25,8 +29,31 @@ export default class ProblemModule extends VuexModule {
 
   @Mutation
   addProblemToArray(element: ProblemModel) {
-    this.problems.push(element);
-    this.problems = [...this.problems];
+    this._problems.push(element);
+    this._problems = [...this._problems];
+  }
+
+  private _currentProblem: ProblemModel = this.getNewProblem;
+
+  // @Action
+  // async fetchProblemById(id: number) {
+  //   await axios.get(`http://localhost:8000/api/problem/${id}/`)
+  //     .then((response) => {
+  //       this.addProblemToArray(response.data);
+  //       this.setCurrentProblem(response.data);
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //     })
+  // }
+
+  @Mutation
+  setCurrentProblem(problem: ProblemModel) {
+    this._currentProblem = { ...problem };
+  }
+
+  get currentProblem(): ProblemModel {
+    return this._currentProblem;
   }
 
   get getNewProblem(): ProblemModel {

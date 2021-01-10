@@ -1,12 +1,15 @@
 <template>
   <div class="bx--grid">
-    <div class="bx--row header">
+    <div v-if="!loading" class="bx--row header">
       <h1>{{ (course) ? course.name : "" }}</h1>
+    </div>
+      <div v-else class="bx--row header">
+        <cv-skeleton-text :width="'65%'" :heading="true"/>
     </div>
     <div class=" bx--row">
       <div class="items bx--col-lg-8">
         <cv-search label="label" placeholder="search" v-model.trim="searchValue"/>
-        <cv-structured-list selectable>
+        <cv-structured-list v-if="!loading" selectable>
           <template slot="items">
             <cv-structured-list-item
               class="item"
@@ -16,6 +19,7 @@
             </cv-structured-list-item>
           </template>
         </cv-structured-list>
+        <cv-data-table-skeleton v-else :rows="6" :columns="1" />
       </div>
       <div class="bx--col-lg-8">
       </div>
