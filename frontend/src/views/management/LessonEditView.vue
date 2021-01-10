@@ -81,13 +81,14 @@
 <script lang="ts">
 import LessonCard from '@/components/LessonCard.vue';
 import Problem from '@/components/Problem.vue';
-import ProblemCard from "@/components/ProblemCard.vue";
+// import ProblemCard from "@/components/ProblemCard.vue";
+import ProblemModel from '@/models/ProblemModel';
 import { modBStore } from '@/store';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({
   components: {
-    ProblemCard,
+    // ProblemCard,
     LessonCard, Problem,
   },
 })

@@ -48,7 +48,6 @@ export default class ProblemModule extends VuexModule {
       .then((response) => {
         this.addProblemToArray(response.data);
         this.setCurrentProblem(response.data);
-        console.log(this._currentProblem);
       })
       .catch((error) => {
         console.log(error);

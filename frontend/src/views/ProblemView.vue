@@ -16,14 +16,14 @@
               <cv-button class="rejected"
                          kind="danger"
                          size="small"
-                         :disabled="!canPatch"
+                         :disabled="this.submit.status === 'WA' || isNewSubmit"
                          v-on:click="rejectSubmit">
                 Rejected
               </cv-button>
               <cv-button class="accepted"
                          kind="secondary"
                          size="small"
-                         :disabled="!canPatch"
+                         :disabled="this.submit.status === 'OK' || isNewSubmit"
                          v-on:click="acceptSubmit">
                 Accepted
               </cv-button>
@@ -142,14 +142,16 @@ export default class ProblemView extends Vue {
     status: '',
   }
 
-  created() {
-    this.problemStore.fetchProblemById(this.problemId);
-    this.submitStore.fetchSubmits();
+  async created() {
+    await this.problemStore.fetchProblemById(this.problemId);
+    await this.submitStore.fetchSubmits();
+    if (!_.isEmpty(this.submits)) {
+      this.submit = { ...this.submits[this.submits.length - 1] };
+      this.submitEdit = { ...this.submit };
+    }
   }
 
   public submitEdit: SubmitModel = { ...this.submit };
-
-  canPatch = false;
 
   patchSubmit(status: string) {
     if (this.isNewSubmit) {
@@ -162,13 +164,11 @@ export default class ProblemView extends Vue {
     axios.patch(`http://localhost:8000/api/submit/${this.submitEdit.id}/`, this.submitEdit)
       .then((response) => {
         this.submitStore.changeSubmitStatus(response.data);
-        this.submit = { ...response.data, id: NaN };
+        this.submit = { ...response.data };
         this.submitEdit = { ...this.submit };
-        this.canPatch = false;
         if (response.data.status === 'OK') {
           this.problemStore.fetchProblemById(this.problemId);
           this.problem.completed = true;
-          this.canPatch = false;
         }
         this.notificationKind = 'success';
         this.notificationText = 'Работа оценена';
@@ -197,7 +197,6 @@ export default class ProblemView extends Vue {
         this.submitStore.addSubmitToArray(response.data);
         this.submit = { ...response.data };
         this.submitEdit = { ...this.submit };
-        this.canPatch = true;
         this.notificationKind = 'success';
         this.notificationText = 'Попытка отправлена';
       })
@@ -215,11 +214,10 @@ export default class ProblemView extends Vue {
     }) || this.submit;
     this.submit = { ...this.submit };
     this.submitEdit = { ...this.submit };
-    this.canPatch = this.submit.status === 'NP';
   }
 
   get isNewSubmit(): boolean {
-    return isNaN(this.submitEdit.id);
+    return _.isEmpty(this.submitEdit.status);
   }
 
   get isChanged(): boolean {
