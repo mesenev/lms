@@ -2,10 +2,10 @@
 import CourseView from '@/views/CourseView.vue';
 import HomeView from '@/views/HomeView.vue';
 import LessonView from '@/views/LessonView.vue';
-import ProblemView from '@/views/ProblemView.vue';
 import MaterialView from '@/views/MaterialView.vue';
-import Vue from 'vue';
+import ProblemView from '@/views/ProblemView.vue';
 import RegistrationView from '@/views/RegistrationView.vue';
+import Vue from 'vue';
 import VueRouter, { RouteConfig } from 'vue-router';
 import managementRoutes from './CourseManagement';
 
@@ -23,7 +23,7 @@ const routes: Array<RouteConfig> = [
     component: CourseView,
     props: (route) => {
       const courseId = Number.parseInt(route.params.courseId as string, 10);
-      return { courseId };
+      return { courseId, ...route.params };
     },
   },
   {
@@ -32,7 +32,7 @@ const routes: Array<RouteConfig> = [
     component: LessonView,
     props: (route) => {
       const lessonId = Number.parseInt(route.params.lessonId as string, 10);
-      return { lessonId };
+      return { lessonId, ...route.params };
     },
   },
   {
@@ -41,7 +41,7 @@ const routes: Array<RouteConfig> = [
     component: ProblemView,
     props: (route) => {
       const problemId = Number.parseInt(route.params.problemId as string, 10);
-      return { problemId };
+      return { problemId, ...route.params };
     },
   },
   {
@@ -50,7 +50,7 @@ const routes: Array<RouteConfig> = [
     component: MaterialView,
     props: (route) => {
       const materialId = Number.parseInt(route.params.materialId as string, 10);
-      return { materialId };
+      return { materialId, ...route.params };
     },
   },
   {

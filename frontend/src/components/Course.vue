@@ -5,10 +5,15 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component
 export default class Course extends Vue {
-  @Prop() courseProp!: CourseModel; // TODO: change on VModel
+  @Prop() courseProp!: CourseModel;
 
-  openCourse(): void { // TODO: check possibility to change id to number
-    router.push({ name: 'CourseView', params: { courseId: this.course.id.toString() } });
+  openCourse(): void {
+    router.push({
+      name: 'CourseView', params: {
+        courseId: this.course.id.toString(),
+        courseProp: this.course, //TODO: https://github.com/vuejs/vue-router/issues/2662
+      },
+    });
   }
 
   get course(): CourseModel {
@@ -19,9 +24,9 @@ export default class Course extends Vue {
 
 <template>
   <div class="course" v-on:click="openCourse">
-      <h5>{{ course.name }}</h5>
-      <span>Преподаватель: </span> Сущенко Андрей Андреевич <br>
-      <span>Следующий урок:</span> 24/1
+    <h5>{{ course.name }}</h5>
+    <span>Преподаватель: </span> Сущенко Андрей Андреевич <br>
+    <span>Следующий урок:</span> 24/1
   </div>
 </template>
 
