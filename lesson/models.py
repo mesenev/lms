@@ -9,6 +9,10 @@ class Lesson(models.Model):
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=500)
     description = models.TextField()
+    deadline = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
 
 
 class LessonContent(models.Model):
@@ -18,7 +22,8 @@ class LessonContent(models.Model):
         ('url', 'Url'),
     ]
 
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='materials')
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=500)
-    content_type = models.CharField(max_length=5, choices=CONTENT_TYPE)
+    content_type = models.CharField(max_length=5, choices=CONTENT_TYPE, blank=True, null=True)
     content = models.TextField()

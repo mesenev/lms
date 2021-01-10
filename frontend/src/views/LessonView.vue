@@ -1,10 +1,10 @@
 <template>
   <div class="bx--grid">
-    <div v-if="!loading" class="bx--row">
+    <div class="bx--row">
       <div class="bx--col-lg-16">
         <cv-tile kind="standard">
           <h1>{{ lesson.name }}</h1>
-          <p>{{ lesson.deadline }}</p>
+          <p>дедлайн: {{ lesson.deadline }}</p>
         </cv-tile>
         <h4> Задачи урока: </h4>
       </div>
@@ -53,36 +53,41 @@
 </template>
 
 <script lang="ts">
-import Material from "@/components/Material.vue";
 import Problem from '@/components/Problem.vue';
+import Material from "@/components/Material.vue";
 import LessonContent from "@/models/LessonContent";
 import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
 import { lessonStore } from '@/store';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import CourseModel from "@/models/CourseModel";
 
 @Component({ components: {Material, Problem } })
 export default class LessonView extends Vue {
-  @Prop() lessonId!: number;
+  @Prop({required: true}) lessonId!: number;
+
+  @Prop({required: false, default: null}) lessonProp!: LessonModel | null;
+  lesson: LessonModel| null = null;
   store = lessonStore;
-  lesson!: LessonModel;
   loading = true;
 
   async created() {
-    this.lesson = await this.store.fetchLessonById(this.lessonId);
+    if(this.lessonProp === null){
+      this.lesson = await this.store.fetchLessonById(this.lessonId);
+    }
     this.loading = false;
   }
 
-  get materials(): Array<LessonContent> {
-    return this.lesson.materials;
+  get materials(): LessonContent[] | undefined{
+    return this.lesson?.materials;
   }
 
-  get classwork(): Array<ProblemModel> {
-    return this.lesson.problems.filter(x => x.type === 'classwork');
+  get classwork(): ProblemModel[] | undefined{
+    return this.lesson?.problems;
   }
 
-  get homework(): Array<ProblemModel> {
-    return this.lesson.problems.filter(x => x.type === 'homework');
+  get homework() {
+    return this.lesson?.problems;
   }
 }
 </script>

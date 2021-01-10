@@ -8,6 +8,9 @@ class Course(models.Model):
     description = models.TextField()
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
+    def __str__(self):
+        return self.name
+
 
 class CourseSchedule(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)

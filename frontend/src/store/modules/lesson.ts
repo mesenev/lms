@@ -1,6 +1,7 @@
 import LessonModel from '@/models/LessonModel';
 import axios from 'axios';
 import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
+import CourseModel from "@/models/CourseModel";
 
 @Module({ name: 'lesson' })
 export default class LessonModule extends VuexModule {
@@ -20,6 +21,17 @@ export default class LessonModule extends VuexModule {
       }).catch(error => { console.log(error); })
   }
 
+  @Action
+  async fetchLessonById(id: number): Promise<LessonModel> {
+    let answer = { data: {} };
+    await axios.get(`http://localhost:8000/api/lesson/${id}/`)
+      .then(response => answer = response)
+      .catch(error => {
+        console.log(error);
+      })
+    return answer.data as LessonModel;
+  }
+
   @Mutation
   addLessonToArray(element: LessonModel) {
     this.lessons.push(element);
@@ -35,7 +47,7 @@ export default class LessonModule extends VuexModule {
       lessonContent: '',
       problems: [],
       materials: [],
-      deadline: '',
+      deadline: '2000-01-01',
     } as LessonModel;
   }
 
