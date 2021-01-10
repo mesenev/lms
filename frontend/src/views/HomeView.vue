@@ -11,13 +11,14 @@
           v-model.trim="searchValue"
         >
         </cv-search>
-        <cv-structured-list selectable>
+        <cv-structured-list v-if="!loading" selectable>
           <template slot="items">
             <cv-structured-list-item class="item" v-for="course in filterCourses" :key="course.id">
               <Course :courseProp='course'/>
             </cv-structured-list-item>
           </template>
         </cv-structured-list>
+        <cv-data-table-skeleton v-else :columns="1" :rows="6" />
       </div>
       <div class="bx--col-lg-8">
       </div>
