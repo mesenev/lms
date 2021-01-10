@@ -1,6 +1,6 @@
 <template>
   <div class="bx--grid">
-    <div class="bx--row">
+    <div v-if="!loading" class="bx--row">
       <div class="bx--col-lg-16">
         <cv-tile kind="standard">
           <h1>{{ lesson.name }}</h1>
