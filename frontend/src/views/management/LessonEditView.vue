@@ -3,13 +3,25 @@
     <div class="bx--row header">
       <h1>{{ isNewLesson ? 'Создание урока' : 'Редактирование урока' }}</h1>
     </div>
-    <div class="box--col-lg-8">
-      <cv-text-input label="Название урока" v-model.trim="lessonEdit.name" />
+    <div class="bx--col-lg-8">
+      <cv-inline-notification
+        v-if="showNotification"
+        @close="hideSuccess"
+        :kind="notificationKind"
+        :sub-title="notificationText"
+      />
+      <cv-text-input
+        label="Название урока"
+        v-model.trim="lessonEdit.name" />
+      <cv-text-input
+        label="Описание урока"
+        v-model.trim="lessonEdit.description" />
       <cv-date-picker
         class="deadLine"
         kind="single"
         v-model="lessonEdit.deadline"
         date-label="Дедлайн"
+        cal-options="y/m/d"
       />
       <cv-search class="search" v-model="query"></cv-search>
       <cv-structured-list class="classwork">
@@ -41,7 +53,7 @@
           :lesson="lessonEdit"
           class="edit--lesson-props"/>
       </div>
-      <cv-button class="finishButton" :disabled="!isChanged">{{
+      <cv-button class="finishButton" :disabled="!isChanged" v-on:click="createOrUpdate">{{
           isNewLesson ? 'Создать урок' : 'Изменить урок'
         }}
       </cv-button>
@@ -52,30 +64,74 @@
 
 <script lang="ts">
 import searchByProblems from '@/common/searchByProblems'
-import EditLessonMaterialsModal from "@/components/LessonEdit/EditLessonMaterialsModal.vue";
-import EditLessonModal from "@/components/LessonEdit/EditLessonModal.vue";
+import EditLessonMaterialsModal from "@/components/EditLesson/EditLessonMaterialsModal.vue";
+import EditLessonModal from "@/components/EditLesson/EditLessonModal.vue";
 import LessonModel from "@/models/LessonModel";
 import ProblemModel from "@/models/ProblemModel";
-import { modBStore } from '@/store';
+import {lessonStore, modBStore} from '@/store';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import CourseModel from "@/models/CourseModel";
+import axios from "axios";
+import router from "@/router";
 
 @Component({ components: { EditLessonMaterialsModal, EditLessonModal } })
 export default class CourseCalendarView extends Vue {
-  @Prop() courseId!: number;
-  store = modBStore;
+  @Prop({required: true}) lessonId!: number;
+  showNotification = false;
+  notificationKind = 'success';
+  notificationText = '';
+  fetchingLesson = true;
+
+  store = lessonStore;
+  query = '';
+
   lesson: LessonModel = {
     id: NaN,
-    course: this.courseId,
+    course: 1,
     description: '',
     name: '',
     problems: [],
     materials: [],
     deadline: '',
     lessonContent: '',
-  } as LessonModel
-  lessonEdit: LessonModel = { ...this.lesson, course: this.courseId }
-  query = '';
+  };
+  lessonEdit: LessonModel = { ...this.lesson, course: this.lesson.course };
+
+  hideSuccess() {
+    this.showNotification = false;
+  }
+
+  async created() {
+    console.log(this.lessonId);
+    this.lesson = await this.store.fetchLessonById(this.lessonId);
+    this.lessonEdit = {...this.lesson};
+    console.log(this.lessonEdit);
+  }
+
+  createOrUpdate(): void {
+    if (this.isNewLesson)
+      delete this.lessonEdit.id;
+    const request = (this.isNewLesson) ?
+      axios.post('http://localhost:8000/api/lesson/', this.lessonEdit) :
+      axios.patch(`http://localhost:8000/api/lesson/${this.lessonEdit.id}/`, this.lessonEdit);
+    console.log(this.lesson)
+    request.then(response => {
+      this.notificationKind = 'success';
+      this.notificationText = (this.lessonId) ? 'Урок успешно изменён' : 'Урок успешно создан';
+      if (this.isNewLesson) {
+        this.store.addLessonToArray(response.data);
+        router.replace(
+          { name: 'lesson-edit', params: { lessonId: response.data.id.toString() } },
+        );
+      }
+    });
+    request.catch(error => {
+      this.notificationText = `Что-то пошло не так: ${error.message}`;
+      this.notificationKind = 'error';
+    })
+    request.finally(() => this.showNotification = true);
+  }
 
   search(problems: ProblemModel[]): ProblemModel[] {
     return searchByProblems(this.query, problems);
@@ -159,4 +215,7 @@ export default class CourseCalendarView extends Vue {
 
   &:hover
     background-color: var(--cds-ui-04)
+
+  .change-btn:not([disabled = disabled])
+    background-color var(--cds-ui-05)
 </style>

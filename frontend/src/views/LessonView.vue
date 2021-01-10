@@ -83,7 +83,6 @@ export default class LessonView extends Vue {
   }
 
   get classwork(): ProblemModel[] | undefined{
-    console.log(this.lesson);
     return this.lesson?.problems;
   }
 

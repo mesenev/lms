@@ -64,7 +64,7 @@ const routes: Array<RouteConfig> = [
     },
   },
   {
-    path: '/course/:courseId/lesson/:lessonId/problem/:problemId/edit',
+    path: '/course/:courseId/lesson/:lessonId/edit',
     name: 'lesson-edit',
     component: LessonEditView,
     props: (route) => {
