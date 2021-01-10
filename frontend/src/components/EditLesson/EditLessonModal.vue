@@ -34,6 +34,12 @@
             <cv-text-input label="Название урока" v-model.trim="lesson.name" disabled/>
             <cv-text-input label="Название задания" v-model.trim="currentProblem.name"/>
             <cv-text-input label="Описание задания" v-model.trim="currentProblem.description"/>
+            <h5>Тип задачи</h5>
+            <cv-radio-group
+              :vertical="vertical">
+                <cv-radio-button v-model="currentProblem.type" name="group-1" label="Классная работа" value="CW"/>
+                <cv-radio-button v-model="currentProblem.type" name="group-1" label="Домашнаяя работа" value="HW"/>
+              </cv-radio-group>
           </div>
           <div class="content-2" hidden>
             <div>
@@ -80,6 +86,7 @@ export default class EditLessonModal extends Vue {
 
   AddAlt32 = AddAlt20;
   SubtractAlt32 = SubtractAlt20;
+  vertical = false;
   problemStore = problemStore;
   currentProblem: ProblemModel = { ...this.problemStore.getNewProblem, lessonId: this.lesson.id };
   fetchingProblems = true;
@@ -111,7 +118,7 @@ export default class EditLessonModal extends Vue {
   showModal() {
     this.modalVisible = true;
     this.showNotification = false;
-    this.currentProblem = { ...this.problemStore.getNewProblem, lessonId: this.lesson.id };
+    this.currentProblem = { ...this.problemStore.getNewProblem, lesson: this.lesson.id };
   }
 
   modalHidden() {
@@ -152,6 +159,8 @@ export default class EditLessonModal extends Vue {
 
   async createNewProblem() {
     delete this.currentProblem.id;
+    console.log(this.lesson.id);
+    console.log(this.currentProblem);
     const request = axios.post('http://localhost:8000/api/problem/', this.currentProblem);
     request.then(response => {
       this.lesson.problems.push(response.data as ProblemModel);

@@ -68,76 +68,63 @@
 <script lang="ts">
 import searchByProblems from '@/common/searchByProblems';
 import LessonModel from '@/models/LessonModel';
-import ProblemModel from '@/models/ProblemModel';
-import { problemStore } from '@/store';
+import { lessonStore, problemStore } from '@/store';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import axios from 'axios';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-
 @Component({ components: { AddAlt20, SubtractAlt20 } })
 export default class EditLessonMaterialsModal extends Vue {
   @Prop({ required: true }) lesson!: LessonModel;
-
   AddAlt32 = AddAlt20;
   SubtractAlt32 = SubtractAlt20;
   problemStore = problemStore;
-  currentProblem: ProblemModel = { ...this.problemStore.getNewProblem, lessonId: this.lesson.id };
+  currentProblem: ProblemModel = { ...this.problemStore.getNewProblem,lesson: this.lesson.id };
   fetchingProblems = true;
   selectedNew = true;
   showNotification = false;
   notificationText = '';
   creationLoader = false;
-
   problems: ProblemModel[] = [];
   modalVisible = false;
   searchQueryForAllProblems = '';
-
   get allProblems(): ProblemModel[] {
     return searchByProblems(this.searchQueryForAllProblems, this.freeProblems);
   }
-
   get freeProblems(): ProblemModel[] {
     return this.problemStore.problems.filter((l) => {
       return !this.lesson.problems.map((lessonProblem) => lessonProblem.id).includes(l.id);
     });
   }
-
   async created() {
     if (this.problemStore.problems.length === 0)
-      await this.problemStore.fetchProblems();
+      await this.problemStore.fetchLessons();
     this.fetchingProblems = false;
   }
-
   showModal() {
     this.modalVisible = true;
     this.showNotification = false;
-    this.currentProblem = { ...this.problemStore.getNewProblem, lessonId: this.lesson.id };
+    this.currentProblem = { ...this.problemStore.getNewProblem, lesson: this.lesson.id };
   }
-
   modalHidden() {
     this.modalVisible = false;
   }
-
   actionSelected() {
     this.selectedNew = !this.selectedNew;
   }
-
   get getSelected(): string {
     return this.problems.concat(this.currentProblem)
       .map((l) => l.name)
       .sort((a, b) => a < b ? -1 : 1)
       .join(' ');
   }
-
   chooseProblem(problem: ProblemModel) {
     if (!this.problems.includes(problem)) {
       this.problems.push(problem);
     } else {
-      this.problems = this.problems.filter((l) => problem !== l);
+      this.problems = this.problems.filter((l) => problems !== l);
     }
   }
-
   async addProblem() {
     if (this.selectedNew) {
       this.creationLoader = true;
@@ -149,8 +136,6 @@ export default class EditLessonMaterialsModal extends Vue {
       // this.lessons = [];
     }
   }
-
-
   async createNewProblem() {
     delete this.currentProblem.id;
     const request = axios.post('http://localhost:8000/api/problem/', this.currentProblem);
@@ -174,35 +159,26 @@ export default class EditLessonMaterialsModal extends Vue {
   margin-left 25px
 .lesson_list
   margin-bottom 0
-
 .lesson-card:hover
   border-bottom 1px solid var(--cds-ui-05)
-
 .switcher
   margin-bottom: 5px
-
 .add_lesson_modal .bx--modal-container
   height 75vh
-
 .add_lesson_modal .bx--modal-footer
   height 3.5rem
-
 .add_lesson_modal .bx--btn
   height 3rem
   border none
-
 .add_lesson_modal .bx--btn--secondary
   background-color var(--cds-hover-secondary)
-
   &:hover, &:active, &:focus
     outline none
     box-shadow none
     border none
-
 .add_lesson_modal .bx--btn--primary[disabled = disabled],
 .add_lesson_modal .bx--btn--primary
   background-color var(--cds-ui-05)
-
 .modal--content
   height 400px
 </style>

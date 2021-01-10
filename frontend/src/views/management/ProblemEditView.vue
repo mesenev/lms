@@ -91,7 +91,7 @@ export default class ProblemEditView extends Vue {
   problemTitle: string = this.problem.name;
   problemDescription: string = this.problem.description;
   problemManual: boolean = this.problem.manual;
-  problemLanguages: Array<string> = this.problem.language;
+  problemLanguages: Array<string> | null = this.problem.language;
 
   get canChangeProblemName() {
     return this.problem.name === this.problemTitle;

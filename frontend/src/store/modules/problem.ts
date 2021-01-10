@@ -58,8 +58,8 @@ export default class ProblemModule extends VuexModule {
 
   get getNewProblem(): ProblemModel {
     return {
-      id: NaN, lessonId: NaN, type: 'classwork', name: '', description: '',
-      completed: false, manual: false, language: [],
+      id: NaN, lessonId: NaN, type: 'CW', name: '', description: '',
+      completed: false, manual: false, language: null,
     };
   }
 

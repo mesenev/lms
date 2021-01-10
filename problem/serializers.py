@@ -3,6 +3,7 @@ from users.serializers import DefaultUserSerializer
 from problem.models import Problem, Submit
 from lesson.models import Lesson
 
+
 class SubmitSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
     problem = serializers.PrimaryKeyRelatedField(queryset=Problem.objects.all())
@@ -36,6 +37,10 @@ class ProblemSerializer(serializers.Serializer):
     name = serializers.CharField()
     description = serializers.CharField()
     submits = SubmitSerializer(many=True, read_only=True)
+    completed = serializers.BooleanField()
+    manual = serializers.BooleanField()
+    type = serializers.CharField()
+    language = serializers.CharField(required=True, allow_null=True)
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
@@ -51,4 +56,4 @@ class ProblemSerializer(serializers.Serializer):
 
     class Meta:
         model = Problem
-        fields = ('id', 'name', 'description', 'author', 'lesson', 'submits')
+        fields = ('id', 'name', 'description', 'author', 'lesson', 'submits', 'completed','manual','type', 'language')

@@ -23,7 +23,7 @@ class MaterialSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         request = self.context.get("request")
-        user = request.user if request and hasattr(request, "user") else None
+        user = request.user if request and hasattr(request, 'user') else None
         return LessonContent.objects.create(**validated_data, **{'author': user})
 
     class Meta:
@@ -38,13 +38,14 @@ class LessonSerializer(serializers.Serializer):
     description = serializers.CharField()
     author = DefaultUserSerializer(required=False, read_only=True)
     problems = ProblemSerializer(many=True, required=False, default=list())
-    materials = MaterialSerializer(many=True,default=list())
+    materials = MaterialSerializer(many=True, required=False, default=list())
     deadline = serializers.DateField()
 
     def create(self, validated_data):
+        del validated_data["materials"]
         del validated_data["problems"]
         request = self.context.get("request")
-        user = request.user if request and hasattr(request, "user") else None
+        user = request.user if request and hasattr(request, 'user') else None
         return Lesson.objects.create(**validated_data, **{'author': user})
 
     def update(self, instance, validated_data):

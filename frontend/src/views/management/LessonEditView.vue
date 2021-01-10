@@ -21,7 +21,7 @@
         kind="single"
         v-model="lessonEdit.deadline"
         date-label="Дедлайн"
-        cal-options="y/m/d"
+        cal-options="{y/m/d}"
       />
       <cv-search class="search" v-model="query"></cv-search>
       <cv-structured-list class="classwork">
@@ -41,7 +41,7 @@
         </template>
         <template slot="items">
           <cv-structured-list-item class="work" v-for="homework in getHomework" :key="homework.id">
-            <div> <h4>{{ homework.name }}</h4> </div>
+            <div><h4>{{ homework.name }}</h4></div>
           </cv-structured-list-item>
         </template>
       </cv-structured-list>
@@ -68,16 +68,20 @@ import EditLessonMaterialsModal from "@/components/EditLesson/EditLessonMaterial
 import EditLessonModal from "@/components/EditLesson/EditLessonModal.vue";
 import LessonModel from "@/models/LessonModel";
 import ProblemModel from "@/models/ProblemModel";
-import {lessonStore, modBStore} from '@/store';
+import {lessonStore } from '@/store';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import CourseModel from "@/models/CourseModel";
 import axios from "axios";
 import router from "@/router";
+import ProblemCard from "@/components/EditLesson/ProblemCard.vue";
+import Settings20 from '@carbon/icons-vue/es/settings/20';
+import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
 
-@Component({ components: { EditLessonMaterialsModal, EditLessonModal } })
+@Component({ components: {ProblemCard, EditLessonMaterialsModal, EditLessonModal } })
 export default class CourseCalendarView extends Vue {
   @Prop({required: true}) lessonId!: number;
+  TrashCan = TrashCan20;
+  Settings = Settings20;
   showNotification = false;
   notificationKind = 'success';
   notificationText = '';
@@ -88,7 +92,7 @@ export default class CourseCalendarView extends Vue {
 
   lesson: LessonModel = {
     id: NaN,
-    course: 1,
+    course: NaN,
     description: '',
     name: '',
     problems: [],
@@ -138,11 +142,11 @@ export default class CourseCalendarView extends Vue {
   }
 
   get getClasswork(): ProblemModel[] {
-    return this.search(this.lessonEdit.problems.filter(x => x.type === 'classwork'));
+    return this.search(this.lessonEdit.problems.filter(x => x.type === 'CW'));
   }
 
   get getHomework(): ProblemModel[] {
-    return this.search(this.lessonEdit.problems.filter(x => x.type === 'homework'));
+    return this.search(this.lessonEdit.problems.filter(x => x.type === 'HW'));
   }
 
   get isNewLesson(): boolean {
@@ -151,6 +155,10 @@ export default class CourseCalendarView extends Vue {
 
   get isChanged(): boolean {
     return !_.isEqual(this.lesson, this.lessonEdit);
+  }
+
+  deleteProblem(problem: ProblemModel) {
+    //
   }
 }
 </script>

@@ -86,11 +86,11 @@ export default class LessonView extends Vue {
   }
 
   get classwork(): Array<ProblemModel> {
-    return this.lesson.problems.filter(x => x.type === 'classwork');
+    return this.lesson.problems.filter(x => x.type === 'CW');
   }
 
   get homework(): Array<ProblemModel> {
-    return this.lesson.problems.filter(x => x.type === 'homework');
+    return this.lesson.problems.filter(x => x.type === 'HW');
   }
 }
 </script>

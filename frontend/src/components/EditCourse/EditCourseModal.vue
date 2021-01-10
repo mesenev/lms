@@ -86,7 +86,7 @@ export default class EditCourseModal extends Vue {
   SubtractAlt32 = SubtractAlt20;
   courseStore = courseStore;
   lessonStore = lessonStore;
-  currentLesson: LessonModel = { ...this.lessonStore.getNewLesson, course: this.course.id };
+  currentLesson: LessonModel = { ...this.lessonStore.getNewLesson, course: this.course.id, deadline: "2021-02-02"};
   fetchingLessons = true;
   selectedNew = true;
   showNotification = false;
@@ -157,6 +157,7 @@ export default class EditCourseModal extends Vue {
 
   async createNewLesson() {
     delete this.currentLesson.id;
+    console.log(this.currentLesson);
     const request = axios.post('http://localhost:8000/api/lesson/', this.currentLesson);
     request.then(response => {
       this.course.lessons.push(response.data as LessonModel);
