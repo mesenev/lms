@@ -5,10 +5,10 @@ from problem.models import Problem, Submit
 
 class SubmitSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
-    problem = serializers.PrimaryKeyRelatedField(read_only=True)
+    problem = serializers.PrimaryKeyRelatedField(queryset=Problem.objects.all())
     student = DefaultUserSerializer(read_only=True)
     content = serializers.CharField()
-    status = serializers.CharField()
+    status = serializers.ChoiceField(choices=Submit.SUBMIT_STATUS)
 
     def update(self, instance, validated_data):
         print(validated_data)
@@ -20,16 +20,13 @@ class SubmitSerializer(serializers.Serializer):
     def create(self, validated_data):
         request = self.context.get('request')
         student = request.user if request and hasattr(request, 'user') else None
-        problem = request.problem if request and hasattr(request, 'problem') else (
-            Problem.objects.last()
-        )
         return Submit.objects.create(**validated_data, **{
             'student': student,
-            'problem': problem
         })
 
     class Meta:
         model = Submit
+        fields = ['id', 'problem', 'student', 'content', 'status']
 
 
 class ProblemSerializer(serializers.Serializer):
@@ -41,11 +38,11 @@ class ProblemSerializer(serializers.Serializer):
     submits = SubmitSerializer(many=True, read_only=True)
 
     def update(self, instance, validated_data):
-         instance.name = validated_data.get('name', instance.name)
-         instance.description = validated_data.get('description', instance.description)
-         instance.author = validated_data.get('author', instance.author)
-         instance.save()
-         return instance
+        instance.name = validated_data.get('name', instance.name)
+        instance.description = validated_data.get('description', instance.description)
+        instance.author = validated_data.get('author', instance.author)
+        instance.save()
+        return instance
 
     def create(self, validated_data):
         request = self.context.get("request")

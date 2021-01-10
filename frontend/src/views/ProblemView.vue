@@ -1,50 +1,59 @@
 <template>
   <div class="bx--grid">
     <div class="bx--row problem-view">
-      <div class="bx--col-lg-10">
-        <div class="name">
-          <h3> Задание {{ problem.id }}. {{ problem.name }}</h3>
-          <!-- TODO handlers are visible if user.status === teacher -->
-          <div class="handlers">
-            <cv-button class="rejected"
-                       kind="danger"
-                       size="small"
-                       :disabled="!canPatch"
-                       v-on:click="rejectSubmit">
-              Rejected
-            </cv-button>
-            <cv-button class="accepted"
-                       kind="secondary"
-                       size="small"
-                       :disabled="!canPatch"
-                       v-on:click="acceptSubmit">
-              Accepted
+      <div class="bx--col-lg-8">
+        <cv-inline-notification
+          v-if="showNotification"
+          @close="hideSuccess"
+          :kind="notificationKind"
+          :sub-title="notificationText"
+        />
+        <div class="problem">
+          <div class="name">
+            <h3> Задание {{ problem.id }}. {{ problem.name }}</h3>
+            <!-- TODO handlers are visible if user.status === teacher -->
+            <div class="handlers">
+              <cv-button class="rejected"
+                         kind="danger"
+                         size="small"
+                         :disabled="!canPatch"
+                         v-on:click="rejectSubmit">
+                Rejected
+              </cv-button>
+              <cv-button class="accepted"
+                         kind="secondary"
+                         size="small"
+                         :disabled="!canPatch"
+                         v-on:click="acceptSubmit">
+                Accepted
+              </cv-button>
+            </div>
+          </div>
+          <div class="description">
+            <h4>Описание: {{ problem.description }}</h4>
+          </div>
+          <div class="submit">
+            <cv-text-area
+              light
+              class="code-text-area"
+              label="Code..."
+              :disabled="isCompleted"
+              v-model="submitEdit.content">
+            </cv-text-area>
+            <cv-dropdown
+              v-if="problem.language"
+              placeholder="Выберите язык программирования"
+              :items="problem.language">
+            </cv-dropdown>
+            <cv-button v-on:click="confirmSubmit"
+                       class="submit-btn"
+                       :disabled="!canSubmit">
+              Submit!
             </cv-button>
           </div>
         </div>
-        <div class="description">
-          <h4>Описание: {{ problem.description }}</h4>
-        </div>
-        <div class="submit">
-          <!-- TODO: if completed -> textarea.value = last submit text -->
-          <cv-text-area
-            light
-            class="code-text-area"
-            label="Code..."
-            v-model="submitEdit.content">
-          </cv-text-area>
-          <cv-dropdown
-            placeholder="Выберите язык программирования"
-            :items="problem.language">
-          </cv-dropdown>
-          <cv-button v-on:click="confirmSubmit"
-                     class="submit-btn"
-                     :disabled="!isChanged || submitEdit.content.length === 0">
-            Submit!
-          </cv-button>
-        </div>
       </div>
-      <div class="bx--col-lg-6">
+      <div class="bx--col-lg-8">
         <cv-structured-list
           v-if="submits.length !== 0"
           light
@@ -53,7 +62,10 @@
         >
           <template slot="headings">
             <cv-structured-list-heading>
-              Username
+              <!-- ToDo choose user  -->
+              <cv-dropdown placeholder="Выберите ученика"  :items="['dsa']">
+
+              </cv-dropdown>
             </cv-structured-list-heading>
             <cv-structured-list-heading>
               Status
@@ -84,12 +96,12 @@
 
 <script lang="ts">
 import Problem from '@/components/Problem.vue';
-import {modBStore, userStore} from '@/store';
-import { submitStore } from '@/store';
+import { problemStore, userStore, submitStore } from '@/store';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import SubmitModel from '@/models/SubmitModel';
-import axios from "axios";
+import axios, {AxiosError, AxiosResponse} from "axios";
 import _ from 'lodash';
+import ProblemModel from "@/models/ProblemModel";
 
 
 // ToDo write all submit`s status associations
@@ -104,32 +116,35 @@ const statusAssociations: { [index: string]: string } = {
 export default class ProblemView extends Vue {
   @Prop() problemId!: number;
 
-  private store = modBStore;
+  private problemStore = problemStore;
 
-  get problem() {
-    return this.store.getProblems[0];
-  }
+  private userStore = userStore;
 
   private submitStore = submitStore;
 
   private readonly defaultSubmitStatus = 'NP';
 
+  get problem(): ProblemModel {
+    return this.problemStore.currentProblem;
+  }
+
   get submits(): SubmitModel[] {
-    return submitStore.submits;
+    return this.submitStore.submits.filter((submit) => {
+      return submit.problem === this.problemId;
+    });
   }
 
   private submit: SubmitModel = {
     id: NaN,
-    problem: this.problem,
+    problem: this.problemId,
     student: {...userStore.user},
     content: '',
     status: '',
   }
 
   created() {
-    if (_.isEmpty(this.submits)) {
-      this.submitStore.fetchSubmits();
-    }
+    this.problemStore.fetchProblemById(this.problemId);
+    this.submitStore.fetchSubmits();
   }
 
   public submitEdit: SubmitModel = { ...this.submit };
@@ -150,10 +165,18 @@ export default class ProblemView extends Vue {
         this.submit = { ...response.data, id: NaN };
         this.submitEdit = { ...this.submit };
         this.canPatch = false;
+        if (response.data.status === 'OK') {
+          this.problemStore.fetchProblemById(this.problemId);
+          this.problem.completed = true;
+          this.canPatch = false;
+        }
+        this.notificationKind = 'success';
+        this.notificationText = 'Работа оценена';
       })
       .catch(error => {
         console.error(error)
       })
+      .finally(() => this.showNotification = true);
   }
 
   acceptSubmit() {
@@ -170,12 +193,19 @@ export default class ProblemView extends Vue {
     }
     this.submitEdit = { ...this.submitEdit, status: this.defaultSubmitStatus };
     axios.post('http://localhost:8000/api/submit/', this.submitEdit)
-      .then(response => {
+      .then((response: AxiosResponse<SubmitModel>) => {
         this.submitStore.addSubmitToArray(response.data);
         this.submit = { ...response.data };
         this.submitEdit = { ...this.submit };
         this.canPatch = true;
+        this.notificationKind = 'success';
+        this.notificationText = 'Попытка отправлена';
       })
+      .catch((error: AxiosError) => {
+        this.notificationKind = 'error';
+        this.notificationText = `Что-то пошло не так ${error.message}`;
+      })
+      .finally(() => this.showNotification = true);
   }
 
   changeCurrentSubmit(id: string) {
@@ -196,11 +226,32 @@ export default class ProblemView extends Vue {
     return !_.isEqual(this.submit, this.submitEdit);
   }
 
+  get isCompleted(): boolean {
+    return !!this.submits.find((submit: SubmitModel) => (
+      submit.status === 'OK'
+    ));
+  }
+
+  get canSubmit(): boolean {
+    return (
+      !this.isCompleted &&
+      this.submitEdit.content?.length !== 0 &&
+      this.isChanged
+    );
+  }
+
   statusColor(status: string): string {
-    if (statusAssociations.hasOwnProperty(status)) {
-      return statusAssociations[status];
-    }
-    return 'gray';
+    return statusAssociations[status] || 'gray';
+  }
+
+  showNotification = false;
+
+  notificationKind = 'success';
+
+  notificationText = '';
+
+  hideSuccess() {
+    this.showNotification = false;
   }
 }
 </script>
