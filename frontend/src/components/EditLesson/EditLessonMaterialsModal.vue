@@ -7,8 +7,8 @@
               class="add_lesson_modal"
               :visible="modalVisible"
               @modal-hidden="modalHidden"
-              :primary-button-disabled="!problems.length && !currentProblem.name"
-              @primary-click="addProblem"
+              :primary-button-disabled="!materials.length && !currentMaterial.name"
+              @primary-click="addMaterial"
               @secondary-click="() => {}">
       <template slot="label">{{ lesson.name }}</template>
       <cv-inline-notification
@@ -31,8 +31,8 @@
       <template slot="content">
         <section class="modal--content">
           <div class="content-1">
-            <cv-text-input label="Название урока" v-model.trim="lesson.name" disabled/>
-            <cv-text-input label="Название" v-model.trim="currentProblem.name"/>
+            <cv-text-input label="Название материала" v-model.trim="material.name" disabled/>
+            <cv-text-input label="Название" v-model.trim="currentMaterial.name"/>
             <span>Редактирование материалов доступно после создания</span>
 
           </div>
@@ -40,17 +40,11 @@
             <div>
               <cv-structured-list>
                 <template slot="items">
-                  <cv-search v-model="searchQueryForAllProblems"></cv-search>
+                  <cv-search v-model="searchQueryForAllMaterials"></cv-search>
                   <cv-structured-list-item
                     class="problem-card"
-                    v-for="problem in allProblems"
-                    :key="problem.id">
-                    <ProblemCard
-                      :problem="problem"
-                      :main-icon="AddAlt32"
-                      :change-main-icon="SubtractAlt32"
-                      :manipulation="chooseProblem">
-                    </ProblemCard>
+                    v-for="material in allMaterials"
+                    :key="material.id">
                   </cv-structured-list-item>
                 </template>
               </cv-structured-list>
@@ -66,45 +60,49 @@
 </template>
 
 <script lang="ts">
-import searchByProblems from '@/common/searchByProblems';
+import searchByMaterials from '@/common/searchByMaterials';
 import LessonModel from '@/models/LessonModel';
-import { lessonStore, problemStore } from '@/store';
+import { lessonStore, materialStore } from '@/store';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import axios from 'axios';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-@Component({ components: { AddAlt20, SubtractAlt20 } })
+import ProblemCard from "@/components/EditLesson/ProblemCard.vue";
+import LessonContent from "@/models/LessonContent";
+
+
+@Component({ components: {ProblemCard, AddAlt20, SubtractAlt20 } })
 export default class EditLessonMaterialsModal extends Vue {
   @Prop({ required: true }) lesson!: LessonModel;
   AddAlt32 = AddAlt20;
   SubtractAlt32 = SubtractAlt20;
-  problemStore = problemStore;
-  currentProblem: ProblemModel = { ...this.problemStore.getNewProblem,lesson: this.lesson.id };
-  fetchingProblems = true;
+  materialStore = materialStore;
+  currentMaterial: LessonContent = { ...this.materialStore.getNewMaterial, lesson: this.lesson.id};
+  fetchingMaterials = true;
   selectedNew = true;
   showNotification = false;
   notificationText = '';
   creationLoader = false;
-  problems: ProblemModel[] = [];
+  materials: LessonContent[] = [];
   modalVisible = false;
-  searchQueryForAllProblems = '';
-  get allProblems(): ProblemModel[] {
-    return searchByProblems(this.searchQueryForAllProblems, this.freeProblems);
+  searchQueryForAllMaterials = '';
+  get allMaterials(): LessonContent[] {
+    return searchByMaterials(this.searchQueryForAllMaterials, this.freeMaterials);
   }
-  get freeProblems(): ProblemModel[] {
-    return this.problemStore.problems.filter((l) => {
-      return !this.lesson.problems.map((lessonProblem) => lessonProblem.id).includes(l.id);
+  get freeMaterials(): LessonContent[] {
+    return this.materialStore.materials.filter((l) => {
+      return !this.lesson.materials.map((lessonMaterial) => lessonMaterial.id).includes(l.id);
     });
   }
   async created() {
-    if (this.problemStore.problems.length === 0)
-      await this.problemStore.fetchLessons();
-    this.fetchingProblems = false;
+    if (this.materialStore.materials.length === 0)
+      await this.materialStore.fetchMaterials();
+    this.fetchingMaterials = false;
   }
   showModal() {
     this.modalVisible = true;
     this.showNotification = false;
-    this.currentProblem = { ...this.problemStore.getNewProblem, lesson: this.lesson.id };
+    this.currentMaterial = { ...this.materialStore.getNewMaterial, lesson: this.lesson.id };
   }
   modalHidden() {
     this.modalVisible = false;
@@ -113,34 +111,34 @@ export default class EditLessonMaterialsModal extends Vue {
     this.selectedNew = !this.selectedNew;
   }
   get getSelected(): string {
-    return this.problems.concat(this.currentProblem)
+    return this.materials.concat(this.currentMaterial)
       .map((l) => l.name)
       .sort((a, b) => a < b ? -1 : 1)
       .join(' ');
   }
-  chooseProblem(problem: ProblemModel) {
-    if (!this.problems.includes(problem)) {
-      this.problems.push(problem);
+  chooseMaterial(material: LessonContent) {
+    if (!this.materials.includes(material)) {
+      this.materials.push(material);
     } else {
-      this.problems = this.problems.filter((l) => problems !== l);
+      this.materials = this.materials.filter((l) => materials !== l); //!
     }
   }
-  async addProblem() {
+  async addMaterial() {
     if (this.selectedNew) {
       this.creationLoader = true;
-      await this.createNewProblem();
+      await this.createNewMaterial();
       this.creationLoader = false;
     }
-    if (this.problems.every((l) => l.name)) {
+    if (this.materials.every((l) => l.name)) {
       // this.lessons.forEach((lesson) => this.lessonStore.addLessonToCourse(lesson));
       // this.lessons = [];
     }
   }
-  async createNewProblem() {
-    delete this.currentProblem.id;
-    const request = axios.post('http://localhost:8000/api/problem/', this.currentProblem);
+  async createNewMaterial() {
+    delete this.currentMaterial.id;
+    const request = axios.post('http://localhost:8000/api/material/', this.currentMaterial);
     request.then(response => {
-      this.lesson.problems.push(response.data as ProblemModel);
+      this.lesson.materials.push(response.data as LessonContent);
       this.modalHidden();
     });
     request.catch(error => {
