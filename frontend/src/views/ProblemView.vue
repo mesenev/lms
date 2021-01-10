@@ -55,6 +55,7 @@
       </div>
       <div class="bx--col-lg-8">
         <cv-structured-list
+          class="submit-list"
           v-if="submits.length !== 0"
           light
           selectable
@@ -62,9 +63,19 @@
         >
           <template slot="headings">
             <cv-structured-list-heading>
-              <!-- ToDo choose user  -->
-              <cv-dropdown placeholder="Выберите ученика"  :items="['dsa']">
-
+              <cv-dropdown v-model="currentStudentId"
+                           placeholder="Все"
+              >
+                <cv-dropdown-item :value="NaN.toString()">
+                  Все
+                </cv-dropdown-item>
+                <cv-dropdown-item
+                  v-for="student in students"
+                  :key="student.id"
+                  :value="student.id.toString()"
+                >
+                  {{ student.username }}
+                </cv-dropdown-item>
               </cv-dropdown>
             </cv-structured-list-heading>
             <cv-structured-list-heading>
@@ -73,17 +84,17 @@
           </template>
           <template slot="items">
             <cv-structured-list-item
-              v-for="sub in submits"
-              :key="sub.id"
-              :value="sub.id.toString()"
+              v-for="submit in submits"
+              :key="submit.id"
+              :value="submit.id.toString()"
               name="submit"
             >
               <cv-structured-list-data>
-                {{ sub.student.username }}
+                {{ submit.student.username }}
               </cv-structured-list-data>
               <cv-structured-list-data>
-                <cv-tag :kind="statusColor(sub.status)"
-                        :label="sub.status">
+                <cv-tag :kind="statusColor(submit.status)"
+                        :label="submit.status">
                 </cv-tag>
               </cv-structured-list-data>
             </cv-structured-list-item>
@@ -102,6 +113,7 @@ import SubmitModel from '@/models/SubmitModel';
 import axios, {AxiosError, AxiosResponse} from "axios";
 import _ from 'lodash';
 import ProblemModel from "@/models/ProblemModel";
+import UserModel from "@/models/UserModel";
 
 
 // ToDo write all submit`s status associations
@@ -128,8 +140,36 @@ export default class ProblemView extends Vue {
     return this.problemStore.currentProblem;
   }
 
-  get submits(): SubmitModel[] {
-    return this.submitStore.submits;
+  _currentStudentId = NaN;
+
+  get currentStudentId(): string {
+    return String(this._currentStudentId);
+  }
+
+  set currentStudentId(id: string) {
+    this._currentStudentId = Number(id);
+    this.submits = isNaN(this._currentStudentId) ? this.submitStore.submits : (
+      this.submitStore.submits.filter((submit) => {
+        return submit.student.id === this._currentStudentId;
+      })
+    );
+    this.changeCurrentSubmit(this.getLastSubmit().id);
+  }
+
+  submits: SubmitModel[] = [];
+
+  getLastSubmit(): SubmitModel {
+    return this.submits[this.submits.length - 1];
+  }
+
+  get students(): UserModel[] {
+    const students: UserModel[] = [];
+    this.submitStore.submits.forEach((submit: SubmitModel) => {
+      if (!_.find(students, submit.student)) {
+        students.push(submit.student);
+      }
+    })
+    return students;
   }
 
   private submit: SubmitModel = {
@@ -146,9 +186,9 @@ export default class ProblemView extends Vue {
       this.problemStore.setCurrentProblem(problem);
     }
     await this.submitStore.fetchSubmits(this.problemId);
+    this.submits = this.submitStore.submits;
     if (!_.isEmpty(this.submits)) {
-      this.submit = { ...this.submits[this.submits.length - 1] };
-      this.submitEdit = { ...this.submit };
+      this.changeCurrentSubmit(this.getLastSubmit().id);
     }
   }
 
@@ -172,7 +212,7 @@ export default class ProblemView extends Vue {
           this.problem.completed = true;
         }
         this.notificationKind = 'success';
-        this.notificationText = 'Работа оценена';
+        this.notificationText = `Работа оценена: ${status}`;
       })
       .catch((error: AxiosError) => {
         this.notificationKind = 'error';
@@ -209,7 +249,7 @@ export default class ProblemView extends Vue {
       .finally(() => this.showNotification = true);
   }
 
-  changeCurrentSubmit(id: string) {
+  changeCurrentSubmit(id: string | number) {
     const _id = Number(id);
     this.submit = this.submits.find((submit) => {
       return submit.id === _id;
@@ -265,6 +305,9 @@ export default class ProblemView extends Vue {
   align-items center
   .handlers button
     margin-left 5px
+
+.submit-list
+  margin-bottom: 0;
 
 problem-view, .name, .description, .submit, .submit-btn
   margin 10px 0
