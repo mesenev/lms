@@ -84,12 +84,12 @@
 
 <script lang="ts">
 import Problem from '@/components/Problem.vue';
-import {modBStore, userStore} from '@/store';
-import { submitStore } from '@/store';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import ProblemModel from '@/models/ProblemModel';
 import SubmitModel from '@/models/SubmitModel';
+import { problemStore, submitStore, userStore } from '@/store';
 import axios from "axios";
 import _ from 'lodash';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 
 // ToDo write all submit`s status associations
@@ -103,14 +103,20 @@ const statusAssociations: { [index: string]: string } = {
 @Component({ components: { Problem } })
 export default class ProblemView extends Vue {
   @Prop() problemId!: number;
+  problem!: ProblemModel;
+  loading = true;
 
-  private store = modBStore;
+  private store = problemStore;
+  private submitStore = submitStore;
 
-  get problem() {
-    return this.store.getProblems[0];
+  async created() {
+    this.problem = await this.store.fetchProblemById(this.problemId);
+    if (_.isEmpty(this.submits)) {
+      await this.submitStore.fetchSubmitsByProblemId(this.problemId);
+    }
+    this.loading = false;
   }
 
-  private submitStore = submitStore;
 
   private readonly defaultSubmitStatus = 'NP';
 
@@ -124,12 +130,6 @@ export default class ProblemView extends Vue {
     student: {...userStore.user},
     content: '',
     status: '',
-  }
-
-  created() {
-    if (_.isEmpty(this.submits)) {
-      this.submitStore.fetchSubmits();
-    }
   }
 
   public submitEdit: SubmitModel = { ...this.submit };

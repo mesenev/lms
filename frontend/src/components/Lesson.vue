@@ -6,10 +6,14 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component
 export default class Course extends Vue {
-  @Prop({required: true}) lessonProp!: LessonModel;
+  @Prop({ required: true }) lessonProp!: LessonModel;
 
   openLesson(): void {
-    router.push({ name: 'LessonView', params: { lessonId: this.lesson.id.toString() } });
+    router.push({
+      name: 'LessonView', params: {
+        lessonId: this.lesson.id.toString(),
+      },
+    });
   }
 
   get lesson(): LessonModel {

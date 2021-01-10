@@ -35,14 +35,13 @@ import Component from 'vue-class-component';
 export default class HomeView extends Vue {
   private store = courseStore;
   searchValue = "";
+  loading = true;
 
   async created() {
     await this.store.fetchCourses();
+    this.loading = false;
   }
 
-  get loading() {
-    return this.store.loading;
-  }
 
   get courses() {
     return this.store.courses;

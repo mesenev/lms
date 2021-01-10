@@ -6,12 +6,12 @@
         <h4>Название</h4>
         <input :class="`bx--text-input`"
                type="text"
-               v-model="problemTittle">
+               v-model="problemTitle">
         <cv-button class="change__btn"
                    :disabled="canChangeProblemName"
                    @click="ChangeProblemName">
-            Сменить название
-          </cv-button>
+          Сменить название
+        </cv-button>
         <br>
         <h4>Описание</h4>
         <cv-text-area v-model="problemDescription"
@@ -34,9 +34,9 @@
           </cv-list>
           <br>
           <cv-button class="change__btn"
-                   :disabled="canChangeProblemLanguage"
-                   @click="ChangeProblemLanguage">
-          Изменить
+                     :disabled="canChangeProblemLanguage"
+                     @click="ChangeProblemLanguage">
+            Изменить
           </cv-button>
         </div>
       </div>
@@ -59,56 +59,70 @@
 
 <script lang="ts">
 import Problem from '@/components/Problem.vue';
-import { modBStore } from '@/store';
+import { problemStore } from '@/store';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: { Problem } })
 export default class ProblemEditView extends Vue {
-  private store = modBStore;
-  problemsArray = this.store.getProblems;
+  private store = problemStore;
+  problemsArray = this.store.problems;
 
   @Prop() problemId!: number;
+
   get problem() {
     return this.problemsArray[0];
   }
-  availableLanguages = this.store.avLang.map(item => {
-    return {
-      name: item,
-      label: item,
-      value: item,
-    };
-  });
+
+  availableLanguages = [
+    {
+      name: 'python',
+      label: 'python',
+      value: 'python',
+    },
+    {
+      name: 'c/c++',
+      label: 'c/c++',
+      value: 'c/c++',
+    },
+  ];
+
   //v-modals
-  problemTittle: string = this.problem.name;
+  problemTitle: string = this.problem.name;
   problemDescription: string = this.problem.description;
   problemManual: boolean = this.problem.manual;
   problemLanguages: Array<string> = this.problem.language;
 
   get canChangeProblemName() {
-    return this.problem.name === this.problemTittle;
+    return this.problem.name === this.problemTitle;
   }
+
   get canChangeProblemDescription() {
     return (this.problem.description || '') === this.problemDescription;
   }
+
   get canChangeProblemManual() {
     return this.problem.manual === this.problemManual;
   }
+
   get canChangeProblemLanguage() {
     return _.isEqual(this.problem.language, this.problemLanguages)
   }
 
   ChangeProblemName() {
-    this.store.changeProblemName( this.problemTittle)
+    //
   }
+
   ChangeProblemDescription() {
-    this.store.changeProblemDescription( this.problemDescription)
+    //
   }
+
   ChangeProblemManual() {
-    this.store.changeProblemManual( this.problemManual)
+    //
   }
+
   ChangeProblemLanguage() {
-    this.store.changeProblemLanguage( this.problemLanguages)
+    //
   }
 
 

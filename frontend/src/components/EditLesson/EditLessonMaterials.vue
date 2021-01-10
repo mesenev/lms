@@ -8,18 +8,21 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
 import LessonModel from "@/models/LessonModel";
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 
 @Component({})
 export default class EditLessonMaterials extends Vue {
   @Prop({ required: true }) lesson!: LessonModel;
 
+  addLessonMaterials() {
+    //
+  }
 }
 </script>
 
 <style lang="stylus">
-  .change-btn
-    color var($--cds-ui-0)
+.change-btn
+  color var($--cds-ui-0)
 </style>

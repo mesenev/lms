@@ -68,7 +68,8 @@
 <script lang="ts">
 import searchByProblems from '@/common/searchByProblems';
 import LessonModel from '@/models/LessonModel';
-import { lessonStore, problemStore } from '@/store';
+import ProblemModel from '@/models/ProblemModel';
+import { problemStore } from '@/store';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import axios from 'axios';
@@ -81,7 +82,7 @@ export default class EditLessonMaterialsModal extends Vue {
   AddAlt32 = AddAlt20;
   SubtractAlt32 = SubtractAlt20;
   problemStore = problemStore;
-  currentProblem: ProblemModel = { ...this.problemStore.getNewProblem,lesson: this.lesson.id };
+  currentProblem: ProblemModel = { ...this.problemStore.getNewProblem, lessonId: this.lesson.id };
   fetchingProblems = true;
   selectedNew = true;
   showNotification = false;
@@ -104,14 +105,14 @@ export default class EditLessonMaterialsModal extends Vue {
 
   async created() {
     if (this.problemStore.problems.length === 0)
-      await this.problemStore.fetchLessons();
+      await this.problemStore.fetchProblems();
     this.fetchingProblems = false;
   }
 
   showModal() {
     this.modalVisible = true;
     this.showNotification = false;
-    this.currentProblem = { ...this.problemStore.getNewProblem, lesson: this.lesson.id };
+    this.currentProblem = { ...this.problemStore.getNewProblem, lessonId: this.lesson.id };
   }
 
   modalHidden() {
@@ -133,7 +134,7 @@ export default class EditLessonMaterialsModal extends Vue {
     if (!this.problems.includes(problem)) {
       this.problems.push(problem);
     } else {
-      this.problems = this.problems.filter((l) => problems !== l);
+      this.problems = this.problems.filter((l) => problem !== l);
     }
   }
 

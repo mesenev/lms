@@ -56,14 +56,12 @@ import EditLessonMaterialsModal from "@/components/LessonEdit/EditLessonMaterial
 import EditLessonModal from "@/components/LessonEdit/EditLessonModal.vue";
 import LessonModel from "@/models/LessonModel";
 import ProblemModel from "@/models/ProblemModel";
-import { modBStore } from '@/store';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: { EditLessonMaterialsModal, EditLessonModal } })
 export default class CourseCalendarView extends Vue {
   @Prop() courseId!: number;
-  store = modBStore;
   lesson: LessonModel = {
     id: NaN,
     course: this.courseId,

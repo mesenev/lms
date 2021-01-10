@@ -2,51 +2,49 @@
   <div class="bx--grid">
     <div class="bx--row">
       <div class="bx--col-lg-16">
-        <input :class="`bx--text-input`"
-               type="text"
-               v-model="materialTittle">
-        <cv-button class="change__btn"
-                   :disabled="canChangeMaterialName"
-                   @click="ChangeMaterialName">
-            Сменить название
+        <label>
+          <input :class="`bx--text-input`" type="text" v-model="materialTittle">
+        </label>
+        <cv-button
+          class="change__btn"
+          :disabled="canChangeMaterialName"
+          @click="ChangeMaterialName">
+          Сменить название
         </cv-button>
       </div>
-      <div class="bx--col-lg-10">
-      </div>
+      <div class="bx--col-lg-10"></div>
       <div class="less bx--col-lg-8">
         <cv-text-area style="height: auto;" v-model="materialText"></cv-text-area>
       </div>
       <div class="less bx--col-lg-8">
         <div v-html="getMarkdownText"></div>
       </div>
-      <cv-button class="change__btn"
-                   :disabled="canChangeMaterial"
-                   @click="ChangeMaterial">
-            Изменить
-        </cv-button>
+      <cv-button class="change__btn" :disabled="canChangeMaterial" @click="ChangeMaterial">
+        Изменить
+      </cv-button>
     </div>
   </div>
 </template>
 
 
 <script lang="ts">
-import marked from 'marked';
-import _ from 'lodash';
 import Material from '@/components/Material.vue';
 import LessonModel from '@/models/LessonModel';
-import { modBStore } from '@/store';
+import { lessonStore } from '@/store';
+import _ from 'lodash';
+import marked from 'marked';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: { Material } })
 export default class MaterialEditView extends Vue {
-  private store = modBStore;
+  private store = lessonStore;
   @Prop() lessonId!: number;
-
+  lesson!: LessonModel;
   materialTittle: string = this.materials.name;
   materialText: string = this.materials.text;
 
-  get lesson(): LessonModel {
-    return this.store.getLesson;
+  async created() {
+    this.lesson = await this.store.fetchLessonById(this.lessonId);
   }
 
   get materials() {
@@ -66,10 +64,11 @@ export default class MaterialEditView extends Vue {
   }
 
   ChangeMaterialName() {
-    this.store.changeMaterialName( this.materialTittle )
+    //
   }
+
   ChangeMaterial() {
-    this.store.changeMaterial( this.materialText)
+    //
   }
 
 }
@@ -81,6 +80,7 @@ export default class MaterialEditView extends Vue {
   padding var(--cds-spacing-05)
   height auto
 }
+
 textarea,
 #editor div {
   display: inline-block;

@@ -1,5 +1,6 @@
 export default interface ProblemModel {
   id: number;
+  lessonId: number;
   type: string;
   name: string;
   description: string;
