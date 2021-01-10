@@ -1,121 +1,99 @@
 <template>
-  <div class="bx--grid, head-content">
-    <h1>Редактирование урока</h1>
-    <div class="bx--row">
-      <div class="bx--col">
-        <h4>Название урока</h4>
-        <input :class="`bx--text-input`"
-               type="text"
-               v-model="lessonTitle">
-        <cv-button class="change__btn"
-                   :disabled="canChangeLessonName"
-                   @click="changeLessonName">
-          Изменить название
-        </cv-button>
-      </div>
-      <div class="bx--col">
-        <h4>Срок окончания урока</h4>
-        <cv-date-picker kind="single"
-                        date-label=""
-                        :cal-options="calOptions"
-                        @change="actionChange"
-                        v-model="modelValue">
-        </cv-date-picker>
-        <cv-button class="change__btn"
-                   :disabled="canChangeLessonDeadline"
-                   @click="changeLessonDeadline">
-          Изменить срок
-        </cv-button>
-      </div>
-      <div class="bx--col">
-        <h4>Добавить материалы к уроку</h4>
-        <cv-button class="add__btn"
-                   @click="addMaterials">
-          Добавить
-        </cv-button>
-      </div>
-      <div class="bx--col">
-        <div class="bx--col-lg-10">
-          <h4>Добавить новое задание</h4>
-          <cv-button class="add__problem__btn"
-                     @click="addProblem">
-            Добавить
-          </cv-button>
-        </div>
-      </div>
+  <div class="bx--grid">
+    <div class="bx--row header">
+      <h1>{{ isNewLesson ? 'Создание урока' : 'Редактирование урока' }}</h1>
     </div>
-
-    <div class="bx--grid, main-content">
-      <div class="bx--row row">
-        <div class="bx--col">
-          <h4>Классная работа:</h4>
-          <cv-accordion align="align" v-for="problem in classwork" :key="problem.id">
-            <div class="bx--grid, works">
-              <div class="bx--row">
-                <div class="bx--col, works-col">
-                  <ProblemCard class="card" :problem="problem"
-                               :delete-problem="deleteProblem"/>
-                </div>
-              </div>
-            </div>
-          </cv-accordion>
-        </div>
-        <div class="bx--col">
-          <h4>Домашнаяя работа:</h4>
-          <cv-accordion align="align" v-for="problem in homework" :key="problem.id">
-            <div class="bx--grid, works">
-              <div class="bx--row row">
-                <div class="bx--col, works-col">
-                  <ProblemCard class="card" :problem="problem"
-                               :delete-problem="deleteProblem"/>
-                </div>
-              </div>
-            </div>
-          </cv-accordion>
-        </div>
+    <div class="box--col-lg-8">
+      <cv-text-input label="Название урока" v-model.trim="lessonEdit.name" />
+      <cv-date-picker
+        class="deadLine"
+        kind="single"
+        v-model="lessonEdit.deadline"
+        date-label="Дедлайн"
+      />
+      <cv-search class="search" v-model="query"></cv-search>
+      <cv-structured-list class="classwork">
+        <template slot="headings">
+          <cv-structured-list-heading> Классная работа </cv-structured-list-heading>
+        </template>
+        <template slot="items">
+          <cv-structured-list-item
+            class="work" v-for="classwork in getClasswork" :key="classwork.id">
+            <div><h4>{{ classwork.name }}</h4></div>
+          </cv-structured-list-item>
+        </template>
+      </cv-structured-list>
+      <cv-structured-list class="homework">
+        <template slot="headings">
+          <cv-structured-list-heading> Домашняя работа </cv-structured-list-heading>
+        </template>
+        <template slot="items">
+          <cv-structured-list-item class="work" v-for="homework in getHomework" :key="homework.id">
+            <div> <h4>{{ homework.name }}</h4> </div>
+          </cv-structured-list-item>
+        </template>
+      </cv-structured-list>
+      <div class="lesson-buttons">
+        <EditLessonModal
+          :lesson="lessonEdit"
+          class="edit--lesson-props"/>
+        <EditLessonMaterialsModal
+          :lesson="lessonEdit"
+          class="edit--lesson-props"/>
       </div>
+      <cv-button class="finishButton" :disabled="!isChanged">{{
+          isNewLesson ? 'Создать урок' : 'Изменить урок'
+        }}
+      </cv-button>
+
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import LessonCard from '@/components/LessonCard.vue';
-import Problem from '@/components/Problem.vue';
-// import ProblemCard from "@/components/ProblemCard.vue";
-import ProblemModel from '@/models/ProblemModel';
-import { modBStore } from '@/store';
+import searchByProblems from '@/common/searchByProblems'
+import EditLessonMaterialsModal from "@/components/LessonEdit/EditLessonMaterialsModal.vue";
+import EditLessonModal from "@/components/LessonEdit/EditLessonModal.vue";
+import LessonModel from "@/models/LessonModel";
+import ProblemModel from "@/models/ProblemModel";
+import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({
-  components: {
-    // ProblemCard,
-    LessonCard, Problem,
-  },
-})
+@Component({ components: { EditLessonMaterialsModal, EditLessonModal } })
 export default class CourseCalendarView extends Vue {
   @Prop() courseId!: number;
+  lesson: LessonModel = {
+    id: NaN,
+    course: this.courseId,
+    description: '',
+    name: '',
+    problems: [],
+    materials: [],
+    deadline: '',
+    lessonContent: '',
+  } as LessonModel
+  lessonEdit: LessonModel = { ...this.lesson, course: this.courseId }
+  query = '';
 
-  store = modBStore;
-
-  get getLesson() {
-    return this.store.getLesson;
+  search(problems: ProblemModel[]): ProblemModel[] {
+    return searchByProblems(this.query, problems);
   }
 
-  get classwork(): Array<ProblemModel> {
-    return this.store.getLesson.classwork;
+  get getClasswork(): ProblemModel[] {
+    return this.search(this.lessonEdit.problems.filter(x => x.type === 'classwork'));
   }
 
-  get homework(): Array<ProblemModel> {
-    return this.store.getLesson.homework;
+  get getHomework(): ProblemModel[] {
+    return this.search(this.lessonEdit.problems.filter(x => x.type === 'homework'));
   }
 
-  deleteProblem(problem: ProblemModel) {
-    this.store.deleteProblem(problem);
+  get isNewLesson(): boolean {
+    return isNaN(this.lessonEdit.id);
   }
 
-
-  lessonTitle: string = this.getLesson.name;
-  lessonDeadline: string = this.getLesson.deadline;
+  get isChanged(): boolean {
+    return !_.isEqual(this.lesson, this.lessonEdit);
+  }
 }
 </script>
 
@@ -126,12 +104,39 @@ export default class CourseCalendarView extends Vue {
 .bx--col
   margin: 2rem
 
+.lesson-buttons
+  display flex
+  flex-direction row
+
 .works-col
   margin-right 0
   margin-bottom 1rem
   margin-left 1rem
   margin-top 1rem
   display flex
+
+.work div
+  padding 1rem 1rem 0.5rem 1rem
+
+.classwork, .homework
+  margin: 20px 0
+
+.deadLine
+  padding-top 10px
+
+.finishButton
+  margin-top 25px
+  display flex
+  flex-direction row
+  width 204px
+  background-color var(--cds-interactive-01)
+
+.search
+  margin 10px 0
+
+.addButton
+  background-color var(--cds-interactive-02)
+  margin-left 25px
 
 //border black 1px solid
 .main-content
@@ -152,16 +157,4 @@ export default class CourseCalendarView extends Vue {
 
   &:hover
     background-color: var(--cds-ui-04)
-
-.add__btn
-  margin-top: 10px
-  background-color: var($inverse-link)
-
-.delete__btn
-  &:hover
-    background-color: var(--cds-ui-04)
-
-.add__problem__btn
-  margin-top: 10px
-  background-color: var($support-03)
 </style>

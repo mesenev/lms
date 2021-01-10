@@ -108,20 +108,23 @@
 </template>
 
 <script lang="ts">
-import { modBStore } from '@/store';
+import CourseModel from '@/models/CourseModel';
+import { courseStore } from '@/store';
 import Edit from '@carbon/icons-vue/es/edit/20';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: { Edit } })
 export default class CourseCalendarView extends Vue {
-  @Prop() courseId!: number;
+  @Prop({ required: true }) courseId!: number;
+  store = courseStore;
+  course!: CourseModel;
   public icon = Edit;
   public modalVisible = false;
   public startDate: string | null = null;
   public changedStartDate: string | null = null;
-  private store = modBStore;
   private result: Array<object> | null = null;
+  loading = true;
 
   private monday_ = false;
   private tuesday_ = false;
@@ -130,6 +133,12 @@ export default class CourseCalendarView extends Vue {
   private friday_ = false;
   private saturday_ = false;
   private sunday_ = false;
+
+
+  async created() {
+    this.course = await this.store.fetchCourseById(this.courseId);
+    this.loading = false;
+  }
 
   set monday(value: boolean) {
     this.monday_ = value;
@@ -228,7 +237,7 @@ export default class CourseCalendarView extends Vue {
   generateSchedule(): void {
     if (Object.keys(this.schedule).length === 0 || this.startDate === null)
       return;
-    const lessons = this.store.getCourse.lessons;
+    const lessons = this.course.lessons;
     const date = new Date(Date.parse(this.startDate));
     const schedule = [];
     for (let i = 0; i < lessons.length; i++) {

@@ -33,13 +33,21 @@ export default class LessonModule extends VuexModule {
       name: '',
       description: '',
       lessonContent: '',
-      classwork: [],
-      homework: [],
+      problems: [],
       materials: [],
       deadline: '',
     } as LessonModel;
   }
 
-
+  @Action
+  async fetchLessonById(id: number): Promise<LessonModel> {
+    let answer = { data: {} };
+    await axios.get(`http://localhost:8000/api/lesson/${id}/`)
+      .then(response => answer = response)
+      .catch(error => {
+        console.log(error);
+      })
+    return answer.data as LessonModel;
+  }
 }
 

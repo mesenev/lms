@@ -53,32 +53,36 @@
 </template>
 
 <script lang="ts">
-import Problem from '@/components/Problem.vue';
 import Material from "@/components/Material.vue";
+import Problem from '@/components/Problem.vue';
 import LessonContent from "@/models/LessonContent";
 import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
-import { modBStore } from '@/store';
+import { lessonStore } from '@/store';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: {Material, Problem } })
 export default class LessonView extends Vue {
-  private store = modBStore;
   @Prop() lessonId!: number;
+  store = lessonStore;
+  lesson!: LessonModel;
+  loading = true;
 
-  get lesson(): LessonModel {
-    return this.store.getLesson;
+  async created() {
+    this.lesson = await this.store.fetchLessonById(this.lessonId);
+    this.loading = false;
   }
+
   get materials(): Array<LessonContent> {
     return this.lesson.materials;
   }
 
   get classwork(): Array<ProblemModel> {
-    return this.store.getLesson.classwork;
+    return this.lesson.problems.filter(x => x.type === 'classwork');
   }
 
   get homework(): Array<ProblemModel> {
-    return this.store.getLesson.homework;
+    return this.lesson.problems.filter(x => x.type === 'homework');
   }
 }
 </script>

@@ -11,18 +11,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { mainStore } from '@/store';
 import LessonModel from "@/models/LessonModel";
 import _ from 'lodash';
-import { modBStore } from '@/store';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 
 @Component({})
 export default class EditLessonName extends Vue {
   @Prop({ required: true }) lesson!: LessonModel;
-
-  store = modBStore;
 
   lessonTitle: string = this.lesson.name;
 
@@ -31,7 +27,7 @@ export default class EditLessonName extends Vue {
   }
 
   changeLessonName() {
-    this.store.changeLessonName(this.lessonTitle);
+ //
   }
 }
 </script>

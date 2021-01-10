@@ -1,6 +1,6 @@
 import SubmitModel from '@/models/SubmitModel';
+import axios, { AxiosResponse } from 'axios';
 import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
-import axios, {AxiosResponse} from 'axios';
 
 @Module({name: 'submit' })
 export default class SubmitModule extends VuexModule {
@@ -47,6 +47,18 @@ export default class SubmitModule extends VuexModule {
     await axios.get(`http://localhost:8000/api/submit/${id}/`)
       .then((response: AxiosResponse<SubmitModel>) => {
         this.addSubmitToArray(response.data)
+      })
+      .catch(error => {
+        console.error(error);
+      })
+  }
+
+  @Action
+  async fetchSubmitsByProblemId(problemId: number) {
+    // todo: make it work
+    await axios.get('http://localhost:8000/api/submit/')
+      .then(response => {
+        this.setSubmits(response.data);
       })
       .catch(error => {
         console.error(error);

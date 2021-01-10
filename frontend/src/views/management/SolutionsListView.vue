@@ -21,8 +21,7 @@
 </template>
 
 <script lang="ts">
-import { Prop, Component, Vue } from 'vue-property-decorator';
-// import { mainStore } from '@/store';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: {} })
 export default class SolutionsListView extends Vue {
