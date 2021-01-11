@@ -2,7 +2,7 @@ import LessonContent from "@/models/LessonContent";
 import axios from 'axios';
 import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
-@Module({ name: 'problem' })
+@Module({ name: 'material' })
 export default class MaterialModule extends VuexModule {
 
   _materials: Array<LessonContent> = [];
@@ -49,7 +49,6 @@ export default class MaterialModule extends VuexModule {
       id: NaN,
       lesson: NaN,
       name: 'имя',
-      // eslint-disable-next-line @typescript-eslint/camelcase
       content_type: 'text',
       content: 'иям',
     };

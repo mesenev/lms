@@ -53,9 +53,8 @@
           :lesson="lessonEdit"
           class="edit--lesson-props"/>
       </div>
-      <cv-button class="finishButton" :disabled="!isChanged" v-on:click="createOrUpdate">{{
-          isNewLesson ? 'Создать урок' : 'Изменить урок'
-        }}
+      <cv-button class="finishButton" :disabled="!isChanged" v-on:click="createOrUpdate">
+        {{ isNewLesson ? 'Создать урок' : 'Изменить урок' }}
       </cv-button>
     </div>
   </div>
@@ -65,16 +64,16 @@
 import searchByProblems from '@/common/searchByProblems'
 import EditLessonMaterialsModal from "@/components/EditLesson/EditLessonMaterialsModal.vue";
 import EditLessonModal from "@/components/EditLesson/EditLessonModal.vue";
+import ProblemCard from "@/components/EditLesson/ProblemCard.vue";
 import LessonModel from "@/models/LessonModel";
 import ProblemModel from "@/models/ProblemModel";
-import {lessonStore } from '@/store';
-import _ from 'lodash';
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import axios from "axios";
 import router from "@/router";
-import ProblemCard from "@/components/EditLesson/ProblemCard.vue";
+import { lessonStore } from '@/store';
 import Settings20 from '@carbon/icons-vue/es/settings/20';
 import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
+import axios from "axios";
+import _ from 'lodash';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: {ProblemCard, EditLessonMaterialsModal, EditLessonModal } })
 export default class LessonEditView extends Vue {

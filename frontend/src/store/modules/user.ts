@@ -8,8 +8,9 @@ export default class UserModule extends VuexModule {
   public user: UserModel = {
     id: -1,
     username: '',
-    firstName: '',
-    lastName: '',
+    first_name: '',
+    last_name: '',
+    staff_for: [],
   }
 
   @Mutation receiveUser(user: object) {

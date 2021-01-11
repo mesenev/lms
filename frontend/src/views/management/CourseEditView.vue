@@ -13,7 +13,7 @@
       <cv-text-input
         label="Автор"
         :disabled="true"
-        :value="`${courseEdit.author.firstName} ${courseEdit.author.lastName}
+        :value="`${courseEdit.author.first_name} ${courseEdit.author.last_name}
          (${courseEdit.author.username})`.trim()"
       />
       <cv-text-input label="Название курса" v-model.trim="courseEdit.name"/>

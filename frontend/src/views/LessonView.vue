@@ -69,7 +69,7 @@ import ProblemModel from '@/models/ProblemModel';
 import { lessonStore } from '@/store';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: {Material, Problem } })
+@Component({ components: { Material, Problem } })
 export default class LessonView extends Vue {
   @Prop() lessonId!: number;
   store = lessonStore;

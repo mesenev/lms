@@ -86,7 +86,7 @@ export default class EditCourseModal extends Vue {
   SubtractAlt32 = SubtractAlt20;
   courseStore = courseStore;
   lessonStore = lessonStore;
-  currentLesson: LessonModel = { ...this.lessonStore.getNewLesson, course: this.course.id, deadline: "2021-02-02"};
+  currentLesson: LessonModel = { ...this.lessonStore.getNewLesson, course: this.course.id, };
   fetchingLessons = true;
   selectedNew = true;
   showNotification = false;
