@@ -88,7 +88,7 @@ export default class EditLessonModal extends Vue {
   SubtractAlt32 = SubtractAlt20;
   vertical = false;
   problemStore = problemStore;
-  currentProblem: ProblemModel = { ...this.problemStore.getNewProblem, lessonId: this.lesson.id };
+  currentProblem: ProblemModel = { ...this.problemStore.getNewProblem, lesson: this.lesson.id };
   fetchingProblems = true;
   selectedNew = true;
   showNotification = false;

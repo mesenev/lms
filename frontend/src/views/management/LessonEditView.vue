@@ -21,7 +21,7 @@
         kind="single"
         v-model="lessonEdit.deadline"
         date-label="Дедлайн"
-        cal-options="{y/m/d}"
+        :cal-options=calOptions
       />
       <cv-search class="search" v-model="query"></cv-search>
       <cv-structured-list class="classwork">
@@ -57,7 +57,6 @@
           isNewLesson ? 'Создать урок' : 'Изменить урок'
         }}
       </cv-button>
-
     </div>
   </div>
 </template>
@@ -78,7 +77,7 @@ import Settings20 from '@carbon/icons-vue/es/settings/20';
 import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
 
 @Component({ components: {ProblemCard, EditLessonMaterialsModal, EditLessonModal } })
-export default class CourseCalendarView extends Vue {
+export default class LessonEditView extends Vue {
   @Prop({required: true}) lessonId!: number;
   TrashCan = TrashCan20;
   Settings = Settings20;
@@ -86,6 +85,10 @@ export default class CourseCalendarView extends Vue {
   notificationKind = 'success';
   notificationText = '';
   fetchingLesson = true;
+
+  calOptions = {
+    ateFormat: 'Y/m/d'
+  }
 
   store = lessonStore;
   query = '';

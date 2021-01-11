@@ -41,7 +41,7 @@ export default class MaterialEditView extends Vue {
   @Prop() lessonId!: number;
   lesson!: LessonModel;
   materialTittle: string = this.materials.name;
-  materialText: string = this.materials.text;
+  materialText: string = this.materials.content;
 
   async created() {
     this.lesson = await this.store.fetchLessonById(this.lessonId);
@@ -60,7 +60,7 @@ export default class MaterialEditView extends Vue {
   }
 
   get canChangeMaterial() {
-    return _.isEqual(this.materials.text, this.materialText)
+    return _.isEqual(this.materials.content, this.materialText)
   }
 
   ChangeMaterialName() {

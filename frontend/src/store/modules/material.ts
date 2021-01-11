@@ -33,10 +33,11 @@ export default class MaterialModule extends VuexModule {
     this._materials = [...this._materials];
   }
 
-  private _currentMaterial: LessonContent = this.getNewMaterial;
+  private _currentMaterial: LessonContent = {...this.getNewMaterial};
+
   @Mutation
-  setCurrentProblem(material: LessonContent) {
-    this._currentMaterial = { ...material };
+  setCurrentMaterial(material: LessonContent) {
+    this._currentMaterial = material;
   }
 
   get currentMaterial(): LessonContent {
@@ -47,16 +48,17 @@ export default class MaterialModule extends VuexModule {
     return {
       id: NaN,
       lesson: NaN,
-      type: '',
-      name: '',
-      text: '',
+      name: 'имя',
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      content_type: 'text',
+      content: 'иям',
     };
   }
 
   @Action
-  async fetchMaterialById(materialId: number): Promise<LessonContent> {
+  async fetchMaterialById(id: number): Promise<LessonContent> {
     let answer = { data: {} };
-    await axios.get(`http://localhost:8000/api/material/${materialId}/`)
+    await axios.get(`http://localhost:8000/api/material/${id}/`)
       .then(response => answer = response)
       .catch(error => {
         console.log(error);

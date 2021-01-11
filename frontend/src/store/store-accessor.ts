@@ -29,6 +29,7 @@ export function initializeStores (store: Store<unknown>): void {
   courseStore = getModule(CourseModule, store)
   lessonStore = getModule(LessonModule, store)
   submitStore = getModule(SubmitModule, store);
+  materialStore = getModule(MaterialModule,store);
 }
 
 // for use in 'modules' store init (see store/index.ts), so each module

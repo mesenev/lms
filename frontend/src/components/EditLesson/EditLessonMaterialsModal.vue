@@ -19,37 +19,18 @@
       />
       <template slot="title">
         Добавить материалы
-        <cv-content-switcher class="switcher" @selected="actionSelected">
-          <cv-content-switcher-button content-selector=".content-1" selected>
-            Создать новый
-          </cv-content-switcher-button>
-          <cv-content-switcher-button content-selector=".content-2">
-            Выбрать из существующих
-          </cv-content-switcher-button>
-        </cv-content-switcher>
       </template>
       <template slot="content">
         <section class="modal--content">
-          <div class="content-1">
-            <cv-text-input label="Название материала" v-model.trim="material.name" disabled/>
-            <cv-text-input label="Название" v-model.trim="currentMaterial.name"/>
-            <span>Редактирование материалов доступно после создания</span>
-
-          </div>
-          <div class="content-2" hidden>
-            <div>
-              <cv-structured-list>
-                <template slot="items">
-                  <cv-search v-model="searchQueryForAllMaterials"></cv-search>
-                  <cv-structured-list-item
-                    class="problem-card"
-                    v-for="material in allMaterials"
-                    :key="material.id">
-                  </cv-structured-list-item>
-                </template>
-              </cv-structured-list>
-            </div>
-          </div>
+          <cv-text-input label="Название" v-model.trim="currentMaterial.name"/>
+          <h5>Выберите тип материала:</h5>
+          <cv-radio-group :vertical=false>
+            <cv-radio-button v-model="currentMaterial.content_type" label="Текст" value="text"/>
+            <cv-radio-button v-model="currentMaterial.content_type" label="Ссылка" value="url"/>
+            <cv-radio-button v-model="currentMaterial.content_type" label="Видео" value="video"/>
+          </cv-radio-group>
+          <br>
+          <span>Редактирование материалов доступно после создания</span>
         </section>
       </template>
       <template slot="primary-button">
@@ -60,9 +41,8 @@
 </template>
 
 <script lang="ts">
-import searchByMaterials from '@/common/searchByMaterials';
 import LessonModel from '@/models/LessonModel';
-import { lessonStore, materialStore } from '@/store';
+import { materialStore } from '@/store';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import axios from 'axios';
@@ -78,7 +58,6 @@ export default class EditLessonMaterialsModal extends Vue {
   SubtractAlt32 = SubtractAlt20;
   materialStore = materialStore;
   currentMaterial: LessonContent = { ...this.materialStore.getNewMaterial, lesson: this.lesson.id};
-  fetchingMaterials = true;
   selectedNew = true;
   showNotification = false;
   notificationText = '';
@@ -86,43 +65,19 @@ export default class EditLessonMaterialsModal extends Vue {
   materials: LessonContent[] = [];
   modalVisible = false;
   searchQueryForAllMaterials = '';
-  get allMaterials(): LessonContent[] {
-    return searchByMaterials(this.searchQueryForAllMaterials, this.freeMaterials);
-  }
-  get freeMaterials(): LessonContent[] {
-    return this.materialStore.materials.filter((l) => {
-      return !this.lesson.materials.map((lessonMaterial) => lessonMaterial.id).includes(l.id);
-    });
-  }
-  async created() {
-    if (this.materialStore.materials.length === 0)
-      await this.materialStore.fetchMaterials();
-    this.fetchingMaterials = false;
-  }
+
+
   showModal() {
     this.modalVisible = true;
     this.showNotification = false;
     this.currentMaterial = { ...this.materialStore.getNewMaterial, lesson: this.lesson.id };
   }
+
   modalHidden() {
     this.modalVisible = false;
   }
-  actionSelected() {
-    this.selectedNew = !this.selectedNew;
-  }
-  get getSelected(): string {
-    return this.materials.concat(this.currentMaterial)
-      .map((l) => l.name)
-      .sort((a, b) => a < b ? -1 : 1)
-      .join(' ');
-  }
-  chooseMaterial(material: LessonContent) {
-    if (!this.materials.includes(material)) {
-      this.materials.push(material);
-    } else {
-      this.materials = this.materials.filter((l) => materials !== l); //!
-    }
-  }
+
+
   async addMaterial() {
     if (this.selectedNew) {
       this.creationLoader = true;
@@ -134,8 +89,11 @@ export default class EditLessonMaterialsModal extends Vue {
       // this.lessons = [];
     }
   }
+
   async createNewMaterial() {
     delete this.currentMaterial.id;
+    console.log(this.currentMaterial);
+    this.currentMaterial.content = "### материал"
     const request = axios.post('http://localhost:8000/api/material/', this.currentMaterial);
     request.then(response => {
       this.lesson.materials.push(response.data as LessonContent);
