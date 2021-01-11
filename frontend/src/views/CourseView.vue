@@ -3,8 +3,8 @@
     <div v-if="!loading" class="bx--row header">
       <h1>{{ (course) ? course.name : "" }}</h1>
     </div>
-      <div v-else class="bx--row header">
-        <cv-skeleton-text :width="'65%'" :heading="true"/>
+    <div v-else class="bx--row header">
+      <cv-skeleton-text :width="'65%'" :heading="true"/>
     </div>
     <div class=" bx--row">
       <div class="items bx--col-lg-8">
@@ -19,7 +19,7 @@
             </cv-structured-list-item>
           </template>
         </cv-structured-list>
-        <cv-data-table-skeleton v-else :rows="6" :columns="1" />
+        <cv-data-table-skeleton v-else :rows="6" :columns="1"/>
       </div>
       <div class="bx--col-lg-8">
       </div>
@@ -38,23 +38,22 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
   components: { Lesson },
 })
 export default class CourseView extends Vue {
-  @Prop({required: true}) courseId!: number;
+  @Prop({ required: true }) courseId!: number;
 
-  @Prop({required: false, default: null}) courseProp!: CourseModel | null;
-  course: CourseModel| null = null;
+  course: CourseModel | null = null;
   courseStore = courseStore;
   lessonStore = lessonStore;
   loading = true;
 
   searchValue = "";
+
   async created() {
-    if(this.courseProp === null){
-      this.course = await this.courseStore.fetchCourseById(this.courseId);
-    }
+    this.course = await this.courseStore.fetchCourseById(this.courseId);
     this.loading = false;
   }
+
   get lessons(): Array<LessonModel> {
-    return(this.course) ?  this.course.lessons : [];
+    return (this.course) ? this.course.lessons : [];
   }
 
   get filterLessons() {
