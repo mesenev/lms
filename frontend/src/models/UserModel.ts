@@ -3,4 +3,5 @@ export default interface UserModel {
   username: string;
   firstName: string;
   lastName: string;
+  staff_for: Array<boolean>;
 }
