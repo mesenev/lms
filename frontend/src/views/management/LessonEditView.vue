@@ -12,10 +12,10 @@
       />
       <cv-text-input
         label="Название урока"
-        v-model.trim="lessonEdit.name" />
+        v-model.trim="lessonEdit.name"/>
       <cv-text-input
         label="Описание урока"
-        v-model.trim="lessonEdit.description" />
+        v-model.trim="lessonEdit.description"/>
       <cv-date-picker
         class="deadLine"
         kind="single"
@@ -26,7 +26,7 @@
       <cv-search class="search" v-model="query"></cv-search>
       <cv-structured-list class="classwork">
         <template slot="headings">
-          <cv-structured-list-heading> Классная работа </cv-structured-list-heading>
+          <cv-structured-list-heading> Классная работа</cv-structured-list-heading>
         </template>
         <template slot="items">
           <cv-structured-list-item
@@ -37,7 +37,7 @@
       </cv-structured-list>
       <cv-structured-list class="homework">
         <template slot="headings">
-          <cv-structured-list-heading> Домашняя работа </cv-structured-list-heading>
+          <cv-structured-list-heading> Домашняя работа</cv-structured-list-heading>
         </template>
         <template slot="items">
           <cv-structured-list-item class="work" v-for="homework in getHomework" :key="homework.id">
@@ -64,7 +64,6 @@
 import searchByProblems from '@/common/searchByProblems'
 import EditLessonMaterialsModal from "@/components/EditLesson/EditLessonMaterialsModal.vue";
 import EditLessonModal from "@/components/EditLesson/EditLessonModal.vue";
-import ProblemCard from "@/components/EditLesson/ProblemCard.vue";
 import LessonModel from "@/models/LessonModel";
 import ProblemModel from "@/models/ProblemModel";
 import router from "@/router";
@@ -75,9 +74,9 @@ import axios from "axios";
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: {ProblemCard, EditLessonMaterialsModal, EditLessonModal } })
+@Component({ components: { EditLessonMaterialsModal, EditLessonModal } })
 export default class LessonEditView extends Vue {
-  @Prop({required: true}) lessonId!: number;
+  @Prop({ required: true }) lessonId!: number;
   TrashCan = TrashCan20;
   Settings = Settings20;
   showNotification = false;
@@ -86,7 +85,7 @@ export default class LessonEditView extends Vue {
   fetchingLesson = true;
 
   calOptions = {
-    ateFormat: 'Y/m/d'
+    ateFormat: 'Y/m/d',
   }
 
   store = lessonStore;
@@ -111,7 +110,7 @@ export default class LessonEditView extends Vue {
   async created() {
     console.log(this.lessonId);
     this.lesson = await this.store.fetchLessonById(this.lessonId);
-    this.lessonEdit = {...this.lesson};
+    this.lessonEdit = { ...this.lesson };
     console.log(this.lessonEdit);
   }
 
