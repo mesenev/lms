@@ -47,11 +47,10 @@ import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import axios from 'axios';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import ProblemCard from "@/components/EditLesson/ProblemCard.vue";
 import LessonContent from "@/models/LessonContent";
 
 
-@Component({ components: {ProblemCard, AddAlt20, SubtractAlt20 } })
+@Component({ components: {AddAlt20, SubtractAlt20 } })
 export default class EditLessonMaterialsModal extends Vue {
   @Prop({ required: true }) lesson!: LessonModel;
   AddAlt32 = AddAlt20;

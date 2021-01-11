@@ -50,12 +50,6 @@
                     class="problem-card"
                     v-for="problem in allProblems"
                     :key="problem.id">
-                    <ProblemCard
-                      :problem="problem"
-                      :main-icon="AddAlt32"
-                      :change-main-icon="SubtractAlt32"
-                      :manipulation="chooseProblem">
-                    </ProblemCard>
                   </cv-structured-list-item>
                 </template>
               </cv-structured-list>
