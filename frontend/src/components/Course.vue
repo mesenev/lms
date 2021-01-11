@@ -8,12 +8,7 @@ export default class Course extends Vue {
   @Prop() courseProp!: CourseModel;
 
   openCourse(): void {
-    router.push({
-      name: 'CourseView', params: {
-        courseId: this.course.id.toString(),
-        courseProp: this.course, //TODO: https://github.com/vuejs/vue-router/issues/2662
-      },
-    });
+    router.push({ name: 'CourseView', params: { courseId: this.course.id.toString() } });
   }
 
   get course(): CourseModel {
