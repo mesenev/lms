@@ -85,6 +85,7 @@ export default class CourseEditView extends Vue {
     lessons: [],
     completed: false,
     description: '',
+    students: [],
   };
   courseEdit = { ...this.course };
 

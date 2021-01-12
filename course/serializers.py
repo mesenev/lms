@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from course.models import Course, CourseSchedule
 from lesson.serializers import LessonSerializer
+from users.models import CourseAssignTeacher
 from users.serializers import DefaultUserSerializer
 
 
@@ -9,6 +10,7 @@ class CourseSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
     author = DefaultUserSerializer(required=False, read_only=True)
     lessons = LessonSerializer(many=True, read_only=True)
+    students = DefaultUserSerializer(many=True, required=False, read_only=True)
 
     def validate_author(self, value):
         return
@@ -18,7 +20,9 @@ class CourseSerializer(serializers.ModelSerializer):
             del validated_data['lessons']
         request = self.context.get("request")
         user = request.user if request and hasattr(request, "user") else None
-        return Course.objects.create(**validated_data, **{'author': user})
+        instance = Course.objects.create(**validated_data, **{'author': user})
+        CourseAssignTeacher.objects.create(user=user, course=instance)
+        return instance
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
@@ -26,9 +30,10 @@ class CourseSerializer(serializers.ModelSerializer):
         instance.author = validated_data.get('author', instance.author)
         instance.save()
         return instance
+
     class Meta:
         model = Course
-        fields = ['id', 'name', 'description', 'author', 'lessons']
+        fields = ['id', 'name', 'description', 'author', 'lessons', 'students']
 
 
 class ScheduleSerializer(serializers.Serializer):

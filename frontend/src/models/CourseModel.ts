@@ -8,4 +8,5 @@ export default interface CourseModel {
   lessons: Array<LessonModel>;
   completed: boolean;
   description?: string;
+  students: Array<UserModel>;
 }
