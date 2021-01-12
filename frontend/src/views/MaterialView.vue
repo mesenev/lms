@@ -1,5 +1,18 @@
 <template>
   <div class="bx--grid">
+    <div class="bx--row">
+      <div class="bx--col-lg-16">
+        <cv-tile>
+          <h1>{{ materials.name}}</h1>
+        </cv-tile>
+      </div>
+      <div class="bx--col-lg-10">
+
+      </div>
+      <div class="less bx--col-lg-10">
+        <div v-html="markdownText"></div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -17,15 +30,18 @@ export default class MaterialView extends Vue {
   material!: LessonContent;
 
   async created() {
-    this.material = await this.materialStore.fetchMaterialById(this.materialId);
+    const material = await this.materialStore.fetchMaterialById(this.materialId);
+    if (material) {
+      this.materialStore.setCurrentMaterial(material);
+    }
   }
 
   get materials(): LessonContent {
-    return this.material;
+    return this.materialStore.currentMaterial;
   }
 
   get markdownText() {
-    return marked(this.material.content, { sanitize: true })
+    return marked(this.materials.content, { sanitize: true })
   }
 }
 </script>
