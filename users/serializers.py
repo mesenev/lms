@@ -15,3 +15,8 @@ class DefaultUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'id', 'staff_for']
+
+    def create(self, validated_data):
+            user = User.objects.create(**validated_data)
+            user.set_password(validated_data['password'])
+            user.save()
