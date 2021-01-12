@@ -1,7 +1,7 @@
 from django.core.management import BaseCommand, CommandError
 
 from course.models import Course
-from users.models import User, CourseAssign
+from users.models import User, CourseAssignStudent
 
 
 class Command(BaseCommand):
@@ -22,7 +22,7 @@ class Command(BaseCommand):
         for i in range(1, count_of_users + 1):
             user = User.objects.create_user(username=f'{count_of_exists_users + i}user', password='1234')
             user.save()
-            course_assign = CourseAssign.objects.create(course=course, user=user,)
+            course_assign = CourseAssignStudent.objects.create(course=course, user=user,)
             course_assign.save()
 
         self.stdout.write(self.style.SUCCESS(f'На курс {course.name} добавлено {count_of_users}'))
