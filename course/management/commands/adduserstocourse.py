@@ -20,7 +20,8 @@ class Command(BaseCommand):
         count_of_exists_users = User.objects.count()
 
         for i in range(1, count_of_users + 1):
-            user = User.objects.create_user(username=f'{count_of_exists_users + i}user', password='1234')
+            user = User.objects.create_user(username=f'{count_of_exists_users + i}user')
+            user.set_password('1234')
             user.save()
             course_assign = CourseAssignStudent.objects.create(course=course, user=user,)
             course_assign.save()
