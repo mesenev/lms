@@ -1,20 +1,22 @@
 <template>
   <div class="bx--grid">
     <div class="bx--row">
+      <!--Todo: сделать нормальную верстку-->
+      <h1>Редактирование материала</h1>
       <div class="bx--col-lg-16">
-        <label>
-          <input :class="`bx--text-input`" type="text" v-model="materialTittle">
-        </label>
-        <cv-button
-          class="change__btn"
-          :disabled="canChangeMaterialName"
-          @click="ChangeMaterialName">
-          Сменить название
-        </cv-button>
+        <cv-inline-notification
+        v-if="showNotification"
+        @close="hideSuccess"
+        :kind="notificationKind"
+        :sub-title="notificationText"
+        />
       </div>
       <div class="bx--col-lg-10"></div>
       <div class="less bx--col-lg-8">
-        <cv-text-area style="height: auto;" v-model="materialText"></cv-text-area>
+        <label>
+          <input :class="`bx--text-input`" type="text" v-model="materialEdit.name">
+        </label>
+        <cv-text-area style="height: auto;" v-model="materialEdit.content"></cv-text-area>
       </div>
       <div class="less bx--col-lg-8">
         <div v-html="getMarkdownText"></div>
@@ -29,46 +31,71 @@
 
 <script lang="ts">
 import Material from '@/components/Material.vue';
-import LessonModel from '@/models/LessonModel';
-import { lessonStore } from '@/store';
+import { materialStore } from '@/store';
 import _ from 'lodash';
 import marked from 'marked';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import LessonContent from "@/models/LessonContent";
+import axios from "axios";
 
 @Component({ components: { Material } })
 export default class MaterialEditView extends Vue {
-  private store = lessonStore;
-  @Prop() lessonId!: number;
-  lesson!: LessonModel;
-  materialTittle: string = this.materials.name;
-  materialText: string = this.materials.content;
+  @Prop() materialId!: number;
+  private materialStore = materialStore;
+  material: LessonContent = {
+    id: NaN,
+    lesson: NaN,
+    name: '',
+    content_type: '',
+    content: '',
+  }
+  materialEdit: LessonContent = {...this.material}
+  showNotification = false;
+  notificationKind = 'success';
+  notificationText = '';
 
-  async created() {
-    this.lesson = await this.store.fetchLessonById(this.lessonId);
+  hideSuccess() {
+    this.showNotification = false;
   }
 
-  get materials() {
-    return this.lesson.materials[0];
+  async created() {
+    const material = await this.materialStore.fetchMaterialById(this.materialId);
+    if (material) {
+      this.materialStore.setCurrentMaterial(material);
+      this.material = this.materialStore.currentMaterial;
+      this.materialEdit = { ...this.material }
+    }
+  }
+
+  get materials(): LessonContent {
+    return this.material;
   }
 
   get getMarkdownText() {
-    return marked(this.materialText);
+    return marked(this.materialEdit.content);
   }
 
   get canChangeMaterialName() {
-    return this.materials.name === this.materialTittle;
+    return this.materials.name === this.materialEdit.name;
   }
 
-  get canChangeMaterial() {
-    return _.isEqual(this.materials.content, this.materialText)
-  }
-
-  ChangeMaterialName() {
-    //
+  get canChangeMaterial(): boolean {
+    return _.isEqual(this.materials, this.materialEdit)
   }
 
   ChangeMaterial() {
-    //
+    console.log(this.materials);
+    console.log(this.materialEdit);
+    const request = axios.patch('http://localhost:8000/api/lesson/${this.materialEdit.id}/', this.materialEdit);
+    request.then(() => {
+      this.notificationKind = 'success';
+      this.notificationText = 'Материалы успешно изменены';
+    });
+    request.catch(error => {
+      this.notificationText = `Что-то пошло не так: ${error.message}`;
+      this.notificationKind = 'error';
+    })
+    request.finally(() => this.showNotification = true);
   }
 
 }

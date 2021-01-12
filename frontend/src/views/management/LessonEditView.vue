@@ -108,10 +108,8 @@ export default class LessonEditView extends Vue {
   }
 
   async created() {
-    console.log(this.lessonId);
     this.lesson = await this.store.fetchLessonById(this.lessonId);
     this.lessonEdit = { ...this.lesson };
-    console.log(this.lessonEdit);
   }
 
   createOrUpdate(): void {
@@ -120,7 +118,6 @@ export default class LessonEditView extends Vue {
     const request = (this.isNewLesson) ?
       axios.post('http://localhost:8000/api/lesson/', this.lessonEdit) :
       axios.patch(`http://localhost:8000/api/lesson/${this.lessonEdit.id}/`, this.lessonEdit);
-    console.log(this.lesson)
     request.then(response => {
       this.notificationKind = 'success';
       this.notificationText = (this.lessonId) ? 'Урок успешно изменён' : 'Урок успешно создан';

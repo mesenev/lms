@@ -153,8 +153,6 @@ export default class EditLessonModal extends Vue {
 
   async createNewProblem() {
     delete this.currentProblem.id;
-    console.log(this.lesson.id);
-    console.log(this.currentProblem);
     const request = axios.post('http://localhost:8000/api/problem/', this.currentProblem);
     request.then(response => {
       this.lesson.problems.push(response.data as ProblemModel);
