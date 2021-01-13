@@ -5,3 +5,7 @@ export default interface UserModel {
   last_name: string;
   staff_for: Array<number>;
 }
+
+export interface AuthorModel extends UserModel {
+  middle_name?: string;
+}

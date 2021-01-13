@@ -32,7 +32,7 @@ def user_login(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return HttpResponse('OK')
+                    return redirect('index')
                 else:
                     return HttpResponse('Disabled account')
             else:

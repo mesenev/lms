@@ -1,14 +1,14 @@
 <template>
+  <!--              :primary-button-disabled="!lessons.length && !currentLesson.name"
+              @primary-click="addLesson"-->
   <div>
     <cv-button class="change-btn" @click="showModal">
       Добавить пользователя в курс
     </cv-button>
     <cv-modal size="default"
-              class="add_lesson_modal"
+              class="addUser"
               :visible="modalVisible"
               @modal-hidden="modalHidden"
-              :primary-button-disabled="!lessons.length && !currentLesson.name"
-              @primary-click="addLesson"
               @secondary-click="() => {}">
       <template slot="label">{{ course.name }}</template>
       <cv-inline-notification
@@ -31,22 +31,27 @@
       <template slot="content">
         <section class="modal--content">
           <div class="content-1">
-            <cv-structured-list>
+            <cv-data-table :columns="columns" :data="students"></cv-data-table>
+<!--            <cv-structured-list>
               <template slot="items">
                 <cv-structured-list-item
-                  v-for="user in admins"
-                  :key="user.id">
+                  v-for="student in students"
+                  :key="student.id">
+                   {{ student.username }}
                 </cv-structured-list-item>
               </template>
-            </cv-structured-list>
+            </cv-structured-list>-->
           </div>
           <div class="content-2" hidden>
             <div>
               <cv-structured-list>
                 <template slot="items">
                   <cv-structured-list-item
-                    v-for="student in students"
-                    :key="student.id">
+                    v-for="user in admins"
+                    :key="user.id">
+                    <div v-on:click="addedUsers">
+                      <p> {{ user.username }} </p>
+                    </div>
                   </cv-structured-list-item>
                 </template>
               </cv-structured-list>
@@ -62,21 +67,30 @@
 </template>
 
 <script lang="ts">
-import searchByLessons from '@/common/searchByLessons';
-import LessonCard from '@/components/EditCourse/LessonCard.vue';
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
-import { courseStore, lessonStore } from '@/store';
-import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
-import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
-import axios from 'axios';
+import { lessonStore } from '@/store';
 
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import UserModel from "@/models/UserModel";
 
-@Component({ components: { LessonCard, AddAlt20, SubtractAlt20 } })
+@Component({ components: { } })
 export default class EditCourseModal extends Vue {
   @Prop({ required: true }) course!: CourseModel;
+
+  rowSize = ""
+  autoWidth = false
+  sortable = false
+  title = "Table title"
+  actionBarAriaLabel = "Custom action bar aria label"
+  batchCancelLabel = "Cancel"
+  zebra = false
+  columns = [
+  "name",
+  "surname",
+  "username",
+]
+  use_batchActions = true
 
   users: Array<UserModel> = [
     {
@@ -115,40 +129,39 @@ export default class EditCourseModal extends Vue {
       staff_for: [true],
     }
   ]
-
-  AddAlt32 = AddAlt20;
-  SubtractAlt32 = SubtractAlt20;
-  courseStore = courseStore;
   lessonStore = lessonStore;
   currentLesson: LessonModel = { ...this.lessonStore.getNewLesson, course: this.course.id, };
   fetchingLessons = true;
   selectedNew = true;
   showNotification = false;
   notificationText = '';
-  creationLoader = false;
-
   lessons: LessonModel[] = [];
   modalVisible = false;
-  searchQueryForAllLessons = '';
+  addedUsers: Array<UserModel> = [
+    {
+      id: 0,
+      username: 'test',
+      first_name: '6',
+      last_name: '6',
+      staff_for: [false],
+    }
+  ];
 
   get students() {
     return this.users.filter(l => {
-      if (l.staff_for[0] == false) return l.username })
+      if (!l.staff_for[0]) return l.username })
   }
 
   get admins() {
     return this.users.filter(l => {
-      if (l.staff_for[0] == true) return l.username })
+      if (l.staff_for[0]) return l.username })
   }
-
-  get allLessons(): LessonModel[] {
-    return searchByLessons(this.searchQueryForAllLessons, this.freeLessons);
-  }
-
-  get freeLessons(): LessonModel[] {
-    return this.lessonStore.lessons.filter((l) => {
-      return !this.course.lessons.map((courseLesson) => courseLesson.id).includes(l.id);
-    });
+  addUser(user: UserModel) {
+    if (!this.addedUsers.includes(user)) {
+      this.addedUsers.push(user);
+    } else {
+      this.addedUsers = this.addedUsers.filter((l) => user !== l);
+    }
   }
 
   async created() {
@@ -170,48 +183,6 @@ export default class EditCourseModal extends Vue {
   actionSelected() {
     this.selectedNew = !this.selectedNew;
   }
-
-  get getSelected(): string {
-    return this.lessons.concat(this.currentLesson)
-      .map((l) => l.name)
-      .sort((a, b) => a < b ? -1 : 1)
-      .join(' ');
-  }
-
-  chooseLesson(lesson: LessonModel) {
-    if (!this.lessons.includes(lesson)) {
-      this.lessons.push(lesson);
-    } else {
-      this.lessons = this.lessons.filter((l) => lesson !== l);
-    }
-  }
-
-  async addLesson() {
-    if (this.selectedNew) {
-      this.creationLoader = true;
-      await this.createNewLesson();
-      this.creationLoader = false;
-    }
-    if (this.lessons.every((l) => l.name)) {
-      // this.lessons.forEach((lesson) => this.lessonStore.addLessonToCourse(lesson));
-      // this.lessons = [];
-    }
-  }
-
-
-  async createNewLesson() {
-    delete this.currentLesson.id;
-    console.log(this.currentLesson);
-    const request = axios.post('http://localhost:8000/api/lesson/', this.currentLesson);
-    request.then(response => {
-      this.course.lessons.push(response.data as LessonModel);
-      this.modalHidden();
-    });
-    request.catch(error => {
-      this.notificationText = `Что-то пошло не так: ${error.message}`;
-      this.showNotification = true;
-    });
-  }
 }
 </script>
 
@@ -228,17 +199,17 @@ export default class EditCourseModal extends Vue {
 .switcher
   margin-bottom: 5px
 
-.add_lesson_modal .bx--modal-container
+.addUser .bx--modal-container
   height 75vh
 
-.add_lesson_modal .bx--modal-footer
+.addUser .bx--modal-footer
   height 3.5rem
 
-.add_lesson_modal .bx--btn
+.addUser .bx--btn
   height 3rem
   border none
 
-.add_lesson_modal .bx--btn--secondary
+.addUser .bx--btn--secondary
   background-color var(--cds-hover-secondary)
 
   &:hover, &:active, &:focus
@@ -246,8 +217,8 @@ export default class EditCourseModal extends Vue {
     box-shadow none
     border none
 
-.add_lesson_modal .bx--btn--primary[disabled = disabled],
-.add_lesson_modal .bx--btn--primary
+.addUser .bx--btn--primary[disabled = disabled],
+.addUser .bx--btn--primary
   background-color var(--cds-ui-05)
 
 .modal--content
