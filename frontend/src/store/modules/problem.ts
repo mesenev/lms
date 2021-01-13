@@ -35,18 +35,6 @@ export default class ProblemModule extends VuexModule {
 
   private _currentProblem: ProblemModel = this.getNewProblem;
 
-  // @Action
-  // async fetchProblemById(id: number) {
-  //   await axios.get(`http://localhost:8000/api/problem/${id}/`)
-  //     .then((response) => {
-  //       this.addProblemToArray(response.data);
-  //       this.setCurrentProblem(response.data);
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     })
-  // }
-
   @Mutation
   setCurrentProblem(problem: ProblemModel) {
     this._currentProblem = { ...problem };

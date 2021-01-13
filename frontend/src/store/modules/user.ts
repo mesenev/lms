@@ -1,6 +1,8 @@
 import UserModel from '@/models/UserModel';
 import UserProgress from '@/models/UserProgress';
 import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators'
+import CourseModel from "@/models/CourseModel";
+import { courseStore } from '@/store';
 
 
 @Module({ name: 'user' })
@@ -18,8 +20,9 @@ export default class UserModule extends VuexModule {
   }
 
   @Action
-  fetchStudentsByCourseId(courseId: number): Array<UserModel> {
-    throw Error();
+  async fetchStudentsByCourseId(courseId: number): Promise<Array<UserModel>> {
+    const course: CourseModel = await courseStore.fetchCourseById(courseId);
+    return course.students as UserModel[];
   }
 
   @Action
