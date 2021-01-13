@@ -31,7 +31,8 @@
       <template slot="content">
         <section class="modal--content">
           <div class="content-1">
-            <cv-structured-list>
+            <cv-data-table :columns="columns" :data="students"></cv-data-table>
+<!--            <cv-structured-list>
               <template slot="items">
                 <cv-structured-list-item
                   v-for="student in students"
@@ -39,7 +40,7 @@
                    {{ student.username }}
                 </cv-structured-list-item>
               </template>
-            </cv-structured-list>
+            </cv-structured-list>-->
           </div>
           <div class="content-2" hidden>
             <div>
@@ -76,6 +77,20 @@ import UserModel from "@/models/UserModel";
 @Component({ components: { } })
 export default class EditCourseModal extends Vue {
   @Prop({ required: true }) course!: CourseModel;
+
+  rowSize = ""
+  autoWidth = false
+  sortable = false
+  title = "Table title"
+  actionBarAriaLabel = "Custom action bar aria label"
+  batchCancelLabel = "Cancel"
+  zebra = false
+  columns = [
+  "name",
+  "surname",
+  "username",
+]
+  use_batchActions = true
 
   users: Array<UserModel> = [
     {
@@ -134,12 +149,12 @@ export default class EditCourseModal extends Vue {
 
   get students() {
     return this.users.filter(l => {
-      if (l.staff_for[0] == false) return l.username })
+      if (!l.staff_for[0]) return l.username })
   }
 
   get admins() {
     return this.users.filter(l => {
-      if (l.staff_for[0] == true) return l.username })
+      if (l.staff_for[0]) return l.username })
   }
   addUser(user: UserModel) {
     if (!this.addedUsers.includes(user)) {
