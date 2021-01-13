@@ -5,13 +5,15 @@
         <br>
         <h3>Здравствуйте!</h3>
         <h4>
-          Пожалуйста, заполните поля ниже, чтобы записаться на курс "{{ courseArray.name }}"
+          Пожалуйста, заполните поля ниже, чтобы записаться на курс "{{  }}"
         </h4>
         <br>
       </div>
       <div class="bx--col-lg-7">
         <cv-form @submit.prevent="">
-          <cv-text-input id="name" label="Ф.И.О." helper-text=""/>
+          <cv-text-input id="name" label="Имя" helper-text=""/>
+          <br>
+          <cv-text-input id="surname" label="Фамилия" helper-text=""/>
           <br>
           <cv-text-input id="group" label="Группа обучения" helper-text=""/>
           <br>

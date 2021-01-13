@@ -1,0 +1,255 @@
+<template>
+  <div>
+    <cv-button class="change-btn" @click="showModal">
+      Добавить пользователя в курс
+    </cv-button>
+    <cv-modal size="default"
+              class="add_lesson_modal"
+              :visible="modalVisible"
+              @modal-hidden="modalHidden"
+              :primary-button-disabled="!lessons.length && !currentLesson.name"
+              @primary-click="addLesson"
+              @secondary-click="() => {}">
+      <template slot="label">{{ course.name }}</template>
+      <cv-inline-notification
+        v-if="showNotification"
+        @close="() => showNotification=false"
+        kind="error"
+        :sub-title="notificationText"
+      />
+      <template slot="title">
+        <h3>Добавить пользователя</h3>
+        <cv-content-switcher class="switcher" @selected="actionSelected">
+          <cv-content-switcher-button content-selector=".content-1" selected>
+            Добавить ученика
+          </cv-content-switcher-button>
+          <cv-content-switcher-button content-selector=".content-2">
+            Добавить преподавателя
+          </cv-content-switcher-button>
+        </cv-content-switcher>
+      </template>
+      <template slot="content">
+        <section class="modal--content">
+          <div class="content-1">
+            <cv-structured-list>
+              <template slot="items">
+                <cv-structured-list-item
+                  v-for="user in admins"
+                  :key="user.id">
+                </cv-structured-list-item>
+              </template>
+            </cv-structured-list>
+          </div>
+          <div class="content-2" hidden>
+            <div>
+              <cv-structured-list>
+                <template slot="items">
+                  <cv-structured-list-item
+                    v-for="student in students"
+                    :key="student.id">
+                  </cv-structured-list-item>
+                </template>
+              </cv-structured-list>
+            </div>
+          </div>
+        </section>
+      </template>
+      <template slot="primary-button">
+        Добавить
+      </template>
+    </cv-modal>
+  </div>
+</template>
+
+<script lang="ts">
+import searchByLessons from '@/common/searchByLessons';
+import LessonCard from '@/components/EditCourse/LessonCard.vue';
+import CourseModel from '@/models/CourseModel';
+import LessonModel from '@/models/LessonModel';
+import { courseStore, lessonStore } from '@/store';
+import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
+import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
+import axios from 'axios';
+
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import UserModel from "@/models/UserModel";
+
+@Component({ components: { LessonCard, AddAlt20, SubtractAlt20 } })
+export default class EditCourseModal extends Vue {
+  @Prop({ required: true }) course!: CourseModel;
+
+  users: Array<UserModel> = [
+    {
+      id: 1,
+      username: 'mel',
+      first_name: '1',
+      last_name: '1',
+      staff_for: [false],
+    },
+    {
+      id: 2,
+      username: 'oubre',
+      first_name: '2',
+      last_name: '2',
+      staff_for: [false],
+    },
+    {
+      id: 3,
+      username: 'main',
+      first_name: '3',
+      last_name: '3',
+      staff_for: [false],
+    },
+    {
+      id: 4,
+      username: 'tikhonov',
+      first_name: '4',
+      last_name: '4',
+      staff_for: [false],
+    },
+    {
+      id: 5,
+      username: 'mesenev',
+      first_name: '5',
+      last_name: '5',
+      staff_for: [true],
+    }
+  ]
+
+  AddAlt32 = AddAlt20;
+  SubtractAlt32 = SubtractAlt20;
+  courseStore = courseStore;
+  lessonStore = lessonStore;
+  currentLesson: LessonModel = { ...this.lessonStore.getNewLesson, course: this.course.id, };
+  fetchingLessons = true;
+  selectedNew = true;
+  showNotification = false;
+  notificationText = '';
+  creationLoader = false;
+
+  lessons: LessonModel[] = [];
+  modalVisible = false;
+  searchQueryForAllLessons = '';
+
+  get students() {
+    return this.users.filter(l => {
+      if (l.staff_for[0] == false) return l.username })
+  }
+
+  get admins() {
+    return this.users.filter(l => {
+      if (l.staff_for[0] == true) return l.username })
+  }
+
+  get allLessons(): LessonModel[] {
+    return searchByLessons(this.searchQueryForAllLessons, this.freeLessons);
+  }
+
+  get freeLessons(): LessonModel[] {
+    return this.lessonStore.lessons.filter((l) => {
+      return !this.course.lessons.map((courseLesson) => courseLesson.id).includes(l.id);
+    });
+  }
+
+  async created() {
+    if (this.lessonStore.lessons.length === 0)
+      await this.lessonStore.fetchLessons();
+    this.fetchingLessons = false;
+  }
+
+  showModal() {
+    this.modalVisible = true;
+    this.showNotification = false;
+    this.currentLesson = { ...this.lessonStore.getNewLesson, course: this.course.id };
+  }
+
+  modalHidden() {
+    this.modalVisible = false;
+  }
+
+  actionSelected() {
+    this.selectedNew = !this.selectedNew;
+  }
+
+  get getSelected(): string {
+    return this.lessons.concat(this.currentLesson)
+      .map((l) => l.name)
+      .sort((a, b) => a < b ? -1 : 1)
+      .join(' ');
+  }
+
+  chooseLesson(lesson: LessonModel) {
+    if (!this.lessons.includes(lesson)) {
+      this.lessons.push(lesson);
+    } else {
+      this.lessons = this.lessons.filter((l) => lesson !== l);
+    }
+  }
+
+  async addLesson() {
+    if (this.selectedNew) {
+      this.creationLoader = true;
+      await this.createNewLesson();
+      this.creationLoader = false;
+    }
+    if (this.lessons.every((l) => l.name)) {
+      // this.lessons.forEach((lesson) => this.lessonStore.addLessonToCourse(lesson));
+      // this.lessons = [];
+    }
+  }
+
+
+  async createNewLesson() {
+    delete this.currentLesson.id;
+    console.log(this.currentLesson);
+    const request = axios.post('http://localhost:8000/api/lesson/', this.currentLesson);
+    request.then(response => {
+      this.course.lessons.push(response.data as LessonModel);
+      this.modalHidden();
+    });
+    request.catch(error => {
+      this.notificationText = `Что-то пошло не так: ${error.message}`;
+      this.showNotification = true;
+    });
+  }
+}
+</script>
+
+<style scoped lang="stylus">
+.bx--modal-content:focus
+  outline none
+
+.lesson_list
+  margin-bottom 0
+
+.lesson-card:hover
+  border-bottom 1px solid var(--cds-ui-05)
+
+.switcher
+  margin-bottom: 5px
+
+.add_lesson_modal .bx--modal-container
+  height 75vh
+
+.add_lesson_modal .bx--modal-footer
+  height 3.5rem
+
+.add_lesson_modal .bx--btn
+  height 3rem
+  border none
+
+.add_lesson_modal .bx--btn--secondary
+  background-color var(--cds-hover-secondary)
+
+  &:hover, &:active, &:focus
+    outline none
+    box-shadow none
+    border none
+
+.add_lesson_modal .bx--btn--primary[disabled = disabled],
+.add_lesson_modal .bx--btn--primary
+  background-color var(--cds-ui-05)
+
+.modal--content
+  height 500px
+</style>

@@ -29,6 +29,10 @@
       <EditCourseModal
         :course="courseEdit"
         class="edit--course-props"/>
+      <AddStudentModal
+        :course="courseEdit"
+        class="edit--course-props"
+        />
     </div>
   </div>
 </template>
@@ -42,13 +46,15 @@ import { courseStore, userStore } from '@/store';
 import axios from 'axios';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import AddStudentModal from "@/components/EditCourse/AddStudentModal.vue";
 
-@Component({ components: { EditCourseLessons, EditCourseModal } })
+@Component({ components: {AddStudentModal, EditCourseLessons, EditCourseModal } })
 export default class CourseEditView extends Vue {
   @Prop() courseId!: number | null;
   sendingInfo = false;
   fetchingCourse = true;
   store = courseStore;
+  userStore = userStore;
   showNotification = false;
   notificationKind = 'success';
   notificationText = '';
