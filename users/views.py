@@ -24,7 +24,6 @@ class LoginForm(Form):
 
 
 def user_login(request):
-    return redirect('index')
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -33,7 +32,7 @@ def user_login(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return HttpResponse('OK')
+                    return redirect('index')
                 else:
                     return HttpResponse('Disabled account')
             else:
