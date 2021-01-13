@@ -88,7 +88,11 @@
         <cv-switcher>
           <template>
             <cv-switcher-item>
-              <cv-switcher-item-link to="/" >
+              <cv-switcher-item-link
+                :to="{
+                  name: 'profile-page',
+                  params:  { courseId: this.$route.params.courseId }
+                }" >
                 Профиль
               </cv-switcher-item-link>
             </cv-switcher-item>

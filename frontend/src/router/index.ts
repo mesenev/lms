@@ -8,6 +8,7 @@ import RegistrationView from '@/views/RegistrationView.vue';
 import Vue from 'vue';
 import VueRouter, { RouteConfig } from 'vue-router';
 import managementRoutes from './CourseManagement';
+import ProfileView from "@/views/ProfileView.vue";
 
 Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
@@ -57,6 +58,15 @@ const routes: Array<RouteConfig> = [
     path: '/registration',
     name: 'RegistrationView',
     component: RegistrationView,
+  },
+  {
+    path: '/profile',
+    name: 'profile-page',
+    component: ProfileView,
+    props: (route) => {
+      const courseId = Number.parseInt(route.params.courseId as string, 10);
+      return { courseId, ...route.params };
+    },
   },
   ...managementRoutes
 ];
