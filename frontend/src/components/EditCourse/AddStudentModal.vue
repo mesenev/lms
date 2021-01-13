@@ -1,4 +1,6 @@
 <template>
+  <!--              :primary-button-disabled="!lessons.length && !currentLesson.name"
+              @primary-click="addLesson"-->
   <div>
     <cv-button class="change-btn" @click="showModal">
       Добавить пользователя в курс
@@ -7,8 +9,6 @@
               class="addUser"
               :visible="modalVisible"
               @modal-hidden="modalHidden"
-              :primary-button-disabled="!lessons.length && !currentLesson.name"
-              @primary-click="addLesson"
               @secondary-click="() => {}">
       <template slot="label">{{ course.name }}</template>
       <cv-inline-notification
