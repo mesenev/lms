@@ -1,21 +1,30 @@
 <template>
   <div class="layout">
-    <lms-header class="layout-header"></lms-header>
+    <lms-header class="layout-header"/>
     <main class="layout-content">
-      <router-view/>
+      <transition name="fade" mode="out-in">
+        <router-view />
+      </transition>
     </main>
     <footer class="layout-footer">
       <div class="layout-footer-label">
         <span>dvfu/imcs/staff & Daria-squad</span><br>
         <span>
           feel free to contribute
-          <cv-link href="https://github.com/mesenev/lms"><logo-github /></cv-link>
+          <cv-link href="https://github.com/mesenev/lms"><logo-github/></cv-link>
         </span>
       </div>
     </footer>
   </div>
 </template>
 <style scoped lang="stylus">
+.fade-enter-active, .fade-leave-active {
+    transition: opacity .1s
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+    opacity: 0
+}
+
 .items
   display flex
   flex-wrap wrap
