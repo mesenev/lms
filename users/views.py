@@ -24,6 +24,7 @@ class LoginForm(Form):
 
 
 def user_login(request):
+    return redirect('index')
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
