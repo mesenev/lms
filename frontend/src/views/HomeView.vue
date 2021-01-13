@@ -64,6 +64,7 @@ export default class HomeView extends Vue {
 .items
   background-color var(--cds-ui-02)
   padding var(--cds-spacing-05)
+  min-height 600px
 
   .bx--structured-list-thead
     display none
