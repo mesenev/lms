@@ -14,13 +14,22 @@ export default class Course extends Vue {
   get course(): CourseModel {
     return this.courseProp;
   }
+  get teacher(): string {
+    if (!this.course.author)
+      return '';
+    if (this.course.author.middle_name)
+      return `${this.course.author.first_name} `
+        + `${this.course.author.middle_name} `
+        + `${this.course.author.last_name}`;
+    return `${this.course.author.first_name} ${this.course.author.last_name}`;
+  }
 }
 </script>
 
 <template>
   <div class="course" v-on:click="openCourse">
     <h5>{{ course.name }}</h5>
-    <span>Преподаватель: </span> Сущенко Андрей Андреевич <br>
+    <span>Преподаватель: </span> {{ teacher }}<br>
     <span>Следующий урок:</span> 24/1
   </div>
 </template>
