@@ -1,40 +1,54 @@
 <template>
   <div class="bx--grid">
-    <div class="bx--row header">
-      <h1>{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}</h1>
-    </div>
-    <div class="bx--col-lg-8 items">
-      <cv-inline-notification
-        v-if="showNotification"
-        @close="hideSuccess"
-        :kind="notificationKind"
-        :sub-title="notificationText"
-      />
-      <cv-text-input
-        label="Автор"
-        :disabled="true"
-        :value="`${courseEdit.author.first_name} ${courseEdit.author.last_name}
+    <div class="bx--row">
+      <div class="bx--col-lg-8">
+      <div>
+        <h1>{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}</h1>
+      </div>
+        <br>  <!-- TODO: get off br -->
+        <div class="items">
+          <cv-inline-notification
+            v-if="showNotification"
+            @close="hideSuccess"
+            :kind="notificationKind"
+            :sub-title="notificationText"
+          />
+          <cv-text-input
+            label="Автор"
+            :disabled="true"
+            :value="`${courseEdit.author.first_name} ${courseEdit.author.last_name}
          (${courseEdit.author.username})`.trim()"
-      />
-      <cv-text-input label="Название курса" v-model.trim="courseEdit.name"/>
-      <cv-text-input label="Описание курса" v-model.trim="courseEdit.description"/>
-      <cv-button v-if="!fetchingCourse" :disabled="!isChanged" v-on:click="createOrUpdate">
-        {{ isNewCourse ? 'Создать' : 'Изменить' }}
-      </cv-button>
-      <cv-button-skeleton v-if="fetchingCourse"></cv-button-skeleton>
-      <EditCourseLessons
-        v-if="!isNewCourse"
-        :course="courseEdit"
-        class="edit--course-props"/>
-      <EditCourseModal
-        :course="courseEdit"
-        class="edit--course-props"/>
-      <AddStudentModal
-        :course="courseEdit"
-        class="edit--course-props"
-        />
+          />
+          <cv-text-input label="Название курса" v-model.trim="courseEdit.name"/>
+          <cv-text-input label="Описание курса" v-model.trim="courseEdit.description"/>
+          <cv-button v-if="!fetchingCourse" :disabled="!isChanged" v-on:click="createOrUpdate">
+            {{ isNewCourse ? 'Создать' : 'Изменить' }}
+          </cv-button>
+          <cv-button-skeleton v-if="fetchingCourse"></cv-button-skeleton>
+          <EditCourseLessons
+            v-if="!isNewCourse"
+            :course="courseEdit"
+            class="edit&#45;&#45;course-props"/>
+          <EditCourseModal
+            :course="courseEdit"
+            class="edit&#45;&#45;course-props"/>
+          <AddStudentModal
+            :course="courseEdit"
+            class="edit&#45;&#45;course-props"
+          />
+        </div>
+      </div>
+      <div class="bx--col-lg-5">
+        <h3>Пользователи курса</h3>
+        <h5>Администраторы курса</h5>
+        <div class="null">
+          Smthng is nearby
+          <h5>Пользователи курса</h5>
+          Smthng is nearby
+        </div>
+      </div>
+      </div>
     </div>
-  </div>
 </template>
 
 <script lang="ts">
@@ -130,6 +144,9 @@ export default class CourseEditView extends Vue {
 </script>
 
 <style lang="stylus">
+.null
+  background-color var(--cds-ui-02)
+
 .edit--course-props
   margin-top 10px
 
