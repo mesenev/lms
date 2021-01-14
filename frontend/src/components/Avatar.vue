@@ -14,7 +14,7 @@ import { Component, Vue } from 'vue-property-decorator';
 @Component({ components: { } })
 
 export default class Avatar extends Vue {
-  src = "https://image.flaticon.com/icons/png/512/147/147144.png";
+  src = "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
 }
 </script>
 
