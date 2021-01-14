@@ -69,10 +69,10 @@
 <script lang="ts">
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
+import UserModel from "@/models/UserModel";
 import { lessonStore } from '@/store';
 
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import UserModel from "@/models/UserModel";
 
 @Component({ components: { } })
 export default class EditCourseModal extends Vue {
@@ -98,35 +98,35 @@ export default class EditCourseModal extends Vue {
       username: 'mel',
       first_name: '1',
       last_name: '1',
-      staff_for: [false],
+      staff_for: [1],
     },
     {
       id: 2,
       username: 'oubre',
       first_name: '2',
       last_name: '2',
-      staff_for: [false],
+      staff_for: [2],
     },
     {
       id: 3,
       username: 'main',
       first_name: '3',
       last_name: '3',
-      staff_for: [false],
+      staff_for: [3],
     },
     {
       id: 4,
       username: 'tikhonov',
       first_name: '4',
       last_name: '4',
-      staff_for: [false],
+      staff_for: [4],
     },
     {
       id: 5,
       username: 'mesenev',
       first_name: '5',
       last_name: '5',
-      staff_for: [true],
+      staff_for: [5],
     }
   ]
   lessonStore = lessonStore;
@@ -143,7 +143,7 @@ export default class EditCourseModal extends Vue {
       username: 'test',
       first_name: '6',
       last_name: '6',
-      staff_for: [false],
+      staff_for: [6],
     }
   ];
 
