@@ -1,6 +1,7 @@
 <template>
   <!--              :primary-button-disabled="!lessons.length && !currentLesson.name"
               @primary-click="addLesson"-->
+  <!-- TODO: button disable + pick a person => to a list of course view -->
   <div>
     <cv-button class="change-btn" @click="showModal">
       Добавить пользователя в курс
@@ -32,29 +33,10 @@
         <section class="modal--content">
           <div class="content-1">
             <cv-data-table :columns="columns" :data="students"></cv-data-table>
-<!--            <cv-structured-list>
-              <template slot="items">
-                <cv-structured-list-item
-                  v-for="student in students"
-                  :key="student.id">
-                   {{ student.username }}
-                </cv-structured-list-item>
-              </template>
-            </cv-structured-list>-->
           </div>
           <div class="content-2" hidden>
             <div>
-              <cv-structured-list>
-                <template slot="items">
-                  <cv-structured-list-item
-                    v-for="user in admins"
-                    :key="user.id">
-                    <div v-on:click="addedUsers">
-                      <p> {{ user.username }} </p>
-                    </div>
-                  </cv-structured-list-item>
-                </template>
-              </cv-structured-list>
+                <cv-data-table :columns="columns" :data="admins"></cv-data-table>
             </div>
           </div>
         </section>
@@ -69,64 +51,59 @@
 <script lang="ts">
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
+import UserModel from "@/models/UserModel";
 import { lessonStore } from '@/store';
 
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import UserModel from "@/models/UserModel";
 
 @Component({ components: { } })
 export default class EditCourseModal extends Vue {
   @Prop({ required: true }) course!: CourseModel;
 
   rowSize = ""
-  autoWidth = false
-  sortable = false
   title = "Table title"
-  actionBarAriaLabel = "Custom action bar aria label"
-  batchCancelLabel = "Cancel"
-  zebra = false
   columns = [
-  "name",
-  "surname",
-  "username",
+    "id",
+    "username",
+    "name",
+    "surname",
 ]
-  use_batchActions = true
 
   users: Array<UserModel> = [
     {
       id: 1,
       username: 'mel',
-      first_name: '1',
-      last_name: '1',
-      staff_for: [false],
+      first_name: 'Дарья',
+      last_name: 'Пахомова',
+      staff_for: [],
     },
     {
       id: 2,
       username: 'oubre',
-      first_name: '2',
-      last_name: '2',
-      staff_for: [false],
+      first_name: 'Максим',
+      last_name: 'Гринев',
+      staff_for: [],
     },
     {
       id: 3,
       username: 'main',
-      first_name: '3',
-      last_name: '3',
-      staff_for: [false],
+      first_name: 'Владислав',
+      last_name: 'Маингарт',
+      staff_for: [],
     },
     {
       id: 4,
       username: 'tikhonov',
-      first_name: '4',
-      last_name: '4',
-      staff_for: [false],
+      first_name: 'Руслан',
+      last_name: 'Тихонов',
+      staff_for: [],
     },
     {
       id: 5,
       username: 'mesenev',
-      first_name: '5',
-      last_name: '5',
-      staff_for: [true],
+      first_name: 'Павел',
+      last_name: 'Месенев',
+      staff_for: [5],
     }
   ]
   lessonStore = lessonStore;
@@ -137,13 +114,14 @@ export default class EditCourseModal extends Vue {
   notificationText = '';
   lessons: LessonModel[] = [];
   modalVisible = false;
+
   addedUsers: Array<UserModel> = [
     {
       id: 0,
       username: 'test',
-      first_name: '6',
-      last_name: '6',
-      staff_for: [false],
+      first_name: 'Тест',
+      last_name: 'Тестович',
+      staff_for: [6],
     }
   ];
 
@@ -153,9 +131,12 @@ export default class EditCourseModal extends Vue {
   }
 
   get admins() {
+    console.log( this.users.filter(l => {
+      if (l.staff_for[0]) return l.username }))
     return this.users.filter(l => {
       if (l.staff_for[0]) return l.username })
   }
+
   addUser(user: UserModel) {
     if (!this.addedUsers.includes(user)) {
       this.addedUsers.push(user);

@@ -46,10 +46,10 @@
 
 <script lang="ts">
 
+import Avatar from "@/components/Avatar.vue";
+import Course from "@/components/Course.vue";
 import { courseStore } from '@/store';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import Course from "@/components/Course.vue";
-import Avatar from "@/components/Avatar";
 
 
 @Component({ components: {Avatar, Course } })
