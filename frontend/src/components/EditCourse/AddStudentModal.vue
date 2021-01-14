@@ -1,6 +1,7 @@
 <template>
   <!--              :primary-button-disabled="!lessons.length && !currentLesson.name"
               @primary-click="addLesson"-->
+  <!-- TODO: button disable + pick a person => to a list of course view -->
   <div>
     <cv-button class="change-btn" @click="showModal">
       Добавить пользователя в курс
