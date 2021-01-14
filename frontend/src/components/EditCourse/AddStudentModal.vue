@@ -32,21 +32,10 @@
         <section class="modal--content">
           <div class="content-1">
             <cv-data-table :columns="columns" :data="students"></cv-data-table>
-<!--            <cv-structured-list>
-              <template slot="items">
-                <cv-structured-list-item
-                  v-for="student in students"
-                  :key="student.id">
-                   {{ student.username }}
-                </cv-structured-list-item>
-              </template>
-            </cv-structured-list>-->
           </div>
           <div class="content-2" hidden>
             <div>
-              <cv-structured-list>
                 <cv-data-table :columns="columns" :data="admins"></cv-data-table>
-              </cv-structured-list>
             </div>
           </div>
         </section>
@@ -73,9 +62,10 @@ export default class EditCourseModal extends Vue {
   rowSize = ""
   title = "Table title"
   columns = [
-  "name",
-  "surname",
-  "username",
+    "id",
+    "username",
+    "name",
+    "surname",
 ]
 
   users: Array<UserModel> = [
@@ -140,6 +130,8 @@ export default class EditCourseModal extends Vue {
   }
 
   get admins() {
+    console.log( this.users.filter(l => {
+      if (l.staff_for[0]) return l.username }))
     return this.users.filter(l => {
       if (l.staff_for[0]) return l.username })
   }
