@@ -14,9 +14,13 @@ class DefaultUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'id', 'staff_for']
+        fields = ['username', 'first_name', 'last_name', 'id', 'staff_for', 'password', 'email']
+        extra_kwargs = {'password': {'write_only': True}, }
 
     def create(self, validated_data):
-            user = User.objects.create(**validated_data)
-            user.set_password(validated_data['password'])
-            user.save()
+        password = validated_data['password']
+        del validated_data['password']
+        user = User.objects.create(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user

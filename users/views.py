@@ -7,6 +7,11 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 
+from rest_framework.mixins import (
+    CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
+)
+from rest_framework.viewsets import GenericViewSet
+
 from users.models import User
 from users.serializers import DefaultUserSerializer
 
@@ -40,3 +45,8 @@ def user_login(request):
     else:
         form = LoginForm()
     return render(request, 'login.html', {'form': form})
+
+
+class UsersViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
+    serializer_class = DefaultUserSerializer
+    queryset = User.objects.all()

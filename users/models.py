@@ -4,7 +4,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    email = models.EmailField(unique=True)
 
 
 class CourseAssignStudent(models.Model):

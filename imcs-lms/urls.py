@@ -5,7 +5,7 @@ from rest_framework.routers import DefaultRouter
 from course.views import CourseViewSet
 from lesson.views import LessonViewSet, MaterialViewSet
 from problem.views import ProblemViewSet, SubmitViewSet
-from users.views import index, user_login
+from users.views import index, user_login, UsersViewSet
 
 router = DefaultRouter()
 router.register('course', CourseViewSet, basename='course')
@@ -13,6 +13,8 @@ router.register('lesson', LessonViewSet, basename='lesson')
 router.register('problem', ProblemViewSet, basename='problem')
 router.register('submit', SubmitViewSet, basename='submit')
 router.register('material', MaterialViewSet, basename='material')
+router.register('users', UsersViewSet, basename='users')
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),

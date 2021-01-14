@@ -139,7 +139,6 @@ export default class CourseEditView extends Vue {
   get isChanged(): boolean {
     return !_.isEqual(this.course, this.courseEdit);
   }
-
 }
 </script>
 
