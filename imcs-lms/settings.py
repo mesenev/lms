@@ -59,3 +59,4 @@ USE_TZ = True
 STATIC_URL = '/static/'
 WEBPACK_DEV_SERVER = 'localhost:8080'
 AUTH_USER_MODEL = 'users.User'
+CATS_URL = 'http://localhost:7999'
