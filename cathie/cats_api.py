@@ -2,18 +2,18 @@ def cats_check_status():
     pass
 
 
-def submit_solution():
+def cats_submit_solution():
     pass
 
 
-def submit_problem():
+def cats_submit_problem():
     pass
 
 
-def check_solution_status():
+def cats_check_solution_status():
     pass
 
 
-def get_problems_from_contest():
+def cats_get_problems_from_contest():
     pass
 
