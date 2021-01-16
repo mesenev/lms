@@ -23,8 +23,3 @@ class Submit(models.Model):
     content = models.TextField()
     status = models.CharField(max_length=2, choices=SUBMIT_STATUS)
 
-
-class CatsProblem(models.Model):
-    url = models.URLField()
-    
-
