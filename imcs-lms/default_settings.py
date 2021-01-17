@@ -1,7 +1,7 @@
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = 'jsdkd504%&=@*-=70qsv_n+*h_6u17il+l0niinb&i_fldg7d%'
+SECRET_KEY = 'helloworld'
 DEBUG = True
 ALLOWED_HOSTS = []
 INSTALLED_APPS = [
