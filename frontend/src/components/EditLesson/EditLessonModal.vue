@@ -37,22 +37,32 @@
             <h5>Тип задачи</h5>
             <cv-radio-group
               :vertical="vertical">
-                <cv-radio-button v-model="currentProblem.type" name="group-1" label="Классная работа" value="CW"/>
-                <cv-radio-button v-model="currentProblem.type" name="group-1" label="Домашнаяя работа" value="HW"/>
-              </cv-radio-group>
+              <cv-radio-button
+                v-model="currentProblem.type"
+                label="Классная работа"
+                name="group-1" value="CW"/>
+              <cv-radio-button
+                v-model="currentProblem.type"
+                label="Домашнаяя работа"
+                name="group-1" value="HW"/>
+            </cv-radio-group>
           </div>
           <div class="content-2" hidden>
             <div>
-              <cv-structured-list>
+              <cv-search v-model="searchQueryForAllProblems"></cv-search>
+              <cv-structured-list v-if="!fetchingCatsProblems">
                 <template slot="items">
-                  <cv-search v-model="searchQueryForAllProblems"></cv-search>
                   <cv-structured-list-item
-                    class="problem-card"
-                    v-for="problem in allProblems"
+                    v-for="problem in catsFilteredProblems"
                     :key="problem.id">
+                    <div>{{ problem.name }}</div>
+                    <div>{{ problem.id }}</div>
+                    <div>{{ problem.last_update_time }}</div>
+                    <div>{{ problem.status }}</div>
                   </cv-structured-list-item>
                 </template>
               </cv-structured-list>
+              <cv-data-table-skeleton v-else/>
             </div>
           </div>
         </section>
@@ -66,6 +76,7 @@
 
 <script lang="ts">
 import searchByProblems from '@/common/searchByProblems';
+import CatsProblemModel from '@/models/CatsProblemModel';
 import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
 import { problemStore } from '@/store';
@@ -86,27 +97,38 @@ export default class EditLessonModal extends Vue {
   fetchingProblems = true;
   selectedNew = true;
   showNotification = false;
+  notificationKind = 'success';
   notificationText = '';
   creationLoader = false;
 
+
   problems: ProblemModel[] = [];
+  catsProblems: CatsProblemModel[] = [];
+  fetchingCatsProblems = true;
   modalVisible = false;
   searchQueryForAllProblems = '';
 
-  get allProblems(): ProblemModel[] {
-    return searchByProblems(this.searchQueryForAllProblems, this.freeProblems);
+  get catsFilteredProblems(): CatsProblemModel[] {
+    return searchByProblems(this.searchQueryForAllProblems, this.catsProblems);
+  }
+
+  async created() {
+    if (!this.lesson.course) return
+    await axios.get(`/api/cats-problems/${this.lesson.course}/`)
+      .then(response => { this.catsProblems = response.data; })
+      .catch(error => {
+        console.log(error.response);
+        this.notificationKind = 'error';
+        this.notificationText = `Ошибка получения списка студентов: ${error.response}`;
+        this.showNotification = true;
+      })
+    this.fetchingCatsProblems = false;
   }
 
   get freeProblems(): ProblemModel[] {
     return this.problemStore.problems.filter((l) => {
       return !this.lesson.problems.map((lessonProblem) => lessonProblem.id).includes(l.id);
     });
-  }
-
-  async created() {
-    if (this.problemStore.problems.length === 0)
-      await this.problemStore.fetchProblems();
-    this.fetchingProblems = false;
   }
 
   showModal() {

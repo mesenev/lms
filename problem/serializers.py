@@ -56,4 +56,4 @@ class ProblemSerializer(serializers.Serializer):
 
     class Meta:
         model = Problem
-        fields = ('id', 'name', 'description', 'author', 'lesson', 'submits', 'completed','manual','type', 'language')
+        fields = ('id', 'name', 'description', 'author', 'lesson', 'submits', 'completed', 'manual', 'type', 'language')

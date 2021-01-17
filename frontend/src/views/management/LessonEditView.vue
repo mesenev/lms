@@ -3,7 +3,8 @@
     <div class="bx--row header">
       <h1>{{ isNewLesson ? 'Создание урока' : 'Редактирование урока' }}</h1>
     </div>
-    <div class="bx--col-lg-8">
+    <cv-loading v-if="fetchingLesson"/>
+    <div v-else class="bx--col-lg-8">
       <cv-inline-notification
         v-if="showNotification"
         @close="hideSuccess"
@@ -110,6 +111,7 @@ export default class LessonEditView extends Vue {
   async created() {
     this.lesson = await this.store.fetchLessonById(this.lessonId);
     this.lessonEdit = { ...this.lesson };
+    this.fetchingLesson = false;
   }
 
   createOrUpdate(): void {
