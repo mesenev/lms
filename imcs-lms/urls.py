@@ -23,5 +23,5 @@ urlpatterns = [
     path('', include('users.urls')),
     path('api-auth/', include('rest_framework.urls')),
     path('login/', user_login, name='account_login'),
-    re_path(r'^$', index, name='index'),
+    re_path(r"^.*$", index, name='index'),
 ]
