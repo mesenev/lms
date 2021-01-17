@@ -10,10 +10,10 @@ class Problem(models.Model):
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=500)
     description = models.TextField()
-    completed = models.BooleanField(null=True)
-    manual = models.BooleanField(null=True)
+    manual = models.BooleanField(default=False)
     type = models.CharField(max_length=2, choices=PROBLEM_TYPES, null=True)
     language = models.CharField(max_length=100, null=True, blank=True)
+    cats_id = models.IntegerField(null=True)
 
 
 class Submit(models.Model):
