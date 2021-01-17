@@ -20,6 +20,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api/', include('cathie.urls')),
+    path('', include('users.urls')),
     path('api-auth/', include('rest_framework.urls')),
     path('login/', user_login, name='account_login'),
     re_path(r'^$', index, name='index'),

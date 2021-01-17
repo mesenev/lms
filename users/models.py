@@ -4,7 +4,8 @@ from django.db import models
 
 
 class User(AbstractUser):
-    email = models.EmailField(unique=True)
+    middle_name = models.CharField(max_length=50, blank=True)
+    avatar_url = models.ImageField(upload_to='avatars', null=True, blank=True)
 
 
 class CourseAssignStudent(models.Model):

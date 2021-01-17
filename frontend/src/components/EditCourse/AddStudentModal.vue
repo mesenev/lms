@@ -32,11 +32,19 @@
       <template slot="content">
         <section class="modal--content">
           <div class="content-1">
-            <cv-data-table :columns="columns" :data="students"></cv-data-table>
+            <cv-data-table v-if="studentsFetched">
+            </cv-data-table>
+            <cv-data-table-skeleton v-else/>
           </div>
           <div class="content-2" hidden>
             <div>
-                <cv-data-table :columns="columns" :data="admins"></cv-data-table>
+              <cv-structured-list selectable>
+                <template slot="items">
+                  <cv-data-table v-if="staffFetched">
+                  </cv-data-table>
+                  <cv-data-table-skeleton v-else/>
+                </template>
+              </cv-structured-list>
             </div>
           </div>
         </section>
@@ -50,119 +58,74 @@
 
 <script lang="ts">
 import CourseModel from '@/models/CourseModel';
-import LessonModel from '@/models/LessonModel';
-import UserModel from "@/models/UserModel";
-import { lessonStore } from '@/store';
+import axios, { AxiosResponse } from 'axios';
 
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: { } })
+@Component({ components: {} })
 export default class EditCourseModal extends Vue {
   @Prop({ required: true }) course!: CourseModel;
-
-  rowSize = ""
-  title = "Table title"
-  columns = [
-    "id",
-    "username",
-    "name",
-    "surname",
-]
-
-  users: Array<UserModel> = [
-    {
-      id: 1,
-      username: 'mel',
-      first_name: 'Дарья',
-      last_name: 'Пахомова',
-      staff_for: [],
-    },
-    {
-      id: 2,
-      username: 'oubre',
-      first_name: 'Максим',
-      last_name: 'Гринев',
-      staff_for: [],
-    },
-    {
-      id: 3,
-      username: 'main',
-      first_name: 'Владислав',
-      last_name: 'Маингарт',
-      staff_for: [],
-    },
-    {
-      id: 4,
-      username: 'tikhonov',
-      first_name: 'Руслан',
-      last_name: 'Тихонов',
-      staff_for: [],
-    },
-    {
-      id: 5,
-      username: 'mesenev',
-      first_name: 'Павел',
-      last_name: 'Месенев',
-      staff_for: [5],
-    }
-  ]
-  lessonStore = lessonStore;
-  currentLesson: LessonModel = { ...this.lessonStore.getNewLesson, course: this.course.id, };
-  fetchingLessons = true;
-  selectedNew = true;
-  showNotification = false;
-  notificationText = '';
-  lessons: LessonModel[] = [];
   modalVisible = false;
 
-  addedUsers: Array<UserModel> = [
-    {
-      id: 0,
-      username: 'test',
-      first_name: 'Тест',
-      last_name: 'Тестович',
-      staff_for: [6],
-    }
-  ];
+  studentsFetched = false;
+  staffFetched = false;
+  studentsList = [];
+  staffList = [];
+  studentFilter = '';
+  staffFilter = '';
 
-  get students() {
-    return this.users.filter(l => {
-      if (!l.staff_for[0]) return l.username })
-  }
+  notificationKind = 'success'
+  showNotification = false;
+  notificationText = '';
 
-  get admins() {
-    console.log( this.users.filter(l => {
-      if (l.staff_for[0]) return l.username }))
-    return this.users.filter(l => {
-      if (l.staff_for[0]) return l.username })
-  }
-
-  addUser(user: UserModel) {
-    if (!this.addedUsers.includes(user)) {
-      this.addedUsers.push(user);
-    } else {
-      this.addedUsers = this.addedUsers.filter((l) => user !== l);
-    }
-  }
 
   async created() {
-    if (this.lessonStore.lessons.length === 0)
-      await this.lessonStore.fetchLessons();
-    this.fetchingLessons = false;
+    await axios.get(
+      `/students_for_course/${this.course.id}/`,
+    ).catch(error => {
+      console.log(error.response);
+      this.notificationKind = 'error';
+      this.notificationText = `Ошибка получения списка студентов: ${error.response}`;
+      this.showNotification = true;
+      this.studentsFetched = true;
+    }).then(response => {
+      this.studentsList = (response as AxiosResponse).data;
+      this.studentsFetched = true;
+    })
+    await axios.get(
+      `/staff_for_course/${this.course.id}/`,
+    ).catch(error => {
+      console.log(error.response);
+      this.notificationKind = 'error';
+      this.notificationText = `Ошибка получения списка преподавателей: ${error.response}`;
+      this.showNotification = true;
+      this.studentsFetched = true;
+    }).then(response => {
+      this.staffList = (response as AxiosResponse).data;
+      this.staffFetched = true;
+    })
   }
+
+  get filteredStudents() {
+    if (this.studentFilter)
+      return this.studentsList.filter(x => true);
+    return this.studentsList;
+  }
+
+  get filteredStaff() {
+    if (this.staffFilter)
+      return this.staffList.filter(x => true);
+    return this.staffList;
+  }
+
 
   showModal() {
     this.modalVisible = true;
     this.showNotification = false;
-    this.currentLesson = { ...this.lessonStore.getNewLesson, course: this.course.id };
   }
 
   modalHidden() {
     this.modalVisible = false;
-  }
-
-  actionSelected() {
-    this.selectedNew = !this.selectedNew;
   }
 }
 </script>
