@@ -1,7 +1,7 @@
 <template>
   <div class="bx--grid bx--grid--narrow">
     <div class="bx--row header">
-      <h1> {{Role}} {{ Name }}</h1>
+      <h1> {{ user.first_name + ' ' + user.last_name }}</h1>
     </div>
     <div class="bx--row content">
       <div class="bx--col, avatarblock">
@@ -34,7 +34,7 @@
                 </cv-structured-list-item>
                 <cv-structured-list-item>
                   <cv-structured-list-data>Почта</cv-structured-list-data>
-                  <cv-structured-list-data>mail@mesenev.ru</cv-structured-list-data>
+                  <cv-structured-list-data>{{ user.email || 'error@mail.ru' }}</cv-structured-list-data>
                 </cv-structured-list-item>
                 <cv-structured-list-item>
                   <cv-structured-list-data>Аккаунт Cats</cv-structured-list-data>
@@ -55,7 +55,7 @@
 
 <script lang="ts">
 
-import { courseStore } from '@/store';
+import {courseStore, userStore} from '@/store';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import Course from "@/components/Course.vue";
 import Avatar from "@/components/Avatar.vue";
@@ -67,9 +67,8 @@ export default class ProfileView extends Vue {
   private store = courseStore;
   loading = true;
   searchValue = "";
-  Name = "Гринёв Максим";
-  Role = "Студент";
 
+  user = userStore.user;
 
   async created() {
     await this.store.fetchCourses();
