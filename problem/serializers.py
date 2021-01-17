@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from users.serializers import DefaultUserSerializer
-from problem.models import Problem, Submit
+
 from lesson.models import Lesson
+from problem.models import Problem, Submit
+from users.serializers import DefaultUserSerializer
 
 
 class SubmitSerializer(serializers.Serializer):
@@ -37,7 +38,6 @@ class ProblemSerializer(serializers.Serializer):
     name = serializers.CharField()
     description = serializers.CharField()
     submits = SubmitSerializer(many=True, read_only=True)
-    completed = serializers.BooleanField()
     manual = serializers.BooleanField()
     type = serializers.CharField()
     language = serializers.CharField(required=True, allow_null=True)
