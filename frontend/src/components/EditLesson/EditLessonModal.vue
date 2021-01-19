@@ -108,7 +108,7 @@ export default class EditLessonModal extends Vue {
   modalVisible = false;
   searchQueryForAllProblems = '';
 
-  get catsFilteredProblems(): CatsProblemModel[] {
+  get catsFilteredProblems(): Array<CatsProblemModel | ProblemModel> {
     return searchByProblems(this.searchQueryForAllProblems, this.catsProblems);
   }
 
