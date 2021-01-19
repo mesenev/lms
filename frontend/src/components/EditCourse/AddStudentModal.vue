@@ -10,6 +10,7 @@
               class="addUser"
               :visible="modalVisible"
               @modal-hidden="modalHidden"
+              :primary-button-disabled="!selected.length"
               @secondary-click="() => {}">
       <template slot="label">{{ course.name }}</template>
       <cv-inline-notification
@@ -32,7 +33,11 @@
       <template slot="content">
         <section class="modal--content">
           <div class="content-1">
-            <cv-data-table v-if="studentsFetched" :data="studentsList">
+            <cv-data-table v-if="studentsFetched" :data="studentsList" :columns="columns" :rows-selected="selected" >
+              <template slot="batch-actions">
+                <div>
+                </div>
+              </template>
             </cv-data-table>
             <cv-data-table-skeleton v-else/>
           </div>
@@ -40,7 +45,7 @@
             <div>
               <cv-structured-list selectable>
                 <template slot="items">
-                  <cv-data-table v-if="staffFetched" :data="staffList">
+                  <cv-data-table v-if="staffFetched" :data="staffList" :columns="columns" :rows-selected="selected">
                   </cv-data-table>
                   <cv-data-table-skeleton v-else/>
                 </template>
@@ -74,10 +79,18 @@ export default class EditCourseModal extends Vue {
   staffList = [];
   studentFilter = '';
   staffFilter = '';
+  selected = [];
 
   notificationKind = 'success'
   showNotification = false;
   notificationText = '';
+
+  columns = [
+    "ID",
+    "Username",
+    "First Name",
+    "Last Name",
+  ]
 
 
   async created() {
@@ -105,14 +118,17 @@ export default class EditCourseModal extends Vue {
       this.staffList = (response as AxiosResponse).data;
       this.staffFetched = true;
     })
-
-
   }
 
   get filteredStudents() {
     if (this.studentFilter)
       return this.studentsList.filter(x => true);
     return this.studentsList;
+  }
+
+  returned () {
+    console.log(this.selected)
+    return this.selected
   }
 
   get filteredStaff() {
