@@ -24,7 +24,7 @@
             Создать новое
           </cv-content-switcher-button>
           <cv-content-switcher-button content-selector=".content-2">
-            Выбрать из существующих
+            Импортировать задачу из cats
           </cv-content-switcher-button>
         </cv-content-switcher>
       </template>
