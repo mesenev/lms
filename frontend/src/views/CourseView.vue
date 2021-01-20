@@ -21,7 +21,18 @@
         </cv-structured-list>
         <cv-data-table-skeleton v-else :rows="6" :columns="1"/>
       </div>
-      <div class="bx--col-lg-8">
+      <div class="bx--col-lg-8 link">
+        <cv-number-input
+          :light="light"
+          :label="'Выберите количество учеников курса'"
+          :value="value"
+          :min="1"
+          :step="1">
+        </cv-number-input>
+        <br>
+        <GenerateLinks>
+            Сгенерировать ссылку-приглашение
+        </GenerateLinks>
       </div>
     </div>
   </div>
@@ -33,9 +44,10 @@ import CourseModel from '@/models/CourseModel';
 import LessonModel from "@/models/LessonModel";
 import { courseStore, lessonStore } from '@/store';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import GenerateLinks from "@/components/EditCourse/GenerateLinks.vue";
 
 @Component({
-  components: { Lesson },
+  components: {GenerateLinks, Lesson },
 })
 export default class CourseView extends Vue {
   @Prop({ required: true }) courseId!: number;
