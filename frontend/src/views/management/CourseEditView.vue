@@ -34,6 +34,7 @@
             class="edit&#45;&#45;course-props"/>
           <AddStudentModal
             :course="courseEdit"
+            :course-id="courseId"
             class="edit&#45;&#45;course-props"
           />
         </div>

@@ -1,6 +1,6 @@
 <template>
-  <!--              :primary-button-disabled="!lessons.length && !currentLesson.name"
-              @primary-click="addLesson"-->
+  <!--
+          @primary-click="addLesson"-->
   <!-- TODO: button disable + pick a person => to a list of course view -->
   <div>
     <cv-button class="change-btn" @click="showModal">
@@ -10,6 +10,7 @@
               class="addUser"
               :visible="modalVisible"
               @modal-hidden="modalHidden"
+              :primary-button-disabled="!selected.length"
               @secondary-click="() => {}">
       <template slot="label">{{ course.name }}</template>
       <cv-inline-notification
@@ -20,7 +21,7 @@
       />
       <template slot="title">
         <h3>Добавить пользователя</h3>
-        <cv-content-switcher class="switcher" @selected="actionSelected">
+        <cv-content-switcher class="switcher">
           <cv-content-switcher-button content-selector=".content-1" selected>
             Добавить ученика
           </cv-content-switcher-button>
@@ -32,7 +33,11 @@
       <template slot="content">
         <section class="modal--content">
           <div class="content-1">
-            <cv-data-table v-if="studentsFetched">
+            <cv-data-table v-if="studentsFetched" :data="studentsList" :columns="columns" :rows-selected="selected" >
+              <template slot="batch-actions">
+                <div>
+                </div>
+              </template>
             </cv-data-table>
             <cv-data-table-skeleton v-else/>
           </div>
@@ -40,7 +45,7 @@
             <div>
               <cv-structured-list selectable>
                 <template slot="items">
-                  <cv-data-table v-if="staffFetched">
+                  <cv-data-table v-if="staffFetched" :data="staffList" :columns="columns" :rows-selected="selected">
                   </cv-data-table>
                   <cv-data-table-skeleton v-else/>
                 </template>
@@ -59,29 +64,38 @@
 <script lang="ts">
 import CourseModel from '@/models/CourseModel';
 import axios, { AxiosResponse } from 'axios';
-
+import { courseStore } from '@/store';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: {} })
 export default class EditCourseModal extends Vue {
   @Prop({ required: true }) course!: CourseModel;
+  @Prop({ required: true }) courseId!: number;
   modalVisible = false;
-
+  store = courseStore;
   studentsFetched = false;
   staffFetched = false;
   studentsList = [];
   staffList = [];
   studentFilter = '';
   staffFilter = '';
+  selected = [];
 
   notificationKind = 'success'
   showNotification = false;
   notificationText = '';
 
+  columns = [
+    "ID",
+    "Username",
+    "First Name",
+    "Last Name",
+  ]
+
 
   async created() {
     await axios.get(
-      `/students_for_course/${this.course.id}/`,
+      `/api/students_for_course/${this.courseId}/`,
     ).catch(error => {
       console.log(error.response);
       this.notificationKind = 'error';
@@ -93,7 +107,7 @@ export default class EditCourseModal extends Vue {
       this.studentsFetched = true;
     })
     await axios.get(
-      `/staff_for_course/${this.course.id}/`,
+      `/api/staff_for_course/${this.courseId}/`,
     ).catch(error => {
       console.log(error.response);
       this.notificationKind = 'error';
@@ -110,6 +124,11 @@ export default class EditCourseModal extends Vue {
     if (this.studentFilter)
       return this.studentsList.filter(x => true);
     return this.studentsList;
+  }
+
+  returned () {
+    console.log(this.selected)
+    return this.selected
   }
 
   get filteredStaff() {

@@ -1,9 +1,9 @@
 from rest_framework import serializers
 
-from cathie.models import CatsProblem
+from problem.models import Problem
 
 
 class CatsProblemSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
-        model = CatsProblem
+        model = Problem

@@ -1,3 +1,4 @@
+import CatsProblemModel from '@/models/CatsProblemModel';
 import ProblemModel from '@/models/ProblemModel';
 import axios from 'axios';
 import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
@@ -6,6 +7,7 @@ import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 export default class ProblemModule extends VuexModule {
 
   _problems: Array<ProblemModel> = [];
+  catsProblems: Array<{ id: CatsProblemModel }> = [];
 
   get problems(): Array<ProblemModel> {
     return this._problems;
