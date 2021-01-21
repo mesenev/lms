@@ -1,5 +1,5 @@
 import json
-from random import randint
+import re
 
 import requests
 from django.conf import settings
@@ -12,18 +12,8 @@ def cats_check_status():
     pass
 
 
-SIDs = [
-    'T2JHD2yqiK8Qhwy1h5I2fUWSH0V627',
-    'UwjGlps7GnxN3JPXuwlqqCDGAwTDpm',
-    'HDFM3NoMDSCLeneRf6bcY2LOQvvIDR',
-    'rLlFKX0mosoHnjWep0dPa92DqBaeSN',
-    'GEISsJMyAALx6KnAndOuwYqSmfbmal',
-]
-
-
 def cats_submit_solution(cats_user_id: int, source_text: str, problem_id: int, de_id: int, source=None):
-    # url = f'{settings.CATS_URL}?f=api_submit_problem;sid={cats_user_id}'
-    url = f'{settings.CATS_URL}main.pl?f=api_submit_problem;sid=GEISsJMyAALx6KnAndOuwYqSmfbmal'
+    url = f'{settings.CATS_URL}main.pl?f=api_submit_problem;sid={cats_user_id}'
     data = {
         'source': source,
         'de_id': de_id,
@@ -34,16 +24,25 @@ def cats_submit_solution(cats_user_id: int, source_text: str, problem_id: int, d
     if r.status_code != 200:
         raise CatsAnswerCodeException(r.reason)
     r_content = json.loads(r.content.decode('utf-8'))
+    req_ids = None
     if hasattr(r_content, 'href_run_details'):
-        details = r_content['href_run_details']
+        req_ids = re.search(r'(?<=rid=)\d+', r_content['href_run_details']).group()
+        if req_ids.isdigit():
+            req_ids = int(req_ids)
+    return req_ids
 
 
 def cats_submit_problem():
     pass
 
 
-def cats_check_solution_status():
-    pass
+def cats_check_solution_status(req_ids: int, cats_user_id: int) -> str:
+    url = f'{settings.CATS_URL}?f=api_get_request_state;req_ids={req_ids};sid={cats_user_id};json=1'
+    r = requests.get(url)
+    if r.status_code == 200:
+        raise CatsAnswerCodeException(r.reason)
+    data = json.loads(r.content.decode('utf-8'))
+    return data[0]['verdict']
 
 
 def cats_get_problems_from_contest(contest_id, cats_user_id):
