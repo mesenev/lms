@@ -7,6 +7,11 @@ class User(AbstractUser):
     middle_name = models.CharField(max_length=50, blank=True)
     avatar_url = models.ImageField(upload_to='avatars', null=True, blank=True)
 
+    def get_avatar(self):
+        if not self.avatar_url:
+            return '/media/user.png'
+        return self.avatar_url.url
+
 
 class CourseAssignStudent(models.Model):
     course = models.ForeignKey('course.Course', on_delete=models.CASCADE, null=False)

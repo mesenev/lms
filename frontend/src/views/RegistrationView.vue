@@ -50,18 +50,16 @@
           <cv-button :disabled="canAction" kind="secondary">Отправить</cv-button>
         </cv-form>
       </div>
-      <div class="bx--col-lg-9">
+      <div class="bx--col-lg-5">
         <!-- TODO:  avatar component + storage add -->
-        <cv-file-uploader
-          accept="image/jpg,image/png"
-          clear-on-reselect
-          initial-state-uploading
-          multiple
-          removable
-          label="Загрузите аватарку"/>
         <label>
           <TextArea cols="50" placeHolder="О себе" rows="5"> </TextArea>
         </label>
+      </div>
+      <div class="bx--col-lg-4">
+        <input type="file" ref="file" :v-model="file" accept="image/*" v-on:change="Upload()"/>
+        <label>Предварительный просмотр</label>
+        <img v-bind:src="imagePreview" v-show="showPreview" alt="картинка" class="preview"/>
       </div>
     </div>
   </div>
@@ -91,12 +89,21 @@ export default class RegistrationView extends Vue {
   login = '';
   validField = false;
 
-  user = {
-    username: this.login,
-    first_name: this.first_name,
-    last_name:this.last_name,
-    email: this.email,
-    password: this.password,
+  file = new Blob();
+  imagePreview: string|null|ArrayBuffer = '';
+  showPreview= false;
+
+  Upload() {
+    //works with the following line,
+    this.file = this.$refs.file.files[0];
+    const reader = new FileReader();
+    reader.addEventListener("load",  () => {
+      this.showPreview = true;
+      this.imagePreview = reader.result;
+    })
+    if (this.file) {
+      reader.readAsDataURL( this.file );
+    }
   }
 
   get checkEmail(): boolean {
@@ -166,13 +173,21 @@ export default class RegistrationView extends Vue {
     return !(this.login && this.password && this.first_name && this.last_name && this.email && this.password_repeat && !this.validField);
 
   }
+
   modalHidden() {
     this.modalVisible = false;
   }
 
   async action() {
-    this.user = { email: this.email, first_name: this.first_name, last_name: this.last_name, password: this.password, username: this.login }
-    const request = axios.post('http://localhost:8000/api/users/',this.user);
+    const fd = new FormData();
+    fd.append('avatar_url',this.file );
+    fd.append('email', this.email);
+    fd.append('first_name', this.first_name);
+    fd.append('last_name', this.last_name);
+    fd.append('password', this.password);
+    fd.append('username', this.login);
+    //const r = axios.post( 'http://localhost:8000/api/users/', fd)
+    const request = axios.post('http://localhost:8000/api/users/',fd);
     request.then(response => {
       this.notificationKind = 'success';
       this.notificationText = "Пользователь успешно создан";
@@ -198,5 +213,15 @@ export default class RegistrationView extends Vue {
 </script>
 
 <style scoped lang="stylus">
+.preview
+  height 360px;
+  width 360px;
+  margin-top 15px;
+
+img:hover
+  height 500px;
+  width 500px;
+  margin-top 0;
+
 
 </style>
