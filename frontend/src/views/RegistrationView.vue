@@ -69,10 +69,9 @@
 
 <script lang="ts">
 import Registration from '@/components/Registration.vue';
+import axios from "axios";
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import axios from "axios";
-import UserModel from "@/models/UserModel";
 
 @Component({ components: { Registration } })
 export default class RegistrationView extends Vue {
@@ -142,9 +141,11 @@ export default class RegistrationView extends Vue {
   }
 
   get checkPassword(): boolean {
+    return true;
+    //TODO: code below is not working
     if (this.password) {
-      const re  = /(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{8,20}/g;
-      const res =  !re.test(this.password);
+      const re = /(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{8,20}/g;
+      const res = !re.test(this.password);
       if (res) {
         this.validField = true;
         return res;

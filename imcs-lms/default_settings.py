@@ -57,7 +57,12 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+
 STATIC_URL = '/static/'
+STATIC_DIR = 'static'
+MEDIA_URL = '/media/'
+MEDIA_DIR = 'media'
+
 WEBPACK_DEV_SERVER = 'localhost:8080'
 AUTH_USER_MODEL = 'users.User'
 CATS_URL = 'http://localhost:7999'

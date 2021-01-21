@@ -5,7 +5,7 @@ from django.db import models
 
 class User(AbstractUser):
     middle_name = models.CharField(max_length=50, blank=True)
-    avatar_url = models.ImageField(upload_to='avatars', null=True, blank=True)
+    avatar_url = models.ImageField(upload_to=f'avatars/', null=True, blank=True)
 
     def get_avatar(self):
         if not self.avatar_url:
