@@ -36,9 +36,11 @@ def cats_submit_problem():
 
 
 def cats_check_solution_status(req_ids: int, cats_user_id: int) -> str:
-    url = f'{settings.CATS_URL}?f=api_get_request_state;req_ids={req_ids};sid={cats_user_id};json=1'
+    url = f'{settings.CATS_URL}main.pl?f=api_get_request_state;req_ids={req_ids};'
+    if settings.CATS_SID:  # and settings.CATS_TOKEN:
+        url += f'sid={cats_user_id}'
     r = requests.get(url)
-    if r.status_code == 200:
+    if r.status_code != 200:
         raise CatsAnswerCodeException(r.reason)
     data = json.loads(r.content.decode('utf-8'))
     return data[0]['verdict']
