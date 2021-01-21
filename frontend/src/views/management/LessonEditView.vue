@@ -65,6 +65,7 @@
 import searchByProblems from '@/common/searchByProblems'
 import EditLessonMaterialsModal from "@/components/EditLesson/EditLessonMaterialsModal.vue";
 import EditLessonModal from "@/components/EditLesson/EditLessonModal.vue";
+import CatsProblemModel from '@/models/CatsProblemModel';
 import LessonModel from "@/models/LessonModel";
 import ProblemModel from "@/models/ProblemModel";
 import router from "@/router";
@@ -137,16 +138,16 @@ export default class LessonEditView extends Vue {
     request.finally(() => this.showNotification = true);
   }
 
-  search(problems: ProblemModel[]): ProblemModel[] {
-    return searchByProblems(this.query, problems);
-  }
-
-  get getClasswork(): ProblemModel[] {
+  get getClasswork(): Array<ProblemModel | CatsProblemModel> {
     return this.search(this.lessonEdit.problems.filter(x => x.type === 'CW'));
   }
 
-  get getHomework(): ProblemModel[] {
+  get getHomework(): Array<ProblemModel | CatsProblemModel> {
     return this.search(this.lessonEdit.problems.filter(x => x.type === 'HW'));
+  }
+
+  search(problems: Array<ProblemModel | CatsProblemModel>): Array<ProblemModel | CatsProblemModel> {
+    return searchByProblems(this.query, problems);
   }
 
   get isNewLesson(): boolean {
