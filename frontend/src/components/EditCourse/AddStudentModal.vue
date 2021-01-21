@@ -33,7 +33,9 @@
       <template slot="content">
         <section class="modal--content">
           <div class="content-1">
-            <cv-data-table v-if="studentsFetched" :data="studentsList" :columns="columns" :rows-selected="selected" >
+            <cv-data-table
+              v-if="studentsFetched" :columns="columns"
+              :data="studentsList" :rows-selected="selected">
               <template slot="batch-actions">
                 <div>
                 </div>
@@ -63,8 +65,8 @@
 
 <script lang="ts">
 import CourseModel from '@/models/CourseModel';
-import axios, { AxiosResponse } from 'axios';
 import { courseStore } from '@/store';
+import axios, { AxiosResponse } from 'axios';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: {} })
@@ -126,7 +128,7 @@ export default class EditCourseModal extends Vue {
     return this.studentsList;
   }
 
-  returned () {
+  returned() {
     console.log(this.selected)
     return this.selected
   }

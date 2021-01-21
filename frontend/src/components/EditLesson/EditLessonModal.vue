@@ -3,37 +3,47 @@
     <cv-button class="change-btn" @click="showModal">
       Добавить задание
     </cv-button>
-    <cv-modal size="default"
-              class="add_lesson_modal"
-              :visible="modalVisible"
-              @modal-hidden="modalHidden"
-              :primary-button-disabled="!problems.length && !currentProblem.name"
-              @primary-click="addProblem"
-              @secondary-click="() => {}">
+    <cv-modal
+      :primary-button-disabled="!selected.length || selectedNew" :visible="modalVisible"
+      class="add_lesson_modal" size="default"
+      @modal-hidden="modalHidden"
+      @primary-click="addProblem">
       <template slot="label">{{ lesson.name }}</template>
       <cv-inline-notification
         v-if="showNotification"
         @close="() => showNotification=false"
         kind="error"
-        :sub-title="notificationText"
-      />
+        :sub-title="notificationText"/>
       <template slot="title">
         Добавить задание
         <cv-content-switcher class="switcher" @selected="actionSelected">
           <cv-content-switcher-button content-selector=".content-1" selected>
-            Создать новое
+            Импортировать задачу из cats
           </cv-content-switcher-button>
           <cv-content-switcher-button content-selector=".content-2">
-            Импортировать задачу из cats
+            Создать новую задачу
           </cv-content-switcher-button>
         </cv-content-switcher>
       </template>
       <template slot="content">
         <section class="modal--content">
           <div class="content-1">
-            <cv-text-input label="Название урока" v-model.trim="lesson.name" disabled/>
-            <cv-text-input label="Название задания" v-model.trim="currentProblem.name"/>
-            <cv-text-input label="Описание задания" v-model.trim="currentProblem.description"/>
+            <div>
+              <cv-data-table
+                v-if="!fetchingCatsProblems" ref="table"
+                v-model="selected" :columns="columns" :data="catsFilteredProblems"
+                class="cats-problems-table" @search="onSearch">
+                <template slot="batch-actions">
+                  <div></div>
+                </template>
+              </cv-data-table>
+              <cv-data-table-skeleton v-else/>
+            </div>
+          </div>
+          <div class="content-2" hidden>
+            <cv-text-input v-model.trim="lesson.name" disabled label="Название урока"/>
+            <cv-text-input v-model.trim="currentProblem.name" label="Название задания"/>
+            <cv-text-input v-model.trim="currentProblem.description" label="Описание задания"/>
             <h5>Тип задачи</h5>
             <cv-radio-group
               :vertical="vertical">
@@ -46,24 +56,6 @@
                 label="Домашнаяя работа"
                 name="group-1" value="HW"/>
             </cv-radio-group>
-          </div>
-          <div class="content-2" hidden>
-            <div>
-              <cv-search v-model="searchQueryForAllProblems"></cv-search>
-              <cv-structured-list v-if="!fetchingCatsProblems">
-                <template slot="items">
-                  <cv-structured-list-item
-                    v-for="problem in catsFilteredProblems"
-                    :key="problem.id">
-                    <div>{{ problem.name }}</div>
-                    <div>{{ problem.id }}</div>
-                    <div>{{ problem.last_update_time }}</div>
-                    <div>{{ problem.status }}</div>
-                  </cv-structured-list-item>
-                </template>
-              </cv-structured-list>
-              <cv-data-table-skeleton v-else/>
-            </div>
           </div>
         </section>
       </template>
@@ -95,25 +87,33 @@ export default class EditLessonModal extends Vue {
   problemStore = problemStore;
   currentProblem: ProblemModel = { ...this.problemStore.getNewProblem, lesson: this.lesson.id };
   fetchingProblems = true;
-  selectedNew = true;
+  selectedNew = false;
   showNotification = false;
   notificationKind = 'success';
   notificationText = '';
   creationLoader = false;
+  selected = [];
 
+  columns = ['id', 'Название', 'Статус'];
 
   problems: ProblemModel[] = [];
   catsProblems: CatsProblemModel[] = [];
+  catsProblemsTruncated: { id: number; name: string; status: string }[] = [];
   fetchingCatsProblems = true;
   modalVisible = false;
   searchQueryForAllProblems = '';
 
-  get catsFilteredProblems(): Array<CatsProblemModel | ProblemModel> {
-    return searchByProblems(this.searchQueryForAllProblems, this.catsProblems);
+  get catsFilteredProblems() {
+    return searchByProblems(this.searchQueryForAllProblems, this.catsProblemsTruncated);
   }
 
   async created() {
     if (!this.lesson.course) return
+    await this.fetchCatsProblems()
+  }
+
+  async fetchCatsProblems() {
+    this.fetchingCatsProblems = true;
     await axios.get(`/api/cats-problems/${this.lesson.course}/`)
       .then(response => { this.catsProblems = response.data; })
       .catch(error => {
@@ -122,6 +122,12 @@ export default class EditLessonModal extends Vue {
         this.notificationText = `Ошибка получения списка студентов: ${error.response}`;
         this.showNotification = true;
       })
+    this.catsProblems.map(value => {
+      this.catsProblemsTruncated.push(
+        { id: value.id, name: value.name, status: value.status },
+      )
+    });
+    this.catsProblemsTruncated = [...this.catsProblemsTruncated];
     this.fetchingCatsProblems = false;
   }
 
@@ -129,6 +135,10 @@ export default class EditLessonModal extends Vue {
     return this.problemStore.problems.filter((l) => {
       return !this.lesson.problems.map((lessonProblem) => lessonProblem.id).includes(l.id);
     });
+  }
+
+  onSearch(value: string) {
+    this.searchQueryForAllProblems = value;
   }
 
   showModal() {
@@ -145,45 +155,35 @@ export default class EditLessonModal extends Vue {
     this.selectedNew = !this.selectedNew;
   }
 
-  get getSelected(): string {
-    return this.problems.concat(this.currentProblem)
-      .map((l) => l.name)
-      .sort((a, b) => a < b ? -1 : 1)
-      .join(' ');
-  }
-
-  chooseProblem(problem: ProblemModel) {
-    if (!this.problems.includes(problem)) {
-      this.problems.push(problem);
-    } else {
-      this.problems = this.problems.filter((l) => problem !== l);
-    }
-  }
-
   async addProblem() {
-    if (this.selectedNew) {
-      this.creationLoader = true;
-      await this.createNewProblem();
-      this.creationLoader = false;
-    }
-    if (this.problems.every((l) => l.name)) {
-      // this.lessons.forEach((lesson) => this.lessonStore.addLessonToCourse(lesson));
-      // this.lessons = [];
-    }
-  }
-
-
-  async createNewProblem() {
-    delete this.currentProblem.id;
-    const request = axios.post('http://localhost:8000/api/problem/', this.currentProblem);
-    request.then(response => {
-      this.lesson.problems.push(response.data as ProblemModel);
-      this.modalHidden();
-    });
-    request.catch(error => {
-      this.notificationText = `Что-то пошло не так: ${error.message}`;
+    if (!this.lesson.id) {
+      this.notificationKind = 'error';
+      this.notificationText = 'id урока не указано!';
       this.showNotification = true;
-    });
+      throw new Error('add cats problems  -- course id not found!');
+    }
+    if (this.selectedNew)
+      return
+    if (!this.selectedNew) {
+      const selected_ids = this.selected.map(e => {
+        return (this.catsFilteredProblems[e as number] as unknown as { id: number })['id'];
+      })
+      const data = this.catsProblems.filter(element => {
+        return selected_ids.find(e => e === element.id);
+      });
+      await axios.post(`/api/add-cats-problems-to-lesson/${this.lesson.id}/`, data)
+        .then(async (answer) => {
+          if (answer.status == 200) {
+            this.modalHidden();
+            // await this.fetchCatsProblems();
+          }
+        }).catch(answer => {
+          this.notificationKind = 'error';
+          this.notificationText = `Произошла ошибка при добавлении задач. ${answer.message}`;
+          this.showNotification = true;
+        })
+
+    }
   }
 }
 </script>

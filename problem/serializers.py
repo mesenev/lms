@@ -31,7 +31,7 @@ class SubmitSerializer(serializers.Serializer):
         fields = ['id', 'problem', 'student', 'content', 'status']
 
 
-class ProblemSerializer(serializers.Serializer):
+class ProblemSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
     lesson = serializers.PrimaryKeyRelatedField(queryset=Lesson.objects.all())
     author = DefaultUserSerializer(required=False, read_only=True)
@@ -56,4 +56,4 @@ class ProblemSerializer(serializers.Serializer):
 
     class Meta:
         model = Problem
-        fields = ('id', 'name', 'description', 'author', 'lesson', 'submits', 'completed', 'manual', 'type', 'language')
+        fields = ('id', 'name', 'description', 'author', 'lesson', 'submits', 'manual', 'type', 'language')

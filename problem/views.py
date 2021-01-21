@@ -1,8 +1,13 @@
+from django.contrib.auth.decorators import login_required
+from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.mixins import (
     CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 )
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from lesson.models import Lesson
 from problem.models import Problem, Submit
 from problem.serializers import ProblemSerializer, SubmitSerializer
 from users.models import User
@@ -31,3 +36,19 @@ class SubmitViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, Update
                 return Submit.objects.filter(problem__id=problem_id, student__id=user_id)
 
         return Submit.objects.all()
+
+
+@login_required
+@api_view(['POST'])
+@renderer_classes([JSONRenderer])
+def add_cats_problems(request, lesson_id):
+    lesson = Lesson.objects.get(pk=lesson_id)
+    data = request.data
+    answer = list()
+    for cats_problem in data:
+        problem = Problem.objects.create(
+            lesson=lesson, author=request.user, name=cats_problem['name'],
+            cats_id=cats_problem['id'], description=cats_problem['text_url'],
+        )
+        answer.append(ProblemSerializer(problem).data)
+    return Response(answer)

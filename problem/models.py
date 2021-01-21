@@ -11,7 +11,7 @@ class Problem(models.Model):
     name = models.CharField(max_length=500)
     description = models.TextField()
     manual = models.BooleanField(default=False)
-    type = models.CharField(max_length=2, choices=PROBLEM_TYPES, null=True)
+    type = models.CharField(max_length=2, choices=PROBLEM_TYPES, default=PROBLEM_TYPES[0])
     language = models.CharField(max_length=100, null=True, blank=True)
     cats_id = models.IntegerField(null=True)
 
