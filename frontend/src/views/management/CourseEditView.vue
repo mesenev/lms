@@ -40,12 +40,25 @@
         </div>
       </div>
       <div class="bx--col-lg-5">
-        <h3>Пользователи курса</h3>
-        <h5>Администраторы курса</h5>
-        <div class="null">
-          Smthng is nearby
+        <div class="link">
+        <h3>Создать ссылку-приглашение</h3>
+          <cv-number-input
+            :light="true"
+            :label="'Выберите количество учеников курса'"
+            :value="usagesAmount"
+            :min="1"
+            :step="1">
+          </cv-number-input>
+          <br>
+          <GenerateLinks>
+            Сгенерировать ссылку-приглашение
+          </GenerateLinks>
+          <br>
+        </div>
+        <div class="users">
+          <h3>Пользователи курса</h3>
+          <h5>Администраторы курса</h5>
           <h5>Пользователи курса</h5>
-          Smthng is nearby
         </div>
       </div>
       </div>
@@ -53,6 +66,7 @@
 </template>
 
 <script lang="ts">
+import GenerateLinks from "@/components/EditCourse/GenerateLinks.vue";
 import EditCourseLessons from '@/components/EditCourse/EditCourseLessons.vue';
 import EditCourseModal from '@/components/EditCourse/EditCourseModal.vue';
 import CourseModel from '@/models/CourseModel';
@@ -63,7 +77,7 @@ import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import AddStudentModal from "@/components/EditCourse/AddStudentModal.vue";
 
-@Component({ components: {AddStudentModal, EditCourseLessons, EditCourseModal } })
+@Component({ components: {AddStudentModal, EditCourseLessons, EditCourseModal, GenerateLinks } })
 export default class CourseEditView extends Vue {
   @Prop() courseId!: number | null;
   sendingInfo = false;
@@ -159,4 +173,5 @@ export default class CourseEditView extends Vue {
 
   .change-btn
     margin-top 10px
+
 </style>
