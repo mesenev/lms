@@ -5,14 +5,14 @@
         <br>
         <h3>Здравствуйте!</h3>
         <h4>
-          Пожалуйста, заполните поля ниже, чтобы записаться на курс "{{  }}"
+          Пожалуйста, заполните поля ниже, чтобы записаться на курс "{{ }}"
         </h4>
         <br>
         <cv-inline-notification
-        v-if="showNotification"
-        @close="() => showNotification=false"
-        :kind="notificationKind"
-        :sub-title="notificationText"
+          v-if="showNotification"
+          :kind="notificationKind"
+          :sub-title="notificationText"
+          @close="() => showNotification=false"
         />
       </div>
       <div class="bx--col-lg-7">
@@ -32,19 +32,25 @@
           </cv-text-input>
           <br>
           <cv-text-input v-model.trim="login" id="login" label="Придумайте логин" helper-text="">
-            <template v-if="checkLoginAlphabet" slot="invalid-message">Введите корректный логин<br></template>
+            <template v-if="checkLoginAlphabet" slot="invalid-message">
+              Введите корректный логин<br></template>
             <!--Todo: сделать отступ-->
-            <template v-if="checkLoginLen" slot="invalid-message">Длина логина должна быть от 4 до 10 символов</template>
+            <template v-if="checkLoginLen" slot="invalid-message">
+              Длина логина должна быть от 4 до 10 символов
+            </template>
           </cv-text-input>
           <br>
           <cv-text-input label="Придумайте пароль" v-model.trim="password" helper-text="">
-            <template v-if="checkPasswordLen" slot="invalid-message">Длина пароля должна быть от 8 до 25<p></p></template>
+            <template v-if="checkPasswordLen" slot="invalid-message">
+              Длина пароля должна быть от 8 до 25<p></p></template>
             <template v-if="checkPassword" slot="invalid-message">Некоректный пароль</template>
           </cv-text-input>
 
           <br>
           <cv-text-input label="Подтверждение пароля" helper-text="" v-model.trim="password_repeat">
-            <template v-if="checkRepeatPassword" slot="invalid-message">Пароли должны совпадать</template>
+            <template v-if="checkRepeatPassword" slot="invalid-message">
+              Пароли должны совпадать
+            </template>
           </cv-text-input>
           <br>
           <cv-button :disabled="canAction" kind="secondary">Отправить</cv-button>
@@ -89,26 +95,13 @@ export default class RegistrationView extends Vue {
   validField = false;
 
   file = new Blob();
-  imagePreview: string|null|ArrayBuffer = '';
-  showPreview= false;
-
-  Upload() {
-    //works with the following line,
-    this.file = this.$refs.file.files[0];
-    const reader = new FileReader();
-    reader.addEventListener("load",  () => {
-      this.showPreview = true;
-      this.imagePreview = reader.result;
-    })
-    if (this.file) {
-      reader.readAsDataURL( this.file );
-    }
-  }
+  imagePreview: string | null | ArrayBuffer = '';
+  showPreview = false;
 
   get checkEmail(): boolean {
     if (this.email) {
       const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      const res =  !re.test(this.email);
+      const res = !re.test(this.email);
       if (res) {
         this.validField = true;
         return res;
@@ -119,7 +112,7 @@ export default class RegistrationView extends Vue {
     return false;
   }
 
-  get checkLoginAlphabet(): boolean{
+  get checkLoginAlphabet(): boolean {
     if (this.login) {
       const re = /^[a-zA-Z0-9]+$/;
       const res = !re.test(this.login)
@@ -133,9 +126,16 @@ export default class RegistrationView extends Vue {
     return false;
   }
 
-  get checkLoginLen(): boolean{
+  get checkLoginLen(): boolean {
     if (this.login) {
       return this.login.length < 4 || this.login.length > 10;
+    }
+    return false;
+  }
+
+  get checkPasswordLen(): boolean {
+    if (this.password) {
+      return this.password.length < 8 || this.password.length > 20;
     }
     return false;
   }
@@ -156,11 +156,10 @@ export default class RegistrationView extends Vue {
     return false;
   }
 
-  get checkPasswordLen(): boolean {
-    if (this.password){
-      return this.password.length < 8 || this.password.length > 20;
-    }
-    return false;
+  get canAction(): boolean {
+    return !(this.login && this.password && this.first_name && this.last_name
+      && this.email && this.password_repeat && !this.validField);
+
   }
 
   get checkRepeatPassword(): boolean {
@@ -170,9 +169,17 @@ export default class RegistrationView extends Vue {
     return false;
   }
 
-  get canAction(): boolean {
-    return !(this.login && this.password && this.first_name && this.last_name && this.email && this.password_repeat && !this.validField);
-
+  Upload() {
+    //works with the following line,
+    this.file = this.$refs.file.files[0];
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.showPreview = true;
+      this.imagePreview = reader.result;
+    })
+    if (this.file) {
+      reader.readAsDataURL(this.file);
+    }
   }
 
   modalHidden() {
@@ -181,14 +188,14 @@ export default class RegistrationView extends Vue {
 
   async action() {
     const fd = new FormData();
-    fd.append('avatar_url',this.file );
+    fd.append('avatar_url', this.file);
     fd.append('email', this.email);
     fd.append('first_name', this.first_name);
     fd.append('last_name', this.last_name);
     fd.append('password', this.password);
     fd.append('username', this.login);
     //const r = axios.post( 'http://localhost:8000/api/users/', fd)
-    const request = axios.post('http://localhost:8000/api/users/',fd);
+    const request = axios.post('http://localhost:8000/api/users/', fd);
     request.then(response => {
       this.notificationKind = 'success';
       this.notificationText = "Пользователь успешно создан";
@@ -200,11 +207,11 @@ export default class RegistrationView extends Vue {
       if (error.response.data.email) {
         err = 'пользователь с такой почтой уже существует';
       }
-      if ( error.response.data.user) {
+      if (error.response.data.user) {
         err = 'пользователь с таким логином уже существует';
       }
       this.notificationKind = 'error';
-      this.notificationText = `Что-то пошло не так: ${ err }`;
+      this.notificationText = `Что-то пошло не так: ${err}`;
       this.showNotification = true;
     })
   }

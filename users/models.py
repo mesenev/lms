@@ -9,7 +9,7 @@ class User(AbstractUser):
 
     def get_avatar(self):
         if not self.avatar_url:
-            return '/media/user.png'
+            return '/media/avatars/default-avatar.png'
         return self.avatar_url.url
 
 

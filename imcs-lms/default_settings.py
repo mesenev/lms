@@ -60,9 +60,9 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATIC_DIR = 'static'
+STATIC_ROOT = 'static'
 MEDIA_URL = '/media/'
-MEDIA_DIR = 'media'
+MEDIA_ROOT = 'media'
 
 WEBPACK_DEV_SERVER = 'localhost:8080'
 AUTH_USER_MODEL = 'users.User'
