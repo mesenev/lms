@@ -38,7 +38,7 @@ def cats_submit_problem():
     pass
 
 
-def cats_check_solution_status(req_ids: int) -> str:
+def cats_check_solution_status(req_ids: int):
     url = f'{settings.CATS_URL}main.pl?f=api_get_request_state;req_ids={req_ids};'
     if settings.CATS_SID:  # and settings.CATS_TOKEN:
         url += f'sid={settings.CATS_SID}'
@@ -46,7 +46,9 @@ def cats_check_solution_status(req_ids: int) -> str:
     if r.status_code != 200:
         raise CatsAnswerCodeException(r.reason)
     data = json.loads(r.content.decode('utf-8'))
-    return data[0]['verdict']
+    # print(f'data: {data}')
+    if data:
+        return data[0]['verdict']
 
 
 def cats_get_problems_from_contest(contest_id, user):

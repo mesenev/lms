@@ -17,8 +17,30 @@ class Problem(models.Model):
 
 
 class Submit(models.Model):
-    SUBMIT_STATUS = [('WA', 'Wrong answer'), ('OK', 'OK'), ('NP', 'NP'), ]
+    SUBMIT_STATUS = [
+        ('WA', 'Wrong answer'),
+        ('OK', 'OK'),
+        ('NP', 'NP'),
+        ('RJ', 'Rejected'),
+        ('CE', 'Compilation error'),
+        ('LI', 'Linter error'),
+        ('RE', 'Run-time error'),
+        ('PE', 'Presentation error'),
+        ('TL', 'Time limit exceeded'),
+        ('IL', 'Idleness limit exceeded'),
+        ('ML', 'Memory limit exceeded'),
+        ('WL', 'Write limit exceeded'),
+        ('SV', 'Security violation'),
+        ('IS', 'Ignored submit'),
+        ('AW', 'Awaiting manual verification'),
+        ('MR', 'Rejected by manual verification'),
+        ('BA', 'Banned'),
+    ]
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, null=False)
     student = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     content = models.TextField()
-    status = models.CharField(max_length=2, choices=SUBMIT_STATUS)
+    cats_request_id = models.IntegerField(null=True)
+    status = models.CharField(max_length=2, choices=SUBMIT_STATUS, default='NP')
+
+    def __str__(self):
+        return self.status

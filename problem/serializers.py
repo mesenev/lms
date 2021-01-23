@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from cathie.cats_api import cats_submit_solution
 from lesson.models import Lesson
 from problem.models import Problem, Submit
 from users.serializers import DefaultUserSerializer
@@ -10,7 +11,8 @@ class SubmitSerializer(serializers.Serializer):
     problem = serializers.PrimaryKeyRelatedField(queryset=Problem.objects.all())
     student = DefaultUserSerializer(read_only=True)
     content = serializers.CharField()
-    status = serializers.ChoiceField(choices=Submit.SUBMIT_STATUS)
+    cats_request_id = serializers.IntegerField(read_only=True)
+    status = serializers.ChoiceField(choices=Submit.SUBMIT_STATUS, default='NP')
 
     def update(self, instance, validated_data):
         print(validated_data)
@@ -22,6 +24,12 @@ class SubmitSerializer(serializers.Serializer):
     def create(self, validated_data):
         request = self.context.get('request')
         student = request.user if request and hasattr(request, 'user') else None
+        cats_request_id = cats_submit_solution(
+            validated_data.get('content'),
+            validated_data.get('cats_problem_id'),
+            validated_data.get('cats_de_id'),
+            validated_data.get('source')
+        )
         return Submit.objects.create(**validated_data, **{
             'student': student,
         })

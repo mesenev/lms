@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     'lesson',
     'problem',
     'cathie',
+    'celery_app',
 ]
 
 MIDDLEWARE = [
