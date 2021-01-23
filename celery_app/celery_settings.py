@@ -11,6 +11,9 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 
-@app.task(bind=True)
-def debug_task(self):
-    print(f'Request: {self.request}')
+app.conf.beat_schedule = {
+    'check_submit_status': {
+        'task': 'celery_app.tasks.update_submit_status',
+        'schedule': 10.0,
+    }
+}
