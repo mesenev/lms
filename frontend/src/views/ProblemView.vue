@@ -7,143 +7,144 @@
         :kind="notificationKind"
         :sub-title="notificationText"
       />
-        <div class="problem bx--row">
-          <div class="bx--col-lg-8">
-            <h3 class="problem-name">Задание {{ problem.id }}. {{ problem.name }}</h3>
-            <h4 class="problem-description">Описание: {{ problem.description }}</h4>
-          </div>
+      <div class="problem bx--row">
+        <div class="bx--col-lg-8">
+          <h3 class="problem-name">Задание {{ problem.id }}. {{ problem.name }}</h3>
+          <ProblemDescription v-if="!isNaN(problem.id)" :problem="problem"/>
+          <cv-skeleton-text v-else/>
         </div>
-        <div class="problem-solution bx--row">
-          <div
-            class="code"
-            :class="[isStaff ? 'bx--col-lg-8' : 'bx--col-lg-10']"
+      </div>
+      <div class="problem-solution bx--row">
+        <div
+          :class="[isStaff ? 'bx--col-lg-8' : 'bx--col-lg-10']"
+          class="code"
+        >
+          <cv-text-area
+            v-model="submitEdit.content"
+            :class="{ 'text-area-teacher': isStaff, 'text-area-student': !isStaff }"
+            :disabled="isCompleted || isStaff"
+            light
           >
-            <cv-text-area
-              light
-              :class="{ 'text-area-teacher': isStaff, 'text-area-student': !isStaff }"
-              :disabled="isCompleted || isStaff"
-              v-model="submitEdit.content"
-            >
-            </cv-text-area>
-            <cv-dropdown
-              v-if="!isStaff && problem.language"
-              placeholder="Выберите язык программирования"
-              :items="problem.language"
-            >
-            </cv-dropdown>
-            <cv-button
-              v-if="!isStaff"
-              v-on:click="confirmSubmit"
-              class="submit-btn"
-              :disabled="!canSubmit"
-            >
-              Submit!
+          </cv-text-area>
+          <cv-dropdown
+            v-if="!isStaff && problem.language"
+            :items="problem.language"
+            placeholder="Выберите язык программирования"
+          >
+          </cv-dropdown>
+          <cv-button
+            v-if="!isStaff"
+            :disabled="!canSubmit"
+            class="submit-btn"
+            v-on:click="confirmSubmit"
+          >
+            Submit!
+          </cv-button>
+          <div v-if="isStaff" class="handlers">
+            <cv-button :disabled="this.submit.status === 'WA' || isNewSubmit"
+                       class="submit-btn rejected"
+                       v-on:click="rejectSubmit">
+              Rejected
             </cv-button>
-            <div class="handlers" v-if="isStaff">
-              <cv-button class="submit-btn rejected"
-                         :disabled="this.submit.status === 'WA' || isNewSubmit"
-                         v-on:click="rejectSubmit">
-                Rejected
-              </cv-button>
-              <cv-button class="submit-btn accepted"
-                         :disabled="this.submit.status === 'OK' || isNewSubmit"
-                         v-on:click="acceptSubmit">
-                Accepted
-              </cv-button>
-            </div>
-          </div>
-          <div
-            class="submit"
-            :class="[isStaff ? 'bx--col-lg-8' : 'bx--col-lg-6']"
-          >
-              <cv-structured-list
-                class="submit-list"
-                v-if="submits.length !== 0"
-                selectable
-                condensed
-                @change="changeCurrentSubmit"
-              >
-                <template slot="headings">
-                  <cv-structured-list-heading>
-                    id
-                  </cv-structured-list-heading>
-                  <cv-structured-list-heading>
-                    Статус
-                  </cv-structured-list-heading>
-                </template>
-                <template slot="items">
-                  <cv-structured-list-item
-                    v-for="submit in submits"
-                    :key="submit.id"
-                    :value="submit.id.toString()"
-                    name="submit"
-                    :checked="submit.id === Math.max(...submits.map(s => s.id))"
-                  >
-                    <cv-structured-list-data>
-                      {{ submit.id }}
-                    </cv-structured-list-data>
-                    <cv-structured-list-data>
-                      <cv-tag :kind="statusColor(submit.status)"
-                              :label="submit.status">
-                      </cv-tag>
-                    </cv-structured-list-data>
-                  </cv-structured-list-item>
-                </template>
-              </cv-structured-list>
-              <cv-tile
-                v-else
-                class="submit-list no-submits"
-                kind="standard"
-              >
-                <h2>Oops</h2>
-                <p>Пока ничего не отправлено :(</p>
-              </cv-tile>
-              <cv-structured-list
-                  v-if="isStaff"
-                  class="student-list"
-                  selectable
-                  condensed
-                  @change="changeStudent"
-                >
-                  <template slot="headings">
-                    <cv-structured-list-heading>
-                      Ученик
-                    </cv-structured-list-heading>
-                  </template>
-                  <template slot="items">
-                    <cv-structured-list-item
-                      v-for="student in students"
-                      :key="student.id"
-                      :value="student.id.toString()"
-                      name="student"
-                      :checked="student.id === Math.min(...students.map(s => s.id))"
-                    >
-                      <cv-structured-list-data>
-                        <cv-tag :label="`img`" kind="gray"></cv-tag>
-                        {{
-                          student.first_name && student.last_name ?
-                          student.first_name + ' ' + student.last_name :
-                          student.username
-                        }}
-                      </cv-structured-list-data>
-                    </cv-structured-list-item>
-                  </template>
-                </cv-structured-list>
+            <cv-button :disabled="this.submit.status === 'OK' || isNewSubmit"
+                       class="submit-btn accepted"
+                       v-on:click="acceptSubmit">
+              Accepted
+            </cv-button>
           </div>
         </div>
+        <div
+          :class="[isStaff ? 'bx--col-lg-8' : 'bx--col-lg-6']"
+          class="submit"
+        >
+          <cv-structured-list
+            v-if="submits.length !== 0"
+            class="submit-list"
+            condensed
+            selectable
+            @change="changeCurrentSubmit"
+          >
+            <template slot="headings">
+              <cv-structured-list-heading>
+                id
+              </cv-structured-list-heading>
+              <cv-structured-list-heading>
+                Статус
+              </cv-structured-list-heading>
+            </template>
+            <template slot="items">
+              <cv-structured-list-item
+                v-for="submit in submits"
+                :key="submit.id"
+                :checked="submit.id === Math.max(...submits.map(s => s.id))"
+                :value="submit.id.toString()"
+                name="submit"
+              >
+                <cv-structured-list-data>
+                  {{ submit.id }}
+                </cv-structured-list-data>
+                <cv-structured-list-data>
+                  <cv-tag :kind="statusColor(submit.status)"
+                          :label="submit.status">
+                  </cv-tag>
+                </cv-structured-list-data>
+              </cv-structured-list-item>
+            </template>
+          </cv-structured-list>
+          <cv-tile
+            v-else
+            class="submit-list no-submits"
+            kind="standard"
+          >
+            <h2>Oops</h2>
+            <p>Пока ничего не отправлено :(</p>
+          </cv-tile>
+          <cv-structured-list
+            v-if="isStaff"
+            class="student-list"
+            condensed
+            selectable
+            @change="changeStudent"
+          >
+            <template slot="headings">
+              <cv-structured-list-heading>
+                Ученик
+              </cv-structured-list-heading>
+            </template>
+            <template slot="items">
+              <cv-structured-list-item
+                v-for="student in students"
+                :key="student.id"
+                :checked="student.id === Math.min(...students.map(s => s.id))"
+                :value="student.id.toString()"
+                name="student"
+              >
+                <cv-structured-list-data>
+                  <cv-tag :label="`img`" kind="gray"></cv-tag>
+                  {{
+                    student.first_name && student.last_name ?
+                      student.first_name + ' ' + student.last_name :
+                      student.username
+                  }}
+                </cv-structured-list-data>
+              </cv-structured-list-item>
+            </template>
+          </cv-structured-list>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { problemStore, submitStore, userStore } from '@/store';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import ProblemDescription from "@/components/ProblemDescription.vue";
+import ProblemModel from '@/models/ProblemModel';
 import SubmitModel from '@/models/SubmitModel';
+import UserModel from '@/models/UserModel';
+import { problemStore, submitStore, userStore } from '@/store';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import _ from 'lodash';
-import ProblemModel from '@/models/ProblemModel';
-import UserModel from '@/models/UserModel';
-
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 // ToDo write all submit`s status associations
 const statusAssociations: { [index: string]: string } = {
@@ -153,7 +154,7 @@ const statusAssociations: { [index: string]: string } = {
 };
 
 
-@Component
+@Component({ components: { ProblemDescription } })
 export default class ProblemView extends Vue {
   @Prop() problemId!: number;
 
@@ -228,7 +229,7 @@ export default class ProblemView extends Vue {
     } else {
       await this.submitStore.fetchSubmits({
         problemId: this.problemId,
-        userId: this.user.id
+        userId: this.user.id,
       });
     }
 
@@ -384,11 +385,13 @@ export default class ProblemView extends Vue {
 
 .accepted
   background-color var(--cds-inverse-support-02)
+
   &:hover
     background-color: var(--cds-support-02)
 
 .rejected
   background-color var(--cds-inverse-support-01)
+
   &:hover
     background-color: var(--cds-support-01)
 
@@ -407,7 +410,9 @@ export default class ProblemView extends Vue {
 .code
   .bx--text-area
     height 30em
-    //width 45rem
+
+  //width 45rem
+
   .bx--label,
   .bx--label--disabled
     display none

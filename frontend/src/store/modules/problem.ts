@@ -49,7 +49,7 @@ export default class ProblemModule extends VuexModule {
   get getNewProblem(): ProblemModel {
     return {
       id: NaN, lesson: NaN, type: 'CW', name: '', description: '',
-      completed: false, manual: false, language: null,
+      completed: false, manual: false, language: null, cats_material_url: '',
     };
   }
 

@@ -61,8 +61,8 @@
 </template>
 
 <script lang="ts">
-import Material from "@/components/Material.vue";
-import Problem from '@/components/Problem.vue';
+import Material from "@/components/lists/MaterialListComponent.vue";
+import Problem from '@/components/lists/ProblemListComponent.vue';
 import LessonContent from "@/models/LessonContent";
 import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';

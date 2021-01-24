@@ -30,13 +30,13 @@
 
 
 <script lang="ts">
-import Material from '@/components/Material.vue';
+import Material from '@/components/lists/MaterialListComponent.vue';
+import LessonContent from "@/models/LessonContent";
 import { materialStore } from '@/store';
+import axios from "axios";
 import _ from 'lodash';
 import marked from 'marked';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import LessonContent from "@/models/LessonContent";
-import axios from "axios";
 
 @Component({ components: { Material } })
 export default class MaterialEditView extends Vue {

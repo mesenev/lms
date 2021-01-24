@@ -5,7 +5,7 @@ import router from '@/router';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component
-export default class Course extends Vue {
+export default class LessonListComponent extends Vue {
   @Prop({ required: true }) lessonProp!: LessonModel;
 
   openLesson(): void {

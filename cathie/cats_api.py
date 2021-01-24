@@ -61,3 +61,17 @@ def cats_get_problems_from_contest(contest_id, user):
     data = json.loads(answer.content.decode('utf-8'))
     # course_problems = CatsProblemSerializer(data=data.problems, many=True)
     return data['problems']
+
+
+def cats_get_problem_description_by_url(description_url):
+    url = f'{settings.CATS_URL}{description_url.lstrip("./")}'
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) '
+                      'AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/89.0.4356.6 Safari/537.36'
+    }
+    request = requests.request(method='get', url=url, headers=headers)
+    if request.status_code != 200:
+        raise CatsAnswerCodeException(request.reason)
+    data = request.content.decode('utf-8')
+    return data

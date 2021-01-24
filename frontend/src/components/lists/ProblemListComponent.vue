@@ -19,12 +19,12 @@
 
 <script lang="ts">
 
-import { Component, Vue, Prop } from 'vue-property-decorator';
 import ProblemModel from '@/models/ProblemModel';
 import router from '@/router';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component
-export default class Problem extends Vue {
+export default class ProblemListComponent extends Vue {
   @Prop() problemProp!: ProblemModel;
 
   openProblem() {
@@ -34,6 +34,7 @@ export default class Problem extends Vue {
   get problem() {
     return this.problemProp;
   }
+
   get problemStatus() {
     const status = [];
     (this.problem.completed) ? status.push("OK","green"): status.push("Не выполнено","red");

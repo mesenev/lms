@@ -4,7 +4,7 @@ import router from '@/router';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component
-export default class Course extends Vue {
+export default class CourseListComponent extends Vue {
   @Prop() courseProp!: CourseModel;
 
   openCourse(): void {
@@ -14,6 +14,7 @@ export default class Course extends Vue {
   get course(): CourseModel {
     return this.courseProp;
   }
+
   get teacher(): string {
     if (!this.course.author)
       return '';

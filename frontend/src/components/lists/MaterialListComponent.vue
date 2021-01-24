@@ -4,7 +4,7 @@ import router from '@/router';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component
-export default class Material extends Vue {
+export default class MaterialListComponent extends Vue {
   @Prop() materialProp!: LessonContent;
 
   openMaterial(): void {

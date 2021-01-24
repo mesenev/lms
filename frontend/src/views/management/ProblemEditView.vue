@@ -52,7 +52,7 @@
 </template>
 
 <script lang="ts">
-import Problem from '@/components/Problem.vue';
+import Problem from '@/components/lists/ProblemListComponent.vue';
 import { problemStore } from '@/store';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';

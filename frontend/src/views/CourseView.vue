@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import Lesson from "@/components/Lesson.vue";
+import Lesson from "@/components/lists/LessonListComponent.vue";
 import CourseModel from '@/models/CourseModel';
 import LessonModel from "@/models/LessonModel";
 import { courseStore, lessonStore } from '@/store';

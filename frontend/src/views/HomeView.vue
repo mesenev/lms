@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import Course from '@/components/Course.vue';
+import Course from '@/components/lists/CourseListComponent.vue';
 import { courseStore } from '@/store';
 import Vue from 'vue';
 import Component from 'vue-class-component';

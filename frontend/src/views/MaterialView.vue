@@ -17,11 +17,11 @@
 </template>
 
 <script lang="ts">
-import Material from '@/components/Material.vue';
+import Material from '@/components/lists/MaterialListComponent.vue';
+import LessonContent from "@/models/LessonContent";
 import { materialStore } from '@/store';
 import marked from 'marked';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import LessonContent from "@/models/LessonContent";
 
 @Component({ components: { Material } })
 export default class MaterialView extends Vue {

@@ -56,16 +56,16 @@
 
 <script lang="ts">
 
-import {courseStore, userStore} from '@/store';
-import {Component, Prop, Vue} from 'vue-property-decorator';
-import Course from "@/components/Course.vue";
-import Avatar from "@/components/Avatar.vue";
 import AddCatsModal from "@/components/AddCatsModal.vue";
+import Avatar from "@/components/Avatar.vue";
+import Course from "@/components/lists/CourseListComponent.vue";
+import { courseStore, userStore } from '@/store';
+import EditAvatarModal from "@/views/EditAvatarModal.vue";
 import UserView from "@/views/UserView.vue";
 import Edit32 from '@carbon/icons-vue/es/edit/32';
-import EditAvatarModal from "@/views/EditAvatarModal.vue";
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({components: {Avatar, Course, AddCatsModal, UserView, Edit32, EditAvatarModal}})
+@Component({ components: { Avatar, Course, AddCatsModal, UserView, Edit32, EditAvatarModal } })
 export default class ProfileView extends Vue {
 
   @Prop() courseId!: number;

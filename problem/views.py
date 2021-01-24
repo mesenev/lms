@@ -1,5 +1,3 @@
-import requests
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.mixins import (
@@ -9,6 +7,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from cathie.cats_api import cats_get_problem_description_by_url
 from lesson.models import Lesson
 from problem.models import Problem, Submit
 from problem.serializers import ProblemSerializer, SubmitSerializer
@@ -48,11 +47,10 @@ def add_cats_problems(request, lesson_id):
     data = request.data
     answer = list()
     for cats_problem in data:
-        materials = requests.get(f'{settings.CATS_URL}{cats_problem["text_url"].lstrip("./")}')
-        materials = materials.content if materials.status_code == 200 else ''
+        materials = cats_get_problem_description_by_url(cats_problem["text_url"])
         problem = Problem.objects.create(
             lesson=lesson, author=request.user, name=cats_problem['name'],
-            cats_id=cats_problem['id'], cats_material_url=cats_problem['text_url'],
+            cats_id=cats_problem['id'], cats_material_url=cats_problem["text_url"],
             description=materials,
         )
         answer.append(ProblemSerializer(problem).data)
