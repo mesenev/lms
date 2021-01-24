@@ -119,7 +119,7 @@ export default class EditLessonModal extends Vue {
       .catch(error => {
         console.log(error.response);
         this.notificationKind = 'error';
-        this.notificationText = `Ошибка получения списка студентов: ${error.response}`;
+        this.notificationText = `Ошибка получения списка задач: ${error.response}`;
         this.showNotification = true;
       })
     this.catsProblems.map(value => {

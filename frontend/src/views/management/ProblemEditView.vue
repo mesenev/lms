@@ -4,9 +4,7 @@
       <div class="bx--col-lg-10">
         <br>
         <h4>Название</h4>
-        <input :class="`bx--text-input`"
-               type="text"
-               v-model="problemTitle">
+        <label><input v-model="problemTitle" :class="`bx--text-input`" type="text"></label>
         <cv-button class="change__btn"
                    :disabled="canChangeProblemName"
                    @click="ChangeProblemName">
@@ -14,8 +12,7 @@
         </cv-button>
         <br>
         <h4>Описание</h4>
-        <cv-text-area v-model="problemDescription"
-        ></cv-text-area>
+        <cv-text-area v-model="problemDescription"/>
         <cv-button class="change__btn"
                    :disabled="canChangeProblemDescription"
                    @click="ChangeProblemDescription">
@@ -26,25 +23,22 @@
           <br>
           <cv-multi-select label="Доступные языки"
                            v-model="problemLanguages"
-                           :options="availableLanguages">
-          </cv-multi-select>
+                           :options="availableLanguages"/>
           <h5>Выбраны сейчас:</h5>
           <cv-list>
             <cv-list-item v-for="l in problem.language" :key="l">{{ l }}</cv-list-item>
           </cv-list>
           <br>
-          <cv-button class="change__btn"
-                     :disabled="canChangeProblemLanguage"
-                     @click="ChangeProblemLanguage">
+          <cv-button
+            :disabled="canChangeProblemLanguage"
+            class="change__btn"
+            @click="ChangeProblemLanguage">
             Изменить
           </cv-button>
         </div>
       </div>
       <div class="bx--col-lg-3">
-        <cv-toggle value="problem.manual"
-                   v-model="problemManual"
-                   label="Ручная проверка"
-        ></cv-toggle>
+        <cv-toggle v-model="problemManual" label="Ручная проверка" value="problem.manual"/>
         <cv-button class="change__btn"
                    :disabled="canChangeProblemManual"
                    @click="ChangeProblemManual">

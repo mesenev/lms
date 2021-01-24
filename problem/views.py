@@ -1,3 +1,5 @@
+import requests
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.mixins import (
@@ -46,9 +48,12 @@ def add_cats_problems(request, lesson_id):
     data = request.data
     answer = list()
     for cats_problem in data:
+        materials = requests.get(f'{settings.CATS_URL}{cats_problem["text_url"].lstrip("./")}')
+        materials = materials.content if materials.status_code == 200 else ''
         problem = Problem.objects.create(
             lesson=lesson, author=request.user, name=cats_problem['name'],
-            cats_id=cats_problem['id'], description=cats_problem['text_url'],
+            cats_id=cats_problem['id'], cats_material_url=cats_problem['text_url'],
+            description=materials,
         )
         answer.append(ProblemSerializer(problem).data)
     return Response(answer)

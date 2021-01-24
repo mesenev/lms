@@ -6,5 +6,6 @@ export default interface ProblemModel {
   description: string;
   completed: boolean;
   manual: boolean;
+  cats_material_url: string;
   language: Array<string> | null; //Todo : fix this
 }
