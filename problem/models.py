@@ -14,6 +14,7 @@ class Problem(models.Model):
     type = models.CharField(max_length=2, choices=PROBLEM_TYPES, default=PROBLEM_TYPES[0][0])
     language = models.CharField(max_length=100, null=True, blank=True)
     cats_id = models.IntegerField(null=True)
+    cats_material_url = models.URLField(null=False)
 
 
 class Submit(models.Model):
