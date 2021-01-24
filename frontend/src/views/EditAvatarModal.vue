@@ -1,13 +1,21 @@
 <template>
   <div>
-    <cv-button class="change-btn" @click="showModal"/>
+    <Edit32 class="change-btn" @click="showModal"/>
     <cv-modal size="default"
               class="add_lesson_modal"
               :visible="modalVisible"
               @modal-hidden="modalHidden"
               :primary-button-disabled="!avatarChanged"
               @primary-click="changeAvatar">
-      <template slot="label">Изменить аватар</template>
+      <template slot="title">
+        Изменить фото профиля
+      </template>
+      <template slot="content">
+        <div class="btns">
+          <cv-file-uploader class="file-upload"/>
+          <cv-button class="btn"> Изменить </cv-button>
+        </div>
+      </template>
     </cv-modal>
   </div>
 </template>
@@ -17,8 +25,9 @@
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import { Component, Vue } from 'vue-property-decorator';
+import Edit32 from '@carbon/icons-vue/es/edit/32';
 
-@Component({ components: { AddAlt20, SubtractAlt20 } })
+@Component({ components: { AddAlt20, SubtractAlt20, Edit32 } })
 export default class EditAvatarModal extends Vue {
 
   AddAlt32 = AddAlt20;
@@ -47,7 +56,6 @@ export default class EditAvatarModal extends Vue {
   outline none
 
 .change-btn
-  background-color var(--cds-interactive-02)
 
 .lesson_list
   margin-bottom 0
@@ -82,4 +90,21 @@ export default class EditAvatarModal extends Vue {
 
 .modal--content
   height 400px
+
+.file-upload {
+  width 650px;
+  padding-right 20px;
+}
+
+.btn {
+
+ }
+
+.btns {
+  float left;
+  cursor: pointer;
+  clear: both;
+  display flex;
+  flex-direction row;
+}
 </style>

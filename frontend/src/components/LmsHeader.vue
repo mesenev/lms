@@ -84,7 +84,7 @@
 
     <template slot="right-panels">
       <cv-header-panel class="" id="account">
-        <span class="acc_text">Управление аккаунтом</span>
+        <UserView class="user-view" :user="user"/>
         <cv-switcher>
           <template>
             <cv-switcher-item>
@@ -135,9 +135,13 @@ import Notification20 from '@carbon/icons-vue/es/notification/20';
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
 import Vue from 'vue';
 import Component from 'vue-class-component';
+import UserView from "@/views/UserView.vue";
+import {userStore} from "@/store";
 
-@Component({ components: { Notification20, UserAvatar20, AppSwitcher20 } })
+@Component({ components: {UserView, Notification20, UserAvatar20, AppSwitcher20 } })
 export default class LmsHeader extends Vue {
+
+  user = userStore.user;
 
   get courseSelected(): boolean {
     return this.$route.params.hasOwnProperty('courseId');
@@ -167,4 +171,8 @@ export default class LmsHeader extends Vue {
     margin: 32px 1rem 8px;
     padding-bottom: 4px;
     border-bottom: 1px solid #525252;
+.user-view
+    padding-left 30px;
+    padding-top 10px;
+    margin-bottom 0px;
 </style>
