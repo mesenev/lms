@@ -49,7 +49,7 @@ class ProblemSerializer(serializers.ModelSerializer):
     manual = serializers.BooleanField()
     type = serializers.CharField()
     language = serializers.CharField(required=True, allow_null=True)
-    cats_material_url = serializers.URLField()
+    cats_material_url = serializers.CharField()
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
@@ -67,5 +67,5 @@ class ProblemSerializer(serializers.ModelSerializer):
         model = Problem
         fields = (
             'id', 'name', 'description', 'author', 'lesson', 'submits',
-            'manual', 'type', 'language', 'cats_material_url'
+            'manual', 'type', 'language', 'cats_material_url', 'cats_id'
         )

@@ -49,7 +49,7 @@ export default class ProblemModule extends VuexModule {
   get getNewProblem(): ProblemModel {
     return {
       id: NaN, lesson: NaN, type: 'CW', name: '', description: '',
-      completed: false, manual: false, language: null, cats_material_url: '',
+      completed: false, manual: false, language: null, cats_material_url: '', cats_id: NaN,
     };
   }
 
@@ -62,5 +62,23 @@ export default class ProblemModule extends VuexModule {
         console.log(error);
       })
     return answer.data as ProblemModel;
+  }
+
+  @Action
+  async fetchCatsProblemById(catsId: number): Promise<CatsProblemModel> {
+    let answer = { data: {} };
+    await axios.get(`http://localhost:8000/api/cats-problem/${catsId}/`)
+      .then(response => answer = response)
+      .catch(error => {
+        console.log(error);
+      })
+    return answer.data as CatsProblemModel;
+
+  }
+
+  @Action
+  async patchProblem(problem: ProblemModel) {
+    debugger;
+    return await axios.patch(`http://localhost:8000/api/problem/${problem.id}/`, problem);
   }
 }

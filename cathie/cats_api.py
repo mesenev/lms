@@ -75,3 +75,7 @@ def cats_get_problem_description_by_url(description_url):
         raise CatsAnswerCodeException(request.reason)
     data = request.content.decode('utf-8')
     return data
+
+
+def cats_get_problem_by_id(cats_id, user):
+    pass
