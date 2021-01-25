@@ -40,7 +40,7 @@
           name: 'course-edit',
           params: { courseId: this.$route.params.courseId }
         }">
-        Изменить
+        Редактировать курс
       </cv-header-menu-item>
     </cv-header-nav>
     <cv-header-nav v-if="lessonSelected && !problemSelected && !materialSelected">
@@ -49,7 +49,7 @@
           name: 'lesson-edit',
           params: { lessonId: this.$route.params.lessonId }
         }">
-        Изменить
+        Редактировать урок
       </cv-header-menu-item>
     </cv-header-nav>
     <cv-header-nav v-if="problemSelected">
@@ -58,7 +58,7 @@
           name: 'problem-edit',
           params: { courseId: this.$route.params.problemId }
         }">
-        Изменить
+        Редактировать задачу
       </cv-header-menu-item>
     </cv-header-nav>
     <cv-header-nav v-if="materialSelected">
@@ -130,15 +130,15 @@
 </template>
 
 <script lang="ts">
+import { userStore } from "@/store";
+import UserView from "@/views/UserView.vue";
 import AppSwitcher20 from '@carbon/icons-vue/es/app-switcher/20';
 import Notification20 from '@carbon/icons-vue/es/notification/20';
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import UserView from "@/views/UserView.vue";
-import {userStore} from "@/store";
 
-@Component({ components: {UserView, Notification20, UserAvatar20, AppSwitcher20 } })
+@Component({ components: { UserView, Notification20, UserAvatar20, AppSwitcher20 } })
 export default class LmsHeader extends Vue {
 
   user = userStore.user;

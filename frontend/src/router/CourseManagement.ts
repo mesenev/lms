@@ -1,16 +1,16 @@
 import CourseCalendarView from '@/views/management/CourseCalendarView.vue';
 import CourseEditView from '@/views/management/CourseEditView.vue';
 import CourseProgressView from '@/views/management/CourseProgressView.vue';
-import ProblemEditView from '@/views/management/ProblemEditView.vue';
-import SolutionsListView from '@/views/management/SolutionsListView.vue';
 import LessonEditView from "@/views/management/LessonEditView.vue";
 import MaterialEditView from "@/views/management/MaterialEditView.vue";
+import ProblemEditView from '@/views/management/ProblemEditView.vue';
+import SolutionsListView from '@/views/management/SolutionsListView.vue';
 
 import { RouteConfig } from 'vue-router';
 
 // TODO: consult is it optimal (I bet it's not)
 const routes: Array<RouteConfig> = [
-    {
+  {
     path: '/course-add',
     name: 'course-add',
     component: CourseEditView,
@@ -55,7 +55,7 @@ const routes: Array<RouteConfig> = [
     },
   },
   {
-    path: '/course/:problemId/edit',
+    path: '/course/:courseId/lesson/:lessonId/problem/:problemId/edit',
     name: 'problem-edit',
     component: ProblemEditView,
     props: (route) => {
