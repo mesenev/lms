@@ -3,8 +3,8 @@ from rest_framework.mixins import (
 )
 from rest_framework.viewsets import GenericViewSet
 
-from lesson.models import Lesson, LessonContent
-from lesson.serializers import LessonSerializer, MaterialSerializer
+from lesson.models import Lesson, LessonContent, LessonProgress
+from lesson.serializers import LessonSerializer, MaterialSerializer, LessonProgressSerializer
 
 
 class LessonViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
@@ -15,3 +15,8 @@ class LessonViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, Update
 class MaterialViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
     serializer_class = MaterialSerializer
     queryset = LessonContent.objects.all()
+
+
+class LessonProgressViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
+    serializer_class = LessonProgressSerializer
+    queryset = LessonProgress.objects.all()

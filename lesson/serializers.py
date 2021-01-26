@@ -1,9 +1,10 @@
 from rest_framework import serializers
 
 from course.models import Course
-from lesson.models import Lesson, LessonContent
+from lesson.models import Lesson, LessonContent, LessonProgress
 from problem.serializers import ProblemSerializer
 from users.serializers import DefaultUserSerializer
+from users.models import User
 
 
 class MaterialSerializer(serializers.Serializer):
@@ -31,6 +32,25 @@ class MaterialSerializer(serializers.Serializer):
         fields = ('id', 'lesson', 'content_type', 'author', 'content')
 
 
+class LessonProgressSerializer(serializers.Serializer):
+    id = serializers.ReadOnlyField()
+    lesson = serializers.PrimaryKeyRelatedField(queryset=Lesson.objects.all())
+    solved = serializers.CharField(max_length=1024)
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
+    def create(self, validated_data):
+        return LessonProgress.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.resolved = validated_data.get('resolved', instance.resolved)
+        instance.save()
+        return instance
+
+    class Meta:
+        model = Lesson
+        fields = '__all__'
+
+
 class LessonSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
     name = serializers.CharField(max_length=500)
@@ -40,10 +60,12 @@ class LessonSerializer(serializers.Serializer):
     problems = ProblemSerializer(many=True, required=False, default=list())
     materials = MaterialSerializer(many=True, required=False, default=list())
     deadline = serializers.DateField()
+    progress = LessonProgressSerializer(many=True, required=False, default=list())
 
     def create(self, validated_data):
         del validated_data["materials"]
         del validated_data["problems"]
+        del validated_data["progress"]
         request = self.context.get("request")
         user = request.user if request and hasattr(request, 'user') else None
         return Lesson.objects.create(**validated_data, **{'author': user})

@@ -6,7 +6,7 @@ from django.urls import path, include, re_path
 from rest_framework.routers import DefaultRouter
 
 from course.views import CourseViewSet
-from lesson.views import LessonViewSet, MaterialViewSet
+from lesson.views import LessonViewSet, MaterialViewSet, LessonProgressViewSet
 from problem.views import ProblemViewSet, SubmitViewSet
 from users.views import index, user_login, UsersViewSet
 
@@ -17,6 +17,7 @@ router.register('problem', ProblemViewSet, basename='problem')
 router.register('submit', SubmitViewSet, basename='submit')
 router.register('material', MaterialViewSet, basename='material')
 router.register('users', UsersViewSet, basename='users')
+router.register('lessonprogress',LessonProgressViewSet, basename='lessonprogress')
 
 urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
