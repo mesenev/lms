@@ -16,6 +16,11 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.shortcuts import render, redirect
+from rest_framework import status
 from users.models import User
 from users.serializers import DefaultUserSerializer
 
@@ -79,3 +84,17 @@ def staff_for_course(request: HttpRequest, course_id):
         .exclude(staff_for__id=course_id) \
         .values_list('id', 'username', 'first_name', 'middle_name', 'last_name', 'avatar_url')
     return Response(list(queryset))
+
+
+@login_required
+@api_view(['POST'])
+@renderer_classes([JSONRenderer])
+def change_password(request):
+    old_password = request.data.get('old_password')
+    new_password = request.data.get('new_password')
+    user = request.user
+    if not user.check_password(old_password):
+        return HttpResponse('Unauthorized', status=401)
+    user.set_password(new_password)
+    user.save()
+    return Response({'code': 0, 'message': 'Password changed successfully'})

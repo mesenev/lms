@@ -11,10 +11,14 @@
         Изменить фото профиля
       </template>
       <template slot="content">
-        <div class="btns">
-          <cv-file-uploader class="file-upload"/>
-          <cv-button class="btn"> Изменить </cv-button>
-        </div>
+        <div class="bx--col-lg-4, content">
+        <input type="file" ref="file" :v-model="file" accept="image/*" v-on:change="Upload()"/>
+        <label>Предварительный просмотр</label>
+        <img v-bind:src="imagePreview" v-show="showPreview" alt="картинка" class="preview"/>
+      </div>
+      </template>
+      <template slot="primary-button">
+        Добавить
       </template>
     </cv-modal>
   </div>
@@ -30,10 +34,13 @@ import Edit32 from '@carbon/icons-vue/es/edit/32';
 @Component({ components: { AddAlt20, SubtractAlt20, Edit32 } })
 export default class EditAvatarModal extends Vue {
 
+  imagePreview: string | null | ArrayBuffer = '';
+  showPreview = false;
   AddAlt32 = AddAlt20;
   SubtractAlt32 = SubtractAlt20;
   avatarChanged = false;
   modalVisible = false;
+  file = new Blob();
 
   showModal() {
     this.modalVisible = true;
@@ -48,6 +55,19 @@ export default class EditAvatarModal extends Vue {
   changeAvatar() {
     return;
   }
+
+  Upload() {
+    //works with the following line,
+    this.file = this.$refs.file.files[0];
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.showPreview = true;
+      this.imagePreview = reader.result;
+    })
+    if (this.file) {
+      reader.readAsDataURL(this.file);
+    }
+  }
 }
 </script>
 
@@ -55,7 +75,9 @@ export default class EditAvatarModal extends Vue {
 .bx--modal-content:focus
   outline none
 
-.change-btn
+.content {
+  padding-left: 100px;
+}
 
 .lesson_list
   margin-bottom 0
@@ -99,6 +121,13 @@ export default class EditAvatarModal extends Vue {
 .btn {
 
  }
+
+.preview {
+  padding-top: 50px;
+  width: 250px;
+  height: 250px;
+  object-fit:cover;
+}
 
 .btns {
   float left;

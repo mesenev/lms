@@ -12,7 +12,7 @@
       </template>
       <template slot="content">
         <div class="btns">
-          <cv-text-input class="input" placeholder="Введите имя аккаунта"/>
+          <cv-text-input class="input" placeholder="Введите логин cats"/>
           <cv-button class="btn"> Добавить </cv-button>
         </div>
       </template>
@@ -21,6 +21,7 @@
 </template>
 
 <script lang="ts">
+
 
 import {Component, Vue} from 'vue-property-decorator';
 

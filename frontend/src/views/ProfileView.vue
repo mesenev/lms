@@ -4,11 +4,9 @@
       <h1> {{ user.first_name + ' ' + user.last_name }}</h1>
     </div>
     <div class="bx--row content">
-      <div class="bx--col, avatarblock">
-        <div class="container">
-          <Avatar class="image"/>
-          <EditAvatarModal class="overlay"/>
-        </div>
+      <div class="container">
+        <Avatar class="image"/>
+        <EditAvatarModal/>
       </div>
       <div class="bx--col">
         <div class="courses-block">
@@ -43,7 +41,7 @@
                 </cv-structured-list-item>
                 <div class="info-btns">
                   <AddCatsModal class="add-cats"/>
-                  <cv-button class="pass-btn" kind="ghost">Сменить пароль</cv-button>
+                  <ChangePasswordModal class="change-pass"/>
                 </div>
               </template>
             </cv-structured-list>
@@ -59,13 +57,14 @@
 import AddCatsModal from "@/components/AddCatsModal.vue";
 import Avatar from "@/components/Avatar.vue";
 import Course from "@/components/lists/CourseListComponent.vue";
-import { courseStore, userStore } from '@/store';
+import {courseStore, userStore} from '@/store';
 import EditAvatarModal from "@/views/EditAvatarModal.vue";
 import UserView from "@/views/UserView.vue";
 import Edit32 from '@carbon/icons-vue/es/edit/32';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
+import ChangePasswordModal from "@/views/ChangePasswordModal.vue";
 
-@Component({ components: { Avatar, Course, AddCatsModal, UserView, Edit32, EditAvatarModal } })
+@Component({components: {Avatar, Course, AddCatsModal, UserView, Edit32, EditAvatarModal, ChangePasswordModal}})
 export default class ProfileView extends Vue {
 
   @Prop() courseId!: number;
@@ -94,12 +93,12 @@ export default class ProfileView extends Vue {
 </script>
 
 <style scoped lang="stylus">
-.edit-avatar-btn
-  margin-left 35px
-  margin-top 30px
 
-.avatar-block
-  margin 50px
+// avatar edit//////////////////
+
+
+/////////////////////////
+
 
 .courses-block
   margin 50px
@@ -110,18 +109,13 @@ export default class ProfileView extends Vue {
 .cats_status
   font-weight bold
 
-.avatarblock
-  background-color var(cds-ui-0)
-
 .bx--col
   margin 1%
   background-color var(--cds-ui-background);
 
 .info-btns
   padding-top 20px;
-  float left;
   cursor: pointer;
-  clear: both;
   display flex;
   flex-direction row;
 
@@ -136,36 +130,6 @@ export default class ProfileView extends Vue {
   margin-top 70px
 
 ///
-
-
-.container {
-  position: relative;
-  width: 50%;
-  max-width: 300px;
-}
-
-.image {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.overlay {
-  position: absolute;
-  bottom: 0;
-  transition: .5s ease;
-  opacity: 0;
-  font-size: 20px;
-  text-align: center;
-  margin-left: 110px;
-  margin-top: 35px;
-  padding: 0 auto;
-}
-
-
-.container:hover .overlay {
-  opacity: 1;
-}
 
 
 </style>
