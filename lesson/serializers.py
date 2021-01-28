@@ -42,7 +42,7 @@ class LessonProgressSerializer(serializers.Serializer):
         return LessonProgress.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-        instance.resolved = validated_data.get('resolved', instance.resolved)
+        instance.solved = validated_data.get('solved', instance.solved)
         instance.save()
         return instance
 
