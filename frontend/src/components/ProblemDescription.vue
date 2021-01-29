@@ -2,7 +2,6 @@
   <div>
     <div v-if="!isNaN(problem.id)"
          id="problem-description-container"
-         class="problem-description"
          v-html="problem.description">
     </div>
     <cv-skeleton-text v-else/>
@@ -19,8 +18,8 @@ export default class ProblemDescription extends Vue {
 }
 </script>
 
-<style lang="stylus" scoped>
-.problem-description
-  h2
+<style lang="stylus">
+#problem-description-container
+  h2, .timing, .submit
     display none
 </style>

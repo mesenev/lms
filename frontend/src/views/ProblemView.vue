@@ -24,6 +24,7 @@
     <cv-row>
       <cv-column :lg="8">
         <div class="item">
+          <h5>Решение</h5>
           <cv-text-area
             v-model="submitEdit.content"
             :class="{ 'text-area-teacher': isStaff, 'text-area-student': !isStaff }"
@@ -330,9 +331,8 @@ export default class ProblemView extends Vue {
   background-color var(--cds-ui-background)
   padding 1rem
 
-.header-wrapper
-  padding-bottom: 1.5rem
-  padding-top: 1rem
+.bx--row
+  margin-bottom 1rem
 
 .name
   display flex
@@ -380,10 +380,13 @@ export default class ProblemView extends Vue {
   &:hover
     background-color: var(--cds-support-01)
 
+.text-area-student
+.text-area-teacher
+  border 1px solid black
+
 .text-area-teacher textarea:disabled
   cursor pointer
   color #000
-  border-bottom: 1px solid transparent
 
 .problem-view
   margin-top: 2rem
