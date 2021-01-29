@@ -22,4 +22,20 @@ export default class ProblemDescription extends Vue {
 #problem-description-container
   h2, .timing, .submit
     display none
+
+  table.sample
+    border 1px
+
+    *
+      padding 5px
+
+    td
+      border 1px solid black
+
+  button.copy_button
+    display none
+</style>
+
+<style lang="stylus" scoped>
+
 </style>

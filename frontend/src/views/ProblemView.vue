@@ -1,9 +1,7 @@
 <template>
   <cv-grid class="problem-view">
     <cv-row>
-      <div class="header-wrapper">
-        <h2>{{ problem.name }}</h2>
-      </div>
+      <h1>{{ problem.name }}</h1>
     </cv-row>
     <cv-row>
       <cv-inline-notification
@@ -142,17 +140,11 @@ export default class ProblemView extends Vue {
   @Prop() problemId!: number;
 
   private problemStore = problemStore;
-
   private userStore = userStore;
-
   private submitStore = submitStore;
-
   private user = this.userStore.user;
-
   private readonly defaultSubmitStatus = 'NP';
-
   private readonly courseId = Number(this.$route.params.courseId);
-
   private defaultSubmit: SubmitModel = {
     id: NaN,
     problem: this.problemId,
@@ -160,9 +152,47 @@ export default class ProblemView extends Vue {
     content: '',
     status: '',
   }
+  showNotification = false;
+  notificationKind = 'success';
+  notificationText = '';
+  private students_: UserModel[] = [];
+  private submit: SubmitModel = this.defaultSubmit;
+  submitEdit: SubmitModel = { ...this.submit };
+
+  get students() {
+    return this.students_
+  }
 
   get problem(): ProblemModel {
     return problemStore.currentProblem;
+  }
+
+  async created() {
+    const problem = await this.problemStore.fetchProblemById(this.problemId);
+    if (problem) {
+      this.problemStore.setCurrentProblem(problem);
+    }
+
+    if (this.isStaff) {
+      await userStore.fetchStudentsByCourseId(this.courseId)
+        .then(students => this.students_ = students);
+
+      if (!_.isEmpty(this.students_)) {
+        await this.submitStore.fetchSubmits({
+          problemId: this.problemId,
+          userId: this.students_[0].id,
+        })
+      }
+    } else {
+      await this.submitStore.fetchSubmits({
+        problemId: this.problemId,
+        userId: this.user.id,
+      });
+    }
+
+    if (!_.isEmpty(this.submits)) {
+      this.changeCurrentSubmit(this.getLastSubmit().id);
+    }
   }
 
   get isStaff(): boolean {
@@ -188,40 +218,6 @@ export default class ProblemView extends Vue {
   getLastSubmit(): SubmitModel {
     return this.submits[this.submits.length - 1];
   }
-
-  private students: UserModel[] = [];
-
-  private submit: SubmitModel = this.defaultSubmit;
-
-  async created() {
-    const problem = await this.problemStore.fetchProblemById(this.problemId);
-    if (problem) {
-      this.problemStore.setCurrentProblem(problem);
-    }
-
-    if (this.isStaff) {
-      await userStore.fetchStudentsByCourseId(this.courseId)
-        .then(students => this.students = students);
-
-      if (!_.isEmpty(this.students)) {
-        await this.submitStore.fetchSubmits({
-          problemId: this.problemId,
-          userId: this.students[0].id,
-        })
-      }
-    } else {
-      await this.submitStore.fetchSubmits({
-        problemId: this.problemId,
-        userId: this.user.id,
-      });
-    }
-
-    if (!_.isEmpty(this.submits)) {
-      this.changeCurrentSubmit(this.getLastSubmit().id);
-    }
-  }
-
-  public submitEdit: SubmitModel = { ...this.submit };
 
   patchSubmit(status: string) {
     if (this.isNewSubmit) {
@@ -313,12 +309,6 @@ export default class ProblemView extends Vue {
     return statusAssociations[status] || 'gray';
   }
 
-  showNotification = false;
-
-  notificationKind = 'success';
-
-  notificationText = '';
-
   hideSuccess() {
     this.showNotification = false;
   }
@@ -326,7 +316,7 @@ export default class ProblemView extends Vue {
 </script>
 <!--    TODO: solve a problem w/ getting single problem from array -->
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 .item
   background-color var(--cds-ui-background)
   padding 1rem

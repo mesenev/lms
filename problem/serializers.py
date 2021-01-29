@@ -50,6 +50,7 @@ class ProblemSerializer(serializers.ModelSerializer):
     type = serializers.CharField()
     language = serializers.CharField(required=True, allow_null=True)
     cats_material_url = serializers.CharField()
+    # success_or_last_submits = serializers.SerializerMethodField()
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
@@ -63,9 +64,17 @@ class ProblemSerializer(serializers.ModelSerializer):
         user = request.user if request and hasattr(request, "user") else None
         return Problem.objects.create(**validated_data, **{'author': user})
 
+    # def get_success_or_last_submits(self, obj):
+    #     submit_query = Submit.objects.filter(problem=obj).order_by('id')
+    #     submits_ok = submit_query.filter(status="OK").distinct('student')
+    #     submits_aw = submit_query.filter(status="AW").distinct('student')
+    #     submits = submit_query.distinct('student')
+    #     query = (submits_ok + submits_aw + submits).distinct('student')
+    #     return SubmitSerializer(query, many=True)
+
     class Meta:
         model = Problem
         fields = (
             'id', 'name', 'description', 'author', 'lesson', 'submits',
-            'manual', 'type', 'language', 'cats_material_url', 'cats_id'
+            'manual', 'type', 'language', 'cats_material_url', 'cats_id',  # 'success_or_last_submits'
         )
