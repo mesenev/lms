@@ -1,3 +1,4 @@
+from django.db.models import Case, When, Value, IntegerField
 from rest_framework import serializers
 
 from cathie.cats_api import cats_submit_solution
@@ -50,7 +51,7 @@ class ProblemSerializer(serializers.ModelSerializer):
     type = serializers.CharField()
     language = serializers.CharField(required=True, allow_null=True)
     cats_material_url = serializers.CharField()
-    # success_or_last_submits = serializers.SerializerMethodField()
+    # success_or_last_submits = serializers.SerializerMethodField(required=False)
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
@@ -65,16 +66,19 @@ class ProblemSerializer(serializers.ModelSerializer):
         return Problem.objects.create(**validated_data, **{'author': user})
 
     # def get_success_or_last_submits(self, obj):
-    #     submit_query = Submit.objects.filter(problem=obj).order_by('id')
-    #     submits_ok = submit_query.filter(status="OK").distinct('student')
-    #     submits_aw = submit_query.filter(status="AW").distinct('student')
-    #     submits = submit_query.distinct('student')
-    #     query = (submits_ok + submits_aw + submits).distinct('student')
+    #     query = Submit.objects.filter(problem=obj).annotate(
+    #         ordering=Case(
+    #             When(status="OK", then=Value(0)),
+    #             When(status="AW", then=Value(1)),
+    #             default=Value(2),
+    #             output_field=IntegerField(),
+    #         )
+    #     ).order_by('ordering', 'id').distinct('student')
     #     return SubmitSerializer(query, many=True)
 
     class Meta:
         model = Problem
         fields = (
             'id', 'name', 'description', 'author', 'lesson', 'submits',
-            'manual', 'type', 'language', 'cats_material_url', 'cats_id',  # 'success_or_last_submits'
+            'manual', 'type', 'language', 'cats_material_url', 'cats_id', # 'success_or_last_submits'
         )
