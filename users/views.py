@@ -16,11 +16,6 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from django.contrib import messages
-from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
-from django.shortcuts import render, redirect
-from rest_framework import status
 from users.models import User
 from users.serializers import DefaultUserSerializer
 
