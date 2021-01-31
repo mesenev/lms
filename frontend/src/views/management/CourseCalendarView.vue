@@ -109,7 +109,7 @@
 
 <script lang="ts">
 import CourseModel from '@/models/CourseModel';
-import { courseStore } from '@/store';
+import courseStore from '@/store/modules/course';
 import Edit from '@carbon/icons-vue/es/edit/20';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';

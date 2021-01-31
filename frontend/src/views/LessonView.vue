@@ -67,7 +67,7 @@ import ProblemStats from '@/components/ProblemStats.vue';
 import LessonContent from "@/models/LessonContent";
 import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
-import { lessonStore } from '@/store';
+import lessonStore from "@/store/modules/lesson";
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: { Material, Problem, ProblemStats } })

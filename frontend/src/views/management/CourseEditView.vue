@@ -66,18 +66,19 @@
 </template>
 
 <script lang="ts">
-import GenerateLinks from "@/components/EditCourse/GenerateLinks.vue";
+import AddStudentModal from "@/components/EditCourse/AddStudentModal.vue";
 import EditCourseLessons from '@/components/EditCourse/EditCourseLessons.vue';
 import EditCourseModal from '@/components/EditCourse/EditCourseModal.vue';
+import GenerateLinks from "@/components/EditCourse/GenerateLinks.vue";
 import CourseModel from '@/models/CourseModel';
 import router from '@/router';
-import { courseStore, userStore } from '@/store';
+import courseStore from "@/store/modules/course";
+import userStore from '@/store/modules/user';
 import axios from 'axios';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import AddStudentModal from "@/components/EditCourse/AddStudentModal.vue";
 
-@Component({ components: {AddStudentModal, EditCourseLessons, EditCourseModal, GenerateLinks } })
+@Component({ components: { AddStudentModal, EditCourseLessons, EditCourseModal, GenerateLinks } })
 export default class CourseEditView extends Vue {
   @Prop() courseId!: number | null;
   sendingInfo = false;

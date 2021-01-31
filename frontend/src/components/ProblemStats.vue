@@ -22,7 +22,7 @@ import UserComponent from '@/components/UserComponent.vue';
 import ProblemModel from '@/models/ProblemModel';
 import SubmitModel from '@/models/SubmitModel';
 import UserModel from '@/models/UserModel';
-import { userStore } from '@/store';
+import userStore from '@/store/modules/user';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({

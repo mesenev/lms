@@ -65,7 +65,7 @@
 
 <script lang="ts">
 import CourseModel from '@/models/CourseModel';
-import { courseStore } from '@/store';
+import courseStore from '@/store/modules/course';
 import axios, { AxiosResponse } from 'axios';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 

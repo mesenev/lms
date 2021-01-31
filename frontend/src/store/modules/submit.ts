@@ -1,9 +1,10 @@
 import SubmitModel from '@/models/SubmitModel';
+import store from '@/store';
 import axios, { AxiosResponse } from 'axios';
-import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
+import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
-@Module({name: 'submit'})
-export default class SubmitModule extends VuexModule {
+@Module({ namespaced: true, name: 'submit', store, dynamic: true })
+class SubmitModule extends VuexModule {
   private _submits: SubmitModel[] = []
 
   get submits(): SubmitModel[] {
@@ -22,7 +23,7 @@ export default class SubmitModule extends VuexModule {
   }
 
   @Action
-  async fetchSubmits(payload: {problemId: number; userId: number}) {
+  async fetchSubmits(payload: { problemId: number; userId: number }) {
     await axios.get('http://localhost:8000/api/submit/', {
       params: {
         problem: payload.problemId,
@@ -58,3 +59,5 @@ export default class SubmitModule extends VuexModule {
       })
   }
 }
+
+export default getModule(SubmitModule);

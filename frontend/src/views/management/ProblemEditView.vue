@@ -60,7 +60,7 @@ import CatsProblemComponent from '@/components/EditProblem/CatsProblemComponent.
 import Problem from '@/components/lists/ProblemListComponent.vue';
 import CatsProblemModel from '@/models/CatsProblemModel';
 import ProblemModel from '@/models/ProblemModel';
-import { problemStore } from '@/store';
+import problemStore from "@/store/modules/problem";
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 

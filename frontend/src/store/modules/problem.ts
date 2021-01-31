@@ -1,10 +1,11 @@
 import CatsProblemModel from '@/models/CatsProblemModel';
 import ProblemModel from '@/models/ProblemModel';
+import store from '@/store';
 import axios from 'axios';
-import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
+import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
-@Module({ name: 'problem' })
-export default class ProblemModule extends VuexModule {
+@Module({ namespaced: true, name: 'problem', store, dynamic: true })
+class ProblemModule extends VuexModule {
 
   _problems: Array<ProblemModel> = [];
   catsProblems: Array<{ id: CatsProblemModel }> = [];
@@ -50,6 +51,7 @@ export default class ProblemModule extends VuexModule {
     return {
       id: NaN, lesson: NaN, type: 'CW', name: '', description: '',
       completed: false, manual: false, language: null, cats_material_url: '', cats_id: NaN,
+      success_or_last_submits: [],
     };
   }
 
@@ -82,3 +84,5 @@ export default class ProblemModule extends VuexModule {
     return await axios.patch(`http://localhost:8000/api/problem/${problem.id}/`, problem);
   }
 }
+
+export default getModule(ProblemModule);

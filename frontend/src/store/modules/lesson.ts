@@ -1,10 +1,15 @@
 import LessonModel from '@/models/LessonModel';
-import { userStore } from '@/store';
+import store from '@/store';
 import axios from 'axios';
-import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
+import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
-@Module({ name: 'lesson' })
-export default class LessonModule extends VuexModule {
+@Module({
+  namespaced: true,
+  name: 'lesson',
+  store,
+  dynamic: true,
+})
+class LessonModule extends VuexModule {
 
   lessons: Array<LessonModel> = [];
 
@@ -30,7 +35,7 @@ export default class LessonModule extends VuexModule {
         console.log(error);
       })
     const result = answer.data as LessonModel;
-    await userStore.fetchStudentsByCourseId(result.course);
+    // await userStore.fetchStudentsByCourseId(result.course);
     return result;
   }
 
@@ -55,3 +60,4 @@ export default class LessonModule extends VuexModule {
 
 }
 
+export default getModule(LessonModule);

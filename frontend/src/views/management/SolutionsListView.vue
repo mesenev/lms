@@ -29,7 +29,7 @@ export default class SolutionsListView extends Vue {
 }
 </script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 .header
   padding-bottom: 1.5rem
   padding-top: 1rem

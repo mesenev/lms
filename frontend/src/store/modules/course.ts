@@ -1,9 +1,10 @@
 import CourseModel from '@/models/CourseModel';
+import store from '@/store';
 import axios from 'axios';
-import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
+import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
-@Module({ name: 'course' })
-export default class CourseModule extends VuexModule {
+@Module({ namespaced: true, name: 'course', store, dynamic: true })
+class CourseModule extends VuexModule {
 
   courses: Array<CourseModel> = [];
 
@@ -41,3 +42,4 @@ export default class CourseModule extends VuexModule {
   }
 }
 
+export default getModule(CourseModule);

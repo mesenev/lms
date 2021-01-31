@@ -1,7 +1,8 @@
 import App from '@/App.vue';
 
 import router from '@/router';
-import store, { userStore } from '@/store';
+import store from '@/store';
+import userStore from '@/store/modules/user';
 import CarbonComponentsVue from '@carbon/vue/src/index';
 import axios from 'axios';
 import Vue from 'vue';

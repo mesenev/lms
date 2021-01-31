@@ -45,7 +45,8 @@
 <script lang="ts">
 import CourseModel from '@/models/CourseModel';
 import UserProgress from '@/models/UserProgress';
-import { courseStore, userStore } from '@/store';
+import courseStore from "@/store/modules/course";
+import userStore from '@/store/modules/user';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: {} })

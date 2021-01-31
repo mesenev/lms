@@ -29,12 +29,11 @@
 import Lesson from "@/components/lists/LessonListComponent.vue";
 import CourseModel from '@/models/CourseModel';
 import LessonModel from "@/models/LessonModel";
-import { courseStore, lessonStore } from '@/store';
+import courseStore from "@/store/modules/course";
+import lessonStore from "@/store/modules/lesson";
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({
-  components: { Lesson },
-})
+@Component({ components: { Lesson } })
 export default class CourseView extends Vue {
   @Prop({ required: true }) courseId!: number;
 

@@ -12,7 +12,6 @@
 </template>
 
 <script lang="ts">
-
 import UserModel from "@/models/UserModel";
 import { Component, Prop, Vue } from 'vue-property-decorator';
 

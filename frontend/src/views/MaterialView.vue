@@ -19,7 +19,7 @@
 <script lang="ts">
 import Material from '@/components/lists/MaterialListComponent.vue';
 import LessonContent from "@/models/LessonContent";
-import { materialStore } from '@/store';
+import materialStore from '@/store/modules/material';
 import marked from 'marked';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 

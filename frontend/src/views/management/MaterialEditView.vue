@@ -32,7 +32,7 @@
 <script lang="ts">
 import Material from '@/components/lists/MaterialListComponent.vue';
 import LessonContent from "@/models/LessonContent";
-import { materialStore } from '@/store';
+import materialStore from "@/store/modules/material";
 import axios from "axios";
 import _ from 'lodash';
 import marked from 'marked';

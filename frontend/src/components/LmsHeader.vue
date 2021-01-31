@@ -131,7 +131,7 @@
 
 <script lang="ts">
 import UserView from "@/components/UserComponent.vue";
-import { userStore } from "@/store";
+import userStore from "@/store/modules/user";
 import AppSwitcher20 from '@carbon/icons-vue/es/app-switcher/20';
 import Notification20 from '@carbon/icons-vue/es/notification/20';
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';

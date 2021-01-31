@@ -41,13 +41,13 @@
 </template>
 
 <script lang="ts">
+import LessonContent from "@/models/LessonContent";
 import LessonModel from '@/models/LessonModel';
-import { materialStore } from '@/store';
+import materialStore from "@/store/modules/material";
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import axios from 'axios';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import LessonContent from "@/models/LessonContent";
 
 
 @Component({ components: {AddAlt20, SubtractAlt20 } })

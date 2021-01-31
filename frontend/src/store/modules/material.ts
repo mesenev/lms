@@ -1,9 +1,10 @@
 import LessonContent from "@/models/LessonContent";
+import store from '@/store';
 import axios from 'axios';
-import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
+import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
-@Module({ name: 'material' })
-export default class MaterialModule extends VuexModule {
+@Module({ namespaced: true, name: 'material', store, dynamic: true })
+class MaterialModule extends VuexModule {
 
   _materials: Array<LessonContent> = [];
 
@@ -65,3 +66,5 @@ export default class MaterialModule extends VuexModule {
     return answer.data as LessonContent;
   }
 }
+
+export default getModule(MaterialModule);

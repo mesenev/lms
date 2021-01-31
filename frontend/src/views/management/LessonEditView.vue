@@ -69,7 +69,7 @@ import CatsProblemModel from '@/models/CatsProblemModel';
 import LessonModel from "@/models/LessonModel";
 import ProblemModel from "@/models/ProblemModel";
 import router from "@/router";
-import { lessonStore } from '@/store';
+import lessonStore from "@/store/modules/lesson";
 import Settings20 from '@carbon/icons-vue/es/settings/20';
 import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
 import axios from "axios";

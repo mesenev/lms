@@ -8,8 +8,7 @@
         <cv-search
           label="label"
           placeholder="search"
-          v-model.trim="searchValue"
-        >
+          v-model.trim="searchValue">
         </cv-search>
         <cv-structured-list v-if="!loading" selectable>
           <template slot="items">
@@ -28,7 +27,7 @@
 
 <script lang="ts">
 import Course from '@/components/lists/CourseListComponent.vue';
-import { courseStore } from '@/store';
+import courseStore from "@/store/modules/course";
 import Vue from 'vue';
 import Component from 'vue-class-component';
 
