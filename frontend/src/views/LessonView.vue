@@ -18,8 +18,8 @@
         <div class="classwork">
           <h4>Классная работа</h4>
           <div v-if="!loading">
-            <cv-accordion v-for="less in classwork" :key="less.id">
-              <Problem :problem-prop='less'/>
+            <cv-accordion v-for="problem in classwork" :key="problem.id">
+              <ProblemStats :problem="problem"/>
             </cv-accordion>
           </div>
           <div v-else>
@@ -32,8 +32,8 @@
 
           <h4>Домашнаяя работа</h4>
           <div v-if="!loading">
-            <cv-accordion v-for="less in homework" :key="less.id">
-              <Problem :problem-prop='less'/>
+            <cv-accordion v-for="problem in homework" :key="problem.id">
+              <ProblemStats :problem="problem"/>
             </cv-accordion>
           </div>
           <div v-else>
@@ -63,13 +63,14 @@
 <script lang="ts">
 import Material from "@/components/lists/MaterialListComponent.vue";
 import Problem from '@/components/lists/ProblemListComponent.vue';
+import ProblemStats from '@/components/ProblemStats.vue';
 import LessonContent from "@/models/LessonContent";
 import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
 import { lessonStore } from '@/store';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: { Material, Problem } })
+@Component({ components: { Material, Problem, ProblemStats } })
 export default class LessonView extends Vue {
   @Prop() lessonId!: number;
   store = lessonStore;

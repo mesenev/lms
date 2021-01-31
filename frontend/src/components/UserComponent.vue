@@ -13,13 +13,13 @@
 
 <script lang="ts">
 
-import {Component, Prop, Vue} from 'vue-property-decorator';
 import UserModel from "@/models/UserModel";
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 
-@Component({components: {}})
-export default class UserView extends Vue {
-  @Prop({required: true}) user!: UserModel;
+@Component({ components: {} })
+export default class UserComponent extends Vue {
+  @Prop({ required: true }) user!: UserModel;
   src = "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
 }
 </script>

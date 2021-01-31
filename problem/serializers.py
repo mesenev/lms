@@ -66,7 +66,7 @@ class ProblemSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_success_or_last_submits(obj):
         serializer = SubmitSerializer(map(lambda x: x.submits.first(), obj.students.all()), many=True)
-        return serializer.data
+        return serializer.data or list()
 
     class Meta:
         model = Problem

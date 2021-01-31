@@ -57,7 +57,7 @@ export default class CourseView extends Vue {
 
   get filterLessons() {
     return this.lessons.filter(l => {
-      return l.name.toLowerCase().includes(this.searchValue.toLowerCase())
+      return l.name?.toLowerCase().includes(this.searchValue.toLowerCase())
     })
   }
 }

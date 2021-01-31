@@ -1,20 +1,16 @@
 from rest_framework.mixins import (
     CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 )
-from rest_framework.mixins import (
-    CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
-)
 from rest_framework.viewsets import GenericViewSet
 
 from course.models import CourseSchedule, Course
 from course.serializers import CourseSerializer, ScheduleSerializer
-from users.models import User
 
 
 class CourseViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
 
     serializer_class = CourseSerializer
-    queryset = Course.objects.prefetch_related('staff', 'students').all()
+    queryset = Course.objects.select_related('author').prefetch_related('staff', 'students').all()
 
     # # TODO: make it work
     # def get_queryset(self):

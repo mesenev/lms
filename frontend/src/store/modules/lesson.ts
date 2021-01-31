@@ -1,4 +1,5 @@
 import LessonModel from '@/models/LessonModel';
+import { userStore } from '@/store';
 import axios from 'axios';
 import { Action, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
@@ -28,7 +29,9 @@ export default class LessonModule extends VuexModule {
       .catch(error => {
         console.log(error);
       })
-    return answer.data as LessonModel;
+    const result = answer.data as LessonModel;
+    await userStore.fetchStudentsByCourseId(result.course);
+    return result;
   }
 
   @Mutation
