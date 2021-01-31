@@ -6,7 +6,7 @@
            alt=""
            width="30"
            height="30">
-      <h4 class="name">{{ user.first_name + ' ' + user.last_name }}</h4>
+      <span class="name">{{ name }}</span>
     </div>
   </div>
 </template>
@@ -20,6 +20,12 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 export default class UserComponent extends Vue {
   @Prop({ required: true }) user!: UserModel;
   src = "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
+
+  get name() {
+    if (this.user && this.user.first_name && this.user.last_name)
+      return `${this.user.first_name} ${this.user.last_name}`;
+    return this.user.username;
+  }
 }
 </script>
 

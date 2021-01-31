@@ -2,28 +2,28 @@
   <!--TODO: padding for status of lesson and fix the the router open the same problem -->
   <cv-accordion-item>
     <template slot="title">
-      <div v-on:click="openProblem">{{problem.name}}
-        <cv-tag :label = problemStatus[0]
-                :kind = problemStatus[1]>
+      <div v-on:click="openProblem">{{ problem.name }}
+        <cv-tag :kind=problemStatus[1]
+                :label=problemStatus[0]>
         </cv-tag>
-        <cv-tag :label = problemStatus[2]
+        <cv-tag :label=problemStatus[2]
                 kind="gray">
         </cv-tag>
       </div>
     </template>
     <template slot="content">
-      <p>{{problem.description}}</p>
+      <problem-stats :problem="problemProp"/>
     </template>
   </cv-accordion-item>
 </template>
 
 <script lang="ts">
-
+import ProblemStats from '@/components/ProblemStats.vue';
 import ProblemModel from '@/models/ProblemModel';
 import router from '@/router';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component
+@Component({ components: { ProblemStats } })
 export default class ProblemListComponent extends Vue {
   @Prop() problemProp!: ProblemModel;
 
@@ -37,8 +37,8 @@ export default class ProblemListComponent extends Vue {
 
   get problemStatus() {
     const status = [];
-    (this.problem.completed) ? status.push("OK","green"): status.push("Не выполнено","red");
-    (this.problem.manual) ? status.push("РУЧН"): status.push("АВТ");
+    (this.problem.completed) ? status.push("OK", "green") : status.push("Не выполнено", "red");
+    (this.problem.manual) ? status.push("РУЧН") : status.push("АВТ");
     return status;
   }
 

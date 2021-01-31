@@ -19,7 +19,7 @@
           <h4>Классная работа</h4>
           <div v-if="!loading">
             <cv-accordion v-for="problem in classwork" :key="problem.id">
-              <ProblemStats :problem="problem"/>
+              <problem-list-component :problem-prop="problem"/>
             </cv-accordion>
           </div>
           <div v-else>
@@ -33,7 +33,7 @@
           <h4>Домашнаяя работа</h4>
           <div v-if="!loading">
             <cv-accordion v-for="problem in homework" :key="problem.id">
-              <ProblemStats :problem="problem"/>
+              <problem-list-component :problem-prop="problem"/>
             </cv-accordion>
           </div>
           <div v-else>
@@ -62,23 +62,26 @@
 
 <script lang="ts">
 import Material from "@/components/lists/MaterialListComponent.vue";
-import Problem from '@/components/lists/ProblemListComponent.vue';
-import ProblemStats from '@/components/ProblemStats.vue';
+import ProblemListComponent from '@/components/lists/ProblemListComponent.vue';
+
 import LessonContent from "@/models/LessonContent";
 import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
 import lessonStore from "@/store/modules/lesson";
+import userStore from "@/store/modules/user";
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: { Material, Problem, ProblemStats } })
+@Component({ components: { Material, ProblemListComponent } })
 export default class LessonView extends Vue {
   @Prop() lessonId!: number;
   store = lessonStore;
+  userStore = userStore;
   lesson!: LessonModel;
   loading = true;
 
   async created() {
     this.lesson = await this.store.fetchLessonById(this.lessonId);
+    const stds = await this.userStore.fetchStudentsByCourseId(this.lesson.course);
     this.loading = false;
   }
 

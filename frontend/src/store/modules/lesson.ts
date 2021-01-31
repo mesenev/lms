@@ -35,7 +35,6 @@ class LessonModule extends VuexModule {
         console.log(error);
       })
     const result = answer.data as LessonModel;
-    // await userStore.fetchStudentsByCourseId(result.course);
     return result;
   }
 

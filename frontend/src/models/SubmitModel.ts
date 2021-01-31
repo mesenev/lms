@@ -1,9 +1,7 @@
-import UserModel from '@/models/UserModel';
-
 export default interface SubmitModel {
   id: number;
   problem: number;
-  student: UserModel;
+  student: number;
   content?: string;
   status?: string;
 }

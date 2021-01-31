@@ -12,17 +12,26 @@ class UserModule extends VuexModule {
     id: -1, username: '', first_name: '', last_name: '', staff_for: [],
   }
 
-  fetchedStudents: Dictionary<Array<UserModel>> = {};
+  // storage for all fetched users associated with courseId
+  fetchedStudents: Dictionary<Dictionary<UserModel>> = {};
+
+  @Mutation fetchStudentsMutation(data: Dictionary<Dictionary<UserModel>>) {
+    this.fetchedStudents = data;
+  }
 
   @Mutation receiveUser(user: object) {
     this.user = user as UserModel;
   }
 
   @Action
-  async fetchStudentsByCourseId(courseId: number): Promise<Array<UserModel>> {
+  async fetchStudentsByCourseId(courseId: number): Promise<Dictionary<UserModel>> {
     const course: CourseModel = await courseModule.fetchCourseById(courseId);
-    const answer = course.students as UserModel[];
-    this.fetchedStudents = { ...this.fetchedStudents, courseId: answer }
+    const answer = (course.students as UserModel[]).reduce<Dictionary<UserModel>>(
+      (previousValue, currentValue) => {
+        previousValue[currentValue.id] = currentValue;
+        return previousValue;
+      }, {});
+    this.fetchStudentsMutation({ ...this.fetchedStudents, [courseId]: answer });
     return answer;
   }
 
