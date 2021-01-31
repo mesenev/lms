@@ -3,6 +3,13 @@
 <link rel="stylesheet" href="https://unpkg.com/carbon-components/css/carbon-components.min.css">
 <body>
 <div class = "content">
+    {% if error %}
+    <div class="alert">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+        {{ error_message }}
+    </div>
+    {% endif %}
+
     <h1>Login page</h1>
     <br>
     <form action="." method="post">
@@ -25,6 +32,27 @@
         bottom: 0;
         left: 0;
         margin: auto;
+    }
+    .alert {
+        padding: 20px;
+        background-color: #f44336;
+        color: white;
+        margin-bottom: 15px;
+    }
+
+    .closebtn {
+        margin-left: 15px;
+        color: white;
+        font-weight: bold;
+        float: right;
+        font-size: 22px;
+        line-height: 20px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .closebtn:hover {
+        color: black;
     }
 </style>
 </html>

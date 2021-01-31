@@ -43,9 +43,10 @@ def user_login(request):
                     login(request, user)
                     return redirect('index')
                 else:
-                    return HttpResponse('Disabled account')
+                   return render(request, 'login.html',  dict(error=True, form = form, error_message='Disabled account!'))
+                   #TODO: freaking strange behaviour of this render
             else:
-                return HttpResponse('Invalid login')
+                return render(request, 'login.html',  dict(error=True, form = form, error_message='Invalid login!'))
     else:
         form = LoginForm()
     return render(request, 'login.html', {'form': form})
