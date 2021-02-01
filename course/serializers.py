@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from course.models import Course, CourseSchedule
+from course.models import Course, CourseSchedule, CourseLink
 from lesson.serializers import LessonSerializer
 from users.models import CourseAssignTeacher
 from users.serializers import DefaultUserSerializer
@@ -46,3 +46,23 @@ class ScheduleSerializer(serializers.Serializer):
     class Meta:
         model = CourseSchedule
         fields = '__all__'
+
+class LinkSerializer(serializers.Serializer):
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
+    link = serializers.CharField()
+    usages = serializers.IntegerField()
+
+    #TODO: get usages be positive nums only (1...)
+    #update and create funcs
+    #POST -> generate a link
+    #GET <- give a link
+
+    def update(self, instance, validated_data):
+            pass
+
+    def create(self, validated_data):
+        pass
+
+    class Meta:
+         model = CourseLink
+         fields = '__all__'

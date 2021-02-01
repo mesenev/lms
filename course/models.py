@@ -19,3 +19,8 @@ class CourseSchedule(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     start_date = models.DateField(null=True)
     week_schedule = models.CharField(max_length=500, null=True)
+
+class CourseLink(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    link = models.CharField(max_length=500, null=True)
+    usages = models.IntegerField(default=0)

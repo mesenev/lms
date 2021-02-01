@@ -3,8 +3,8 @@ from rest_framework.mixins import (
 )
 from rest_framework.viewsets import GenericViewSet
 
-from course.models import CourseSchedule, Course
-from course.serializers import CourseSerializer, ScheduleSerializer
+from course.models import CourseSchedule, Course, CourseLink
+from course.serializers import CourseSerializer, ScheduleSerializer, LinkSerializer
 
 
 class CourseViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
@@ -23,3 +23,7 @@ class CourseViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, Update
 class ScheduleViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
     serializer_class = ScheduleSerializer
     queryset = CourseSchedule.objects.all()
+
+class LinkViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
+    serializer_class = LinkSerializer
+    queryset = CourseLink.objects.all()
