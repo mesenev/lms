@@ -23,9 +23,8 @@ class Command(BaseCommand):
             user = User.objects.create_user(username=f'{count_of_exists_users + i}user')
             user.set_password('1234')
             user.save()
-            course_assign = CourseAssignStudent.objects.create(course=course, user=user,)
-            course_assign.save()
-
+            CourseAssignStudent.objects.create(course=course, user=user,)
+            #course_assign.save()
         self.stdout.write(self.style.SUCCESS(f'На курс {course.name} добавлено {count_of_users}'))
 
     help = 'Регистрация пользователей на курс'
