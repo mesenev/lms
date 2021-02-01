@@ -2,11 +2,25 @@ from rest_framework import serializers
 
 from course.models import Course, CourseSchedule, CourseLink
 from lesson.serializers import LessonSerializer
-from users.models import CourseAssignTeacher
+from users.models import CourseAssignTeacher, User
 from users.serializers import DefaultUserSerializer
 
 
-class CourseSerializer(serializers.ModelSerializer):
+class DynamicFieldsModelSerializer(serializers.ModelSerializer):
+    # ?fields=id,data
+    def __init__(self, *args, **kwargs):
+        super(DynamicFieldsModelSerializer, self).__init__(*args, **kwargs)
+
+        fields = self.context['request'].query_params.get('fields')
+        if fields:
+            fields = fields.split(',')
+            allowed = set(fields)
+            existing = set(self.fields.keys())
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
+
+
+class CourseSerializer(DynamicFieldsModelSerializer,serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
     author = DefaultUserSerializer(required=False, read_only=True)
     lessons = LessonSerializer(many=True, read_only=True)
@@ -33,7 +47,7 @@ class CourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ['id', 'name', 'description', 'author', 'lessons', 'students']
+        fields = ['id', 'name', 'description', 'author', 'lessons', 'students', 'staff']
 
 
 class ScheduleSerializer(serializers.Serializer):

@@ -35,7 +35,7 @@ class MaterialSerializer(serializers.Serializer):
 class LessonProgressSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
     lesson = serializers.PrimaryKeyRelatedField(queryset=Lesson.objects.all())
-    solved = serializers.CharField(max_length=1024)
+    solved = serializers.JSONField()
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     def create(self, validated_data):
