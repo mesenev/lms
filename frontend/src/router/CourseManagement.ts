@@ -5,6 +5,7 @@ import LessonEditView from "@/views/management/LessonEditView.vue";
 import MaterialEditView from "@/views/management/MaterialEditView.vue";
 import ProblemEditView from '@/views/management/ProblemEditView.vue';
 import SolutionsListView from '@/views/management/SolutionsListView.vue';
+import LessonProgressView from '@/views/management/LessonProgressView.vue'
 
 import { RouteConfig } from 'vue-router';
 
@@ -25,6 +26,15 @@ const routes: Array<RouteConfig> = [
     props: (route) => {
       const courseId = Number.parseInt(route.params.courseId as string, 10);
       return { courseId };
+    },
+  },
+  {
+    path: '/course/:courseId/lesson/:lessonId/progress',
+    name: 'lesson-progress',
+    component: LessonProgressView,
+    props: (route) => {
+      const lessonId = Number.parseInt(route.params.lessonId as string, 10);
+      return { lessonId };
     },
   },
   {

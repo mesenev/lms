@@ -5,6 +5,7 @@ import store from '@/store';
 import courseModule from '@/store/modules/course';
 import { Dictionary } from 'vue-router/types/router';
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators'
+import axios from 'axios';
 
 @Module({ namespaced: true, name: 'user', store, dynamic: true })
 class UserModule extends VuexModule {
@@ -36,8 +37,14 @@ class UserModule extends VuexModule {
   }
 
   @Action
-  async fetchStudentsProgressByCourseId(courseId: number): Promise<Array<UserProgress>> {
-    throw Error();
+  async fetchStudentsProgressByLessonId(lessonId: number): Promise<Array<UserProgress>> {
+    let data = { data: {}}
+    await axios.get('http://localhost:8000/api/lessonprogress/').
+      then( response => data = response)
+      .catch(error => {
+        console.log(error);
+      })
+    return data.data as Array<UserProgress>;
   }
 }
 

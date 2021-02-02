@@ -5,7 +5,8 @@
     </cv-button>
     <cv-modal
       :visible="modalVisible"
-      class="add_cats_modal" size="xs"
+      size="small"
+      class="add_cats_modal"
       @modal-hidden="modalHidden">
       <template slot="title">
         Смена пароля
@@ -17,24 +18,39 @@
           :sub-title="notificationText"
           @close="() => showNotification=false"
         />
-        <div class="bx--col-lg-12, content">
-          <cv-text-input class="old-pass" label="Введите старый пароль:" v-model.trim="old_pass" password-hide-label="*">
-            <template v-if="checkOldPassword" slot="invalid-message">
-              Введён неверный пароль<p></p></template>
+        <div>
+          <cv-text-input class="old-pass"
+                         type="password"
+                         label="Введите старый пароль:"
+                         v-model.trim="old_pass"
+          >
           </cv-text-input>
-          <br>
-          <cv-text-input class="new-pass" label="Введите новый пароль:" v-model.trim="new_pass" :password-visible="passw">
-            <template v-if="checkNewPassword" slot="invalid-message">
-              Длина пароля должна быть от 8 до 25<p></p></template>
+          <cv-text-input class="new-pass"
+                         type="password"
+                         label="Введите новый пароль:"
+                         v-model.trim="new_pass">
+            <template v-if="!checkNewPassword"
+                      slot="invalid-message">
+              Длина пароля должна быть от 8 до 25
+            </template>
           </cv-text-input>
-          <br>
-          <cv-text-input class="new-pass-repeat" label="Введите новый пароль ещё раз:" v-model.trim="new_pass_repeat">
-            <template v-if="checkRepeatPassword" slot="invalid-message">
+          <cv-text-input class="new-pass-repeat"
+                         type="password"
+                         label="Введите новый пароль ещё раз:"
+                         v-model.trim="new_pass_repeat">
+            <template v-if="!checkRepeatPassword"
+                      slot="invalid-message"
+            >
               Пароли должны совпадать
             </template>
           </cv-text-input>
           <br>
-          <cv-button class="btn" @click="Finished"> Изменить</cv-button>
+          <cv-button class="btn"
+                     :disabled="!correctPassword"
+                     @click="Finished"
+          >
+            Изменить
+          </cv-button>
         </div>
       </template>
     </cv-modal>
@@ -46,7 +62,6 @@
 
 import {Component, Vue} from 'vue-property-decorator';
 import axios from "axios";
-import user from "@/store/modules/user";
 
 
 @Component({components: {}})
@@ -66,27 +81,24 @@ export default class ChangePasswordModal extends Vue {
     return false;
   }
 
-  get checkNewPassword() {
-    if (this.new_pass) {
-      return this.new_pass.length < 8 || this.new_pass.length > 20;
-    }
-    return false;
+  get checkNewPassword(): boolean {
+    if (this.new_pass.length === 0) return true;
+    return this.new_pass.length >= 8 && this.new_pass.length <= 20;
   }
 
   get checkRepeatPassword(): boolean {
-    if (this.new_pass_repeat) {
-      return this.new_pass !== this.new_pass_repeat;
-    }
-    return false;
+    if (this.new_pass_repeat.length === 0) return true;
+    return this.new_pass === this.new_pass_repeat;
   }
 
   async Finished() {
-    const data =  {old_password: this.old_pass, new_password: this.new_pass};
+    const data =  { old_password: this.old_pass, new_password: this.new_pass };
     const request = axios.post('http://localhost:8000/api/change-password/', data);
     request.then(response => {
       this.notificationKind = 'success';
       this.notificationText = "Пароль успешно сменён!";
       this.showNotification = true;
+      setTimeout(this.modalHidden, 2000);
     }).catch(error => {
       this.notificationKind = 'error';
       this.notificationText = `Что-то пошло не так: ${error.message}`;
@@ -95,6 +107,12 @@ export default class ChangePasswordModal extends Vue {
 
   }
 
+  get correctPassword() {
+    return (
+      !!this.new_pass_repeat && !!this.new_pass && !!this.old_pass
+      && this.checkNewPassword && this.checkRepeatPassword
+    );
+  }
 
   showModal() {
     this.modalVisible = true;
@@ -102,31 +120,22 @@ export default class ChangePasswordModal extends Vue {
 
   modalHidden() {
     this.modalVisible = false;
+    this.notificationText = '';
+    this.showNotification = false;
+    this.notificationKind = 'success';
+    this.old_pass = this.new_pass = this.new_pass_repeat = '';
   }
 }
 </script>
 
 <style scoped lang="stylus">
-.btns {
-  float left;
-  padding: 10px 24px;
-  cursor: pointer;
-  clear: both;
-  display flex;
-  flex-direction column;
-}
+  .add_cats_modal /deep/ .bx--modal-container
+    height 50%
 
-.content {
-  padding-left: 6px;
-}
+  .new-pass, .new-pass-repeat
+    & /deep/ .bx--text-input__field-wrapper .bx--text-input__invalid-icon
+      transform: translateY(-50%) translateX(-20px)
 
-.input {
-  width 650px;
-  padding-right 20px;
-}
-
-.btn {
-  margin-left: 130px;
-}
-
+  .add_cats_modal /deep/ .cv-text-input.bx--form-item:not(:first-child)
+    margin-top 1rem
 </style>
