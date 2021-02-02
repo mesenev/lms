@@ -4,6 +4,8 @@ from course.models import Course, CourseSchedule, CourseLink
 from lesson.serializers import LessonSerializer
 from users.models import CourseAssignTeacher
 from users.serializers import DefaultUserSerializer
+import string
+import random
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -49,7 +51,7 @@ class ScheduleSerializer(serializers.Serializer):
 
 class LinkSerializer(serializers.Serializer):
     course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
-    link = serializers.CharField()
+    link = serializers.CharField(required=False)
     usages = serializers.IntegerField()
 
     #TODO: get usages be positive nums only (1...)
@@ -58,10 +60,10 @@ class LinkSerializer(serializers.Serializer):
     #GET <- give a link
 
     def update(self, instance, validated_data):
-            pass
+        pass
 
     def create(self, validated_data):
-        pass
+        return CourseLink.objects.create(**validated_data, link=''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(15)))
 
     class Meta:
          model = CourseLink

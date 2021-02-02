@@ -66,6 +66,8 @@
   </div>
 </template>
 
+<!-- TODO: get counts from num-input -->
+
 <script lang="ts">
 import searchByLessons from '@/common/searchByLessons';
 import LessonCard from '@/components/EditCourse/LessonCard.vue';

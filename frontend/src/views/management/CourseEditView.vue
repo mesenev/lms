@@ -45,12 +45,13 @@
           <cv-number-input
             :light="true"
             :label="'Выберите количество учеников курса'"
-            :value="usagesAmount"
             :min="1"
             :step="1">
           </cv-number-input>
           <br>
-          <GenerateLinks>
+          <GenerateLinks
+          :counter="5"
+          :course="courseEdit">
             Сгенерировать ссылку-приглашение
           </GenerateLinks>
           <br>
