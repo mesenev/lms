@@ -64,14 +64,13 @@ class ScheduleSerializer(serializers.Serializer):
         fields = '__all__'
 
 class LinkSerializer(serializers.Serializer):
+    id = serializers.ReadOnlyField()
     course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
-    link = serializers.CharField(required=False)
+    link = serializers.SerializerMethodField(required=False)
     usages = serializers.IntegerField()
 
-    #TODO: get usages be positive nums only (1...)
-    #update and create funcs
-    #POST -> generate a link
-    #GET <- give a link
+    def get_link(self, instance):
+        return f'http://localhost:8000/course-registration/{instance.link}'
 
     def update(self, instance, validated_data):
         pass

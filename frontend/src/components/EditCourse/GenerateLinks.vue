@@ -3,10 +3,18 @@
   <cv-button size="field" kind="secondary" @click="createNewLink">
     Сгенерировать ссылку-приглашения
   </cv-button>
-  <cv-text-input v-if="tmp > 0" :value="'11'" helper-text="Ваша ссылка:">
-  </cv-text-input>
-  <cv-text-input v-else :value="'Press the button'" helper-text="Ваша ссылка появится после нажатия" disabled="true">
-  </cv-text-input>
+  <cv-structured-list :condensed="false">
+    <template slot="headings">
+      <cv-structured-list-heading>Links</cv-structured-list-heading>
+      <cv-structured-list-heading>Amount of usages</cv-structured-list-heading>
+      <template slot="items">
+        <cv-structured-list-item checked v-for="k in Links" :key="k.course">
+          <cv-structured-list-data>{{ k.link }}</cv-structured-list-data>
+          <cv-structured-list-data>{{ k.usages }}</cv-structured-list-data>
+        </cv-structured-list-item>
+      </template>
+    </template>
+  </cv-structured-list>
 </div>
 </template>
 
@@ -22,17 +30,18 @@ export default class CourseView extends Vue {
   @Prop({ required: true }) counter!: number;
   @Prop({ required: true }) course!: CourseModel;
 
+  Links: Array<LinkModel> = []
+
   async createNewLink() {
     const request = axios.post('http://localhost:8000/api/courselink/', {course: this.course.id, usages: this.counter});
     await axios.get('http://localhost:8000/api/courselink/')
       .then(response => {
-        console.log(response.data)
+        this.Links = response.data.filter((x: LinkModel) => x.course == this.course.id)
       })
       .catch(error => {
         console.log(error);
       })
   }
-
 
 }
 </script>

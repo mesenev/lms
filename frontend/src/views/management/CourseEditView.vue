@@ -46,11 +46,12 @@
             :light="true"
             :label="'Выберите количество учеников курса'"
             :min="1"
-            :step="1">
+            :step="1"
+          v-model="counter">
           </cv-number-input>
           <br>
           <GenerateLinks
-          :counter="5"
+          :counter="counter"
           :course="courseEdit">
             Сгенерировать ссылку-приглашение
           </GenerateLinks>
@@ -89,6 +90,7 @@ export default class CourseEditView extends Vue {
   showNotification = false;
   notificationKind = 'success';
   notificationText = '';
+  counter = 1;
 
   hideSuccess() {
     this.showNotification = false;
