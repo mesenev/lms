@@ -25,6 +25,15 @@
         Успеваемость
       </cv-header-menu-item>
     </cv-header-nav>
+    <cv-header-nav v-if="lessonSelected">
+      <cv-header-menu-item
+        :to="{
+          name: 'lesson-progress',
+          params: { lessonId: this.$route.params.lessonId }
+        }">
+        Успеваемость урока
+      </cv-header-menu-item>
+    </cv-header-nav>
     <cv-header-nav v-if="courseSelected">
       <cv-header-menu-item
         :to="{
