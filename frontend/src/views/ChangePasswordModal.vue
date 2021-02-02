@@ -18,31 +18,29 @@
           :sub-title="notificationText"
           @close="() => showNotification=false"
         />
-        <div class="bx--col-lg-12, content">
+        <div>
           <cv-text-input class="old-pass"
                          type="password"
                          label="Введите старый пароль:"
                          v-model.trim="old_pass"
           >
-            <template v-if="checkOldPassword" slot="invalid-message">
-              Введён неверный пароль
-            </template>
           </cv-text-input>
-          <br>
           <cv-text-input class="new-pass"
                          type="password"
                          label="Введите новый пароль:"
                          v-model.trim="new_pass">
-            <template id="invalid-message" v-if="!checkNewPassword" slot="invalid-message">
+            <template v-if="!checkNewPassword"
+                      slot="invalid-message">
               Длина пароля должна быть от 8 до 25
             </template>
           </cv-text-input>
-          <br>
           <cv-text-input class="new-pass-repeat"
                          type="password"
                          label="Введите новый пароль ещё раз:"
                          v-model.trim="new_pass_repeat">
-            <template v-if="!checkRepeatPassword" slot="invalid-message">
+            <template v-if="!checkRepeatPassword"
+                      slot="invalid-message"
+            >
               Пароли должны совпадать
             </template>
           </cv-text-input>
@@ -131,25 +129,13 @@ export default class ChangePasswordModal extends Vue {
 </script>
 
 <style scoped lang="stylus">
-.btns {
-  float left;
-  padding: 10px 24px;
-  cursor: pointer;
-  clear: both;
-  display flex;
-  flex-direction column;
-}
-
-.content {
-  padding-left: 6px;
-}
-
-.input {
-  width 650px;
-  padding-right 20px;
-}
+  .add_cats_modal /deep/ .bx--modal-container
+    height 50%
 
   .new-pass, .new-pass-repeat
     & /deep/ .bx--text-input__field-wrapper .bx--text-input__invalid-icon
-      transform: translateY(-50%) translateX(-20px);
+      transform: translateY(-50%) translateX(-20px)
+
+  .add_cats_modal /deep/ .cv-text-input.bx--form-item:not(:first-child)
+    margin-top 1rem
 </style>
