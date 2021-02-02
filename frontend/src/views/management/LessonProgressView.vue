@@ -1,7 +1,7 @@
 <template>
   <div class="bx--grid">
     <!-- TODO ссылка на задачу -->
-    <cv-data-table title="Успеваемость курса" v-if="!loading">
+    <cv-data-table title="Успеваемость урока" v-if="!loading" @sort="Sort">
       <template slot="helper-text">
         <router-link :to="{ name: 'LessonView', params: { lessonId: lesson.id } }"
                      tag="p" class="course--title">
@@ -9,10 +9,13 @@
         </router-link>
       </template>
       <template slot="actions">
-        <cv-button @click="actionNew">Показать лентяев</cv-button>
+        <cv-checkbox
+          label="Не решали"
+          value="value"
+          v-model="dontSolved"/>
       </template>
       <template slot="headings">
-        <cv-data-table-heading v-for="(column, id) in columns" :key="id">
+        <cv-data-table-heading v-for="(column, id) in columns" :key="id" :sortable="sortable">
           {{ column }}
         </cv-data-table-heading>
       </template>
@@ -26,16 +29,14 @@
                               v-for="lessonId in les.problems"
                               :key="lessonId.id">
             <!-- TODO цвет в зависимости от оценки по-человечески -->
-            <cv-tag v-if="userMarks(user, lessonId.id )"
-                    :label="`${userMarks(user, lessonId.id)}`"
-                    :kind="kind(user, lessonId.id )">
-            </cv-tag>
+            <SubmitStatus v-if="userMarks(user, lessonId.id)"
+                    :submit="create_submit(lessonId.id,user.user,user.solved[lessonId.id])"/>
           </cv-data-table-cell>
           <cv-data-table-cell>
             {{ average(user) }}
           </cv-data-table-cell>
         </cv-data-table-row>
-      </template>
+      </template>>
     </cv-data-table>
     <cv-data-table-skeleton v-else :columns="2" :rows="6"/>
   </div>
@@ -47,22 +48,29 @@ import LessonModel from '@/models/LessonModel';
 import UserProgress from '@/models/UserProgress';
 import lessonStore from "@/store/modules/lesson";
 import userStore from '@/store/modules/user';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 import UserModel from "@/models/UserModel";
 import {Dictionary} from "vue-router/types/router";
 import UserComponent from "@/components/UserComponent.vue";
-import User from "@/store/modules/user";
+import SubmitModel from "@/models/SubmitModel";
+import SubmitStatus from "@/components/SubmitStatus.vue";
 
-@Component({ components: {User, UserComponent} })
+@Component({ components: {SubmitStatus, UserComponent} })
 export default class LessonProgressView extends Vue {
   @Prop() lessonId!: number;
 
-  students: Array<UserProgress> | null = [];
+  students: Array<UserProgress> = [];
   users1: Dictionary<UserModel> = {};
   userStore = userStore;
   lessonStore = lessonStore;
 
+  create_submit(problemId: number, userid: number,status: string): SubmitModel{
+    return { id:1, problem: problemId, student: userid, status: status};
+  }
+
+  loading = true;
   sortable = true;
+  dontSolved = false;
 
   lesson: LessonModel = {
     id: NaN,
@@ -75,13 +83,13 @@ export default class LessonProgressView extends Vue {
     lessonContent: '',
     progress: [],
   };
-  loading = true;
 
   async created() {
     this.lesson = await this.lessonStore.fetchLessonById(this.lessonId);
     this.students = this.lesson.progress;
     this.users1 = await this.userStore.fetchStudentsByCourseId(this.lesson.course);
     this.loading = false;
+
   }
 
   student(id: number) {
@@ -90,21 +98,11 @@ export default class LessonProgressView extends Vue {
       return a;
     }
   }
-  kind(user: UserProgress, lessonId: number) {
-    enum colors {
-      O = 'grey',
-      OK = 'green',
-      WA = 'red',
-      TL = 'magenta',
-      ML = 'cyan'
-    }
-    const mark = user.solved[lessonId];
-    return colors[mark];
-    //return colors[mark % colors.length];
-  }
 
   get users() {
-    console.log(this.students)
+    if (this.dontSolved) {
+      return this.students.filter(x => Object.keys(x.solved).length === 0)
+    }
     return this.students;
   }
 
@@ -113,34 +111,42 @@ export default class LessonProgressView extends Vue {
   }
 
   get columns() {
-    //return
     return ['Ученики'].concat(this.les.problems.map((l) => l.name)).concat('Рейтинг');
   }
 
-  actionNew() {
-    console.log(Object.keys(this.students[2].solved).length)
-    this.students = this.students.filter(x => Object.keys(x.solved).length === 0)
-    console.log(this.students)
-  }
   userMarks(userId: UserProgress, lessonId: number) {
     return userId.solved[lessonId]
-    //return [];
   }
 
-  userAttendance(userId: number, lessonId: number) {
+  /*userAttendance(userId: number, lessonId: number) {
     // return this.users[userId].attendance[lessonId];
     return [];
   }
 
   changeAttendance(userId: number, lessonId: number) {
     //
-  }
+  }*/
 
   average(user: UserProgress): string {
     //const sum = (marks: number[]) => marks.reduce((total, value) => total + value);
     //const { solved } = user;
     //return sum(solved) / solved.length;
     return  (Object.keys(user.solved).length/this.les.problems.length)*100+"%";
+  }
+
+  Sort(sortBy: { index: string ; order: string}) {
+    console.log(sortBy)
+    if (sortBy.order == "ascending") {
+          return this.students.sort((a, b) => {
+      return Number(b.user) - Number(a.user);
+    })
+    }
+    if(sortBy.order == "descending") {
+          return this.students.sort((a, b) => {
+      return Number(a.user) - Number(b.user);
+    })
+    }
+    return this.students
   }
 }
 </script>

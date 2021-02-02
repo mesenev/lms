@@ -54,6 +54,7 @@ class LessonModule extends VuexModule {
       problems: [],
       materials: [],
       deadline: '2000-01-01',
+      progress: [],
     } as LessonModel;
   }
 

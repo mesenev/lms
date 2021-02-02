@@ -11,5 +11,5 @@ export default interface LessonModel {
     problems: Array<ProblemModel>;
     materials: Array<LessonContent>;
     lessonContent?: string;
-    progress?: Array<UserProgress>;
+    progress: Array<UserProgress>;
 }
