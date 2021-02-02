@@ -1,55 +1,23 @@
 <template>
   <cv-grid class="problem-view">
     <cv-row>
-      <h1>{{ problem.name }}</h1>
-    </cv-row>
-    <cv-row>
-      <cv-inline-notification
-        v-if="showNotification"
-        @close="hideSuccess"
-        :kind="notificationKind"
-        :sub-title="notificationText"
-      />
+      <h1 v-if="problem.name">{{ problem.name }}</h1>
+      <cv-skeleton-text v-else/>
     </cv-row>
     <cv-row>
       <cv-column :lg="8">
         <div class="item">
-          <ProblemDescription v-if="!isNaN(problem.id)" :problem="problem"/>
+          <problem-description v-if="!isNaN(problem.id)" :problem="problem"/>
           <cv-skeleton-text v-else/>
         </div>
       </cv-column>
     </cv-row>
     <cv-row>
       <cv-column :lg="8">
-        <div class="item">
-          <h5>Решение</h5>
-          <cv-text-area
-            v-model="submitEdit.content"
-            :class="{ 'text-area-teacher': isStaff, 'text-area-student': !isStaff }"
-            :disabled="isCompleted || isStaff"
-            light>
-          </cv-text-area>
-          <cv-dropdown
-            v-if="!isStaff && problem.language"
-            :items="problem.language"
-            placeholder="Выберите язык программирования">
-          </cv-dropdown>
-          <cv-button
-            v-if="!isStaff"
-            :disabled="!canSubmit"
-            class="submit-btn"
-            v-on:click="confirmSubmit">
-            Submit!
-          </cv-button>
-          <div v-if="isStaff" class="handlers">
-            <cv-button :disabled="isNewSubmit" class="submit-btn rejected" v-on:click="rejectSubmit">
-              Rejected
-            </cv-button>
-            <cv-button :disabled="isNewSubmit" class="submit-btn accepted" v-on:click="acceptSubmit">
-              Accepted
-            </cv-button>
-          </div>
-        </div>
+        <submit-component
+          :is-staff="isStaff" :language-list="problem.language"
+          :problemId="problemId"
+          :submitId="submitId"/>
       </cv-column>
       <cv-column :lg="3" class="submit">
         <div class="item">
@@ -119,50 +87,37 @@
 
 <script lang="ts">
 import ProblemDescription from "@/components/ProblemDescription.vue";
+import SubmitComponent from '@/components/SubmitComponent.vue';
 import ProblemModel from '@/models/ProblemModel';
 import SubmitModel from '@/models/SubmitModel';
 import UserModel from '@/models/UserModel';
 import problemStore from '@/store/modules/problem';
 import submitStore from '@/store/modules/submit';
 import userStore from '@/store/modules/user';
-import axios, { AxiosError, AxiosResponse } from 'axios';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Dictionary } from 'vue-router/types/router';
 
-// ToDo write all submit`s status associations
 const statusAssociations: { [index: string]: string } = {
-  'WA': 'red',
-  'OK': 'green',
-  'NP': 'gray',
+  'WA': 'red', 'OK': 'green', 'NP': 'gray',
 };
 
 
-@Component({ components: { ProblemDescription } })
+@Component({ components: { SubmitComponent, ProblemDescription } })
 export default class ProblemView extends Vue {
-  @Prop() problemId!: number;
+  @Prop({ required: true }) problemId!: number;
+  @Prop() submitId!: number | null;
 
   private problemStore = problemStore;
   private userStore = userStore;
   private submitStore = submitStore;
   private user = this.userStore.user;
-  private readonly defaultSubmitStatus = 'NP';
   private readonly courseId = Number(this.$route.params.courseId);
-  private defaultSubmit: SubmitModel = {
-    id: NaN,
-    problem: this.problemId,
-    student: userStore.user.id,
-    content: '',
-    status: '',
-  }
-  showNotification = false;
-  notificationKind = 'success';
-  notificationText = '';
-  private students_: UserModel[] = [];
-  private submit: SubmitModel = this.defaultSubmit;
-  submitEdit: SubmitModel = { ...this.submit };
+
+  private students_: Dictionary<UserModel> = {};
 
   get students() {
-    return this.students_
+    return Object.keys(this.students_).map(x => this.students_[x])
   }
 
   get problem(): ProblemModel {
@@ -171,13 +126,11 @@ export default class ProblemView extends Vue {
 
   async created() {
     const problem = await this.problemStore.fetchProblemById(this.problemId);
-    if (problem) {
+    if (problem)
       this.problemStore.setCurrentProblem(problem);
-    }
 
     if (this.isStaff) {
-      await userStore.fetchStudentsByCourseId(this.courseId)
-        .then(students => this.students_ = students);
+      this.students_ = await this.userStore.fetchStudentsByCourseId(this.courseId)
 
       if (!_.isEmpty(this.students_)) {
         await this.submitStore.fetchSubmits({
@@ -187,30 +140,30 @@ export default class ProblemView extends Vue {
       }
     } else {
       await this.submitStore.fetchSubmits({
-        problemId: this.problemId,
-        userId: this.user.id,
+        problemId: this.problemId, userId: this.user.id,
       });
     }
 
-    if (!_.isEmpty(this.submits)) {
+    if (!_.isEmpty(this.submits))
       this.changeCurrentSubmit(this.getLastSubmit().id);
-    }
+  }
+
+  changeCurrentSubmit(id: number) {
+    this.submitId = id;
   }
 
   get isStaff(): boolean {
     return this.user.staff_for.includes(Number(this.courseId));
   }
 
-  async changeStudent(id: string | number) {
-    await this.submitStore.fetchSubmits({
-      problemId: this.problemId,
-      userId: Number(id),
-    });
-    this.submit = { ...this.defaultSubmit };
-    this.submitEdit = { ...this.submit };
-    if (!_.isEmpty(this.submits)) {
+  async changeStudent(id: number) {
+    this.submitId = NaN;
+    await this.submitStore.fetchSubmits(
+      { problemId: this.problemId, userId: Number(id) },
+    );
+    this.submitId = id;
+    if (!_.isEmpty(this.submits))
       this.changeCurrentSubmit(this.getLastSubmit().id);
-    }
   }
 
   get submits(): SubmitModel[] {
@@ -221,102 +174,18 @@ export default class ProblemView extends Vue {
     return this.submits[this.submits.length - 1];
   }
 
-  patchSubmit(status: string) {
-    if (this.isNewSubmit) {
-      console.error('Submit does not exists!');
-      return;
-    }
-
-    this.submitEdit = { ...this.submitEdit, status };
-
-    axios.patch(`http://localhost:8000/api/submit/${this.submitEdit.id}/`, this.submitEdit)
-      .then((response: AxiosResponse) => {
-        this.submitStore.changeSubmitStatus(response.data);
-        this.submit = { ...response.data };
-        this.submitEdit = { ...this.submit };
-        if (response.data.status === 'OK') {
-          this.problemStore.fetchProblemById(this.problemId);
-          this.problem.completed = true;
-        }
-        this.notificationKind = 'success';
-        this.notificationText = `Работа оценена: ${status}`;
-      })
-      .catch((error: AxiosError) => {
-        this.notificationKind = 'error';
-        this.notificationText = `Что-то пошло не так ${error.message}`
-      })
-      .finally(() => this.showNotification = true);
-  }
-
-  acceptSubmit() {
-    this.patchSubmit('OK');
-  }
-
-  rejectSubmit() {
-    this.patchSubmit('WA');
-  }
-
-  confirmSubmit() {
-    if (this.isNewSubmit) {
-      delete this.submitEdit.id;
-    }
-    this.submitEdit = { ...this.submitEdit, status: this.defaultSubmitStatus };
-    axios.post('http://localhost:8000/api/submit/', this.submitEdit)
-      .then((response: AxiosResponse<SubmitModel>) => {
-        this.submitStore.addSubmitToArray(response.data);
-        this.submit = { ...response.data };
-        this.submitEdit = { ...this.submit };
-        this.notificationKind = 'success';
-        this.notificationText = 'Попытка отправлена';
-      })
-      .catch((error: AxiosError) => {
-        this.notificationKind = 'error';
-        this.notificationText = `Что-то пошло не так ${error.message}`;
-      })
-      .finally(() => this.showNotification = true);
-  }
-
-  changeCurrentSubmit(id: string | number) {
-    const _id = Number(id);
-    this.submit = this.submits.find((submit) => {
-      return submit.id === _id;
-    }) || this.submit;
-    this.submit = { ...this.submit };
-    this.submitEdit = { ...this.submit };
-  }
-
-  get isNewSubmit(): boolean {
-    return isNaN(this.submitEdit.id);
-  }
-
-  get isChanged(): boolean {
-    return !_.isEqual(this.submit, this.submitEdit);
-  }
-
   get isCompleted(): boolean {
     return !!this.submits.find((submit: SubmitModel) => (
       submit.status === 'OK'
     ));
   }
 
-  get canSubmit(): boolean {
-    return (
-      !this.isCompleted &&
-      this.submitEdit.content?.length !== 0 &&
-      this.isChanged
-    );
-  }
-
   statusColor(status: string): string {
     return statusAssociations[status] || 'gray';
   }
 
-  hideSuccess() {
-    this.showNotification = false;
-  }
 }
 </script>
-<!--    TODO: solve a problem w/ getting single problem from array -->
 
 <style lang="stylus" scoped>
 .item

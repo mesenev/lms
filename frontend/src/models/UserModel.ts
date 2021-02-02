@@ -4,6 +4,7 @@ export default interface UserModel {
   first_name: string;
   last_name: string;
   staff_for: Array<number>;
+  avatar_url: string;
 }
 
 export interface AuthorModel extends UserModel {

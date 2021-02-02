@@ -26,12 +26,17 @@ export default class UserComponent extends Vue {
       return `${this.user.first_name} ${this.user.last_name}`;
     return this.user.username;
   }
+
+  get pic_url() {
+    if (!this.user.avatar_url)
+      return this.src;
+    return this.user.avatar_url;
+  }
 }
 </script>
 
 <style scoped lang="stylus">
-.name {
-  padding-left: 10px;
-}
+.name
+  padding-left 10px
 
 </style>

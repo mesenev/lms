@@ -3,5 +3,5 @@ export default interface SubmitModel {
   problem: number;
   student: number;
   content?: string;
-  status?: string;
+  status: string;
 }
