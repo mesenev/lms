@@ -150,7 +150,7 @@ export default class ProblemView extends Vue {
   private defaultSubmit: SubmitModel = {
     id: NaN,
     problem: this.problemId,
-    student: { ...userStore.user },
+    student: userStore.user.id,
     content: '',
     status: '',
   }
