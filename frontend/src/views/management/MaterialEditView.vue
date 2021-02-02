@@ -19,7 +19,7 @@
         <cv-text-area style="height: auto;" v-model="materialEdit.content"></cv-text-area>
       </div>
       <div class="less bx--col-lg-8">
-        <div v-html="getMarkdownText"></div>
+        <markdown-it-vue class="md-body" :content="materialEdit.content"/>
       </div>
       <cv-button class="change__btn" :disabled="canChangeMaterial" @click="ChangeMaterial">
         Изменить
@@ -32,13 +32,14 @@
 <script lang="ts">
 import Material from '@/components/lists/MaterialListComponent.vue';
 import LessonContent from "@/models/LessonContent";
+import MarkdownItVue from 'markdown-it-vue'
+import 'markdown-it-vue/dist/markdown-it-vue.css'
 import materialStore from "@/store/modules/material";
 import axios from "axios";
 import _ from 'lodash';
-import marked from 'marked';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: { Material } })
+@Component({ components: { Material ,MarkdownItVue } })
 export default class MaterialEditView extends Vue {
   @Prop() materialId!: number;
   private materialStore = materialStore;
@@ -84,12 +85,11 @@ export default class MaterialEditView extends Vue {
   }
 
   ChangeMaterial() {
-    console.log(this.materials);
-    console.log(this.materialEdit);
-    const request = axios.patch('http://localhost:8000/api/lesson/${this.materialEdit.id}/', this.materialEdit);
+    const request = axios.patch(`http://localhost:8000/api/material/${this.materialEdit.id}/`, this.materialEdit);
     request.then(() => {
       this.notificationKind = 'success';
       this.notificationText = 'Материалы успешно изменены';
+      console.log(this.materialEdit);
     });
     request.catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;

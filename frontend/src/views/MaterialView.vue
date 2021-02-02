@@ -10,7 +10,7 @@
 
       </div>
       <div class="less bx--col-lg-10">
-        <div v-html="markdownText"></div>
+        <MarkdownItVue class="md-body" :content="materials.content"/>
       </div>
     </div>
   </div>
@@ -20,15 +20,16 @@
 import Material from '@/components/lists/MaterialListComponent.vue';
 import LessonContent from "@/models/LessonContent";
 import materialStore from '@/store/modules/material';
-import marked from 'marked';
+import MarkdownItVue from 'markdown-it-vue'
+import 'markdown-it-vue/dist/markdown-it-vue.css'
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: { Material } })
+@Component({ components: { Material, MarkdownItVue } })
 export default class MaterialView extends Vue {
   @Prop() materialId!: number;
   private materialStore = materialStore;
   material!: LessonContent;
-
+  md = require('markdown-it');
   async created() {
     const material = await this.materialStore.fetchMaterialById(this.materialId);
     if (material) {
@@ -40,9 +41,6 @@ export default class MaterialView extends Vue {
     return this.materialStore.currentMaterial;
   }
 
-  get markdownText() {
-    return marked(this.materials.content, { sanitize: true })
-  }
 }
 </script>
 
