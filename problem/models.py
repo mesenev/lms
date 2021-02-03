@@ -41,10 +41,15 @@ class Problem(models.Model):
 
 
 class Submit(models.Model):
+    DEFAULT_STATUS = 'NP'
+    WRONG_ANSWER = 'WA'
+    AWAITING_MANUAL = 'AW'
+    OK = 'OK'
     SUBMIT_STATUS = [
-        ('WA', 'Wrong answer'),
-        ('OK', 'OK'),
-        ('NP', 'NP'),
+        (WRONG_ANSWER, 'Wrong answer'),
+        (OK, 'OK'),
+        (DEFAULT_STATUS, 'NP'),
+        (AWAITING_MANUAL, 'Awaiting manual verification'),
         ('RJ', 'Rejected'),
         ('CE', 'Compilation error'),
         ('LI', 'Linter error'),
@@ -56,7 +61,6 @@ class Submit(models.Model):
         ('WL', 'Write limit exceeded'),
         ('SV', 'Security violation'),
         ('IS', 'Ignored submit'),
-        ('AW', 'Awaiting manual verification'),
         ('MR', 'Rejected by manual verification'),
         ('BA', 'Banned'),
     ]

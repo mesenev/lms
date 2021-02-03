@@ -32,11 +32,6 @@
           <EditCourseModal
             :course="courseEdit"
             class="edit&#45;&#45;course-props"/>
-          <AddStudentModal
-            :course="courseEdit"
-            :course-id="courseId"
-            class="edit&#45;&#45;course-props"
-          />
         </div>
       </div>
       <div class="bx--col-lg-5">
@@ -45,20 +40,17 @@
           <cv-number-input
             :light="true"
             :label="'Выберите количество учеников курса'"
-            :value="usagesAmount"
             :min="1"
-            :step="1">
+            :step="1"
+          v-model="counter">
           </cv-number-input>
           <br>
-          <GenerateLinks>
+          <GenerateLinks
+          :counter="counter"
+          :courseId="courseId">
             Сгенерировать ссылку-приглашение
           </GenerateLinks>
           <br>
-        </div>
-        <div class="users">
-          <h3>Пользователи курса</h3>
-          <h5>Администраторы курса</h5>
-          <h5>Пользователи курса</h5>
         </div>
       </div>
       </div>
@@ -66,7 +58,6 @@
 </template>
 
 <script lang="ts">
-import AddStudentModal from "@/components/EditCourse/AddStudentModal.vue";
 import EditCourseLessons from '@/components/EditCourse/EditCourseLessons.vue';
 import EditCourseModal from '@/components/EditCourse/EditCourseModal.vue';
 import GenerateLinks from "@/components/EditCourse/GenerateLinks.vue";
@@ -78,7 +69,7 @@ import axios from 'axios';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: { AddStudentModal, EditCourseLessons, EditCourseModal, GenerateLinks } })
+@Component({ components: { EditCourseLessons, EditCourseModal, GenerateLinks } })
 export default class CourseEditView extends Vue {
   @Prop() courseId!: number | null;
   sendingInfo = false;
@@ -88,6 +79,7 @@ export default class CourseEditView extends Vue {
   showNotification = false;
   notificationKind = 'success';
   notificationText = '';
+  counter = 1;
 
   hideSuccess() {
     this.showNotification = false;

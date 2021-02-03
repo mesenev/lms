@@ -80,7 +80,6 @@ class ProblemModule extends VuexModule {
 
   @Action
   async patchProblem(problem: ProblemModel) {
-    debugger;
     return await axios.patch(`http://localhost:8000/api/problem/${problem.id}/`, problem);
   }
 }

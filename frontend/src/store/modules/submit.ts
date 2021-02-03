@@ -7,6 +7,10 @@ import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-dec
 class SubmitModule extends VuexModule {
   private _submits: SubmitModel[] = []
 
+  get defaultSubmit(): SubmitModel {
+    return { id: NaN, problem: NaN, student: NaN, content: '', status: '' };
+  }
+
   get submits(): SubmitModel[] {
     return this._submits;
   }
@@ -23,7 +27,8 @@ class SubmitModule extends VuexModule {
   }
 
   @Action
-  async fetchSubmits(payload: { problemId: number; userId: number }) {
+  async fetchSubmits(payload: { problemId: number; userId: number }): Promise<Array<SubmitModel>> {
+    let answer = {};
     await axios.get('http://localhost:8000/api/submit/', {
       params: {
         problem: payload.problemId,
@@ -32,10 +37,12 @@ class SubmitModule extends VuexModule {
     })
       .then(response => {
         this.setSubmits(response.data);
+        answer = response.data;
       })
       .catch(error => {
         console.error(error);
       })
+    return answer as Array<SubmitModel>;
   }
 
   @Mutation
@@ -49,14 +56,19 @@ class SubmitModule extends VuexModule {
   }
 
   @Action
-  async fetchSubmitById(id: number) {
+  async fetchSubmitById(id: number): Promise<SubmitModel> {
+    const answer = this.submits.find(x => x.id === id);
+    if (answer) { return answer; }
+    let data = {};
     await axios.get(`http://localhost:8000/api/submit/${id}/`)
       .then((response: AxiosResponse<SubmitModel>) => {
-        this.addSubmitToArray(response.data)
+        this.addSubmitToArray(response.data);
+        data = response.data
       })
       .catch(error => {
         console.error(error);
       })
+    return data as SubmitModel;
   }
 }
 

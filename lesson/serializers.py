@@ -17,7 +17,7 @@ class MaterialSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
-        instance.content = validated_data.get('description', instance.content)
+        instance.content = validated_data.get('content', instance.content)
         instance.author = validated_data.get('author', instance.author)
         instance.save()
         return instance

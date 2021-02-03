@@ -59,15 +59,15 @@ export default class CourseProgressView extends Vue {
   loading = true;
 
   async created() {
-    this.students = await this.userStore.fetchStudentsProgressByCourseId(this.courseId);
+    //this.students = await this.userStore.fetchStudentsProgressByCourseId(this.courseId);
     this.course = await this.courseStore.fetchCourseById(this.courseId);
     this.loading = false;
   }
 
   kind(user: UserProgress, lessonId: number) {
     const colors = ['red', 'magenta', 'cyan', 'green'];
-    const mark = user.marks[lessonId] - 2;
-    return colors[mark % colors.length];
+    //const mark = user.marks[lessonId] - 2;
+    //return colors[mark % colors.length];
   }
 
   get users() {
@@ -95,8 +95,9 @@ export default class CourseProgressView extends Vue {
 
   average(user: UserProgress): number {
     const sum = (marks: number[]) => marks.reduce((total, value) => total + value);
-    const { marks } = user;
-    return sum(marks) / marks.length;
+    //const { marks } = user;
+    //return sum(marks) / marks.length;
+    return 0
   }
 }
 </script>

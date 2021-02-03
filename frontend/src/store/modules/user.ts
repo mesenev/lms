@@ -3,14 +3,14 @@ import UserModel from '@/models/UserModel';
 import UserProgress from '@/models/UserProgress';
 import store from '@/store';
 import courseModule from '@/store/modules/course';
+import axios from 'axios';
 import { Dictionary } from 'vue-router/types/router';
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators'
-import axios from 'axios';
 
 @Module({ namespaced: true, name: 'user', store, dynamic: true })
 class UserModule extends VuexModule {
   public user: UserModel = {
-    id: -1, username: '', first_name: '', last_name: '', staff_for: [],
+    id: -1, username: '', first_name: '', last_name: '', staff_for: [], avatar_url: '',
   }
 
   // storage for all fetched users associated with courseId

@@ -4,6 +4,8 @@ from course.models import Course, CourseSchedule, CourseLink
 from lesson.serializers import LessonSerializer
 from users.models import CourseAssignTeacher, User
 from users.serializers import DefaultUserSerializer
+import string
+import random
 
 
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
@@ -62,20 +64,19 @@ class ScheduleSerializer(serializers.Serializer):
         fields = '__all__'
 
 class LinkSerializer(serializers.Serializer):
+    id = serializers.ReadOnlyField()
     course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
-    link = serializers.CharField()
+    link = serializers.SerializerMethodField(required=False)
     usages = serializers.IntegerField()
 
-    #TODO: get usages be positive nums only (1...)
-    #update and create funcs
-    #POST -> generate a link
-    #GET <- give a link
+    def get_link(self, instance):
+        return f'http://localhost:8000/course-registration/{instance.link}'
 
     def update(self, instance, validated_data):
-            pass
+        pass
 
     def create(self, validated_data):
-        pass
+        return CourseLink.objects.create(**validated_data, link=''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(15)))
 
     class Meta:
          model = CourseLink
