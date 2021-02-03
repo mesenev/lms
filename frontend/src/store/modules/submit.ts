@@ -8,7 +8,7 @@ class SubmitModule extends VuexModule {
   private _submits: SubmitModel[] = []
 
   get defaultSubmit(): SubmitModel {
-    return { id: NaN, problem: NaN, student: NaN, content: '', status: '' };
+    return { id: NaN, problem: NaN, student: NaN, content: '', status: 'NP' };
   }
 
   get submits(): SubmitModel[] {
