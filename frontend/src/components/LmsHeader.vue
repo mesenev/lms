@@ -82,7 +82,7 @@
 
     <template slot="header-global">
       <cv-header-global-action aria-label="Notifications"
-      aria-controls="notifications">
+                               aria-controls="notifications">
         <notification-20/>
       </cv-header-global-action>
       <cv-header-global-action aria-label="User avatar"
@@ -101,18 +101,17 @@
                 :to="{
                   name: 'profile-page',
                   params:  { courseId: this.$route.params.courseId }
-                }" >
+                }">
                 Профиль
               </cv-switcher-item-link>
             </cv-switcher-item>
-            <!-- About -->
             <cv-switcher-item>
               <cv-switcher-item-link to="/">
                 Мои курсы
               </cv-switcher-item-link>
-              <cv-switcher-item-link to="/">
-                Выйти
-              </cv-switcher-item-link>
+            </cv-switcher-item>
+            <cv-switcher-item>
+              <a class="cv-switcher-item-link bx--switcher__item-link" href="/logout/">Выйти</a>
             </cv-switcher-item>
           </template>
         </cv-switcher>
@@ -125,10 +124,11 @@
         <cv-switcher>
           <template>
             <cv-switcher-item>
-              <cv-switcher-item-link to="/" >
+              <cv-switcher-item-link to="/">
                 <cv-toast-notification
-                title="тестовое уведомление"
-                caption="текст оповещения"></cv-toast-notification>
+                  caption="текст оповещения"
+                  kind="info"
+                  title="тестовое уведомление"/>
               </cv-switcher-item-link>
             </cv-switcher-item>
           </template>
@@ -155,6 +155,7 @@ export default class LmsHeader extends Vue {
   get courseSelected(): boolean {
     return this.$route.params.hasOwnProperty('courseId');
   }
+
   get lessonSelected(): boolean {
     return this.$route.params.hasOwnProperty('lessonId');
   }
@@ -177,11 +178,12 @@ export default class LmsHeader extends Vue {
   padding-left 5px
 
 .acc_text
-    margin: 32px 1rem 8px;
-    padding-bottom: 4px;
-    border-bottom: 1px solid #525252;
+  margin: 32px 1rem 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #525252;
+
 .user-view
-    padding-left 30px;
-    padding-top 10px;
-    margin-bottom 0px;
+  padding-left 30px;
+  padding-top 10px;
+  margin-bottom 0px;
 </style>

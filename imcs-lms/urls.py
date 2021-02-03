@@ -8,7 +8,7 @@ from rest_framework.routers import DefaultRouter
 from course.views import CourseViewSet, LinkViewSet
 from lesson.views import LessonViewSet, MaterialViewSet, LessonProgressViewSet
 from problem.views import ProblemViewSet, SubmitViewSet
-from users.views import index, user_login, UsersViewSet
+from users.views import index, UsersViewSet
 
 router = DefaultRouter()
 router.register('course', CourseViewSet, basename='course')
@@ -23,6 +23,7 @@ router.register('courselink', LinkViewSet, basename='courselink')
 urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += [path('__debug__/', include(debug_toolbar.urls)), ]
+
 urlpatterns += [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
@@ -30,6 +31,5 @@ urlpatterns += [
     path('', include('users.urls')),
     path('', include('problem.urls')),
     path('api-auth/', include('rest_framework.urls')),
-    path('login/', user_login, name='account_login'),
     re_path(r"^.*$", index, name='index'),
 ]
