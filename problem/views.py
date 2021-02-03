@@ -7,7 +7,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from cathie.cats_api import cats_get_problem_description_by_url
+from cathie.cats_api import cats_get_problem_description_by_url, cats_submit_solution
 from lesson.models import Lesson
 from problem.models import Problem, Submit
 from problem.serializers import ProblemSerializer, SubmitSerializer
@@ -22,6 +22,17 @@ class ProblemViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, Updat
 class SubmitViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
     serializer_class = SubmitSerializer
     queryset = Submit.objects.all()
+
+    def perform_create(self, serializer):
+        request = serializer.context["request"]
+        validated_data = serializer.validated_data
+        cats_request_id = cats_submit_solution(
+            validated_data.get('content'),
+            validated_data.get('cats_problem_id'),
+            validated_data.get('cats_de_id'),
+            validated_data.get('source')
+        )
+        serializer.save(student=request.user, cats_request_id=cats_request_id, status=Submit.DEFAULT_STATUS)
 
     def get_queryset(self):
         request = self.get_serializer_context()['request']

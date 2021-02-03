@@ -57,10 +57,8 @@ class SubmitModule extends VuexModule {
 
   @Action
   async fetchSubmitById(id: number): Promise<SubmitModel> {
-    debugger;
     const answer = this.submits.find(x => x.id === id);
     if (answer) { return answer; }
-    debugger;
     let data = {};
     await axios.get(`http://localhost:8000/api/submit/${id}/`)
       .then((response: AxiosResponse<SubmitModel>) => {
