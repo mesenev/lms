@@ -1,11 +1,12 @@
+import random
+import string
+
 from rest_framework import serializers
 
 from course.models import Course, CourseSchedule, CourseLink
 from lesson.serializers import LessonSerializer
-from users.models import CourseAssignTeacher, User
+from users.models import CourseAssignTeacher
 from users.serializers import DefaultUserSerializer
-import string
-import random
 
 
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
@@ -22,7 +23,15 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
                 self.fields.pop(field_name)
 
 
-class CourseSerializer(DynamicFieldsModelSerializer,serializers.ModelSerializer):
+class CourseShortSerializer(serializers.ModelSerializer):
+    author = DefaultUserSerializer(required=False, read_only=True)
+
+    class Meta:
+        model = Course
+        fields = ['id', 'name', 'description', 'author']
+
+
+class CourseSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
     author = DefaultUserSerializer(required=False, read_only=True)
     lessons = LessonSerializer(many=True, read_only=True)
@@ -63,6 +72,7 @@ class ScheduleSerializer(serializers.Serializer):
         model = CourseSchedule
         fields = '__all__'
 
+
 class LinkSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
     course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
@@ -76,8 +86,9 @@ class LinkSerializer(serializers.Serializer):
         pass
 
     def create(self, validated_data):
-        return CourseLink.objects.create(**validated_data, link=''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(15)))
+        return CourseLink.objects.create(**validated_data, link=''.join(
+            random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(15)))
 
     class Meta:
-         model = CourseLink
-         fields = '__all__'
+        model = CourseLink
+        fields = '__all__'

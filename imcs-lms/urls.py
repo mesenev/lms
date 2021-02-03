@@ -23,13 +23,13 @@ router.register('courselink', LinkViewSet, basename='courselink')
 urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += [path('__debug__/', include(debug_toolbar.urls)), ]
-
 urlpatterns += [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('', include('cathie.urls')),
     path('', include('users.urls')),
     path('', include('problem.urls')),
+    path('', include('course.urls')),
     path('api-auth/', include('rest_framework.urls')),
     re_path(r"^.*$", index, name='index'),
 ]
