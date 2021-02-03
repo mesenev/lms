@@ -9,7 +9,10 @@
         <cv-structured-list-heading>Amount of usages</cv-structured-list-heading>
       </template>
       <template slot="items">
-        <cv-structured-list-item checked v-for="k in Links" :key="k.course">
+        <cv-structured-list-item v-if="loading">
+          <cv-loading active overlay small></cv-loading>
+        </cv-structured-list-item>
+        <cv-structured-list-item checked v-for="k in Links" :key="k.link" v-else>
           <cv-structured-list-data>{{ k.link }}</cv-structured-list-data>
           <cv-structured-list-data>{{ k.usages }}</cv-structured-list-data>
         </cv-structured-list-item>
@@ -23,25 +26,36 @@
 import CourseModel from "@/models/CourseModel";
 import LinkModel from "@/models/LinkModel";
 import axios from 'axios';
-import { Component, Prop, Vue } from "vue-property-decorator";
+import {Component, Prop, Vue} from "vue-property-decorator";
 
-@Component({ components: {} })
-export default class CourseView extends Vue {
-  @Prop({ required: true }) counter!: number;
-  @Prop({ required: true }) course!: CourseModel;
+@Component({components: {}})
+export default class LinksManagerComponent extends Vue {
+  @Prop({required: true}) counter!: number;
+  @Prop({required: true}) courseId!: number;
+  loading = true;
+  Links: Array<LinkModel> = [];
 
-  Links: Array<LinkModel> = []
-
-  async createNewLink() {
-    const request = axios.post('http://localhost:8000/api/courselink/',
-      { course: this.course.id, usages: this.counter });
+  async created() {
     await axios.get('http://localhost:8000/api/courselink/')
       .then(response => {
-        this.Links = response.data.filter((x: LinkModel) => x.course == this.course.id)
+        this.Links = response.data.filter((x: LinkModel) => x.course == this.courseId);
       })
       .catch(error => {
         console.log(error);
       })
+    this.loading = false;
+  }
+
+  async createNewLink() {
+    const request = axios.post('http://localhost:8000/api/courselink/',
+      {course: this.courseId, usages: this.counter})
+      .then(response => {
+        this.Links.push(response.data);
+        this.Links = [...this.Links];
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
 }
