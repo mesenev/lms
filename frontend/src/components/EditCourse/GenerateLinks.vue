@@ -5,15 +5,17 @@
     </cv-button>
     <cv-structured-list :condensed="false">
       <template slot="headings">
-        <cv-structured-list-heading>Links</cv-structured-list-heading>
+        <cv-structured-list-heading>
+          Links
+        </cv-structured-list-heading>
         <cv-structured-list-heading>Amount of usages</cv-structured-list-heading>
       </template>
-      <template slot="items">
+      <template slot="items" >
         <cv-structured-list-item v-if="loading">
-          <cv-loading active overlay small></cv-loading>
         </cv-structured-list-item>
         <cv-structured-list-item checked v-for="k in Links" :key="k.link" v-else>
-          <cv-structured-list-data>{{ k.link }}</cv-structured-list-data>
+          <cv-structured-list-data >{{ k.link }}
+          </cv-structured-list-data>
           <cv-structured-list-data>{{ k.usages }}</cv-structured-list-data>
         </cv-structured-list-item>
       </template>
@@ -21,14 +23,16 @@
   </div>
 </template>
 
-<!-- TODO: get link from api -->
 <script lang="ts">
-import CourseModel from "@/models/CourseModel";
 import LinkModel from "@/models/LinkModel";
 import axios from 'axios';
 import {Component, Prop, Vue} from "vue-property-decorator";
+import Save20 from '@carbon/icons-vue/es/save/20'
 
-@Component({components: {}})
+
+@Component({components: {
+    Save20
+  }})
 export default class LinksManagerComponent extends Vue {
   @Prop({required: true}) counter!: number;
   @Prop({required: true}) courseId!: number;
