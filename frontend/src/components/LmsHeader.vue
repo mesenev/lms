@@ -120,7 +120,7 @@
 
     <template slot="right-panels">
       <cv-header-panel class="" id="notifications">
-        <span class="acc_text">Оповещения </span>
+        <span class="acc_text">Оповещения</span>
         <cv-switcher>
           <template>
             <cv-switcher-item>
