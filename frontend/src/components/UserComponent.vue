@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="bx--row">
+    <div class="bx--row user">
       <img class="avatar"
            v-bind:src="src"
            alt=""
@@ -38,5 +38,10 @@ export default class UserComponent extends Vue {
 <style scoped lang="stylus">
 .name
   padding-left 10px
+
+.user
+  display flex
+  flex-direction row
+  align-items center
 
 </style>
