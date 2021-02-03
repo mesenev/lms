@@ -2,6 +2,7 @@
   <div class="layout">
     <lms-header class="layout-header"/>
     <main class="layout-content">
+      <lms-breadcrumb />
       <transition name="fade" mode="out-in">
         <router-view />
       </transition>
@@ -62,10 +63,11 @@
 
 <script lang="ts">
 import LmsHeader from '@/components/LmsHeader.vue';
+import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue'
 import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
 import { Component, Vue } from 'vue-property-decorator';
 
-@Component({ components: { LmsHeader, LogoGithub } })
+@Component({ components: { LmsHeader, LmsBreadcrumb, LogoGithub } })
 export default class App extends Vue {
 
 }
