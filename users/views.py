@@ -33,23 +33,26 @@ class LoginForm(Form):
 
 
 def user_login(request):
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            cd = form.cleaned_data
-            user = authenticate(username=cd['username'], password=cd['password'])
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    return redirect('index')
-                else:
-                   return render(request, 'login.html',  dict(error=True, form = form, error_message='Disabled account!'))
-                   #TODO: freaking strange behaviour of this render
-            else:
-                return render(request, 'login.html',  dict(error=True, form = form, error_message='Invalid login!'))
-    else:
-        form = LoginForm()
-    return render(request, 'login.html', {'form': form})
+    if request.method == 'GET':
+        return render(request, 'login.html', {'form': LoginForm()})
+
+    form = LoginForm(request.POST)
+    ctx = dict(error=True, form=form)
+    if not form.is_valid():
+        return render(request, 'login.html', dict(**ctx, message='Ошибка чтения формы (ง’̀-‘́)ง'))
+    user = authenticate(**form.cleaned_data)
+    if user and user.is_active:
+        login(request, user)
+        return redirect('index')
+    if user and not user.is_active:
+        return render(request, 'login.html', dict(
+            **ctx, error_message='Аккаунт заблокирован. Обратитесь к системному администратору.'
+        ))
+    try:
+        User.objects.get(username=form.cleaned_data['username'])
+    except User.DoesNotExist:
+        return render(request, 'login.html', dict(**ctx, error_message='Указанный пользователь не существует.'))
+    return render(request, 'login.html', dict(**ctx, error_message='Логин и пароль не совпадают'))
 
 
 class UsersViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
