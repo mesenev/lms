@@ -7,8 +7,8 @@
     <cv-row>
       <cv-column :lg="8">
         <div class="item">
-          <problem-description v-if="!isNaN(problem.id)" :problem="problem"/>
-          <cv-skeleton-text v-else/>
+          <cv-skeleton-text v-if="isNaN(problem.id)"/>
+          <problem-description v-else :problem="problem"/>
         </div>
       </cv-column>
     </cv-row>
@@ -106,7 +106,8 @@ const statusAssociations: { [index: string]: string } = {
 @Component({ components: { SubmitComponent, ProblemDescription } })
 export default class ProblemView extends Vue {
   @Prop({ required: true }) problemId!: number;
-  @Prop() submitId!: number | null;
+  @Prop({ required: false, default: null }) submitIdProp!: number | null;
+  public submitId = this.submitIdProp;
 
   private problemStore = problemStore;
   private userStore = userStore;
@@ -149,7 +150,7 @@ export default class ProblemView extends Vue {
   }
 
   changeCurrentSubmit(id: number) {
-    this.submitId = id;
+    this.submitId = Number(id);
   }
 
   get isStaff(): boolean {
