@@ -17,7 +17,7 @@ router.register('problem', ProblemViewSet, basename='problem')
 router.register('submit', SubmitViewSet, basename='submit')
 router.register('material', MaterialViewSet, basename='material')
 router.register('users', UsersViewSet, basename='users')
-router.register('lessonprogress',LessonProgressViewSet, basename='lessonprogress')
+router.register('lessonprogress', LessonProgressViewSet, basename='lessonprogress')
 router.register('courselink', LinkViewSet, basename='courselink')
 
 urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -10,7 +10,7 @@ class SubmitSerializer(serializers.ModelSerializer):
     problem = serializers.PrimaryKeyRelatedField(queryset=Problem.objects.all())
     content = serializers.CharField()
     cats_request_id = serializers.IntegerField(read_only=True)
-    status = serializers.ChoiceField(choices=Submit.SUBMIT_STATUS, default='NP')
+    status = serializers.ChoiceField(choices=Submit.SUBMIT_STATUS, default='NP', required=False)
     student = serializers.PrimaryKeyRelatedField(default=serializers.CurrentUserDefault(), read_only=True)
 
     def update(self, instance, validated_data):
