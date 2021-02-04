@@ -16,7 +16,10 @@
       </template>
       <template slot="headings">
         <cv-data-table-heading v-for="(column, id) in columns" :key="id" :sortable="sortable">
-          {{ column }}
+          <!-- Todo: переверстать по человечески -->
+          <h5 v-if="(column.id === 0)">Результаты</h5>
+          <h5 v-else-if="(column.id === -1)">Участник</h5>
+          <cv-definition-tooltip v-else :definition="definition(column.id)" :term="column.name" />
         </cv-data-table-heading>
       </template>
       <template slot="data">
@@ -54,8 +57,9 @@ import {Dictionary} from "vue-router/types/router";
 import UserComponent from "@/components/UserComponent.vue";
 import SubmitModel from "@/models/SubmitModel";
 import SubmitStatus from "@/components/SubmitStatus.vue";
+import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
 
-@Component({ components: {SubmitStatus, UserComponent} })
+@Component({ components: {SubmitStatus, UserComponent, UserAvatar20} })
 export default class LessonProgressView extends Vue {
   @Prop() lessonId!: number;
 
@@ -64,10 +68,18 @@ export default class LessonProgressView extends Vue {
   userStore = userStore;
   lessonStore = lessonStore;
 
+  definition(a: number) {
+    if (!this.loading && a!= -1 && a!= 0){
+      const  pr = this.lesson.problems.filter((problem) => problem.id === a)
+      a = pr[0].success_or_last_submits.filter(x => x.status === 'OK').length
+    }
+    return `Успешно решило ${a} из ${this.users.length} студентов`
+  }
   create_submit(problemId: number, userid: number,status: string): SubmitModel{
     return { id:1, problem: problemId, student: userid, status: status};
   }
-
+  begin = true;
+  end = true;
   loading = true;
   sortable = true;
   dontSolved = false;
@@ -111,7 +123,17 @@ export default class LessonProgressView extends Vue {
   }
 
   get columns() {
-    return ['Ученики'].concat(this.les.problems.map((l) => l.name)).concat('Рейтинг');
+    const a = this.les.problems.map(l => (
+      {
+        id: l.id,
+        name: l.name
+      }
+    ))
+    a.unshift({id:-1, name: "Ученики"})
+    a.push({id:0, name: "Рейтинг"})
+    return a
+
+    //return [{'i': 'Ученики'}].concat('6',this.les.problems.map((l) => l.name).toLocaleString()).concat('Рейтинг');
   }
 
   userMarks(userId: UserProgress, lessonId: number) {
@@ -131,7 +153,8 @@ export default class LessonProgressView extends Vue {
     //const sum = (marks: number[]) => marks.reduce((total, value) => total + value);
     //const { solved } = user;
     //return sum(solved) / solved.length;
-    return  (Object.keys(user.solved).length/this.les.problems.length)*100+"%";
+    const a  = Object.fromEntries(Object.entries(user.solved).filter(([key, value]) => value === 'OK'))
+    return  (Object.keys(a).length/this.les.problems.length)*100+"%";
   }
 
   Sort(sortBy: { index: string ; order: string}) {
