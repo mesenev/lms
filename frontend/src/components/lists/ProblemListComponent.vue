@@ -1,6 +1,6 @@
 <template xmlns:cv-tag="http://www.w3.org/1999/html">
   <!--TODO: padding for status of lesson and fix the the router open the same problem -->
-  <cv-accordion-item class="accordion">
+  <cv-accordion-item class="accordion" :class="{ doNotShowAccordionContent: !isStaff }">
     <template slot="title">
       <div v-on:click="openProblem" class="title">
         {{ problem.name }}
@@ -12,7 +12,6 @@
     </template>
     <template slot="content">
       <problem-stats v-if="isStaff" :problem="problemProp"/>
-      <p v-else>{{ problem.description }}</p>
     </template>
   </cv-accordion-item>
 </template>
@@ -37,7 +36,7 @@ export default class ProblemListComponent extends Vue {
     router.push({ name: 'ProblemView', params: { problemId: this.problem.id.toString() } });
   }
 
-  get lastSubmit(): SubmitModel {
+  get lastSubmit(): SubmitModel | undefined {
     return this.problemProp.success_or_last_submits
       .find((submit: SubmitModel) => submit.student === userStore.user.id)
   }
@@ -64,5 +63,10 @@ export default class ProblemListComponent extends Vue {
   display flex
   align-items center
   justify-content space-between
+
+.doNotShowAccordionContent
+  /deep/ .bx--accordion__content,
+  /deep/ .bx--accordion__arrow
+    display none
 
 </style>

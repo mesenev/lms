@@ -24,8 +24,7 @@
           <cv-structured-list
             v-if="submits.length !== 0"
             class="submit-list"
-            condensed selectable        print(request.query_params)
-
+            condensed selectable
             @change="changeCurrentSubmit">
             <template slot="headings">
               <cv-structured-list-heading>id</cv-structured-list-heading>
