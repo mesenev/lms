@@ -61,6 +61,8 @@ export default class EditAvatarModal extends Vue {
   modalHidden() {
     this.modalVisible = false;
     this.avatarChanged = false;
+    this.showNotification = false;
+    this.showPreview = false;
   }
 
   changeAvatar() {
