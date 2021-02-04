@@ -2,46 +2,54 @@
   <!--TODO: padding for status of lesson and fix the the router open the same problem -->
   <cv-accordion-item class="accordion">
     <template slot="title">
-      <div v-on:click="openProblem">{{ problem.name }}
-        <cv-tag :kind=problemStatus[1]
-                :label=problemStatus[0]>
-        </cv-tag>
-        <cv-tag :label=problemStatus[2]
-                kind="gray">
-        </cv-tag>
+      <div v-on:click="openProblem" class="title">
+        {{ problem.name }}
+        <div class="tags" v-if="!isStaff">
+          <submit-status v-if="!!lastSubmit" :submit="lastSubmit" />
+          <cv-tag v-else label="Не сдано" kind="red" ></cv-tag>
+        </div>
       </div>
     </template>
     <template slot="content">
-      <problem-stats :problem="problemProp"/>
+      <problem-stats v-if="isStaff" :problem="problemProp"/>
+      <p v-else>{{ problem.description }}</p>
     </template>
   </cv-accordion-item>
 </template>
 
 <script lang="ts">
 import ProblemStats from '@/components/ProblemStats.vue';
+import SubmitStatus from "@/components/SubmitStatus.vue";
 import ProblemModel from '@/models/ProblemModel';
+import userStore from '@/store/modules/user'
+
 import router from '@/router';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import SubmitModel from "@/models/SubmitModel";
 
-@Component({ components: { ProblemStats } })
+@Component({ components: { ProblemStats, SubmitStatus } })
 export default class ProblemListComponent extends Vue {
   @Prop() problemProp!: ProblemModel;
 
+  userStore = userStore
+
   openProblem() {
     router.push({ name: 'ProblemView', params: { problemId: this.problem.id.toString() } });
+  }
+
+  get lastSubmit(): SubmitModel {
+    return this.problemProp.success_or_last_submits
+      .find((submit: SubmitModel) => submit.student === userStore.user.id)
   }
 
   get problem() {
     return this.problemProp;
   }
 
-  get problemStatus() {
-    const status = [];
-    (this.problem.completed) ? status.push("OK", "green") : status.push("Не выполнено", "red");
-    (this.problem.manual) ? status.push("РУЧН") : status.push("АВТ");
-    return status;
+  get isStaff(): boolean {
+    const courseId = Number(this.$route.params.courseId);
+    return this.userStore.user.staff_for.includes(courseId);
   }
-
 }
 </script>
 <!-- TODO: Prop -->
@@ -51,4 +59,10 @@ export default class ProblemListComponent extends Vue {
 
 .accordion /deep/ .bx--accordion__content
   padding-right 0
+
+.title
+  display flex
+  align-items center
+  justify-content space-between
+
 </style>
