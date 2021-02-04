@@ -39,7 +39,7 @@
                 name="submit">
                 <cv-structured-list-data>{{ submit.id }}</cv-structured-list-data>
                 <cv-structured-list-data>
-                  <cv-tag :kind="statusColor(submit.status)" :label="submit.status"/>
+                  <submit-status :submit="submit"></submit-status>
                 </cv-structured-list-data>
               </cv-structured-list-item>
             </template>
@@ -88,6 +88,7 @@
 <script lang="ts">
 import ProblemDescription from "@/components/ProblemDescription.vue";
 import SubmitComponent from '@/components/SubmitComponent.vue';
+import SubmitStatus from "@/components/SubmitStatus.vue";
 import ProblemModel from '@/models/ProblemModel';
 import SubmitModel from '@/models/SubmitModel';
 import UserModel from '@/models/UserModel';
@@ -98,12 +99,8 @@ import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Dictionary } from 'vue-router/types/router';
 
-const statusAssociations: { [index: string]: string } = {
-  'WA': 'red', 'OK': 'green', 'NP': 'gray',
-};
 
-
-@Component({ components: { SubmitComponent, ProblemDescription } })
+@Component({ components: { SubmitComponent, ProblemDescription, SubmitStatus } })
 export default class ProblemView extends Vue {
   @Prop({ required: true }) problemId!: number;
   @Prop({ required: false, default: null }) submitIdProp!: number | null;
@@ -180,11 +177,6 @@ export default class ProblemView extends Vue {
       submit.status === 'OK'
     ));
   }
-
-  statusColor(status: string): string {
-    return statusAssociations[status] || 'gray';
-  }
-
 }
 </script>
 

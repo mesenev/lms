@@ -29,8 +29,8 @@
                               v-for="lessonId in les.problems"
                               :key="lessonId.id">
             <!-- TODO цвет в зависимости от оценки по-человечески -->
-            <SubmitStatus v-if="userMarks(user, lessonId.id)"
-                    :submit="create_submit(lessonId.id,user.user,user.solved[lessonId.id])"/>
+            <submit-status v-if="userMarks(user, lessonId.id)"
+                          :submit="create_submit(lessonId.id,user.user,user.solved[lessonId.id])"/>
           </cv-data-table-cell>
           <cv-data-table-cell>
             {{ average(user) }}
