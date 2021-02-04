@@ -5,7 +5,7 @@
     </div>
     <div class="bx--row content">
       <div class="container">
-        <Avatar class="image"/>
+        <Avatar class="image" :avatar_url="user.avatar_url"/>
         <EditAvatarModal/>
       </div>
       <div class="bx--col">
@@ -56,11 +56,11 @@
 
 import AddCatsModal from "@/components/AddCatsModal.vue";
 import Avatar from "@/components/Avatar.vue";
+import ChangePasswordModal from "@/components/ChangePasswordModal.vue";
 import Course from "@/components/lists/CourseListComponent.vue";
 import UserView from "@/components/UserComponent.vue";
 import courseStore from '@/store/modules/course';
 import userStore from '@/store/modules/user';
-import ChangePasswordModal from "@/views/ChangePasswordModal.vue";
 import EditAvatarModal from "@/views/EditAvatarModal.vue";
 import Edit32 from '@carbon/icons-vue/es/edit/32';
 import { Component, Vue } from 'vue-property-decorator';

@@ -30,16 +30,16 @@
 
 
 <script lang="ts">
-import Material from '@/components/lists/MaterialListComponent.vue';
 import LessonContent from "@/models/LessonContent";
 import MarkdownItVue from 'markdown-it-vue'
 import 'markdown-it-vue/dist/markdown-it-vue.css'
 import materialStore from "@/store/modules/material";
 import axios from "axios";
 import _ from 'lodash';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop } from 'vue-property-decorator';
+import Vue, { VueConstructor } from 'vue';
 
-@Component({ components: { Material ,MarkdownItVue } })
+@Component({ components: { MarkdownItVue: MarkdownItVue as VueConstructor<Vue> } })
 export default class MaterialEditView extends Vue {
   @Prop() materialId!: number;
   private materialStore = materialStore;
@@ -70,10 +70,6 @@ export default class MaterialEditView extends Vue {
 
   get materials(): LessonContent {
     return this.material;
-  }
-
-  get getMarkdownText() {
-    return marked(this.materialEdit.content);
   }
 
   get canChangeMaterialName() {

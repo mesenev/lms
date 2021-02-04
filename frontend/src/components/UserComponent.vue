@@ -2,7 +2,7 @@
   <div>
     <div class="bx--row user">
       <img class="avatar"
-           v-bind:src="src"
+           v-bind:src="pic_url"
            alt=""
            width="30"
            height="30">
@@ -30,7 +30,7 @@ export default class UserComponent extends Vue {
   get pic_url() {
     if (!this.user.avatar_url)
       return this.src;
-    return this.user.avatar_url;
+    return this.user.thumbnail;
   }
 }
 </script>
@@ -43,5 +43,11 @@ export default class UserComponent extends Vue {
   display flex
   flex-direction row
   align-items center
+
+.avatar
+  object-fit:cover;
+  border-radius: 150%;
+  padding: 0;
+  margin: 0;
 
 </style>

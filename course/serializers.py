@@ -70,7 +70,7 @@ class LinkSerializer(serializers.Serializer):
     usages = serializers.IntegerField()
 
     def get_link(self, instance):
-        return f'http://localhost:8000/course-registration/{instance.link}'
+        return instance.link
 
     def update(self, instance, validated_data):
         pass

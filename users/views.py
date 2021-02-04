@@ -1,6 +1,6 @@
 import json
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.core import exceptions
@@ -14,6 +14,7 @@ from rest_framework.mixins import (
 )
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
 from users.models import User
@@ -58,6 +59,12 @@ def user_login(request):
 class UsersViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
     serializer_class = DefaultUserSerializer
     queryset = User.objects.all()
+
+
+class Logout(APIView):
+    def get(self, request):
+        logout(request)
+        return redirect('index')
 
 
 @login_required
