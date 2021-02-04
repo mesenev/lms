@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.mixins import (
     CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
@@ -8,6 +9,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from course.models import CourseSchedule, Course, CourseLink
 from course.serializers import CourseSerializer, ScheduleSerializer, LinkSerializer, CourseShortSerializer
+from users.models import User
 
 
 class CourseViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
@@ -35,15 +37,26 @@ class LinkViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateMo
 @login_required
 @api_view(['GET'])
 def check_link(request, link):
+    user = request.user
+    student = None
+    teacher = None
     try:
-        instance = CourseLink.objects.select_related('course').get(link=link)
+        instance = CourseLink.objects.prefetch_related('course').get(link=link)
+        student = instance.course.students.get(id=user.id)
+        teacher = instance.course.staff.get(id=user.id)
+    except User.DoesNotExist:
+        print('2')
     except CourseLink.DoesNotExist:
         return Response(dict(is_possible=False, already_registered=False, course=None))
     course = CourseShortSerializer(instance.course).data
-    return Response(dict(is_possible=True, already_registered=False, course=course))
+    if student or teacher:
+        return Response(dict(is_possible=False, already_registered=True, course=course))
+    else:
+        return Response(dict(is_possible=True, already_registered=False, course=course))
 
 
 @login_required
 @api_view(['GET'])
 def course_registration(request, link):
-    return Response(dict(is_possible=True, already_registered=False, course=None))
+    link.usages -= 1
+    return render(request, 'login.html')

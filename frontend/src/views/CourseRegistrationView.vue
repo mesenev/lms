@@ -45,12 +45,14 @@
 <script lang="ts">
 import CourseModel from '@/models/CourseModel';
 import axios from 'axios';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
+import UserModel from "@/models/UserModel";
 
-@Component({ components: {} })
+@Component({components: {}})
 export default class CourseRegistrationView extends Vue {
-  @Prop({ required: true }) linkProp!: string;
+  @Prop({required: true}) linkProp!: string;
   course: CourseModel | null = null;
+  user: UserModel | null = null;
   loading = true;
   is_possible = false;
   already_registered = false;
@@ -62,16 +64,18 @@ export default class CourseRegistrationView extends Vue {
 
   async statusSetup() {
     const answer = await axios.get<{
-      is_possible: boolean; already_registered: boolean; course: CourseModel;
-    }>(
-      `/api/check-link/${this.linkProp}/`).then(result => {
+      is_possible: boolean; already_registered: boolean; course: CourseModel; user: UserModel;
+    }>(`/api/check-link/${this.linkProp}/`)
+      .then(result => {
         this.is_possible = result.data.is_possible;
         this.already_registered = result.data.already_registered;
         this.course = result.data.course;
-      },
-    ).catch(error => { console.log('vse poshlo ne po planu rip') })
+        this.user = result.data.user;
+      },)
+      .catch(error => {
+      console.log('vse poshlo ne po planu rip')
+    })
   }
-
 }
 </script>
 
