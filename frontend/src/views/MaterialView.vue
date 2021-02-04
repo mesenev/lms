@@ -17,19 +17,20 @@
 </template>
 
 <script lang="ts">
-import Material from '@/components/lists/MaterialListComponent.vue';
 import LessonContent from "@/models/LessonContent";
 import materialStore from '@/store/modules/material';
 import MarkdownItVue from 'markdown-it-vue'
 import 'markdown-it-vue/dist/markdown-it-vue.css'
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop } from 'vue-property-decorator';
+import Vue, { VueConstructor } from 'vue';
 
-@Component({ components: { Material, MarkdownItVue } })
+
+@Component({ components: { MarkdownItVue: MarkdownItVue as VueConstructor<Vue>  } })
 export default class MaterialView extends Vue {
   @Prop() materialId!: number;
   private materialStore = materialStore;
   material!: LessonContent;
-  md = require('markdown-it');
+
   async created() {
     const material = await this.materialStore.fetchMaterialById(this.materialId);
     if (material) {

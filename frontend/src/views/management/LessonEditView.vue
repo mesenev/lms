@@ -102,6 +102,7 @@ export default class LessonEditView extends Vue {
     materials: [],
     deadline: '',
     lessonContent: '',
+    progress:[],
   };
   lessonEdit: LessonModel = { ...this.lesson, course: this.lesson.course };
 
@@ -159,6 +160,7 @@ export default class LessonEditView extends Vue {
   }
 
   deleteProblem(problem: ProblemModel) {
+    return problem
     //
   }
 }
