@@ -6,7 +6,7 @@
     <div class="bx--row content">
       <div class="container">
         <Avatar class="image" :avatar_url="user.avatar_url"/>
-        <EditAvatarModal/>
+        <EditAvatarModal :user="user"/>
       </div>
       <div class="bx--col">
         <div class="courses-block">
