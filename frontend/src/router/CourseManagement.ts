@@ -11,6 +11,7 @@ import SolutionsListView from '@/views/management/SolutionsListView.vue';
 import { RouteConfig } from 'vue-router';
 
 // TODO: consult is it optimal (I bet it's not)
+
 const routes: Array<RouteConfig> = [
   {
     path: '/course-registration/:link/',

@@ -41,20 +41,20 @@ def __check(link, user_id):
         is_possible=True, course=None, usages_available=True,
     )
     try:
-        instance = CourseLink.objects.select_related('course').get(link=link) \
-            .prefetch_related('course__staff', 'course__students')
+        instance = CourseLink.objects.select_related('course').prefetch_related('course__staff', 'course__students').get(link=link) \
+
         answer['course'] = CourseShortSerializer(instance.course).data
         answer['usages_available'] = bool(instance.usages)
     except CourseLink.DoesNotExist:
         answer.update(dict(link_exists=False, is_possible=False))
         return Response(answer)
     try:
-        instance.student.get(id=user_id)
+        instance.course.students.get(id=user_id)
         answer.update(dict(student_registered=True, is_possible=False))
     except User.DoesNotExist:
         pass
     try:
-        instance.staff.get(id=user_id)
+        instance.course.staff.get(id=user_id)
         answer.update(dict(teacher_registered=True, is_possible=False))
     except User.DoesNotExist:
         pass
