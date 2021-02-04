@@ -12,10 +12,16 @@
       </template>
       <template slot="content">
         <div class="bx--col-lg-4, content">
-        <input type="file" ref="file" :v-model="file" accept="image/*" v-on:change="Upload($event.target.files)"/>
-        <label>Предварительный просмотр</label>
-        <img v-bind:src="imagePreview" v-show="showPreview" alt="картинка" class="preview"/>
-      </div>
+          <cv-inline-notification
+          v-if="showNotification"
+          :kind="notificationKind"
+          :sub-title="notificationText"
+          @close="() => showNotification=false"
+          />
+          <input type="file" ref="file" :v-model="file" accept="image/*" v-on:change="Upload($event.target.files)"/>
+          <label>Предварительный просмотр</label>
+          <img v-bind:src="imagePreview" v-show="showPreview" alt="картинка" class="preview"/>
+        </div>
       </template>
       <template slot="primary-button">
         Добавить
@@ -28,18 +34,23 @@
 
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
-import { Component, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 import Edit32 from '@carbon/icons-vue/es/edit/32';
+import axios from "axios";
+import UserModel from "@/models/UserModel";
 
 @Component({ components: { AddAlt20, SubtractAlt20, Edit32 } })
 export default class EditAvatarModal extends Vue {
-
+  @Prop() user!: UserModel;
   imagePreview: string | null | ArrayBuffer = '';
   showPreview = false;
   AddAlt32 = AddAlt20;
   SubtractAlt32 = SubtractAlt20;
   avatarChanged = false;
   modalVisible = false;
+  showNotification = false;
+  notificationText = '';
+  notificationKind = 'success';
   file = new Blob();
 
   showModal() {
@@ -53,6 +64,21 @@ export default class EditAvatarModal extends Vue {
   }
 
   changeAvatar() {
+    const fd = new FormData();
+    fd.append('avatar_url',this.file );
+    const request = axios.post('http://localhost:8000/api/change-avatar/', fd);
+    request.then(response => {
+      this.notificationKind = 'success';
+      this.notificationText = "Фото профиля успешно изменено!";
+      this.showNotification = true;
+      this.user.avatar_url = response.data.message;
+      setTimeout(this.modalHidden, 2000);
+    }).catch(error => {
+      this.notificationKind = 'error';
+      this.notificationText = `Что-то пошло не так: ${error.message}`;
+      this.showNotification = true;
+
+    })
     return;
   }
 
@@ -65,6 +91,7 @@ export default class EditAvatarModal extends Vue {
     })
     if (this.file) {
       reader.readAsDataURL(this.file);
+      this.avatarChanged = true;
     }
   }
 }
