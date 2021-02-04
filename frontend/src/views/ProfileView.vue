@@ -63,7 +63,7 @@ import userStore from '@/store/modules/user';
 import ChangePasswordModal from "@/views/ChangePasswordModal.vue";
 import EditAvatarModal from "@/views/EditAvatarModal.vue";
 import Edit32 from '@carbon/icons-vue/es/edit/32';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 
 @Component({
   components: {
@@ -72,8 +72,6 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
   },
 })
 export default class ProfileView extends Vue {
-
-  @Prop() courseId!: number;
   private store = courseStore;
   loading = true;
   searchValue = "";

@@ -63,10 +63,6 @@ const routes: Array<RouteConfig> = [
     path: '/profile',
     name: 'profile-page',
     component: ProfileView,
-    props: (route) => {
-      const courseId = Number.parseInt(route.params.courseId as string, 10);
-      return { courseId, ...route.params };
-    },
   },
   ...managementRoutes
 ];

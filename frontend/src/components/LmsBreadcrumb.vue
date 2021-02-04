@@ -35,6 +35,11 @@
           {{ problem }}
         </cv-breadcrumb-item>
       </transition>
+      <transition name="fade" mode="out-in">
+        <cv-breadcrumb-item v-if="materialSelected">
+          {{ material }}
+        </cv-breadcrumb-item>
+      </transition>
     </cv-breadcrumb>
   </div>
 </template>
@@ -45,28 +50,31 @@ import { Component, Vue } from "vue-property-decorator";
 import problemStore from '@/store/modules/problem';
 import lessonStore from '@/store/modules/lesson';
 import courseStore from '@/store/modules/course';
+import materialStore from '@/store/modules/material';
 
 @Component
 export default class VueBreadcrumb extends Vue {
 
   get courseSelected(): boolean {
-    return this.$route.params.hasOwnProperty('courseId');
+    return this.$route.params.hasOwnProperty('courseId') && !!this.$route.params.courseId;
   }
+
   get lessonSelected(): boolean {
-    return this.$route.params.hasOwnProperty('lessonId');
+    return this.$route.params.hasOwnProperty('lessonId') && !!this.$route.params.lessonId;
   }
 
   get problemSelected(): boolean {
-    return this.$route.params.hasOwnProperty('problemId');
+    return this.$route.params.hasOwnProperty('problemId') && !!this.$route.params.problemId;
   }
 
   get materialSelected(): boolean {
-    return this.$route.params.hasOwnProperty('materialId');
+    return this.$route.params.hasOwnProperty('materialId') && !!this.$route.params.materialId;
   }
 
   course = '';
   problem = '';
   lesson = '';
+  material = '';
 
   private async updateBreadCrumb() {
     if (this.courseSelected) {
@@ -83,6 +91,11 @@ export default class VueBreadcrumb extends Vue {
       const lessonId = Number(this.$route.params.lessonId);
       const lesson = await lessonStore.fetchLessonById(lessonId);
       this.lesson = lesson.name;
+    }
+    if (this.materialSelected) {
+      const materialId = Number(this.$route.params.materialId);
+      const material = await materialStore.fetchMaterialById(materialId);
+      this.material = material.name;
     }
   }
 

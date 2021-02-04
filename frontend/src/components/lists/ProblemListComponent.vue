@@ -1,6 +1,6 @@
 <template xmlns:cv-tag="http://www.w3.org/1999/html">
   <!--TODO: padding for status of lesson and fix the the router open the same problem -->
-  <cv-accordion-item>
+  <cv-accordion-item class="accordion">
     <template slot="title">
       <div v-on:click="openProblem">{{ problem.name }}
         <cv-tag :kind=problemStatus[1]
@@ -48,4 +48,7 @@ export default class ProblemListComponent extends Vue {
 <style scoped lang="stylus">
 .aw
   text-align right
+
+.accordion /deep/ .bx--accordion__content
+  padding-right 0
 </style>
