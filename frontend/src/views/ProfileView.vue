@@ -5,7 +5,7 @@
     </div>
     <div class="bx--row content">
       <div class="container">
-        <Avatar class="image"/>
+        <Avatar class="image" :avatar_url="user.avatar_url"/>
         <EditAvatarModal/>
       </div>
       <div class="bx--col">

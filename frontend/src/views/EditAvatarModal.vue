@@ -12,7 +12,7 @@
       </template>
       <template slot="content">
         <div class="bx--col-lg-4, content">
-        <input type="file" ref="file" :v-model="file" accept="image/*" v-on:change="Upload()"/>
+        <input type="file" ref="file" :v-model="file" accept="image/*" v-on:change="Upload($event.target.files)"/>
         <label>Предварительный просмотр</label>
         <img v-bind:src="imagePreview" v-show="showPreview" alt="картинка" class="preview"/>
       </div>
@@ -56,9 +56,8 @@ export default class EditAvatarModal extends Vue {
     return;
   }
 
-  Upload() {
-    //works with the following line,
-    this.file = this.$refs.file.files[0];
+  Upload(fileList: never) {
+    this.file = fileList[0] ;
     const reader = new FileReader();
     reader.addEventListener("load", () => {
       this.showPreview = true;
