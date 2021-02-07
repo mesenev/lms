@@ -14,12 +14,8 @@
             <div v-if="is_possible">
               <h4>Нажав кнопку вы зарегистрируетесь на выбранный курс!</h4>
               <div>
-                <router-link :to="{
-            name: 'CourseView',
-            props: this.$route.params.courseId }">
-                  <!-- TODO: router link work + centering this, i guess -->
-                  <cv-button>Зарегистрироваться</cv-button>
-                </router-link>
+                <cv-button-skeleton v-if="registrationProcess"/>
+                <cv-button v-else v-on:click="registration">Зарегистрироваться</cv-button>
               </div>
             </div>
             <div v-if="!is_possible && student_registered || teacher_registered">
@@ -38,15 +34,16 @@
 </template>
 
 <script lang="ts">
+import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import CourseModel from '@/models/CourseModel';
-import axios from 'axios';
-import {Component, Prop, Vue} from 'vue-property-decorator';
 import UserModel from "@/models/UserModel";
 import userStore from "@/store/modules/user";
+import axios from 'axios';
+import { Component, Prop } from 'vue-property-decorator';
 
-@Component({components: {}})
-export default class CourseRegistrationView extends Vue {
-  @Prop({required: true}) linkProp!: string;
+@Component({ components: {} })
+export default class CourseRegistrationView extends NotificationMixinComponent {
+  @Prop({ required: true }) linkProp!: string;
   course: CourseModel | null = null;
   user: UserModel | null = null;
   loading = true;
@@ -55,6 +52,7 @@ export default class CourseRegistrationView extends Vue {
   teacher_registered = false;
   firstname = userStore.user.first_name;
   secondname = userStore.user.last_name
+  registrationProcess = false;
 
   async created() {
     await this.statusSetup();
@@ -63,7 +61,8 @@ export default class CourseRegistrationView extends Vue {
 
   async statusSetup() {
     const answer = await axios.get<{
-      is_possible: boolean; student_registered: boolean; teacher_registered: boolean; course: CourseModel; user: UserModel;
+      is_possible: boolean; student_registered: boolean;
+      teacher_registered: boolean; course: CourseModel; user: UserModel;
     }>(`/api/check-link/${this.linkProp}/`)
       .then(result => {
         this.is_possible = result.data.is_possible;
@@ -71,10 +70,30 @@ export default class CourseRegistrationView extends Vue {
         this.teacher_registered = result.data.teacher_registered;
         this.course = result.data.course;
         this.user = result.data.user;
-      },)
-      .catch(error => {
-        console.log('It isn`t right behaviour :(')
       })
+      .catch(error => {
+        this.notificationKind = error;
+        this.notificationText = `Произошла ошибка при проверке возможности` +
+          ` регистрации на курс. ${error.message}`;
+        this.showNotification = true;
+      })
+  }
+
+  async registration() {
+    this.registrationProcess = true;
+    await axios.get(`/api/course-registration/${this.linkProp}/`)
+      .then(result => {
+        this.$router.push({
+          name: 'CourseView',
+          props: { CourseId: result.data.course },
+        })
+        this.registrationProcess = false;
+      }).catch(error => {
+          this.notificationKind = error;
+          this.notificationText = `Произошла ошибка при регистрации на курс. ${error.message}`;
+          this.showNotification = true;
+        },
+      )
   }
 }
 </script>

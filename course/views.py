@@ -41,8 +41,8 @@ def __check(link, user_id):
         is_possible=True, course=None, usages_available=True,
     )
     try:
-        instance = CourseLink.objects.select_related('course').prefetch_related('course__staff', 'course__students').get(link=link) \
-
+        instance = CourseLink.objects.select_related('course') \
+            .prefetch_related('course__staff', 'course__students').get(link=link)
         answer['course'] = CourseShortSerializer(instance.course).data
         answer['usages_available'] = bool(instance.usages)
     except CourseLink.DoesNotExist:
@@ -72,9 +72,9 @@ def check_link(request: Request, link):
 def course_registration(request, link):
     if not __check(link, request.user.id)['is_possible']:
         raise PermissionDenied()
-    link = CourseLink.objects.get(link=link).select_related('course')
+    link = CourseLink.objects.select_related('course').get(link=link)
     assignment = CourseAssignStudent(course=link.course, user=request.user)
     assignment.save()
     link.usages -= 1
     link.save()
-    return Response(dict(status=200, ))
+    return Response(dict(user=assignment.user_id, course=assignment.course_id))
