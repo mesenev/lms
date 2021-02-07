@@ -37,8 +37,8 @@ const routes: Array<RouteConfig> = [
     },
   },
   {
-    path: '/course/:courseId/lesson/:lessonId/problem/:problemId/:submitId',
-    name: 'ProblemView',
+    path: '/course/:courseId/lesson/:lessonId/problem/:problemId/submit/:submitId',
+    name: 'ProblemViewWithSubmit',
     component: ProblemView,
     props: (route) => {
       const problemId = Number.parseInt(route.params.problemId as string, 10);
