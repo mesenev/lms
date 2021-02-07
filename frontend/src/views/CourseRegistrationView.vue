@@ -8,6 +8,11 @@
             {{ course.author.last_name }}</h1>
         </div>
         <div>
+          <cv-inline-notification
+            v-if="showNotification"
+            :kind="notificationKind"
+            :sub-title="notificationText"
+            @close="hideNotification"/>
           <cv-skeleton-text v-if="loading"/>
           <div v-else>
             <h3>Уважаемый {{ firstname }} {{ secondname }}.</h3>
