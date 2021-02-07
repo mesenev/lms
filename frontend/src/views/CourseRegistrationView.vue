@@ -1,42 +1,40 @@
 <template>
-  <cv-grid>
-    <cv-row class="header">
-      <cv-skeleton-text v-if="loading"/>
-      <div v-else>
-        <h1>Регистрация на курс {{ course.name || '' }}</h1>
-        <h2>Преподаватель: {{ course.author.first_name }} {{ course.author.last_name }}</h2>
-      </div>
-    </cv-row>
-    <cv-row v>
-      <cv-column v-if='loading' :lg="12">
-        <cv-loading></cv-loading>
-      </cv-column>
-      <cv-column v-else :lg="12">
-        <div class="item">
-          <h2>Уважаемый {{ firstname }} {{secondname}}.</h2>
-          <div v-if="is_possible" class="text-container">
-            Нажав кнопку вы зарегистрируетесь на выбранный курс!
-            <br>
-            <router-link :to="{
+  <div class="bx--grid">
+    <div class="bx--row">
+      <div class="bx--col-lg-16">
+        <cv-skeleton-text v-if="loading"/>
+        <div v-else>
+          <h1>Регистрация на курс {{ course.name || '' }}, преподаватель: {{ course.author.first_name }}
+            {{ course.author.last_name }}</h1>
+        </div>
+        <div>
+          <cv-skeleton-text v-if="loading"/>
+          <div v-else>
+            <h3>Уважаемый {{ firstname }} {{ secondname }}.</h3>
+            <div v-if="is_possible">
+              <h4>Нажав кнопку вы зарегистрируетесь на выбранный курс!</h4>
+              <div>
+                <router-link :to="{
             name: 'CourseView',
             props: this.$route.params.courseId }">
-            <cv-button>Зарегистрироваться</cv-button>
-            </router-link>
-          </div>
-          <!---->
-          <div v-if="!is_possible && student_registered || teacher_registered" class="text-container">
-            Ссылка более не валидна, либо вы уже зарегистрированы на курс.
-            <div>
-              <router-link to="/">
-              <cv-button type="ghost">На главную</cv-button>
-            </router-link>
+                  <!-- TODO: router link work + centering this, i guess -->
+                  <cv-button>Зарегистрироваться</cv-button>
+                </router-link>
+              </div>
+            </div>
+            <div v-if="!is_possible && student_registered || teacher_registered">
+              <h4>Данная ссылка недоступна, либо вы уже зарегистрированы на курс.</h4>
+              <div>
+                <router-link to="/">
+                  <cv-button type="ghost">На главную</cv-button>
+                </router-link>
+              </div>
             </div>
           </div>
         </div>
-      </cv-column>
-      <cv-column :lg="2"/>
-    </cv-row>
-  </cv-grid>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -73,11 +71,10 @@ export default class CourseRegistrationView extends Vue {
         this.teacher_registered = result.data.teacher_registered;
         this.course = result.data.course;
         this.user = result.data.user;
-        console.log(this.$route.params)
       },)
       .catch(error => {
-      console.log('vse poshlo ne po planu rip')
-    })
+        console.log('It isn`t right behaviour :(')
+      })
   }
 }
 </script>
