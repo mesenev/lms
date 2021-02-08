@@ -93,7 +93,7 @@ export default class CourseRegistrationView extends NotificationMixinComponent {
       .then(result => {
         this.$router.push({
           name: 'CourseView',
-          props: {CourseId: result.data.courseId},
+          params: { courseId: result.data.courseId },
         })
         this.registrationProcess = false;
       }).catch(error => {
