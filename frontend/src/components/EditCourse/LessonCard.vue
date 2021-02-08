@@ -26,7 +26,7 @@
 import LessonModel from "@/models/LessonModel";
 import router from '@/router';
 import _ from 'lodash';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 
 @Component({})
 export default class LessonCard extends Vue {
@@ -58,9 +58,8 @@ export default class LessonCard extends Vue {
     return problems;
   }
 
-  // TODO Correct push to LessonEditView
   editLesson() {
-    router.push({ name: 'LessonEditView', params: { lessonId: this.lesson.id.toString() } });
+    router.push({name: 'lesson-edit', params: {lessonId: this.lesson.id}});
   }
 }
 </script>
