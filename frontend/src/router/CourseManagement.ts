@@ -1,16 +1,26 @@
+import CourseRegistrationView from '@/views/CourseRegistrationView.vue';
 import CourseCalendarView from '@/views/management/CourseCalendarView.vue';
 import CourseEditView from '@/views/management/CourseEditView.vue';
 import CourseProgressView from '@/views/management/CourseProgressView.vue';
 import LessonEditView from "@/views/management/LessonEditView.vue";
+import LessonProgressView from '@/views/management/LessonProgressView.vue'
 import MaterialEditView from "@/views/management/MaterialEditView.vue";
 import ProblemEditView from '@/views/management/ProblemEditView.vue';
 import SolutionsListView from '@/views/management/SolutionsListView.vue';
-import LessonProgressView from '@/views/management/LessonProgressView.vue'
 
 import { RouteConfig } from 'vue-router';
 
 // TODO: consult is it optimal (I bet it's not)
+
 const routes: Array<RouteConfig> = [
+  {
+    path: '/course-registration/:link/',
+    name: 'course-registration',
+    component: CourseRegistrationView,
+    props: (route) => {
+      return { linkProp: route.params.link }
+    },
+  },
   {
     path: '/course-add',
     name: 'course-add',

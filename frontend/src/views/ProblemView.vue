@@ -13,41 +13,41 @@
       </cv-column>
     </cv-row>
     <cv-row>
-      <cv-column :lg="8">
-        <submit-component
-          :is-staff="isStaff" :language-list="problem.language"
-          :problemId="problemId"
-          :submitId="submitId"/>
-      </cv-column>
-      <cv-column :lg="3" class="submit">
-        <div class="item">
-          <cv-structured-list
-            v-if="submits.length !== 0"
-            class="submit-list"
-            condensed selectable
-            @change="changeCurrentSubmit">
-            <template slot="headings">
-              <cv-structured-list-heading>id</cv-structured-list-heading>
-              <cv-structured-list-heading>Статус</cv-structured-list-heading>
-            </template>
-            <template slot="items">
-              <cv-structured-list-item
-                v-for="submit in submits"
-                :key="submit.id"
-                :checked="submit.id === Math.max(...submits.map(s => s.id))"
-                :value="submit.id.toString()"
-                name="submit">
-                <cv-structured-list-data>{{ submit.id }}</cv-structured-list-data>
-                <cv-structured-list-data>
-                  <submit-status :submit="submit"></submit-status>
-                </cv-structured-list-data>
-              </cv-structured-list-item>
-            </template>
-          </cv-structured-list>
-          <cv-tile v-else class="submit-list no-submits" kind="standard">
-            <h2>Oops</h2>
-            <p>Пока ничего не отправлено :(</p>
-          </cv-tile>
+      <cv-column :lg="10">
+        <div class="solution-container item">
+          <submit-component :is-staff="isStaff"
+                            :language-list="problem.language" :problemId="problemId"
+                            :submitId="submitId"
+                            class="solution-container--submit-component"/>
+          <div class="solution-container--submit-list">
+            <cv-structured-list
+              v-if="submits"
+              class="submit-list"
+              condensed selectable
+              @change="changeCurrentSubmit">
+              <template slot="headings">
+                <cv-structured-list-heading>id</cv-structured-list-heading>
+                <cv-structured-list-heading>Статус</cv-structured-list-heading>
+              </template>
+              <template slot="items">
+                <cv-structured-list-item
+                  v-for="submit in submits"
+                  :key="submit.id"
+                  :checked="checked(submit)"
+                  :value="submit.id.toString()"
+                  name="submit">
+                  <cv-structured-list-data>{{ submit.id }}</cv-structured-list-data>
+                  <cv-structured-list-data>
+                    <submit-status :submit="submit"></submit-status>
+                  </cv-structured-list-data>
+                </cv-structured-list-item>
+              </template>
+            </cv-structured-list>
+            <cv-tile v-else class="submit-list no-submits" kind="standard">
+              <h2>Oops</h2>
+              <p>Пока ничего не отправлено :(</p>
+            </cv-tile>
+          </div>
         </div>
       </cv-column>
       <cv-column v-if="isStaff">
@@ -122,6 +122,12 @@ export default class ProblemView extends Vue {
     return problemStore.currentProblem;
   }
 
+  checked(submit: SubmitModel): boolean {
+    if (!this.submitIdProp)
+      return submit.id === Math.max(...this.submits.map(s => s.id));
+    return submit.id === this.submitIdProp;
+  }
+
   async created() {
     const problem = await this.problemStore.fetchProblemById(this.problemId);
     if (problem)
@@ -142,12 +148,25 @@ export default class ProblemView extends Vue {
       });
     }
 
-    if (!_.isEmpty(this.submits))
+    if (this.submitIdProp) {this.changeCurrentSubmit(this.submitIdProp); }
+    if (!_.isEmpty(this.submits) && !this.submitIdProp) {
       this.changeCurrentSubmit(this.getLastSubmit().id);
+    }
   }
 
   changeCurrentSubmit(id: number) {
     this.submitId = Number(id);
+    // TODO: i don't know how to make it work. gg.
+    if (this.submitIdProp !== Number(id)) {
+      this.$router.push({
+        name: 'ProblemViewWithSubmit', params: {
+          courseId: this.$route.params.courseId,
+          lessonId: this.$route.params.lessonId,
+          problemId: this.problemId.toString(),
+          submitIdProp: Number(id).toString(),
+        },
+      })
+    }
   }
 
   get isStaff(): boolean {
@@ -187,6 +206,15 @@ export default class ProblemView extends Vue {
 
 .bx--row
   margin-bottom 1rem
+
+.solution-container
+  display flex
+
+  &--submit-component
+    flex 69%
+
+  &--submit-list
+    flex 30%
 
 .name
   display flex
