@@ -10,36 +10,30 @@
           </router-link>
         </cv-breadcrumb-item>
       </transition>
-      <transition name="fade" mode="out-in">
-        <cv-breadcrumb-item v-if="courseSelected">
-          <router-link :to="{
-            name: 'CourseView',
-            props: this.$route.params.CourseId
-          }">
-            {{ course }}
-          </router-link>
-        </cv-breadcrumb-item>
-      </transition>
-      <transition name="fade" mode="out-in">
-        <cv-breadcrumb-item v-if="lessonSelected">
-          <router-link :to="{
-            name: 'LessonView',
-            props: this.$route.params.lessonId
-          }">
-            {{ lesson }}
-          </router-link>
-        </cv-breadcrumb-item>
-      </transition>
-      <transition name="fade" mode="out-in">
-        <cv-breadcrumb-item v-if="problemSelected">
-          {{ problem }}
-        </cv-breadcrumb-item>
-      </transition>
-      <transition name="fade" mode="out-in">
-        <cv-breadcrumb-item v-if="materialSelected">
-          {{ material }}
-        </cv-breadcrumb-item>
-      </transition>
+      <lms-breadcrumb-item
+        v-if="courseSelected.selected"
+        :id="courseSelected.id"
+        page-view="CourseView"
+        :fetch="courseStore.fetchCourseById"
+      />
+      <lms-breadcrumb-item
+        v-if="lessonSelected.selected"
+        :id="lessonSelected.id"
+        page-view="LessonView"
+        :fetch="lessonStore.fetchLessonById"
+      />
+      <lms-breadcrumb-item
+        v-if="problemSelected.selected"
+        :id="problemSelected.id"
+        page-view="ProblemView"
+        :fetch="problemStore.fetchProblemById"
+      />
+      <lms-breadcrumb-item
+        v-if="materialSelected.selected"
+        :id="materialSelected.id"
+        page-view="MaterialView"
+        :fetch="materialStore.fetchMaterialById"
+      />
     </cv-breadcrumb>
   </div>
 </template>
@@ -51,66 +45,41 @@ import problemStore from '@/store/modules/problem';
 import lessonStore from '@/store/modules/lesson';
 import courseStore from '@/store/modules/course';
 import materialStore from '@/store/modules/material';
+import LmsBreadcrumbItem from "@/components/LmsBreadcrumbItem.vue";
 
-@Component
-export default class VueBreadcrumb extends Vue {
-
-  get courseSelected(): boolean {
-    return this.$route.params.hasOwnProperty('courseId') && !!this.$route.params.courseId;
+@Component({
+  components: { LmsBreadcrumbItem }
+})
+export default class LmsBreadcrumb extends Vue {
+  private isSelected(param: string) {
+    const selected = this.$route.params.hasOwnProperty(param) && !!this.$route.params[param];
+    return {
+      selected,
+      id: selected ? Number(this.$route.params[param]) : NaN,
+    };
   }
 
-  get lessonSelected(): boolean {
-    return this.$route.params.hasOwnProperty('lessonId') && !!this.$route.params.lessonId;
+  get courseSelected() {
+    return this.isSelected('courseId');
   }
 
-  get problemSelected(): boolean {
-    return this.$route.params.hasOwnProperty('problemId') && !!this.$route.params.problemId;
+  get lessonSelected() {
+    return this.isSelected('lessonId');
   }
 
-  get materialSelected(): boolean {
-    return this.$route.params.hasOwnProperty('materialId') && !!this.$route.params.materialId;
+  get problemSelected() {
+    return this.isSelected('problemId');
   }
 
-  course = '';
-  problem = '';
-  lesson = '';
-  material = '';
-
-  private async updateBreadCrumb() {
-    if (this.courseSelected) {
-      const courseId = Number(this.$route.params.courseId);
-      const course = await courseStore.fetchCourseById(courseId);
-      this.course = course.name;
-    }
-    if (this.problemSelected) {
-      const problemId = Number(this.$route.params.problemId);
-      const problem = await problemStore.fetchProblemById(problemId);
-      this.problem = problem.name;
-    }
-    if (this.lessonSelected) {
-      const lessonId = Number(this.$route.params.lessonId);
-      const lesson = await lessonStore.fetchLessonById(lessonId);
-      this.lesson = lesson.name;
-    }
-    if (this.materialSelected) {
-      const materialId = Number(this.$route.params.materialId);
-      const material = await materialStore.fetchMaterialById(materialId);
-      this.material = material.name;
-    }
+  get materialSelected() {
+    return this.isSelected('materialId');
   }
 
-  // ToDo old name is displayed 0.001 sec
-
-  async updated() {
-    await this.updateBreadCrumb();
-  }
-
-  async created() {
-    await this.updateBreadCrumb();
-  }
+  problemStore = problemStore;
+  lessonStore = lessonStore;
+  courseStore = courseStore;
+  materialStore = materialStore;
 }
-
-
 </script>
 
 <style lang="stylus" scoped>
