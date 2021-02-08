@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.mixins import (
     CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 )
@@ -75,6 +75,9 @@ def course_registration(request, link):
     link = CourseLink.objects.select_related('course').get(link=link)
     assignment = CourseAssignStudent(course=link.course, user=request.user)
     assignment.save()
-    link.usages -= 1
-    link.save()
-    return Response(dict(user=assignment.user_id, course=assignment.course_id))
+    if link.usages > 0:
+        link.usages -= 1
+        link.save()
+        return Response(dict(user=assignment.user_id, courseId=assignment.course.id))
+    else:
+        raise NotFound()

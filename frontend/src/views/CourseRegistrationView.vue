@@ -1,12 +1,15 @@
 <template>
+  <!-- TODO: nice and clean prop work -->
   <div class="bx--grid">
+    <div class="bx--row header">
+      <cv-skeleton-text v-if="loading"/>
+      <div v-else>
+        <h1>Регистрация на курс {{ course.name || '' }}, преподаватель {{ course.author.first_name }}
+          {{ course.author.last_name }}.</h1>
+      </div>
+    </div>
     <div class="bx--row">
-      <div class="bx--col-lg-16">
-        <cv-skeleton-text v-if="loading"/>
-        <div v-else>
-          <h1>Регистрация на курс {{ course.name || '' }}, преподаватель: {{ course.author.first_name }}
-            {{ course.author.last_name }}</h1>
-        </div>
+      <div class="bx--col-lg-16 items">
         <div>
           <cv-inline-notification
             v-if="showNotification"
@@ -44,11 +47,12 @@ import CourseModel from '@/models/CourseModel';
 import UserModel from "@/models/UserModel";
 import userStore from "@/store/modules/user";
 import axios from 'axios';
-import { Component, Prop } from 'vue-property-decorator';
+import {Component, Prop} from 'vue-property-decorator';
 
-@Component({ components: {} })
+
+@Component({components: {}})
 export default class CourseRegistrationView extends NotificationMixinComponent {
-  @Prop({ required: true }) linkProp!: string;
+  @Prop({required: true}) linkProp!: string;
   course: CourseModel | null = null;
   user: UserModel | null = null;
   loading = true;
@@ -74,7 +78,6 @@ export default class CourseRegistrationView extends NotificationMixinComponent {
         this.student_registered = result.data.student_registered;
         this.teacher_registered = result.data.teacher_registered;
         this.course = result.data.course;
-        this.user = result.data.user;
       })
       .catch(error => {
         this.notificationKind = error;
@@ -90,7 +93,7 @@ export default class CourseRegistrationView extends NotificationMixinComponent {
       .then(result => {
         this.$router.push({
           name: 'CourseView',
-          props: { CourseId: result.data.course },
+          props: {CourseId: result.data.courseId},
         })
         this.registrationProcess = false;
       }).catch(error => {
@@ -99,8 +102,10 @@ export default class CourseRegistrationView extends NotificationMixinComponent {
           this.showNotification = true;
         },
       )
+    console.log(this.$router.params)
   }
 }
+
 </script>
 
 <style lang="stylus">
