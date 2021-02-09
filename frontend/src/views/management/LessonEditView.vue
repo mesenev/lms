@@ -62,23 +62,23 @@
 </template>
 
 <script lang="ts">
-import searchByProblems from '@/common/searchByProblems'
-import EditLessonMaterialsModal from "@/components/EditLesson/EditLessonMaterialsModal.vue";
-import EditLessonModal from "@/components/EditLesson/EditLessonModal.vue";
+import searchByProblems from '@/common/searchByTutorial'
+import EditLessonMaterialsModal from '@/components/EditLesson/EditLessonMaterialsModal.vue';
+import EditLessonModal from '@/components/EditLesson/EditLessonModal.vue';
 import CatsProblemModel from '@/models/CatsProblemModel';
-import LessonModel from "@/models/LessonModel";
-import ProblemModel from "@/models/ProblemModel";
-import router from "@/router";
-import lessonStore from "@/store/modules/lesson";
+import LessonModel from '@/models/LessonModel';
+import ProblemModel from '@/models/ProblemModel';
+import router from '@/router';
+import lessonStore from '@/store/modules/lesson';
 import Settings20 from '@carbon/icons-vue/es/settings/20';
 import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
-import axios from "axios";
+import axios from 'axios';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: { EditLessonMaterialsModal, EditLessonModal } })
+@Component({components: {EditLessonMaterialsModal, EditLessonModal}})
 export default class LessonEditView extends Vue {
-  @Prop({ required: true }) lessonId!: number;
+  @Prop({required: true}) lessonId!: number;
   TrashCan = TrashCan20;
   Settings = Settings20;
   showNotification = false;
@@ -147,7 +147,7 @@ export default class LessonEditView extends Vue {
     return this.search(this.lessonEdit.problems.filter(x => x.type === 'HW'));
   }
 
-  search(problems: Array<ProblemModel | CatsProblemModel>): Array<ProblemModel | CatsProblemModel> {
+  searchByTutorial(problems: Array<ProblemModel | CatsProblemModel>): Array<ProblemModel | CatsProblemModel> {
     return searchByProblems(this.query, problems);
   }
 
