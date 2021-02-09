@@ -100,7 +100,7 @@
               <cv-switcher-item-link
                 :to="{
                   name: 'profile-page',
-                  params:  { courseId: this.$route.params.courseId }
+                  params:  { userId: this.user.id }
                 }">
                 Профиль
               </cv-switcher-item-link>
