@@ -1,8 +1,8 @@
-import LessonContent from '@/models/LessonContent';
+import MaterialModel from '@/models/MaterialModel';
 
 export default function searchByMaterials(
-  query: string, arrayOfMaterials: LessonContent[]
-): LessonContent[] {
+  query: string, arrayOfMaterials: MaterialModel[]
+): MaterialModel[] {
   // if there is no query
   if (!query) {
     return arrayOfMaterials;

@@ -61,16 +61,16 @@
 </template>
 
 <script lang="ts">
-import MaterialListComponent from "@/components/lists/MaterialListComponent.vue";
+import MaterialListComponent from '@/components/lists/MaterialListComponent.vue';
 import ProblemListComponent from '@/components/lists/ProblemListComponent.vue';
-import LessonContent from "@/models/LessonContent";
+import MaterialModel from '@/models/MaterialModel';
 import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
-import lessonStore from "@/store/modules/lesson";
-import userStore from "@/store/modules/user";
+import lessonStore from '@/store/modules/lesson';
+import userStore from '@/store/modules/user';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: { MaterialListComponent, ProblemListComponent } })
+@Component({components: {MaterialListComponent, ProblemListComponent}})
 export default class LessonView extends Vue {
   @Prop() lessonId!: number;
   store = lessonStore;
@@ -84,7 +84,7 @@ export default class LessonView extends Vue {
     this.loading = false;
   }
 
-  get materials(): Array<LessonContent> {
+  get materials(): Array<MaterialModel> {
     return this.lesson.materials;
   }
 

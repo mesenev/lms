@@ -6,20 +6,20 @@
 </template>
 
 <script lang="ts">
-import LessonContent from '@/models/LessonContent';
+import MaterialModel from '@/models/MaterialModel';
 import Catalog20 from '@carbon/icons-vue/es/catalog/20';
 import router from '@/router';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: { Catalog20 } })
 export default class MaterialListComponent extends Vue {
-  @Prop() materialProp!: LessonContent;
+  @Prop() materialProp!: MaterialModel;
 
   openMaterial(): void {
     router.push({ name: 'MaterialView', params: { materialId: this.material.id.toString() } });
   }
 
-  get material(): LessonContent {
+  get material(): MaterialModel {
     return this.materialProp;
   }
 }

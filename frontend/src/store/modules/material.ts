@@ -1,4 +1,4 @@
-import LessonContent from "@/models/LessonContent";
+import MaterialModel from '@/models/MaterialModel';
 import store from '@/store';
 import axios from 'axios';
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
@@ -6,16 +6,13 @@ import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-dec
 @Module({ namespaced: true, name: 'material', store, dynamic: true })
 class MaterialModule extends VuexModule {
 
-  _materials: Array<LessonContent> = [];
+  _materials: Array<MaterialModel> = [];
 
-  get materials(): Array<LessonContent> {
+  get materials(): Array<MaterialModel> {
     return this._materials;
   }
 
-  @Mutation
-  setMaterials(payload: Array<LessonContent>) {
-    this._materials = payload;
-  }
+  private _currentMaterial: MaterialModel = {...this.getNewMaterial};
 
   @Action
   async fetchMaterials() {
@@ -28,24 +25,11 @@ class MaterialModule extends VuexModule {
       })
   }
 
-  @Mutation
-  addMaterialToArray(element: LessonContent) {
-    this._materials.push(element);
-    this._materials = [...this._materials];
-  }
-
-  private _currentMaterial: LessonContent = {...this.getNewMaterial};
-
-  @Mutation
-  setCurrentMaterial(material: LessonContent) {
-    this._currentMaterial = material;
-  }
-
-  get currentMaterial(): LessonContent {
+  get currentMaterial(): MaterialModel {
     return this._currentMaterial;
   }
 
-  get getNewMaterial(): LessonContent {
+  get getNewMaterial(): MaterialModel {
     return {
       id: NaN,
       lesson: NaN,
@@ -55,15 +39,31 @@ class MaterialModule extends VuexModule {
     };
   }
 
+  @Mutation
+  setMaterials(payload: Array<MaterialModel>) {
+    this._materials = payload;
+  }
+
+  @Mutation
+  addMaterialToArray(element: MaterialModel) {
+    this._materials.push(element);
+    this._materials = [...this._materials];
+  }
+
+  @Mutation
+  setCurrentMaterial(material: MaterialModel) {
+    this._currentMaterial = material;
+  }
+
   @Action
-  async fetchMaterialById(id: number): Promise<LessonContent> {
-    let answer = { data: {} };
+  async fetchMaterialById(id: number): Promise<MaterialModel> {
+    let answer = {data: {}};
     await axios.get(`http://localhost:8000/api/material/${id}/`)
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
       })
-    return answer.data as LessonContent;
+    return answer.data as MaterialModel;
   }
 }
 

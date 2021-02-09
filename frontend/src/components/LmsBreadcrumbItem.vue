@@ -12,18 +12,14 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from "vue-property-decorator";
-import {Model} from "@/typings";
-
-export interface BreadcrumbDictionary {
-  [id: number]: string;
-}
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import { TutorialModel } from '@/models/TutorialModel';
 
 @Component
 export default class LmsBreadcrumbItem extends Vue {
-  @Prop({ type: Number, required: true, }) id!: number;
-  @Prop({ type: String, required: true }) PageView!: string;
-  @Prop( { type: Function, required: true }) fetch!: (id: number) => Promise<Model>;
+  @Prop({type: Number, required: true,}) id!: number;
+  @Prop({type: String, required: true}) PageView!: string;
+  @Prop({type: Function, required: true}) fetch!: (id: number) => Promise<TutorialModel>;
 
   title = '';
 
