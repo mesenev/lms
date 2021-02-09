@@ -1,18 +1,17 @@
 <template>
-  <div class="course" v-on:click="openLesson">
+  <cv-link :to="openLesson" class="course" v-on:click="openLesson">
     <cv-structured-list-data class="title">
       <h5>{{ lesson.name }}</h5>
       <span>Количество задач: {{ lesson.problems.length }}</span>
       <span>Дедлайн: {{ lesson.deadline }}</span>
     </cv-structured-list-data>
-    <!-- ToDo get statistic -->
-  </div>
+    <!-- ToDo get statistics -->
+  </cv-link>
 </template>
 
 <script lang="ts">
 import LessonModel from "@/models/LessonModel";
 import userStore from '@/store/modules/user';
-import router from '@/router';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component
@@ -21,8 +20,8 @@ export default class LessonListComponent extends Vue {
 
   userStore = userStore;
 
-  openLesson(): void {
-    router.push({ name: 'LessonView', params: { lessonId: this.lesson.id.toString() } });
+  get openLesson() {
+    return { name: 'LessonView', params: { lessonId: this.lesson.id.toString() } };
   }
 
   get lesson(): LessonModel {
@@ -42,7 +41,12 @@ export default class LessonListComponent extends Vue {
   flex-direction row
   justify-content space-between
 
+
 .title
   display flex
   flex-direction column
+
+.cv-link:hover
+  text-decoration none
+
 </style>

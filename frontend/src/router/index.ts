@@ -1,5 +1,6 @@
 // TODO: import as obj from @/views
-import CourseView from '@/views/CourseView.vue';
+import courseRoutes from '@/router/course';
+import CourseViewLayout from '@/views/CourseViewLayout.vue';
 import HomeView from '@/views/HomeView.vue';
 import LessonView from '@/views/LessonView.vue';
 import MaterialView from '@/views/MaterialView.vue';
@@ -16,16 +17,17 @@ const routes: Array<RouteConfig> = [
     path: '/',
     name: 'Home',
     component: HomeView,
-    props: true,
   },
   {
     path: '/course/:courseId',
-    name: 'CourseView',
-    component: CourseView,
+    component: CourseViewLayout,
     props: (route) => {
       const courseId = Number.parseInt(route.params.courseId as string, 10);
       return { courseId, ...route.params };
     },
+    children: [
+      ...courseRoutes,
+    ],
   },
   {
     path: '/course/:courseId/lesson/:lessonId',
