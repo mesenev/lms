@@ -2,9 +2,9 @@ import os
 
 from celery import Celery
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'imcs-lms.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'imcslms.settings')
 
-app = Celery('imcs-lms')
+app = Celery('imcslms')
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 

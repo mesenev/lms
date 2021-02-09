@@ -5,12 +5,17 @@ import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-dec
 
 @Module({ namespaced: true, name: 'course', store, dynamic: true })
 class CourseModule extends VuexModule {
-
+  currentCourse: CourseModel | null = null;
   courses: Array<CourseModel> = [];
 
   @Mutation
   setCourses(payload: Array<CourseModel>) {
     this.courses = payload;
+  }
+
+  @Mutation
+  changeCurrentCourse(payload: CourseModel | null) {
+    this.currentCourse = payload;
   }
 
   @Action

@@ -18,13 +18,9 @@
     </footer>
   </div>
 </template>
+
 <style scoped lang="stylus">
-.fade-enter-active, .fade-leave-active {
-    transition: opacity .1s
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
-    opacity: 0
-}
+
 
 .items
   display flex
@@ -62,8 +58,8 @@
 </style>
 
 <script lang="ts">
-import LmsHeader from '@/components/LmsHeader.vue';
 import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue'
+import LmsHeader from '@/components/LmsHeader.vue';
 import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
 import { Component, Vue } from 'vue-property-decorator';
 
@@ -80,5 +76,14 @@ html, body, body > div {
   height: 100%;
   background-color: var(--cds-ui-background);
   color: var(--cds-text-01);
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .1s
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */
+{
+  opacity: 0
 }
 </style>
