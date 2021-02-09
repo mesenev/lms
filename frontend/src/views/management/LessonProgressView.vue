@@ -107,7 +107,6 @@ export default class LessonProgressView extends Vue {
   }
 
   student(id: number) {
-    console.log(id);
     const a = this.users1[id];
     if (a){
       return a;
@@ -161,7 +160,6 @@ export default class LessonProgressView extends Vue {
   }
 
   Sort(sortBy: { index: string ; order: string}) {
-    console.log(sortBy)
     if (sortBy.order == "ascending") {
           return this.students.sort((a, b) => {
       return Number(b.user) - Number(a.user);

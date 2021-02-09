@@ -36,8 +36,8 @@ import 'markdown-it-vue/dist/markdown-it-vue.css'
 import materialStore from '@/store/modules/material';
 import axios from 'axios';
 import _ from 'lodash';
-import { Component, Prop } from 'vue-property-decorator';
-import Vue, { VueConstructor } from 'vue';
+import {Component, Prop} from 'vue-property-decorator';
+import Vue, {VueConstructor} from 'vue';
 
 @Component({components: {MarkdownItVue: MarkdownItVue as VueConstructor<Vue>}})
 export default class MaterialEditView extends Vue {
@@ -85,7 +85,6 @@ export default class MaterialEditView extends Vue {
     request.then(() => {
       this.notificationKind = 'success';
       this.notificationText = 'Материалы успешно изменены';
-      console.log(this.materialEdit);
     });
     request.catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;

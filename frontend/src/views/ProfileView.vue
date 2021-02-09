@@ -85,10 +85,7 @@ export default class ProfileView extends Vue {
     await this.store.fetchCourses();
     if (this.userId != this.user.id) {
       this.guestMode = true;
-      console.log(this.userId);
-      console.log("УРА")
       this.user = await userStore.fetchUserById(this.userId);
-      console.log(this.user)
     }
     this.loading = false;
   }

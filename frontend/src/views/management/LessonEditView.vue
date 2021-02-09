@@ -74,7 +74,7 @@ import Settings20 from '@carbon/icons-vue/es/settings/20';
 import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
 import axios from 'axios';
 import _ from 'lodash';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 
 @Component({components: {EditLessonMaterialsModal, EditLessonModal}})
 export default class LessonEditView extends Vue {
@@ -140,11 +140,11 @@ export default class LessonEditView extends Vue {
   }
 
   get getClasswork(): Array<ProblemModel | CatsProblemModel> {
-    return this.search(this.lessonEdit.problems.filter(x => x.type === 'CW'));
+    return this.lessonEdit.problems.filter(x => x.type === 'CW');
   }
 
   get getHomework(): Array<ProblemModel | CatsProblemModel> {
-    return this.search(this.lessonEdit.problems.filter(x => x.type === 'HW'));
+    return this.lessonEdit.problems.filter(x => x.type === 'HW');
   }
 
   searchByTutorial(problems: Array<ProblemModel | CatsProblemModel>): Array<ProblemModel | CatsProblemModel> {

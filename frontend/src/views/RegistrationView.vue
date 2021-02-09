@@ -188,18 +188,17 @@ export default class RegistrationView extends Vue {
     fd.append('username', this.login);
     //const r = axios.post( 'http://localhost:8000/api/users/', fd)
     const request = axios.post('http://localhost:8000/api/users/',fd);
-    request.then(response => {
+    request.then(() => {
       this.notificationKind = 'success';
       this.notificationText = "Пользователь успешно создан";
       this.showNotification = true;
     })
     request.catch(error => {
-      console.log(error.response);
       let err = '';
       if (error.response.data.email) {
         err = 'пользователь с такой почтой уже существует';
       }
-      if ( error.response.data.user) {
+      if (error.response.data.user) {
         err = 'пользователь с таким логином уже существует';
       }
       this.notificationKind = 'error';
