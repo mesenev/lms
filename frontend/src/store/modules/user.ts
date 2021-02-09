@@ -10,7 +10,14 @@ import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-dec
 @Module({ namespaced: true, name: 'user', store, dynamic: true })
 class UserModule extends VuexModule {
   public user: UserModel = {
-    id: -1, username: '', first_name: '', last_name: '', staff_for: [], avatar_url: '',thumbnail: '',
+    id: -1,
+    username: '',
+    first_name: '',
+    last_name: '',
+    staff_for: [],
+    avatar_url: '',
+    thumbnail: '',
+    email: '',
   }
 
   // storage for all fetched users associated with courseId

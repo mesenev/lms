@@ -10,11 +10,11 @@
         </cv-structured-list-heading>
         <cv-structured-list-heading>Amount of usages</cv-structured-list-heading>
       </template>
-      <template slot="items" >
+      <template slot="items">
         <cv-structured-list-item v-if="loading">
         </cv-structured-list-item>
         <cv-structured-list-item checked v-for="k in Links" :key="k.link" v-else>
-          <cv-structured-list-data >{{ k.link }}
+          <cv-structured-list-data>{{ k.link }}
           </cv-structured-list-data>
           <cv-structured-list-data>{{ k.usages }}</cv-structured-list-data>
         </cv-structured-list-item>
@@ -30,9 +30,11 @@ import {Component, Prop, Vue} from "vue-property-decorator";
 import Save20 from '@carbon/icons-vue/es/save/20'
 
 
-@Component({components: {
+@Component({
+  components: {
     Save20
-  }})
+  }
+})
 export default class LinksManagerComponent extends Vue {
   @Prop({required: true}) counter!: number;
   @Prop({required: true}) courseId!: number;
@@ -42,7 +44,7 @@ export default class LinksManagerComponent extends Vue {
   async created() {
     await axios.get('http://localhost:8000/api/courselink/')
       .then(response => {
-        this.Links = response.data.filter((x: LinkModel) => x.course == this.courseId);
+        this.Links = response.data.filter((x: LinkModel) => x.course == this.courseId).filter((x: LinkModel) => x.usages > 0);
       })
       .catch(error => {
         console.log(error);

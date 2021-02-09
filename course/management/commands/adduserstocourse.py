@@ -24,6 +24,7 @@ class Command(BaseCommand):
             user.set_password('1234')
             user.save()
             CourseAssignStudent.objects.create(course=course, user=user,)
+            self.stdout.write(self.style.SUCCESS(f'login: {user.username}, password: 1234'))
             #course_assign.save()
         self.stdout.write(self.style.SUCCESS(f'На курс {course.name} добавлено {count_of_users}'))
 

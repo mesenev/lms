@@ -104,3 +104,14 @@ def change_password(request):
     user.set_password(new_password)
     user.save()
     return Response({'code': 0, 'message': 'Password changed successfully'})
+
+
+@login_required
+@api_view(['POST'])
+@renderer_classes([JSONRenderer])
+def change_avatar(request):
+    new_avatar = request.data.get('avatar_url')
+    user = request.user
+    user.avatar_url = new_avatar
+    user.save()
+    return Response({'code': 0, 'message': str(user.avatar_url.url)})

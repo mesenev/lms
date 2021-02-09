@@ -43,7 +43,7 @@
         Календарь
       </cv-header-menu-item>
     </cv-header-nav>
-    <cv-header-nav v-if="courseSelected && !lessonSelected && !problemSelected">
+    <cv-header-nav v-if="isStaff && courseSelected && !lessonSelected && !problemSelected">
       <cv-header-menu-item
         :to="{
           name: 'course-edit',
@@ -52,7 +52,7 @@
         Редактировать курс
       </cv-header-menu-item>
     </cv-header-nav>
-    <cv-header-nav v-if="lessonSelected && !problemSelected && !materialSelected">
+    <cv-header-nav v-if="isStaff && lessonSelected && !problemSelected && !materialSelected">
       <cv-header-menu-item
         :to="{
           name: 'lesson-edit',
@@ -61,7 +61,7 @@
         Редактировать урок
       </cv-header-menu-item>
     </cv-header-nav>
-    <cv-header-nav v-if="problemSelected">
+    <cv-header-nav v-if="isStaff && problemSelected">
       <cv-header-menu-item
         :to="{
           name: 'problem-edit',
@@ -70,7 +70,7 @@
         Редактировать задачу
       </cv-header-menu-item>
     </cv-header-nav>
-    <cv-header-nav v-if="materialSelected">
+    <cv-header-nav v-if="isStaff && materialSelected">
       <cv-header-menu-item
         :to="{
           name: 'material-edit',
@@ -166,6 +166,10 @@ export default class LmsHeader extends Vue {
 
   get materialSelected(): boolean {
     return this.$route.params.hasOwnProperty('materialId');
+  }
+
+  get isStaff(): boolean {
+    return this.user.staff_for.includes(Number(this.$route.params.courseId));
   }
 }
 </script>
