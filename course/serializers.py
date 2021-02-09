@@ -12,8 +12,9 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
     # ?fields=id,data
     def __init__(self, *args, **kwargs):
         super(DynamicFieldsModelSerializer, self).__init__(*args, **kwargs)
-
-        fields = self.context['request'].query_params.get('fields')
+        fields = None
+        if 'request' in self.context:
+            fields = self.context['request'].query_params.get('fields')
         if fields:
             fields = fields.split(',')
             allowed = set(fields)

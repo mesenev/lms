@@ -1,4 +1,4 @@
-imcs-lms/settings.py
+imcslms/settings.py
 __pycache__/
 *.py[cod]
 *$py.class
