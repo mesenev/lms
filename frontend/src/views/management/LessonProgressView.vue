@@ -26,12 +26,14 @@
         <cv-data-table-row v-for="user in users" :key="user.id">
           <cv-data-table-cell>
             <!-- TODO ссылка на профиль -->
-            <UserComponent :user="student(user.user)"/>
+            <router-link :to="{ name: 'profile-page', params: { userId: user.user} }"
+                         class="course--title" tag="p">
+              <UserComponent :user="student(user.user)"/>
+            </router-link>
           </cv-data-table-cell>
           <cv-data-table-cell class="mark"
                               v-for="lessonId in les.problems"
                               :key="lessonId.id">
-            <!-- TODO цвет в зависимости от оценки по-человечески -->
             <submit-status v-if="userMarks(user, lessonId.id)"
                           :submit="create_submit(lessonId.id,user.user,user.solved[lessonId.id])"/>
           </cv-data-table-cell>
@@ -105,6 +107,7 @@ export default class LessonProgressView extends Vue {
   }
 
   student(id: number) {
+    console.log(id);
     const a = this.users1[id];
     if (a){
       return a;
