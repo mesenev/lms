@@ -9,6 +9,12 @@ class ProblemModule extends VuexModule {
 
   _problems: Array<ProblemModel> = [];
   catsProblems: Array<{ id: CatsProblemModel }> = [];
+  currentProblem: ProblemModel | null = null;
+
+  @Mutation
+  changeCurrentProblem(payload: ProblemModel | null) {
+    this.currentProblem = payload;
+  }
 
   get problems(): Array<ProblemModel> {
     return this._problems;
@@ -34,17 +40,6 @@ class ProblemModule extends VuexModule {
   addProblemToArray(element: ProblemModel) {
     this._problems.push(element);
     this._problems = [...this._problems];
-  }
-
-  private _currentProblem: ProblemModel = this.getNewProblem;
-
-  @Mutation
-  setCurrentProblem(problem: ProblemModel) {
-    this._currentProblem = { ...problem };
-  }
-
-  get currentProblem(): ProblemModel {
-    return this._currentProblem;
   }
 
   get getNewProblem(): ProblemModel {

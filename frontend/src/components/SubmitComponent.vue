@@ -57,7 +57,6 @@ import { Component, Prop, Watch } from 'vue-property-decorator';
 @Component({ components: {} })
 export default class SubmitComponent extends NotificationMixinComponent {
   @Prop({ required: true }) submitId!: number;
-  @Prop({ required: true }) problemId!: number;
   @Prop({ required: true }) isStaff!: boolean;
   @Prop({ required: true }) languageList!: Array<string>;
   submit: SubmitModel | null = null;
@@ -127,7 +126,10 @@ export default class SubmitComponent extends NotificationMixinComponent {
   confirmSubmit() {
     if (this.isNewSubmit) delete this.submitEdit.id;
 
-    this.submitEdit = { ...this.submitEdit, 'problem': this.problemId };
+    this.submitEdit = {
+      ...this.submitEdit,
+      'problem': this.problemStore.currentProblem?.id as number,
+    };
     delete this.submitEdit.student;
     axios.post('http://localhost:8000/api/submit/', this.submitEdit)
       .then((response: AxiosResponse<SubmitModel>) => {

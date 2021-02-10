@@ -39,7 +39,6 @@ class ProblemSerializer(serializers.ModelSerializer):
     type = serializers.CharField()
     language = serializers.CharField(required=True, allow_null=True)
     cats_material_url = serializers.CharField()
-    success_or_last_submits = serializers.SerializerMethodField(required=False)
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
@@ -53,14 +52,11 @@ class ProblemSerializer(serializers.ModelSerializer):
         user = request.user if request and hasattr(request, "user") else None
         return Problem.objects.create(**validated_data, **{'author': user})
 
-    @staticmethod
-    def get_success_or_last_submits(obj):
-        serializer = SubmitSerializer(map(lambda x: x.submits.first(), obj.students.all()), many=True)
-        return serializer.data or list()
+
 
     class Meta:
         model = Problem
         fields = (
             'id', 'name', 'description', 'author', 'lesson', 'submits',
-            'manual', 'type', 'language', 'cats_material_url', 'cats_id', 'success_or_last_submits'
+            'manual', 'type', 'language', 'cats_material_url', 'cats_id'
         )

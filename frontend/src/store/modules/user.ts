@@ -4,10 +4,10 @@ import UserProgress from '@/models/UserProgress';
 import store from '@/store';
 import courseModule from '@/store/modules/course';
 import axios from 'axios';
-import {Dictionary} from 'vue-router/types/router';
-import {Action, getModule, Module, Mutation, VuexModule} from 'vuex-module-decorators'
+import { Dictionary } from 'vue-router/types/router';
+import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators'
 
-@Module({namespaced: true, name: 'user', store, dynamic: true})
+@Module({ namespaced: true, name: 'user', store, dynamic: true })
 class UserModule extends VuexModule {
   public user: UserModel = {
     id: -1,
@@ -21,10 +21,10 @@ class UserModule extends VuexModule {
   }
 
   // storage for all fetched users associated with courseId
-  fetchedStudents: Dictionary<Dictionary<UserModel>> = {};
+  currentCourseStudents: Dictionary<Dictionary<UserModel>> = {};
 
   @Mutation fetchStudentsMutation(data: Dictionary<Dictionary<UserModel>>) {
-    this.fetchedStudents = data;
+    this.currentCourseStudents = data;
   }
 
   @Mutation receiveUser(user: object) {
@@ -39,7 +39,7 @@ class UserModule extends VuexModule {
         previousValue[currentValue.id] = currentValue;
         return previousValue;
       }, {});
-    this.fetchStudentsMutation({ ...this.fetchedStudents, [courseId]: answer });
+    this.fetchStudentsMutation({ ...this.currentCourseStudents, [courseId]: answer });
     return answer;
   }
 

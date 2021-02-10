@@ -4,8 +4,6 @@ import lessonRoutes from '@/router/lesson';
 import CourseViewLayout from '@/views/CourseViewLayout.vue';
 import HomeView from '@/views/HomeView.vue';
 import LessonViewLayout from '@/views/LessonViewLayout.vue';
-import MaterialView from '@/views/MaterialView.vue';
-import ProblemView from '@/views/ProblemView.vue';
 import ProfileView from "@/views/ProfileView.vue";
 import RegistrationView from '@/views/RegistrationView.vue';
 import Vue from 'vue';
@@ -40,34 +38,6 @@ const routes: Array<RouteConfig> = [
         },
       },
     ],
-  },
-  {
-    path: '/course/:courseId/lesson/:lessonId/problem/:problemId/submit/:submitId',
-    name: 'ProblemViewWithSubmit',
-    component: ProblemView,
-    props: (route) => {
-      const problemId = Number.parseInt(route.params.problemId as string, 10);
-      const submitIdProp = Number.parseInt(route.params.submitId as string, 10);
-      return { problemId, submitIdProp, ...route.params };
-    },
-  },
-  {
-    path: '/course/:courseId/lesson/:lessonId/problem/:problemId',
-    name: 'ProblemView',
-    component: ProblemView,
-    props: (route) => {
-      const problemId = Number.parseInt(route.params.problemId as string, 10);
-      return { problemId, ...route.params };
-    },
-  },
-  {
-    path: '/course/:courseId/lesson/:lessonId/material/:materialId',
-    name: 'MaterialView',
-    component: MaterialView,
-    props: (route) => {
-      const materialId = Number.parseInt(route.params.materialId as string, 10);
-      return { materialId, ...route.params };
-    },
   },
   {
     path: '/registration',

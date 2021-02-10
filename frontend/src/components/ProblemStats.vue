@@ -42,24 +42,24 @@
         </cv-structured-list-heading>
       </template>
       <template slot="items">
-       <cv-structured-list-item
-         v-for="user in noSubmitsUsers"
-         :key="user.id"
-         class="unsent-users"
-       >
-         <cv-structured-list-data>
-           <UserComponent class="user" :user="user"/>
-         </cv-structured-list-data>
-       </cv-structured-list-item>
+        <cv-structured-list-item
+          v-for="user in noSubmitsUsers"
+          :key="user.id"
+          class="unsent-users"
+        >
+          <cv-structured-list-data>
+            <UserComponent :user="user" class="user"/>
+          </cv-structured-list-data>
+        </cv-structured-list-item>
       </template>
     </cv-structured-list>
   </div>
 </template>
 
 <script lang="ts">
-import UserComponent from '@/components/UserComponent.vue';
-import SubmitStatus from "@/components/SubmitStatus.vue";
 import StatsGraph from '@/components/StatsGraph.vue';
+import SubmitStatus from "@/components/SubmitStatus.vue";
+import UserComponent from '@/components/UserComponent.vue';
 import ProblemModel from '@/models/ProblemModel';
 import SubmitModel from '@/models/SubmitModel';
 import UserModel from '@/models/UserModel';
@@ -81,9 +81,9 @@ export default class ProblemStats extends Vue {
   )
 
   get students(): Dictionary<UserModel> {
-    if (!(this.$route.params.courseId in this.userStore.fetchedStudents))
+    if (!(this.$route.params.courseId in this.userStore.currentCourseStudents))
       return {};
-    return this.userStore.fetchedStudents[this.$route.params.courseId];
+    return this.userStore.currentCourseStudents[this.$route.params.courseId];
   }
 
   get successful() {
@@ -109,44 +109,50 @@ export default class ProblemStats extends Vue {
 </script>
 
 <style lang="stylus" scoped>
-  .list-results-container
+.list-results-container
+  display flex
+  flex-direction row
+  justify-content space-between
+  align-items center
+
+.submit span:first-child
+  margin-right 5px
+
+.sent, .unsent
+  margin-bottom 1rem
+  padding-left 1rem
+
+  /deep/ .bx--structured-list-tbody
+    padding 0 1rem
+
+  .headings
     display flex
     flex-direction row
     justify-content space-between
-    align-items center
 
-  .submit span:first-child
-    margin-right 5px
+  .stats
+    display flex
+    flex-direction row
 
-  .sent, .unsent
-    margin-bottom 1rem
-    padding-left 1rem
-    /deep/ .bx--structured-list-tbody
-      padding 0 1rem
-    .headings
-      display flex
-      flex-direction row
-      justify-content space-between
-    .stats
-      display flex
-      flex-direction row
-      > span:not(:last-child)
-        margin-right 5px
+    > span:not(:last-child)
+      margin-right 5px
 
-  .sent
-    /deep/ .bx--structured-list-tbody
-      display flex
-      flex-direction column
+.sent
+  /deep/ .bx--structured-list-tbody
+    display flex
+    flex-direction column
 
 
-  .unsent
-    /deep/ .bx--structured-list-tbody
-      display flex
-      flex-direction row
-      flex-wrap wrap
-    .cv-structured-list-item
-      border 0
-      flex 0 0 25%
-    .user
-      border 0
+.unsent
+  /deep/ .bx--structured-list-tbody
+    display flex
+    flex-direction row
+    flex-wrap wrap
+
+  .cv-structured-list-item
+    border 0
+    flex 0 0 25%
+
+  .user
+    border 0
 </style>

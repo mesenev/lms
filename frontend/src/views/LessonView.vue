@@ -15,8 +15,7 @@
             <div v-if="!loading">
               <cv-accordion align="end"
                             v-for="problem in classwork"
-                            :key="problem.id"
-              >
+                            :key="problem.id">
                 <problem-list-component :problem-prop="problem"/>
               </cv-accordion>
             </div>
@@ -69,7 +68,7 @@ import lessonStore from '@/store/modules/lesson';
 import userStore from '@/store/modules/user';
 import { Component, Vue } from 'vue-property-decorator';
 
-@Component({components: {MaterialListComponent, ProblemListComponent}})
+@Component({ components: { MaterialListComponent, ProblemListComponent } })
 export default class LessonView extends Vue {
   store = lessonStore;
   userStore = userStore;
@@ -83,15 +82,21 @@ export default class LessonView extends Vue {
   }
 
   get materials(): Array<MaterialModel> {
-    return this.lesson.materials;
+    if (this.lesson)
+      return this.lesson.materials;
+    return [];
   }
 
   get classwork(): Array<ProblemModel> {
-    return this.lesson.problems.filter(x => x.type === 'CW');
+    if (this.lesson)
+      return this.lesson.problems.filter(x => x.type === 'CW');
+    return [];
   }
 
   get homework(): Array<ProblemModel> {
-    return this.lesson.problems.filter(x => x.type === 'HW');
+    if (this.lesson)
+      return this.lesson.problems.filter(x => x.type === 'HW');
+    return [];
   }
 }
 </script>
@@ -118,18 +123,24 @@ export default class LessonView extends Vue {
 
 .content
   margin-top 1rem
+
   &-info
     margin-left 1rem
     height 100%
+
     .list
       margin 1rem 0
+
   &-tasks, &-info
     background-color var(--cds-ui-02)
     padding 1rem
+
   /deep/ .bx--accordion__heading
     align-items center
+
   .classwork, .homework
     margin-bottom 1rem
+
     &-title
       padding-left 1rem
       margin 1rem 0

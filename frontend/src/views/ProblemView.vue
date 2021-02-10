@@ -1,30 +1,30 @@
 <template>
   <cv-grid class="problem-view">
     <cv-row>
-      <h1 v-if="problem.name">{{ problem.name }}</h1>
+      <h1 v-if="problem">{{ problem.name }}</h1>
       <cv-skeleton-text v-else/>
     </cv-row>
     <cv-row>
       <cv-column :lg="8">
         <div class="item">
-          <cv-skeleton-text v-if="isNaN(problem.id)"/>
-          <problem-description v-else :problem="problem"/>
+          <problem-description v-if="problem" :problem="problem"/>
+          <cv-skeleton-text v-else/>
         </div>
       </cv-column>
     </cv-row>
     <cv-row>
       <cv-column :lg="10">
         <div class="solution-container item">
-          <submit-component :is-staff="isStaff"
-                            :language-list="problem.language" :problemId="problemId"
-                            :submitId="submitId"
-                            class="solution-container--submit-component"/>
+          <submit-component
+            v-if="problem"
+            :is-staff="isStaff" :language-list="problem.language"
+            :submitId="submitId"
+            class="solution-container--submit-component"/>
+          <cv-loading v-else small/>
           <div class="solution-container--submit-list">
             <cv-structured-list
-              v-if="submits"
-              class="submit-list"
-              condensed selectable
-              @change="changeCurrentSubmit">
+              v-if="submits" class="submit-list"
+              condensed selectable @change="changeCurrentSubmit">
               <template slot="headings">
                 <cv-structured-list-heading>id</cv-structured-list-heading>
                 <cv-structured-list-heading>Статус</cv-structured-list-heading>
@@ -38,7 +38,7 @@
                   name="submit">
                   <cv-structured-list-data>{{ submit.id }}</cv-structured-list-data>
                   <cv-structured-list-data>
-                    <submit-status :submit="submit"></submit-status>
+                    <submit-status :submit="submit"/>
                   </cv-structured-list-data>
                 </cv-structured-list-item>
               </template>
@@ -52,14 +52,9 @@
       </cv-column>
       <cv-column v-if="isStaff">
         <div class="item">
-          <cv-structured-list
-            class="student-list"
-            condensed selectable
-            @change="changeStudent">
+          <cv-structured-list class="student-list" condensed selectable @change="changeStudent">
             <template slot="headings">
-              <cv-structured-list-heading>
-                Ученик
-              </cv-structured-list-heading>
+              <cv-structured-list-heading> Ученик</cv-structured-list-heading>
             </template>
             <template slot="items">
               <cv-structured-list-item
@@ -69,7 +64,7 @@
                 :value="student.id.toString()"
                 name="student">
                 <cv-structured-list-data>
-                  <cv-tag :label="`img`" kind="gray"></cv-tag>
+                  <cv-tag :label="`img`" kind="gray"/>
                   {{
                     student.first_name && student.last_name ?
                       student.first_name + ' ' + student.last_name :
@@ -89,7 +84,6 @@
 import ProblemDescription from "@/components/ProblemDescription.vue";
 import SubmitComponent from '@/components/SubmitComponent.vue';
 import SubmitStatus from "@/components/SubmitStatus.vue";
-import ProblemModel from '@/models/ProblemModel';
 import SubmitModel from '@/models/SubmitModel';
 import UserModel from '@/models/UserModel';
 import problemStore from '@/store/modules/problem';
@@ -102,7 +96,6 @@ import { Dictionary } from 'vue-router/types/router';
 
 @Component({ components: { SubmitComponent, ProblemDescription, SubmitStatus } })
 export default class ProblemView extends Vue {
-  @Prop({ required: true }) problemId!: number;
   @Prop({ required: false, default: null }) submitIdProp!: number | null;
   public submitId = this.submitIdProp;
 
@@ -114,12 +107,12 @@ export default class ProblemView extends Vue {
 
   private students_: Dictionary<UserModel> = {};
 
-  get students() {
-    return Object.keys(this.students_).map(x => this.students_[x])
+  get problem() {
+    return this.problemStore.currentProblem;
   }
 
-  get problem(): ProblemModel {
-    return problemStore.currentProblem;
+  get students() {
+    return Object.keys(this.userStore.currentCourseStudents).map(x => this.students_[x])
   }
 
   checked(submit: SubmitModel): boolean {
@@ -128,31 +121,23 @@ export default class ProblemView extends Vue {
     return submit.id === this.submitIdProp;
   }
 
-  async created() {
-    const problem = await this.problemStore.fetchProblemById(this.problemId);
-    if (problem)
-      this.problemStore.setCurrentProblem(problem);
-
-    if (this.isStaff) {
-      this.students_ = await this.userStore.fetchStudentsByCourseId(this.courseId)
-
-      if (!_.isEmpty(this.students_)) {
-        await this.submitStore.fetchSubmits({
-          problemId: this.problemId,
-          userId: this.students_[0].id,
-        })
-      }
-    } else {
-      await this.submitStore.fetchSubmits({
-        problemId: this.problemId, userId: this.user.id,
-      });
-    }
-
-    if (this.submitIdProp) {this.changeCurrentSubmit(this.submitIdProp); }
-    if (!_.isEmpty(this.submits) && !this.submitIdProp) {
-      this.changeCurrentSubmit(this.getLastSubmit().id);
-    }
-  }
+  // async created() {
+  //     if (!_.isEmpty(this.students_)) {
+  //       await this.submitStore.fetchSubmits({
+  //         problemId: this.problemId,
+  //         userId: this.students_[0].id,
+  //       })
+  //   } else {
+  //     await this.submitStore.fetchSubmits({
+  //       problemId: this.problemId, userId: this.user.id,
+  //     });
+  //   }
+  //
+  //   if (this.submitIdProp) {this.changeCurrentSubmit(this.submitIdProp); }
+  //   if (!_.isEmpty(this.submits) && !this.submitIdProp) {
+  //     this.changeCurrentSubmit(this.getLastSubmit().id);
+  //   }
+  // }
 
   changeCurrentSubmit(id: number) {
     this.submitId = Number(id);
@@ -161,7 +146,7 @@ export default class ProblemView extends Vue {
         name: 'ProblemViewWithSubmit', params: {
           courseId: this.$route.params.courseId,
           lessonId: this.$route.params.lessonId,
-          problemId: this.problemId.toString(),
+          problemId: this.$route.params.problemId,
           submitId: Number(id).toString(),
         },
       })
@@ -175,7 +160,7 @@ export default class ProblemView extends Vue {
   async changeStudent(id: number) {
     this.submitId = NaN;
     await this.submitStore.fetchSubmits(
-      { problemId: this.problemId, userId: Number(id) },
+      { problemId: Number(this.$route.params.problemId), userId: Number(id) },
     );
     this.submitId = id;
     if (!_.isEmpty(this.submits))
