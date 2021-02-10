@@ -32,6 +32,7 @@ class ScheduleViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, Upda
 
 class LinkViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
     serializer_class = LinkSerializer
+    # TODO: queryset contains links ONLY FOR COURSE that we need
     queryset = CourseLink.objects.all()
 
 
@@ -86,7 +87,6 @@ def course_registration(request, link):
 @login_required
 @api_view(['DELETE'])
 def delete_link(request, link):
-    CourseLink.objects.get(pk=link.id).delete()
-    return Response(CourseLink.objects)
-
-# TODO: fix broken API
+    courselinks = CourseLink.objects.select_related('course')
+    courselinks.get(link=link).delete()
+    return Response()

@@ -33,13 +33,14 @@
   </div>
 </template>
 
+<!-- TODO: properly working API for getting links (check views.py of course) -->
+
 <script lang="ts">
 import LinkModel from "@/models/LinkModel";
 import axios from 'axios';
 import {Component, Prop, Vue} from "vue-property-decorator";
 import TrashCan16 from '@carbon/icons-vue/lib/trash-can/16'
 import CopyLink16 from '@carbon/icons-vue/lib/copy--link/16';
-
 
 @Component({})
 export default class LinksManagerComponent extends Vue {
@@ -53,7 +54,8 @@ export default class LinksManagerComponent extends Vue {
   async created() {
     await axios.get('http://localhost:8000/api/courselink/')
       .then(response => {
-        this.Links = response.data.filter((x: LinkModel) => x.course == this.courseId).filter((x: LinkModel) => x.usages > 0);
+        this.Links = response.data.filter((x: LinkModel) => x.course == this.courseId
+          && x.usages > 0);
       })
       .catch(error => {
         console.log(error);
@@ -74,14 +76,12 @@ export default class LinksManagerComponent extends Vue {
   }
 
   deleteLink(link: string) {
+    this.Links = this.Links.filter((x: LinkModel) => x.link != link)
     const request = axios.delete(`/api/delete-link/${link}/`)
-      .then(result => {
-        console.log(result.data)
-      })
   }
 
   copyLink(link: LinkModel) {
-    console.log("copied!")
+    /*TODO: use vClipboard or smth like that*/
     console.log(link)
   }
 
