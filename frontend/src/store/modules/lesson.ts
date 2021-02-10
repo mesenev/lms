@@ -11,11 +11,17 @@ import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-dec
 })
 class LessonModule extends VuexModule {
 
+  currentLesson: LessonModel | null = null;
   lessons: Array<LessonModel> = [];
 
   @Mutation
   setLessons(payload: Array<LessonModel>) {
     this.lessons = payload;
+  }
+
+  @Mutation
+  changeCurrentLesson(payload: LessonModel | null) {
+    this.currentLesson = payload;
   }
 
   @Action

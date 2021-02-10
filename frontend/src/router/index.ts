@@ -1,14 +1,15 @@
 // TODO: import as obj from @/views
 import courseRoutes from '@/router/course';
+import lessonRoutes from '@/router/lesson';
 import CourseViewLayout from '@/views/CourseViewLayout.vue';
 import HomeView from '@/views/HomeView.vue';
-import LessonView from '@/views/LessonView.vue';
+import LessonViewLayout from '@/views/LessonViewLayout.vue';
 import MaterialView from '@/views/MaterialView.vue';
 import ProblemView from '@/views/ProblemView.vue';
 import ProfileView from "@/views/ProfileView.vue";
 import RegistrationView from '@/views/RegistrationView.vue';
 import Vue from 'vue';
-import VueRouter, {RouteConfig} from 'vue-router';
+import VueRouter, { RouteConfig } from 'vue-router';
 import managementRoutes from './CourseManagement';
 
 Vue.use(VueRouter);
@@ -26,17 +27,20 @@ const routes: Array<RouteConfig> = [
       return { courseId, ...route.params };
     },
     children: [
+      {
+        path: 'lesson/:lessonId',
+        name: 'LessonViewLayout',
+        component: LessonViewLayout,
+        children: [
+          ...lessonRoutes,
+        ],
+        props: (route) => {
+          const lessonId = Number.parseInt(route.params.lessonId as string, 10);
+          return { lessonId, ...route.params };
+        },
+      },
       ...courseRoutes,
     ],
-  },
-  {
-    path: '/course/:courseId/lesson/:lessonId',
-    name: 'LessonView',
-    component: LessonView,
-    props: (route) => {
-      const lessonId = Number.parseInt(route.params.lessonId as string, 10);
-      return { lessonId, ...route.params };
-    },
   },
   {
     path: '/course/:courseId/lesson/:lessonId/problem/:problemId/submit/:submitId',
@@ -77,8 +81,8 @@ const routes: Array<RouteConfig> = [
     component: ProfileView,
     props: (route) => {
       const userId = Number.parseInt(route.params.userId as string, 10);
-      return {userId, ...route.params};
-    }
+      return { userId, ...route.params };
+    },
   },
   ...managementRoutes,
 ];
