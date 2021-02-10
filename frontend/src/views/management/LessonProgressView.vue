@@ -15,20 +15,18 @@
           v-model="dontSolved"/>
       </template>
       <template slot="headings">
-        <cv-data-table-heading v-for="(column, id) in columns" :key="id" :sortable="sortable">
-          <!-- Todo: переверстать по человечески -->
+        <cv-data-table-heading v-for="(column, id) in columns" :key="id" :sortable=isSortable(column.id)>
           <h5 v-if="(column.id === 0)">Результаты</h5>
           <h5 v-else-if="(column.id === -1)">Участник</h5>
-          <cv-definition-tooltip v-else :definition="definition(column.id)" :term="column.name" />
+          <cv-definition-tooltip v-else :definition="definition(column.id)" :term="column.name"/>
         </cv-data-table-heading>
       </template>
       <template slot="data">
         <cv-data-table-row v-for="user in users" :key="user.id">
           <cv-data-table-cell>
-            <!-- TODO ссылка на профиль -->
             <router-link :to="{ name: 'profile-page', params: { userId: user.user} }"
                          class="course--title" tag="p">
-              <UserComponent :user="student(user.user)"/>
+              <UserComponent :user="user.user"/>
             </router-link>
           </cv-data-table-cell>
           <cv-data-table-cell class="mark"
@@ -70,16 +68,26 @@ export default class LessonProgressView extends Vue {
   userStore = userStore;
   lessonStore = lessonStore;
 
+  get columns() {
+    const a = this.les.problems.map(l => (
+      {
+        id: l.id,
+        name: l.name
+      }
+    ))
+    a.unshift({id: -1, name: "Ученики"})
+    a.push({id: 0, name: "Рейтинг"})
+    return a
+  }
+
   definition(a: number) {
-    if (!this.loading && a!= -1 && a!= 0){
-      const  pr = this.lesson.problems.filter((problem) => problem.id === a)
+    if (!this.loading && a != -1 && a != 0) {
+      const pr = this.lesson.problems.filter((problem) => problem.id === a)
       a = pr[0].success_or_last_submits.filter(x => x.status === 'OK').length
     }
     return `Успешно решило ${a} из ${this.users.length} студентов`
   }
-  create_submit(problemId: number, userid: number,status: string): SubmitModel{
-    return { id:1, problem: problemId, student: userid, status: status};
-  }
+
   begin = true;
   end = true;
   loading = true;
@@ -98,19 +106,8 @@ export default class LessonProgressView extends Vue {
     progress: [],
   };
 
-  async created() {
-    this.lesson = await this.lessonStore.fetchLessonById(this.lessonId);
-    this.students = this.lesson.progress;
-    this.users1 = await this.userStore.fetchStudentsByCourseId(this.lesson.course);
-    this.loading = false;
-
-  }
-
-  student(id: number) {
-    const a = this.users1[id];
-    if (a){
-      return a;
-    }
+  create_submit(problemId: number, userid: number, status: string): SubmitModel {
+    return {id: 1, problem: problemId, student: userid, status: status};
   }
 
   get users() {
@@ -124,53 +121,48 @@ export default class LessonProgressView extends Vue {
     return this.lesson;
   }
 
-  get columns() {
-    const a = this.les.problems.map(l => (
-      {
-        id: l.id,
-        name: l.name
-      }
-    ))
-    a.unshift({id:-1, name: "Ученики"})
-    a.push({id:0, name: "Рейтинг"})
-    return a
-
-    //return [{'i': 'Ученики'}].concat('6',this.les.problems.map((l) => l.name).toLocaleString()).concat('Рейтинг');
+  async created() {
+    this.lesson = await this.lessonStore.fetchLessonById(this.lessonId);
+    this.students = this.lesson.progress;
+    this.users1 = await this.userStore.fetchStudentsByCourseId(this.lesson.course);
+    this.students = this.students.map(obj => Object.assign({}, obj, {user: this.users1[obj.user.toLocaleString()]}));
+    this.loading = false;
   }
 
   userMarks(userId: UserProgress, lessonId: number) {
     return userId.solved[lessonId]
   }
 
-  /*userAttendance(userId: number, lessonId: number) {
-    // return this.users[userId].attendance[lessonId];
-    return [];
-  }
-
-  changeAttendance(userId: number, lessonId: number) {
-    //
-  }*/
-
   average(user: UserProgress): string {
-    //const sum = (marks: number[]) => marks.reduce((total, value) => total + value);
-    //const { solved } = user;
-    //return sum(solved) / solved.length;
-    const a  = Object.fromEntries(Object.entries(user.solved).filter(([key, value]) => value === 'OK'))
-    return  (Object.keys(a).length/this.les.problems.length)*100+"%";
+    const solvedCount = Object.values(user.solved).filter(x => x == 'OK').length
+    return Number(solvedCount / this.les.problems.length) * 100 + "%";
   }
 
-  Sort(sortBy: { index: string ; order: string}) {
+  isSortable(column: number): boolean {
+    return (!(column != 0 && column != -1));
+  }
+
+  Sort(sortBy: { index: string; order: string }) {
+    let order = -1;
+    if (sortBy.order == "none") {
+      return this.students.sort((a, b) => {
+        return a.id - b.id
+      })
+    }
     if (sortBy.order == "ascending") {
-          return this.students.sort((a, b) => {
-      return Number(b.user) - Number(a.user);
-    })
+      order *= -1;
     }
-    if(sortBy.order == "descending") {
-          return this.students.sort((a, b) => {
-      return Number(a.user) - Number(b.user);
-    })
+    if (sortBy.index == "0") {
+      return this.students.sort((a, b) => {
+        return (a.user.last_name > b.user.last_name) ? order : -1 * order;
+      })
+    } else {
+      return this.students.sort((a, b) => {
+        const A = Object.values(a.solved).filter(a => a == 'OK')
+        const B = Object.values(b.solved).filter(b => b == 'OK')
+        return (Object.keys(A).length > Object.keys(B).length) ? order : -1 * order
+      })
     }
-    return this.students
   }
 }
 </script>
