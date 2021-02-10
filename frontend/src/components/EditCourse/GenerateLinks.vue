@@ -6,17 +6,27 @@
     <cv-structured-list :condensed="false">
       <template slot="headings">
         <cv-structured-list-heading>
-          Links
+          Доступные ссылки
         </cv-structured-list-heading>
-        <cv-structured-list-heading>Amount of usages</cv-structured-list-heading>
+        <cv-structured-list-heading>Количество использований</cv-structured-list-heading>
       </template>
       <template slot="items">
         <cv-structured-list-item v-if="loading">
         </cv-structured-list-item>
         <cv-structured-list-item checked v-for="k in Links" :key="k.link" v-else>
-          <cv-structured-list-data>{{ k.link }}
+          <cv-structured-list-data>
+            {{ k.link }}
+            <component :is="CopyLink16"
+                       class="icon"
+                       @click="copyLink(k.link)">
+            </component>
           </cv-structured-list-data>
-          <cv-structured-list-data>{{ k.usages }}</cv-structured-list-data>
+          <cv-structured-list-data>{{ k.usages }}
+            <component :is="TrashCan16"
+                       class="icon"
+                       @click="deleteLink(k.link)">
+            </component>
+          </cv-structured-list-data>
         </cv-structured-list-item>
       </template>
     </cv-structured-list>
@@ -27,19 +37,18 @@
 import LinkModel from "@/models/LinkModel";
 import axios from 'axios';
 import {Component, Prop, Vue} from "vue-property-decorator";
-import Save20 from '@carbon/icons-vue/es/save/20'
+import TrashCan16 from '@carbon/icons-vue/lib/trash-can/16'
+import CopyLink16 from '@carbon/icons-vue/lib/copy--link/16';
 
 
-@Component({
-  components: {
-    Save20
-  }
-})
+@Component({})
 export default class LinksManagerComponent extends Vue {
   @Prop({required: true}) counter!: number;
   @Prop({required: true}) courseId!: number;
   loading = true;
   Links: Array<LinkModel> = [];
+  TrashCan16 = TrashCan16
+  CopyLink16 = CopyLink16
 
   async created() {
     await axios.get('http://localhost:8000/api/courselink/')
@@ -62,6 +71,18 @@ export default class LinksManagerComponent extends Vue {
       .catch(error => {
         console.log(error);
       });
+  }
+
+  deleteLink(link: string) {
+    const request = axios.delete(`/api/delete-link/${link}/`)
+      .then(result => {
+        console.log(result.data)
+      })
+  }
+
+  copyLink(link: LinkModel) {
+    console.log("copied!")
+    console.log(link)
   }
 
 }

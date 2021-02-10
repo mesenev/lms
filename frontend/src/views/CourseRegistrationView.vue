@@ -4,8 +4,8 @@
     <div class="bx--row header">
       <cv-skeleton-text v-if="loading"/>
       <div v-else>
-        <h1>Регистрация на курс {{ course.name || '' }}, преподаватель {{ course.author.first_name }}
-          {{ course.author.last_name }}.</h1>
+        <h1>Регистрация на курс {{ course.name || '' }},</h1>
+        <h1>Преподаватель {{ course.author.first_name }} {{ course.author.last_name }}.</h1>
       </div>
     </div>
     <div class="bx--row">

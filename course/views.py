@@ -81,3 +81,12 @@ def course_registration(request, link):
         return Response(dict(user=assignment.user_id, courseId=assignment.course.id))
     else:
         raise NotFound()
+
+
+@login_required
+@api_view(['DELETE'])
+def delete_link(request, link):
+    CourseLink.objects.get(pk=link.id).delete()
+    return Response(CourseLink.objects)
+
+# TODO: fix broken API
