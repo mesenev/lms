@@ -156,14 +156,13 @@ export default class ProblemView extends Vue {
 
   changeCurrentSubmit(id: number) {
     this.submitId = Number(id);
-    // TODO: i don't know how to make it work. gg.
     if (this.submitIdProp !== Number(id)) {
       this.$router.push({
         name: 'ProblemViewWithSubmit', params: {
           courseId: this.$route.params.courseId,
           lessonId: this.$route.params.lessonId,
           problemId: this.problemId.toString(),
-          submitIdProp: Number(id).toString(),
+          submitId: Number(id).toString(),
         },
       })
     }
