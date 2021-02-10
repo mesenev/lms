@@ -27,9 +27,9 @@ const routes: Array<RouteConfig> = [
       return { courseId, ...route.params };
     },
     children: [
+      ...courseRoutes,
       {
         path: 'lesson/:lessonId',
-        name: 'LessonViewLayout',
         component: LessonViewLayout,
         children: [
           ...lessonRoutes,
@@ -39,7 +39,6 @@ const routes: Array<RouteConfig> = [
           return { lessonId, ...route.params };
         },
       },
-      ...courseRoutes,
     ],
   },
   {

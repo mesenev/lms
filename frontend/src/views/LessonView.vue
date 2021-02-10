@@ -64,24 +64,22 @@
 import MaterialListComponent from '@/components/lists/MaterialListComponent.vue';
 import ProblemListComponent from '@/components/lists/ProblemListComponent.vue';
 import MaterialModel from '@/models/MaterialModel';
-import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
 import lessonStore from '@/store/modules/lesson';
 import userStore from '@/store/modules/user';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 
 @Component({components: {MaterialListComponent, ProblemListComponent}})
 export default class LessonView extends Vue {
-  @Prop() lessonId!: number;
   store = lessonStore;
   userStore = userStore;
-  lesson!: LessonModel;
-  loading = true;
 
-  async created() {
-    this.lesson = await this.store.fetchLessonById(this.lessonId);
-    const stds = await this.userStore.fetchStudentsByCourseId(this.lesson.course);
-    this.loading = false;
+  get lesson() {
+    return this.store.currentLesson;
+  }
+
+  get loading() {
+    return !Boolean(this.lesson);
   }
 
   get materials(): Array<MaterialModel> {
