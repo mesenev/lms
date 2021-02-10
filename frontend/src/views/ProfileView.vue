@@ -1,16 +1,17 @@
 <template>
-  <div class="bx--grid bx--grid--narrow">
+  <div v-if="!loading" class="bx--grid bx--grid--narrow">
     <div class="bx--row header">
       <h1> {{ user.first_name + ' ' + user.last_name }}</h1>
     </div>
     <div class="bx--row content">
       <div class="container">
         <Avatar class="image" :avatar_url="user.avatar_url"/>
-        <EditAvatarModal :user="user"/>
+        <EditAvatarModal v-if="!guestMode" :user="user"/>
       </div>
       <div class="bx--col">
         <div class="courses-block">
-          <h3>Мои курсы</h3>
+          <h3 v-if="!guestMode">Мои курсы</h3>
+          <h3 v-else>Курсы пользователя</h3>
           <cv-structured-list v-if="!loading" selectable>
             <template slot="items">
               <cv-structured-list-item class="item" v-for="course in filterCourses" :key="course.id">
@@ -40,8 +41,8 @@
                   <cv-structured-list-data class="cats_status">Не привязан</cv-structured-list-data>
                 </cv-structured-list-item>
                 <div class="info-btns">
-                  <AddCatsModal class="add-cats"/>
-                  <ChangePasswordModal class="change-pass"/>
+                  <AddCatsModal v-if="!guestMode" class="add-cats"/>
+                  <ChangePasswordModal v-if="!guestMode" class="change-pass"/>
                 </div>
               </template>
             </cv-structured-list>
@@ -63,7 +64,7 @@ import courseStore from '@/store/modules/course';
 import userStore from '@/store/modules/user';
 import EditAvatarModal from "@/views/EditAvatarModal.vue";
 import Edit32 from '@carbon/icons-vue/es/edit/32';
-import { Component, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 
 @Component({
   components: {
@@ -72,14 +73,20 @@ import { Component, Vue } from 'vue-property-decorator';
   },
 })
 export default class ProfileView extends Vue {
+  @Prop({required: true}) userId!: number;
   private store = courseStore;
   loading = true;
   searchValue = "";
-
   user = userStore.user;
+
+  guestMode = false;
 
   async created() {
     await this.store.fetchCourses();
+    if (this.userId != this.user.id) {
+      this.guestMode = true;
+      this.user = await userStore.fetchUserById(this.userId);
+    }
     this.loading = false;
   }
 

@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import searchByLessons from '@/common/searchByLessons';
+import searchByLessons from '@/common/searchByTutorial';
 import LessonCard from '@/components/EditCourse/LessonCard.vue';
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';

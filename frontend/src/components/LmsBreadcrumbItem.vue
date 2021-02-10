@@ -12,18 +12,27 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from "vue-property-decorator";
-import {Model} from "@/typings";
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import { TutorialModel } from '@/models/TutorialModel';
 
-export interface BreadcrumbDictionary {
-  [id: number]: string;
+const errors: { [key: string]: string } = {
+  CourseView: 'Текущий курс',
+  LessonView: 'Текущий урок',
+  ProblemView: 'Текущая проблема',
+  MaterialView: 'Текщий материал',
 }
 
 @Component
 export default class LmsBreadcrumbItem extends Vue {
-  @Prop({ type: Number, required: true, }) id!: number;
-  @Prop({ type: String, required: true }) PageView!: string;
-  @Prop( { type: Function, required: true }) fetch!: (id: number) => Promise<Model>;
+  @Prop({type: Number, required: true,}) id!: number;
+  @Prop({
+    type: String,
+    required: true,
+    validator(value: string): boolean {
+      return errors.hasOwnProperty(value);
+    }
+  }) PageView!: string;
+  @Prop({type: Function, required: true}) fetch!: (id: number) => Promise<TutorialModel>;
 
   title = '';
 
@@ -31,10 +40,11 @@ export default class LmsBreadcrumbItem extends Vue {
 
   async setTitle() {
     this.loading = true;
-    if (!localStorage.getItem(this.id.toString())) {
-      localStorage.setItem(this.id.toString(), (await this.fetch(this.id)).name);
+    const localStorageKey = `${this.PageView}_${this.id}`;
+    if (!localStorage.getItem(localStorageKey)) {
+      localStorage.setItem(localStorageKey, (await this.fetch(this.id)).name);
     }
-    this.title = localStorage.getItem(this.id.toString()) ?? '';
+    this.title = localStorage.getItem(localStorageKey) ?? errors[this.PageView];
     this.loading = false;
   }
 

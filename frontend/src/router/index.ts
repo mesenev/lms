@@ -1,5 +1,6 @@
 // TODO: import as obj from @/views
-import CourseView from '@/views/CourseView.vue';
+import courseRoutes from '@/router/course';
+import CourseViewLayout from '@/views/CourseViewLayout.vue';
 import HomeView from '@/views/HomeView.vue';
 import LessonView from '@/views/LessonView.vue';
 import MaterialView from '@/views/MaterialView.vue';
@@ -7,7 +8,7 @@ import ProblemView from '@/views/ProblemView.vue';
 import ProfileView from "@/views/ProfileView.vue";
 import RegistrationView from '@/views/RegistrationView.vue';
 import Vue from 'vue';
-import VueRouter, { RouteConfig } from 'vue-router';
+import VueRouter, {RouteConfig} from 'vue-router';
 import managementRoutes from './CourseManagement';
 
 Vue.use(VueRouter);
@@ -16,16 +17,17 @@ const routes: Array<RouteConfig> = [
     path: '/',
     name: 'Home',
     component: HomeView,
-    props: true,
   },
   {
     path: '/course/:courseId',
-    name: 'CourseView',
-    component: CourseView,
+    component: CourseViewLayout,
     props: (route) => {
       const courseId = Number.parseInt(route.params.courseId as string, 10);
       return { courseId, ...route.params };
     },
+    children: [
+      ...courseRoutes,
+    ],
   },
   {
     path: '/course/:courseId/lesson/:lessonId',
@@ -70,9 +72,13 @@ const routes: Array<RouteConfig> = [
     component: RegistrationView,
   },
   {
-    path: '/profile',
+    path: '/profile/:userId',
     name: 'profile-page',
     component: ProfileView,
+    props: (route) => {
+      const userId = Number.parseInt(route.params.userId as string, 10);
+      return {userId, ...route.params};
+    }
   },
   ...managementRoutes,
 ];

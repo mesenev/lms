@@ -41,9 +41,9 @@
 </template>
 
 <script lang="ts">
-import LessonContent from "@/models/LessonContent";
+import MaterialModel from '@/models/MaterialModel';
 import LessonModel from '@/models/LessonModel';
-import materialStore from "@/store/modules/material";
+import materialStore from '@/store/modules/material';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import axios from 'axios';
@@ -56,12 +56,12 @@ export default class EditLessonMaterialsModal extends Vue {
   AddAlt32 = AddAlt20;
   SubtractAlt32 = SubtractAlt20;
   materialStore = materialStore;
-  currentMaterial: LessonContent = { ...this.materialStore.getNewMaterial, lesson: this.lesson.id};
+  currentMaterial: MaterialModel = {...this.materialStore.getNewMaterial, lesson: this.lesson.id};
   selectedNew = true;
   showNotification = false;
   notificationText = '';
   creationLoader = false;
-  materials: LessonContent[] = [];
+  materials: MaterialModel[] = [];
   modalVisible = false;
   searchQueryForAllMaterials = '';
 
@@ -94,7 +94,7 @@ export default class EditLessonMaterialsModal extends Vue {
     this.currentMaterial.content = "### материал"
     const request = axios.post('http://localhost:8000/api/material/', this.currentMaterial);
     request.then(response => {
-      this.lesson.materials.push(response.data as LessonContent);
+      this.lesson.materials.push(response.data as MaterialModel);
       this.modalHidden();
     });
     request.catch(error => {

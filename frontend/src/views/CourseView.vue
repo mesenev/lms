@@ -9,13 +9,13 @@
     <div class=" bx--row">
       <div class="items bx--col-lg-8">
         <cv-search label="label" placeholder="search" v-model.trim="searchValue"/>
-        <cv-structured-list v-if="!loading" selectable>
+        <cv-structured-list v-if="!loading">
           <template slot="items">
             <cv-structured-list-item
               class="item"
               v-for="lesson in filterLessons"
               :key="lesson.id">
-              <lesson :lesson-prop='lesson'/>
+              <lesson-list-component :lesson-prop='lesson'/>
             </cv-structured-list-item>
           </template>
         </cv-structured-list>
@@ -26,28 +26,23 @@
 </template>
 
 <script lang="ts">
-import Lesson from "@/components/lists/LessonListComponent.vue";
+import LessonListComponent from "@/components/lists/LessonListComponent.vue";
 import CourseModel from '@/models/CourseModel';
 import LessonModel from "@/models/LessonModel";
 import courseStore from "@/store/modules/course";
-import lessonStore from "@/store/modules/lesson";
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 
-@Component({ components: { Lesson } })
+@Component({ components: { LessonListComponent } })
 export default class CourseView extends Vue {
-  @Prop({ required: true }) courseId!: number;
-
-  course: CourseModel | null = null;
   courseStore = courseStore;
-  lessonStore = lessonStore;
-  loading = true;
-  usagesAmount = 0;
-
   searchValue = "";
 
-  async created() {
-    this.course = await this.courseStore.fetchCourseById(this.courseId);
-    this.loading = false;
+  get loading(): boolean {
+    return !Boolean(this.courseStore.currentCourse);
+  }
+
+  get course(): CourseModel | null {
+    return this.courseStore.currentCourse;
   }
 
   get lessons(): Array<LessonModel> {
@@ -55,9 +50,9 @@ export default class CourseView extends Vue {
   }
 
   get filterLessons() {
-    return this.lessons.filter(l => {
-      return l.name?.toLowerCase().includes(this.searchValue.toLowerCase())
-    })
+    return this.lessons.filter((l: LessonModel) => {
+      return l.name.toLowerCase().includes(this.searchValue.toLowerCase());
+    });
   }
 }
 

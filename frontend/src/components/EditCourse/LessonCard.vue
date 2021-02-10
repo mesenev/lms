@@ -59,7 +59,7 @@ export default class LessonCard extends Vue {
   }
 
   editLesson() {
-    router.push({name: 'lesson-edit', params: {lessonId: this.lesson.id}});
+    router.push({name: 'lesson-edit', params: {lessonId: this.lesson.id.toString()}});
   }
 }
 </script>

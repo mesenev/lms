@@ -102,7 +102,6 @@ export default class CourseRegistrationView extends NotificationMixinComponent {
           this.showNotification = true;
         },
       )
-    console.log(this.$router.params)
   }
 }
 

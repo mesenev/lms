@@ -69,7 +69,7 @@
 <!-- TODO: get counts from num-input -->
 
 <script lang="ts">
-import searchByLessons from '@/common/searchByLessons';
+import searchByLessons from '@/common/searchByTutorial';
 import LessonCard from '@/components/EditCourse/LessonCard.vue';
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
@@ -79,7 +79,7 @@ import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import axios from 'axios';
 
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 
 @Component({ components: { LessonCard, AddAlt20, SubtractAlt20 } })
 export default class EditCourseModal extends Vue {
@@ -160,7 +160,6 @@ export default class EditCourseModal extends Vue {
 
   async createNewLesson() {
     delete this.currentLesson.id;
-    console.log(this.currentLesson);
     const request = axios.post('http://localhost:8000/api/lesson/', this.currentLesson);
     request.then(response => {
       this.course.lessons.push(response.data as LessonModel);

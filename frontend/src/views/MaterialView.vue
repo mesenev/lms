@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import LessonContent from "@/models/LessonContent";
+import MaterialModel from '@/models/MaterialModel';
 import materialStore from '@/store/modules/material';
 import MarkdownItVue from 'markdown-it-vue'
 import 'markdown-it-vue/dist/markdown-it-vue.css'
@@ -29,7 +29,7 @@ import Vue, { VueConstructor } from 'vue';
 export default class MaterialView extends Vue {
   @Prop() materialId!: number;
   private materialStore = materialStore;
-  material!: LessonContent;
+  material!: MaterialModel;
 
   async created() {
     const material = await this.materialStore.fetchMaterialById(this.materialId);
@@ -38,7 +38,7 @@ export default class MaterialView extends Vue {
     }
   }
 
-  get materials(): LessonContent {
+  get materials(): MaterialModel {
     return this.materialStore.currentMaterial;
   }
 

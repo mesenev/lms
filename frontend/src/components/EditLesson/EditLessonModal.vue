@@ -67,7 +67,7 @@
 </template>
 
 <script lang="ts">
-import searchByProblems from '@/common/searchByProblems';
+import searchByProblems from '@/common/searchByTutorial';
 import CatsProblemModel from '@/models/CatsProblemModel';
 import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';

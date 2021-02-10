@@ -4,10 +4,10 @@ import UserProgress from '@/models/UserProgress';
 import store from '@/store';
 import courseModule from '@/store/modules/course';
 import axios from 'axios';
-import { Dictionary } from 'vue-router/types/router';
-import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators'
+import {Dictionary} from 'vue-router/types/router';
+import {Action, getModule, Module, Mutation, VuexModule} from 'vuex-module-decorators'
 
-@Module({ namespaced: true, name: 'user', store, dynamic: true })
+@Module({namespaced: true, name: 'user', store, dynamic: true})
 class UserModule extends VuexModule {
   public user: UserModel = {
     id: -1,
@@ -44,14 +44,23 @@ class UserModule extends VuexModule {
   }
 
   @Action
-  async fetchStudentsProgressByLessonId(lessonId: number): Promise<Array<UserProgress>> {
-    let data = { data: {}}
-    await axios.get('http://localhost:8000/api/lessonprogress/').
-      then( response => data = response)
+  async fetchStudentsProgressByLessonId(): Promise<Array<UserProgress>> {
+    let data = {data: {}}
+    await axios.get('http://localhost:8000/api/lessonprogress/').then(response => data = response)
       .catch(error => {
         console.log(error);
       })
     return data.data as Array<UserProgress>;
+  }
+
+  @Action
+  async fetchUserById(userId: number): Promise<UserModel> {
+    let data = {data: {}}
+    await axios.get(`http://localhost:8000/api/users/${userId}/`).then(response => data = response)
+      .catch(error => {
+        console.log(error);
+      })
+    return data.data as UserModel;
   }
 }
 
