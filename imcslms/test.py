@@ -15,4 +15,3 @@ class MainSetup(APITestCase):
         )
         my_group.user_set.add(self.user)
         self.client.login(username=self.user.username, password='password1234')
-        # self.client.force_authenticate(self.user)
