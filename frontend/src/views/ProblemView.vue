@@ -33,7 +33,7 @@
                 <cv-structured-list-item
                   v-for="submit in submits"
                   :key="submit.id"
-                  :checked="checked(submit)"
+                  :checked="checkedSubmit(submit)"
                   :value="submit.id.toString()"
                   name="submit">
                   <cv-structured-list-data>{{ submit.id }}</cv-structured-list-data>
@@ -54,13 +54,13 @@
         <div class="item">
           <cv-structured-list class="student-list" condensed selectable @change="changeStudent">
             <template slot="headings">
-              <cv-structured-list-heading> Ученик</cv-structured-list-heading>
+              <cv-structured-list-heading>Ученик</cv-structured-list-heading>
             </template>
             <template slot="items">
               <cv-structured-list-item
                 v-for="student in students"
                 :key="student.id"
-                :checked="student.id === Math.min(...students.map(s => s.id))"
+                :checked="checkedStudent(student)"
                 :value="student.id.toString()"
                 name="student">
                 <cv-structured-list-data>
@@ -91,13 +91,13 @@ import submitStore from '@/store/modules/submit';
 import userStore from '@/store/modules/user';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { Dictionary } from 'vue-router/types/router';
 
 
 @Component({ components: { SubmitComponent, ProblemDescription, SubmitStatus } })
 export default class ProblemView extends Vue {
   @Prop({ required: false, default: null }) submitIdProp!: number | null;
   public submitId = this.submitIdProp;
+  public studentId = (this.problem?.students) ? Object.keys(this.problem?.students)[0] : NaN;
 
   private problemStore = problemStore;
   private userStore = userStore;
@@ -105,39 +105,27 @@ export default class ProblemView extends Vue {
   private user = this.userStore.user;
   private readonly courseId = Number(this.$route.params.courseId);
 
-  private students_: Dictionary<UserModel> = {};
-
   get problem() {
     return this.problemStore.currentProblem;
   }
 
   get students() {
-    return Object.keys(this.userStore.currentCourseStudents).map(x => this.students_[x])
+    return Object.keys(this.problem?.students).map(x => this.userStore.currentCourseStudents[x]);
   }
 
-  checked(submit: SubmitModel): boolean {
+  checkedSubmit(submit: SubmitModel): boolean {
     if (!this.submitIdProp)
       return submit.id === Math.max(...this.submits.map(s => s.id));
     return submit.id === this.submitIdProp;
   }
 
-  // async created() {
-  //     if (!_.isEmpty(this.students_)) {
-  //       await this.submitStore.fetchSubmits({
-  //         problemId: this.problemId,
-  //         userId: this.students_[0].id,
-  //       })
-  //   } else {
-  //     await this.submitStore.fetchSubmits({
-  //       problemId: this.problemId, userId: this.user.id,
-  //     });
-  //   }
-  //
-  //   if (this.submitIdProp) {this.changeCurrentSubmit(this.submitIdProp); }
-  //   if (!_.isEmpty(this.submits) && !this.submitIdProp) {
-  //     this.changeCurrentSubmit(this.getLastSubmit().id);
-  //   }
-  // }
+  checkedStudent(student: UserModel): boolean {
+    return submit.id === this.studentId;
+  }
+
+  async created() {
+//
+  }
 
   changeCurrentSubmit(id: number) {
     this.submitId = Number(id);

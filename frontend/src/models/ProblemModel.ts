@@ -1,4 +1,3 @@
-import SubmitModel from '@/models/SubmitModel';
 import { TutorialModel } from '@/models/TutorialModel';
 
 export default interface ProblemModel extends TutorialModel {
@@ -10,6 +9,5 @@ export default interface ProblemModel extends TutorialModel {
   cats_id: number;
   cats_material_url: string;
   language: Array<string> | null; //Todo : fix this
-  success_or_last_submits: Array<SubmitModel>;
   students?: {};
 }

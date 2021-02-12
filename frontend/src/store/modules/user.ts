@@ -21,9 +21,9 @@ class UserModule extends VuexModule {
   }
 
   // storage for all fetched users associated with courseId
-  currentCourseStudents: Dictionary<Dictionary<UserModel>> = {};
+  currentCourseStudents: Dictionary<UserModel> = {};
 
-  @Mutation fetchStudentsMutation(data: Dictionary<Dictionary<UserModel>>) {
+  @Mutation fetchStudentsMutation(data: Dictionary<UserModel>) {
     this.currentCourseStudents = data;
   }
 
