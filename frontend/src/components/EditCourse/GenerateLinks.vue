@@ -37,35 +37,31 @@
 
 <script lang="ts">
 import LinkModel from "@/models/LinkModel";
-import axios from 'axios';
-import {Component, Prop, Vue} from "vue-property-decorator";
-import TrashCan16 from '@carbon/icons-vue/lib/trash-can/16'
 import CopyLink16 from '@carbon/icons-vue/lib/copy--link/16';
+import TrashCan16 from '@carbon/icons-vue/lib/trash-can/16'
+import axios from 'axios';
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component({})
 export default class LinksManagerComponent extends Vue {
-  @Prop({required: true}) counter!: number;
-  @Prop({required: true}) courseId!: number;
+  @Prop({ required: true }) counter!: number;
+  @Prop({ required: true }) courseId!: number;
   loading = true;
   Links: Array<LinkModel> = [];
   TrashCan16 = TrashCan16
   CopyLink16 = CopyLink16
 
   async created() {
-    await axios.get('http://localhost:8000/api/courselink/')
-      .then(response => {
-        this.Links = response.data.filter((x: LinkModel) => x.course == this.courseId
-          && x.usages > 0);
-      })
-      .catch(error => {
-        console.log(error);
-      })
+    await axios.get(
+      'http://localhost:8000/api/courselink/', { params: { course: this.courseId } },
+    ).then(response => { this.Links = response.data.filter((x: LinkModel) => x.usages > 0); },
+    ).catch(error => { console.log(error); })
     this.loading = false;
   }
 
   async createNewLink() {
     const request = axios.post('http://localhost:8000/api/courselink/',
-      {course: this.courseId, usages: this.counter})
+      { course: this.courseId, usages: this.counter })
       .then(response => {
         this.Links.push(response.data);
         this.Links = [...this.Links];
@@ -80,7 +76,7 @@ export default class LinksManagerComponent extends Vue {
     const request = axios.delete(`/api/delete-link/${link}/`)
   }
 
-  copyLink(link: LinkModel) {
+  copyLink(link: string) {
     /*TODO: use vClipboard or smth like that*/
     console.log(link)
   }

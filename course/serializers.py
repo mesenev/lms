@@ -75,6 +75,7 @@ class ScheduleSerializer(serializers.Serializer):
 
 
 class LinkSerializer(serializers.Serializer):
+    # TODO: cleanup this serializer
     id = serializers.ReadOnlyField()
     course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
     link = serializers.SerializerMethodField(required=False)

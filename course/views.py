@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.mixins import (
@@ -30,10 +31,17 @@ class ScheduleViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, Upda
     queryset = CourseSchedule.objects.all()
 
 
-class LinkViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
-    serializer_class = LinkSerializer
-    # TODO: queryset contains links ONLY FOR COURSE that we need
+class LinkViewSet(viewsets.ModelViewSet):
     queryset = CourseLink.objects.all()
+    serializer_class = LinkSerializer
+    permission_classes = []
+
+    def list(self, request: Request, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        if 'course' in request.query_params:
+            queryset = queryset.filter(course=request.query_params['course'])
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 def __check(link, user_id):
