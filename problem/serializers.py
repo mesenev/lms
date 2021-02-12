@@ -39,6 +39,11 @@ class ProblemSerializer(serializers.ModelSerializer):
     type = serializers.CharField()
     language = serializers.CharField(required=True, allow_null=True)
     cats_material_url = serializers.CharField()
+    students = serializers.SerializerMethodField()
+
+    def get_students(self, instance):
+        return {student.id: student.submits.values('id', 'status', 'student').all().first()
+                for student in instance.students.all()}
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
@@ -52,11 +57,9 @@ class ProblemSerializer(serializers.ModelSerializer):
         user = request.user if request and hasattr(request, "user") else None
         return Problem.objects.create(**validated_data, **{'author': user})
 
-
-
     class Meta:
         model = Problem
         fields = (
             'id', 'name', 'description', 'author', 'lesson', 'submits',
-            'manual', 'type', 'language', 'cats_material_url', 'cats_id'
+            'manual', 'type', 'language', 'cats_material_url', 'cats_id', 'students'
         )

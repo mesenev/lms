@@ -11,4 +11,5 @@ export default interface ProblemModel extends TutorialModel {
   cats_material_url: string;
   language: Array<string> | null; //Todo : fix this
   success_or_last_submits: Array<SubmitModel>;
+  students?: {};
 }

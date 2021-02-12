@@ -3,17 +3,12 @@
     <cv-structured-list class="sent">
       <template slot="headings">
         <cv-structured-list-heading class="headings">
-          <span>
-            Решений: {{ successful.concat(testing).concat(wrong).length }}
-          </span>
-          <div
-            class="stats"
-          >
+          <span>Решений: {{ successful.concat(testing).concat(wrong).length }}</span>
+          <div class="stats">
             <stats-graph :size="usersWithSubmits.size"
                          :wrong="wrong.length"
                          :successful="successful.length"
-                         :testing="testing.length"
-            />
+                         :testing="testing.length"/>
             <span>Зачтено: {{ successful.length }}</span>
             <span>Ждут проверки: {{ testing.length }}</span>
             <span>Неправильно: {{ wrong.length }}</span>
@@ -22,11 +17,10 @@
       </template>
       <template slot="items">
         <cv-structured-list-item
-          v-for="submit in successful.concat(testing).concat(wrong)"
-          :key="submit.id">
+          v-for="submit in successful.concat(testing).concat(wrong)" :key="submit.id">
           <div class="list-results-container">
             <cv-structured-list-data class="student">
-              <UserComponent :user="students[submit.student.toString()]"/>
+              <UserComponent :user="students[submit.student]"/>
             </cv-structured-list-data>
             <cv-structured-list-data class="submit">
               <submit-status :submit="submit"></submit-status>
@@ -63,6 +57,7 @@ import UserComponent from '@/components/UserComponent.vue';
 import ProblemModel from '@/models/ProblemModel';
 import SubmitModel from '@/models/SubmitModel';
 import UserModel from '@/models/UserModel';
+import courseStore from '@/store/modules/course';
 import userStore from '@/store/modules/user';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Dictionary } from 'vue-router/types/router';
@@ -71,33 +66,29 @@ import { Dictionary } from 'vue-router/types/router';
 export default class ProblemStats extends Vue {
   @Prop({ required: true }) problem!: ProblemModel;
   userStore = userStore;
+  courseStore = courseStore;
 
-  usersWithSubmits: Set<string> = new Set(
-    this.problem.success_or_last_submits
-      .reduce<Array<string>>((previousValue: Array<string>, currentValue: SubmitModel) => {
-        previousValue.push(currentValue.student.toString())
-        return previousValue;
-      }, []),
-  )
+  usersWithSubmits: Set<string> = new Set(Object.keys(this.problem.students));
+  success_or_last_submits: Array<SubmitModel> = Object.values(this.problem.students);
 
   get students(): Dictionary<UserModel> {
     if (!(this.$route.params.courseId in this.userStore.currentCourseStudents))
       return {};
-    return this.userStore.currentCourseStudents[this.$route.params.courseId];
+    return this.userStore.currentCourseStudents;
   }
 
   get successful() {
-    return this.problem.success_or_last_submits.filter(x => x.status === 'OK');
+    return this.success_or_last_submits.filter(x => x.status === 'OK');
   }
 
   get testing() {
-    return this.problem.success_or_last_submits.filter(x => {
+    return this.success_or_last_submits.filter(x => {
       return x.status === 'AW' || x.status === 'NP';
     });
   }
 
   get wrong() {
-    return this.problem.success_or_last_submits.filter(x => x.status === 'WA');
+    return this.success_or_last_submits.filter(x => x.status === 'WA');
   }
 
   get noSubmitsUsers(): Array<UserModel> {
