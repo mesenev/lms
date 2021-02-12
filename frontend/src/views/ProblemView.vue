@@ -64,12 +64,7 @@
                 :value="student.id.toString()"
                 name="student">
                 <cv-structured-list-data>
-                  <cv-tag :label="`img`" kind="gray"/>
-                  {{
-                    student.first_name && student.last_name ?
-                      student.first_name + ' ' + student.last_name :
-                      student.username
-                  }}
+                  <user-component :user="student"/>
                 </cv-structured-list-data>
               </cv-structured-list-item>
             </template>
