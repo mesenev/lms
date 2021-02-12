@@ -8,7 +8,7 @@ const problemRoutes: Array<RouteConfig> = [
     component: ProblemView,
   },
   {
-    path: 'problem/:problemId/submit/:submitId',
+    path: 'submit/:submitId',
     name: 'ProblemViewWithSubmit',
     component: ProblemView,
     props: (route) => {

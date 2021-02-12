@@ -31,7 +31,7 @@
               </template>
               <template slot="items">
                 <cv-structured-list-item
-                  v-for="submit in submits"
+                  v-for="submit in userSubmits"
                   :key="submit.id"
                   :checked="checkedSubmit(submit)"
                   :value="submit.id.toString()"
@@ -84,20 +84,20 @@
 import ProblemDescription from "@/components/ProblemDescription.vue";
 import SubmitComponent from '@/components/SubmitComponent.vue';
 import SubmitStatus from "@/components/SubmitStatus.vue";
+import UserComponent from '@/components/UserComponent.vue';
 import SubmitModel from '@/models/SubmitModel';
 import UserModel from '@/models/UserModel';
 import problemStore from '@/store/modules/problem';
 import submitStore from '@/store/modules/submit';
 import userStore from '@/store/modules/user';
-import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 
-@Component({ components: { SubmitComponent, ProblemDescription, SubmitStatus } })
+@Component({ components: { SubmitComponent, ProblemDescription, SubmitStatus, UserComponent } })
 export default class ProblemView extends Vue {
   @Prop({ required: false, default: null }) submitIdProp!: number | null;
   public submitId = this.submitIdProp;
-  public studentId = (this.problem?.students) ? Object.keys(this.problem?.students)[0] : NaN;
+  public studentId = NaN;
 
   private problemStore = problemStore;
   private userStore = userStore;
@@ -113,18 +113,18 @@ export default class ProblemView extends Vue {
     return Object.keys(this.problem?.students).map(x => this.userStore.currentCourseStudents[x]);
   }
 
+  get submits(): SubmitModel[] {
+    return this.problem?.submits;
+  }
+
   checkedSubmit(submit: SubmitModel): boolean {
     if (!this.submitIdProp)
       return submit.id === Math.max(...this.submits.map(s => s.id));
     return submit.id === this.submitIdProp;
   }
 
-  checkedStudent(student: UserModel): boolean {
-    return submit.id === this.studentId;
-  }
-
-  async created() {
-//
+  get userSubmits() {
+    return this.submits.filter((x: SubmitModel) => x.student === this.studentId);
   }
 
   changeCurrentSubmit(id: number) {
@@ -145,22 +145,18 @@ export default class ProblemView extends Vue {
     return this.user.staff_for.includes(Number(this.courseId));
   }
 
+  created() {
+    if (this.submitId)
+      this.studentId = this.submits.find(x => x.id === this.submitId).student;
+  }
+
+  checkedStudent(student: UserModel): boolean {
+    return student.id === this.studentId;
+  }
+
   async changeStudent(id: number) {
-    this.submitId = NaN;
-    await this.submitStore.fetchSubmits(
-      { problemId: Number(this.$route.params.problemId), userId: Number(id) },
-    );
-    this.submitId = id;
-    if (!_.isEmpty(this.submits))
-      this.changeCurrentSubmit(this.getLastSubmit().id);
-  }
-
-  get submits(): SubmitModel[] {
-    return this.submitStore.submits;
-  }
-
-  getLastSubmit(): SubmitModel {
-    return this.submits[this.submits.length - 1];
+    this.studentId = Number(id);
+    this.changeCurrentSubmit(this.userSubmits[this.userSubmits.length - 1].id);
   }
 
   get isCompleted(): boolean {

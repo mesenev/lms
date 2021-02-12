@@ -5,10 +5,9 @@
         <cv-structured-list-heading class="headings">
           <span>Решений: {{ successful.concat(testing).concat(wrong).length }}</span>
           <div class="stats">
-            <stats-graph :size="usersWithSubmits.size"
-                         :wrong="wrong.length"
-                         :successful="successful.length"
-                         :testing="testing.length"/>
+            <stats-graph
+              :size="usersWithSubmits.size" :successful="successful.length"
+              :testing="testing.length" :wrong="wrong.length"/>
             <span>Зачтено: {{ successful.length }}</span>
             <span>Ждут проверки: {{ testing.length }}</span>
             <span>Неправильно: {{ wrong.length }}</span>
@@ -39,10 +38,9 @@
         <cv-structured-list-item
           v-for="user in noSubmitsUsers"
           :key="user.id"
-          class="unsent-users"
-        >
+          class="unsent-users">
           <cv-structured-list-data>
-            <UserComponent :user="user" class="user"/>
+            <user-component :user="user" class="user"/>
           </cv-structured-list-data>
         </cv-structured-list-item>
       </template>
