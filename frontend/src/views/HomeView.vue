@@ -38,7 +38,7 @@ export default class HomeView extends Vue {
   loading = true;
 
   async created() {
-    await this.store.fetchCourses();
+    await this.store.fetchUserCourses();
     this.loading = false;
   }
 

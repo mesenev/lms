@@ -19,8 +19,8 @@ class CourseModule extends VuexModule {
   }
 
   @Action
-  async fetchCourses() {
-    await axios.get('http://localhost:8000/api/course/')
+  async fetchUserCourses() {
+    await axios.get('/api/course/user_courses/')
       .then(response => {
         this.setCourses(response.data);
       })

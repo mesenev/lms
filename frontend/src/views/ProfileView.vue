@@ -64,7 +64,7 @@ import courseStore from '@/store/modules/course';
 import userStore from '@/store/modules/user';
 import EditAvatarModal from "@/views/EditAvatarModal.vue";
 import Edit32 from '@carbon/icons-vue/es/edit/32';
-import {Component, Prop, Vue} from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({
   components: {
@@ -82,7 +82,7 @@ export default class ProfileView extends Vue {
   guestMode = false;
 
   async created() {
-    await this.store.fetchCourses();
+    await this.store.fetchUserCourses();
     if (this.userId != this.user.id) {
       this.guestMode = true;
       this.user = await userStore.fetchUserById(this.userId);

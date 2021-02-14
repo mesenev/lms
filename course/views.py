@@ -1,6 +1,8 @@
+from itertools import chain
+
 from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.mixins import (
     CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
@@ -14,7 +16,7 @@ from course.serializers import CourseSerializer, ScheduleSerializer, LinkSeriali
 from users.models import User, CourseAssignStudent
 
 
-class CourseViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
+class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     queryset = Course.objects.select_related('author').prefetch_related('staff', 'students').all()
 
@@ -24,6 +26,12 @@ class CourseViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, Update
     #     user: User = User.objects.get(pk=request.user.id)
     #     queryset = user.staff_for.all().union(user.student_for.all())
     #     return queryset
+
+    @action(detail=False)
+    def user_courses(self, request):
+        queryset = chain(request.user.staff_for.all(), self.request.user.student_for.all())
+        serializer = CourseShortSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class ScheduleViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
