@@ -2,10 +2,8 @@
   <cv-link :to="openLesson" class="course" v-on:click="openLesson">
     <cv-structured-list-data class="title">
       <h5>{{ lesson.name }}</h5>
-      <span>Количество задач: {{ lesson.problems.length }}</span>
       <span>Дедлайн: {{ lesson.deadline }}</span>
     </cv-structured-list-data>
-    <!-- ToDo get statistics -->
   </cv-link>
 </template>
 

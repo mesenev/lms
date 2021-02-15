@@ -1,10 +1,7 @@
 from rest_framework import serializers
 
-from course.models import Course
 from lesson.models import Lesson, LessonContent, LessonProgress
-from problem.serializers import ProblemSerializer
 from users.serializers import DefaultUserSerializer
-from users.models import User
 
 
 class MaterialSerializer(serializers.Serializer):
@@ -32,12 +29,7 @@ class MaterialSerializer(serializers.Serializer):
         fields = ('id', 'lesson', 'content_type', 'author', 'content')
 
 
-class LessonProgressSerializer(serializers.Serializer):
-    id = serializers.ReadOnlyField()
-    lesson = serializers.PrimaryKeyRelatedField(queryset=Lesson.objects.all())
-    solved = serializers.JSONField()
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-
+class LessonProgressSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return LessonProgress.objects.create(**validated_data)
 
@@ -47,19 +39,11 @@ class LessonProgressSerializer(serializers.Serializer):
         return instance
 
     class Meta:
-        model = Lesson
+        model = LessonProgress
         fields = '__all__'
 
 
-class LessonSerializer(serializers.Serializer):
-    id = serializers.ReadOnlyField()
-    name = serializers.CharField(max_length=500)
-    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
-    description = serializers.CharField()
-    author = DefaultUserSerializer(required=False, read_only=True)
-    problems = ProblemSerializer(many=True, required=False, default=list())
-    materials = MaterialSerializer(many=True, required=False, default=list())
-    deadline = serializers.DateField()
+class LessonSerializer(serializers.ModelSerializer):
     progress = LessonProgressSerializer(many=True, required=False, default=list())
 
     def create(self, validated_data):
@@ -80,4 +64,9 @@ class LessonSerializer(serializers.Serializer):
 
     class Meta:
         model = Lesson
-        fields = ('id', 'name', 'description', 'author_id')
+        fields = '__all__'
+
+# class LessonShortSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Lesson
+#         fields = '__all__'

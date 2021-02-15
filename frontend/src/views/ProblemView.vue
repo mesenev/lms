@@ -142,7 +142,7 @@ export default class ProblemView extends Vue {
 
   created() {
     if (this.submitId)
-      this.studentId = this.submits.find(x => x.id === this.submitId).student;
+      this.studentId = this.submits?.find(x => x.id === this.submitId)?.student as number;
   }
 
   checkedStudent(student: UserModel): boolean {
