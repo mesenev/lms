@@ -65,38 +65,41 @@ import ProblemListComponent from '@/components/lists/ProblemListComponent.vue';
 import MaterialModel from '@/models/MaterialModel';
 import ProblemModel from '@/models/ProblemModel';
 import lessonStore from '@/store/modules/lesson';
+import problemStore from '@/store/modules/problem';
 import userStore from '@/store/modules/user';
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: { MaterialListComponent, ProblemListComponent } })
 export default class LessonView extends Vue {
+  @Prop({ required: true }) lessonId: number;
   store = lessonStore;
+  problemStore = problemStore;
   userStore = userStore;
+  problems: Array<ProblemModel> = [];
+  loading = true;
 
-  get lesson() {
-    return this.store.currentLesson;
-  }
-
-  get loading() {
-    return !Boolean(this.lesson);
-  }
-
+  //TODO: move materials in separate component
   get materials(): Array<MaterialModel> {
     if (this.lesson)
       return this.lesson.materials;
     return [];
   }
 
+  get lesson() {
+    return this.store.currentLesson;
+  }
+
   get classwork(): Array<ProblemModel> {
-    if (this.lesson)
-      return this.lesson.problems.filter(x => x.type === 'CW');
-    return [];
+    return this.problems.filter(x => x.type === 'CW');
   }
 
   get homework(): Array<ProblemModel> {
-    if (this.lesson)
-      return this.lesson.problems.filter(x => x.type === 'HW');
-    return [];
+    return this.problems.filter(x => x.type === 'HW');
+  }
+
+  async created() {
+    this.problems = await this.problemStore.fetchProblemsByLessonId(this.lessonId);
+    this.loading = false;
   }
 }
 </script>

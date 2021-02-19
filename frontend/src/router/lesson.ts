@@ -12,6 +12,10 @@ const lessonRoutes: Array<RouteConfig> = [
     path: '',
     name: 'LessonView',
     component: LessonView,
+    props: (route) => {
+      const lessonId = Number(route.params.lessonId);
+      return { ...route.params, lessonId };
+    },
   },
   {
     path: 'problem/:problemId',

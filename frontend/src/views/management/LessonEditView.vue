@@ -74,7 +74,7 @@ import Settings20 from '@carbon/icons-vue/es/settings/20';
 import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
 import axios from 'axios';
 import _ from 'lodash';
-import {Component, Prop, Vue} from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({components: {EditLessonMaterialsModal, EditLessonModal}})
 export default class LessonEditView extends Vue {
@@ -126,7 +126,6 @@ export default class LessonEditView extends Vue {
       this.notificationKind = 'success';
       this.notificationText = (this.lessonId) ? 'Урок успешно изменён' : 'Урок успешно создан';
       if (this.isNewLesson) {
-        this.store.addLessonToArray(response.data);
         router.replace(
           { name: 'lesson-edit', params: { lessonId: response.data.id.toString() } },
         );

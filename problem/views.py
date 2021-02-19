@@ -1,11 +1,8 @@
 from django.contrib.auth.decorators import login_required
+from rest_framework import viewsets
 from rest_framework.decorators import api_view, renderer_classes
-from rest_framework.mixins import (
-    CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
-)
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
 
 from cathie.cats_api import cats_get_problem_description_by_url, cats_submit_solution
 from lesson.models import Lesson
@@ -14,12 +11,13 @@ from problem.serializers import ProblemSerializer, SubmitSerializer
 from users.models import User
 
 
-class ProblemViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
+class ProblemViewSet(viewsets.ModelViewSet):
     serializer_class = ProblemSerializer
     queryset = Problem.objects.all()
+    filterset_fields = ['lesson_id', ]
 
 
-class SubmitViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
+class SubmitViewSet(viewsets.ModelViewSet):
     serializer_class = SubmitSerializer
     queryset = Submit.objects.all()
 

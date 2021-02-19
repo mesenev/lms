@@ -132,9 +132,7 @@ export default class EditLessonModal extends Vue {
   }
 
   get freeProblems(): ProblemModel[] {
-    return this.problemStore.problems.filter((l) => {
-      return !this.lesson.problems.map((lessonProblem) => lessonProblem.id).includes(l.id);
-    });
+    [];
   }
 
   onSearch(value: string) {

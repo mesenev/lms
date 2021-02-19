@@ -20,11 +20,11 @@
 import ProblemStats from '@/components/ProblemStats.vue';
 import SubmitStatus from "@/components/SubmitStatus.vue";
 import ProblemModel from '@/models/ProblemModel';
-import userStore from '@/store/modules/user'
+import SubmitModel from "@/models/SubmitModel";
 
 import router from '@/router';
+import userStore from '@/store/modules/user'
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import SubmitModel from "@/models/SubmitModel";
 
 @Component({ components: { ProblemStats, SubmitStatus } })
 export default class ProblemListComponent extends Vue {
@@ -37,8 +37,8 @@ export default class ProblemListComponent extends Vue {
   }
 
   get lastSubmit(): SubmitModel | undefined {
-    return this.problemProp.success_or_last_submits
-      .find((submit: SubmitModel) => submit.student === userStore.user.id)
+    // return this.problemProp.success_or_last_submits
+    //   .find((submit: SubmitModel) => submit.student === userStore.user.id)
   }
 
   get problem() {

@@ -13,7 +13,7 @@
       <template slot="label">{{ course.name }}</template>
       <cv-inline-notification
         v-if="showNotification"
-        @close="() => showNotification=false"
+        @close="notificationKind"
         kind="error"
         :sub-title="notificationText"
       />
@@ -69,7 +69,9 @@
 <!-- TODO: get counts from num-input -->
 
 <script lang="ts">
+
 import searchByLessons from '@/common/searchByTutorial';
+import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import LessonCard from '@/components/EditCourse/LessonCard.vue';
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
@@ -79,21 +81,19 @@ import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import axios from 'axios';
 
-import {Component, Prop, Vue} from 'vue-property-decorator';
+import { Component, Prop } from 'vue-property-decorator';
 
 @Component({ components: { LessonCard, AddAlt20, SubtractAlt20 } })
-export default class EditCourseModal extends Vue {
+export default class EditCourseModal extends NotificationMixinComponent {
   @Prop({ required: true }) course!: CourseModel;
 
   AddAlt32 = AddAlt20;
   SubtractAlt32 = SubtractAlt20;
   courseStore = courseStore;
   lessonStore = lessonStore;
-  currentLesson: LessonModel = { ...this.lessonStore.getNewLesson, course: this.course.id, };
+  currentLesson: LessonModel = { ...this.lessonStore.getNewLesson, course: this.course.id };
   fetchingLessons = true;
   selectedNew = true;
-  showNotification = false;
-  notificationText = '';
   creationLoader = false;
 
   lessons: LessonModel[] = [];
@@ -105,9 +105,8 @@ export default class EditCourseModal extends Vue {
   }
 
   get freeLessons(): LessonModel[] {
-    return this.lessonStore.lessons.filter((l) => {
-      return !this.course.lessons.map((courseLesson) => courseLesson.id).includes(l.id);
-    });
+    // TODO: fix this
+    return [];
   }
 
   async created() {
