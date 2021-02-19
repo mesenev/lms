@@ -1,22 +1,20 @@
-from rest_framework.mixins import (
-    CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
-)
-from rest_framework.viewsets import GenericViewSet
+from rest_framework import viewsets
 
 from lesson.models import Lesson, LessonContent, LessonProgress
 from lesson.serializers import LessonSerializer, MaterialSerializer, LessonProgressSerializer
 
 
-class LessonViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
+class LessonViewSet(viewsets.ModelViewSet):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
+    filterset_fields = ['course_id', ]
 
 
-class MaterialViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
+class MaterialViewSet(viewsets.ModelViewSet):
     serializer_class = MaterialSerializer
     queryset = LessonContent.objects.all()
 
 
-class LessonProgressViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
+class LessonProgressViewSet(viewsets.ModelViewSet):
     serializer_class = LessonProgressSerializer
     queryset = LessonProgress.objects.all()

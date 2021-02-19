@@ -1,6 +1,7 @@
 import LessonModel from '@/models/LessonModel';
 import store from '@/store';
 import axios from 'axios';
+import { Dictionary } from 'vue-router/types/router';
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
 @Module({
@@ -12,11 +13,11 @@ import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-dec
 class LessonModule extends VuexModule {
 
   currentLesson: LessonModel | null = null;
-  lessons: Array<LessonModel> = [];
+  lessonsByCourse: Dictionary<LessonModel[]> = {};
 
   @Mutation
-  setLessons(payload: Array<LessonModel>) {
-    this.lessons = payload;
+  setLessons(payload: Dictionary<LessonModel[]>) {
+    this.lessonsByCourse = { ...this.lessonsByCourse, ...payload };
   }
 
   @Mutation
@@ -44,12 +45,6 @@ class LessonModule extends VuexModule {
     return result;
   }
 
-  @Mutation
-  addLessonToArray(element: LessonModel) {
-    this.lessons.push(element);
-    this.lessons = [...this.lessons];
-  }
-
   get getNewLesson(): LessonModel {
     return {
       id: NaN,
@@ -64,6 +59,20 @@ class LessonModule extends VuexModule {
     } as LessonModel;
   }
 
+  @Action
+  async fetchLessonsByCourseId(id: number): Promise<LessonModel[]> {
+    let answer = { data: {} };
+    if (id in Object.keys(this.lessonsByCourse))
+      return this.lessonsByCourse[id];
+    await axios.get(`http://localhost:8000/api/lesson/${id}/`, { params: { course_id: id } })
+      .then(response => answer = response)
+      .catch(error => {
+        console.log(error);
+      })
+    const result = answer.data as Array<LessonModel>;
+    this.setLessons({ [id]: result })
+    return result;
+  }
 }
 
 export default getModule(LessonModule);

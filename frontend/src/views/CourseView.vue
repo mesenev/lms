@@ -9,7 +9,8 @@
     <div class=" bx--row">
       <div class="items bx--col-lg-8">
         <cv-search label="label" placeholder="search" v-model.trim="searchValue"/>
-        <cv-structured-list v-if="!loading">
+        <cv-data-table-skeleton v-if="loading" :columns="1" :rows="6"/>
+        <cv-structured-list v-else>
           <template slot="items">
             <cv-structured-list-item
               class="item"
@@ -19,7 +20,6 @@
             </cv-structured-list-item>
           </template>
         </cv-structured-list>
-        <cv-data-table-skeleton v-else :rows="6" :columns="1"/>
       </div>
     </div>
   </div>
@@ -30,23 +30,32 @@ import LessonListComponent from "@/components/lists/LessonListComponent.vue";
 import CourseModel from '@/models/CourseModel';
 import LessonModel from "@/models/LessonModel";
 import courseStore from "@/store/modules/course";
+import lessonStore from "@/store/modules/lesson";
 import { Component, Vue } from 'vue-property-decorator';
 
 @Component({ components: { LessonListComponent } })
 export default class CourseView extends Vue {
+  @Prop({ required: true }) courseId: number;
   courseStore = courseStore;
+  lessonStore = lessonStore;
   searchValue = "";
 
   get loading(): boolean {
-    return !Boolean(this.courseStore.currentCourse);
+    return !Boolean(this.lessons);
+  }
+
+  get lessons(): Array<LessonModel> {
+    if (!(this.courseId in Object.keys(this.lessonStore.lessonsByCourse)))
+      return [];
+    return this.lessonStore.lessonsByCourse[courseId];
   }
 
   get course(): CourseModel | null {
     return this.courseStore.currentCourse;
   }
 
-  get lessons(): Array<LessonModel> {
-    return (this.course) ? this.course.lessons : [];
+  async created() {
+    await this.lessonStore.fetchLessonsByCourseId(courseId);
   }
 
   get filterLessons() {
