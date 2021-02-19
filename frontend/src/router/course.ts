@@ -10,6 +10,10 @@ const courseRoutes: Array<RouteConfig> = [
     path: '',
     name: 'CourseView',
     component: CourseView,
+    props: (route) => {
+      const courseId = Number(route.params.courseId);
+      return { courseId };
+    },
   },
   {
     path: 'progress',

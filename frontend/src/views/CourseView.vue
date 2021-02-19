@@ -31,7 +31,7 @@ import CourseModel from '@/models/CourseModel';
 import LessonModel from "@/models/LessonModel";
 import courseStore from "@/store/modules/course";
 import lessonStore from "@/store/modules/lesson";
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: { LessonListComponent } })
 export default class CourseView extends Vue {
@@ -39,24 +39,23 @@ export default class CourseView extends Vue {
   courseStore = courseStore;
   lessonStore = lessonStore;
   searchValue = "";
-
-  get loading(): boolean {
-    return !Boolean(this.lessons);
-  }
+  loading = true;
 
   get lessons(): Array<LessonModel> {
-    if (!(this.courseId in Object.keys(this.lessonStore.lessonsByCourse)))
-      return [];
-    return this.lessonStore.lessonsByCourse[courseId];
+    if (!(this.courseId in this.lessonStore.lessonsByCourse)) { return [];}
+
+    return this.lessonStore.lessonsByCourse[this.courseId];
+  }
+
+  async created() {
+    await this.lessonStore.fetchLessonsByCourseId(this.courseId);
+    this.loading = false;
   }
 
   get course(): CourseModel | null {
     return this.courseStore.currentCourse;
   }
 
-  async created() {
-    await this.lessonStore.fetchLessonsByCourseId(courseId);
-  }
 
   get filterLessons() {
     return this.lessons.filter((l: LessonModel) => {

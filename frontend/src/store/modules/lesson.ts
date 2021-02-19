@@ -61,10 +61,10 @@ class LessonModule extends VuexModule {
 
   @Action
   async fetchLessonsByCourseId(id: number): Promise<LessonModel[]> {
+    if (id in this.lessonsByCourse) { return this.lessonsByCourse[id]; }
+
     let answer = { data: {} };
-    if (id in Object.keys(this.lessonsByCourse))
-      return this.lessonsByCourse[id];
-    await axios.get(`http://localhost:8000/api/lesson/${id}/`, { params: { course_id: id } })
+    await axios.get('http://localhost:8000/api/lesson/', { params: { course_id: id } })
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
