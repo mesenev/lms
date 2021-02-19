@@ -1,15 +1,11 @@
 <script lang="ts">
 import CourseModel from '@/models/CourseModel';
-import router from '@/router';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component
 export default class CourseListComponent extends Vue {
   @Prop() courseProp!: CourseModel;
 
-  openCourse(): void {
-    router.push({ name: 'CourseView', params: { courseId: this.course.id.toString() } });
-  }
 
   get course(): CourseModel {
     return this.courseProp;
@@ -28,14 +24,18 @@ export default class CourseListComponent extends Vue {
 </script>
 
 <template>
-  <div class="course" v-on:click="openCourse">
+  <cv-link
+    :to="{ name: 'CourseView', params: { courseId: this.course.id.toString() } }"
+    class="course">
     <h5>{{ course.name }}</h5>
     <span>Преподаватель: </span> {{ teacher }}<br>
     <span>Следующий урок:</span> 24/1
-  </div>
+  </cv-link>
 </template>
 
 <style scoped lang="stylus">
 .course
   padding 20px
+  text-decoration none
+  color black
 </style>

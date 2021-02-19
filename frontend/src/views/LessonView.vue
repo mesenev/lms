@@ -1,9 +1,9 @@
 <template>
   <div class="bx--grid">
     <div class="bx--row title">
-      <h1 v-if="!loading">{{ lesson.name }}</h1>
+      <h1 v-if="!loading && lesson">{{ lesson.name }}</h1>
       <cv-skeleton-text v-else :heading="true" width="'50%'"/>
-      <p v-if="!loading">Дедлайн {{ lesson.deadline }}</p>
+      <p v-if="!loading && lesson">Дедлайн {{ lesson.deadline }}</p>
       <cv-skeleton-text v-else width="'35%'"/>
     </div>
     <div class="bx--row content">

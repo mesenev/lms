@@ -2,13 +2,15 @@
   <!--TODO: padding for status of lesson and fix the the router open the same problem -->
   <cv-accordion-item class="accordion" :class="{ doNotShowAccordionContent: !isStaff }">
     <template slot="title">
-      <div v-on:click="openProblem" class="title">
+      <cv-link
+        :to="{ name: 'ProblemView', params: { problemId: this.problem.id.toString() } }"
+        class="title">
         {{ problem.name }}
         <div class="tags" v-if="!isStaff">
-          <submit-status v-if="!!lastSubmit" :submit="lastSubmit" />
-          <cv-tag v-else label="Не сдано" kind="red" ></cv-tag>
+          <submit-status v-if="!!lastSubmit" :submit="lastSubmit"/>
+          <cv-tag v-else kind="red" label="Не сдано"/>
         </div>
-      </div>
+      </cv-link>
     </template>
     <template slot="content">
       <problem-stats v-if="isStaff" :problem="problemProp"/>
@@ -33,7 +35,7 @@ export default class ProblemListComponent extends Vue {
   userStore = userStore
 
   openProblem() {
-    router.push({ name: 'ProblemView', params: { problemId: this.problem.id.toString() } });
+    router.push();
   }
 
   get lastSubmit(): SubmitModel | undefined {
@@ -63,6 +65,7 @@ export default class ProblemListComponent extends Vue {
   display flex
   align-items center
   justify-content space-between
+  text-decoration none
 
 .doNotShowAccordionContent
   /deep/ .bx--accordion__content,
