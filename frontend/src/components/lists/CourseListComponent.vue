@@ -27,15 +27,18 @@ export default class CourseListComponent extends Vue {
   <cv-link
     :to="{ name: 'CourseView', params: { courseId: this.course.id.toString() } }"
     class="course">
-    <h5>{{ course.name }}</h5>
-    <span>Преподаватель: </span> {{ teacher }}<br>
-    <span>Следующий урок:</span> 24/1
+    <div>
+      <h5>{{ course.name }}</h5>
+      <span>Преподаватель: </span> {{ teacher }}<br>
+      <span>Следующий урок:</span> 24/1
+    </div>
   </cv-link>
 </template>
 
 <style scoped lang="stylus">
 .course
-  padding 20px
   text-decoration none
   color black
+  width 100%
+
 </style>
