@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "test:unit": "vue-cli-service test:unit",
+    "test:unit": "jest",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
@@ -56,7 +56,22 @@
     "sass-loader": "^10.1.0",
     "stylus": "^0.54.7",
     "stylus-loader": "^3.0.2",
+    "ts-jest": "^26.5.1",
     "typescript": "~3.9.3",
+    "vue-jest": "^3.0.7",
     "vue-template-compiler": "^2.6.11"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "ts",
+      "json",
+      "vue"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "testURL": "http://localhost/"
   }
 }
