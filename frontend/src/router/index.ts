@@ -1,14 +1,15 @@
 // TODO: import as obj from @/views
 import courseRoutes from '@/router/course';
 import lessonRoutes from '@/router/lesson';
+import CourseRegistrationView from '@/views/CourseRegistrationView.vue';
 import CourseViewLayout from '@/views/CourseViewLayout.vue';
 import HomeView from '@/views/HomeView.vue';
 import LessonViewLayout from '@/views/LessonViewLayout.vue';
+import CourseEditView from '@/views/management/CourseEditView.vue';
 import ProfileView from "@/views/ProfileView.vue";
 import RegistrationView from '@/views/RegistrationView.vue';
 import Vue from 'vue';
 import VueRouter, { RouteConfig } from 'vue-router';
-import managementRoutes from './CourseManagement';
 
 Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
@@ -16,6 +17,22 @@ const routes: Array<RouteConfig> = [
     path: '/',
     name: 'Home',
     component: HomeView,
+  },
+  {
+    path: '/course-registration/:link/',
+    name: 'course-registration',
+    component: CourseRegistrationView,
+    props: (route) => {
+      return { linkProp: route.params.link }
+    },
+  },
+  {
+    path: '/course-add',
+    name: 'course-add',
+    component: CourseEditView,
+    props: () => {
+      return { courseId: null };
+    },
   },
   {
     path: '/course/:courseId',
@@ -53,7 +70,6 @@ const routes: Array<RouteConfig> = [
       return { userId, ...route.params };
     },
   },
-  ...managementRoutes,
 ];
 
 const router = new VueRouter({

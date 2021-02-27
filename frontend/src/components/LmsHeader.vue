@@ -1,12 +1,7 @@
 <template>
   <cv-header class="lms-header" aria-label="Carbon tutorial">
-    <cv-skip-to-content href="#main-content">
-      Skip to content
-    </cv-skip-to-content>
-    <cv-header-name to="/" prefix="dvfu">
-      <span class="lms">lms</span>
-    </cv-header-name>
-
+    <cv-skip-to-content href="#main-content"> Skip to content</cv-skip-to-content>
+    <cv-header-name prefix="dvfu" to="/"><span class="lms">lms</span></cv-header-name>
     <cv-header-nav v-if="courseSelected">
       <cv-header-menu-item
         :to="{
@@ -65,7 +60,7 @@
       <cv-header-menu-item
         :to="{
           name: 'problem-edit',
-          params: { courseId: this.$route.params.problemId }
+          params: { problemId: this.$route.params.problemId }
         }">
         Редактировать задачу
       </cv-header-menu-item>
