@@ -26,8 +26,13 @@
                 <cv-button v-else v-on:click="registration">Зарегистрироваться</cv-button>
               </div>
             </div>
-            <div v-if="!is_possible && student_registered || teacher_registered">
-              <h4>Данная ссылка недоступна, либо вы уже зарегистрированы на курс.</h4>
+            <div v-if="!is_possible">
+              <div v-if="student_registered || teacher_registered">
+                <h4>Вы уже зарегистрированы на данный курс.</h4>
+              </div>
+              <div v-else-if="!usages_available">
+                <h4>Данная ссылка недоступна. Обратитесь к преподавателю курса.</h4>
+              </div>
               <div>
                 <router-link to="/">
                   <cv-button type="ghost">На главную</cv-button>
@@ -58,6 +63,7 @@ export default class CourseRegistrationView extends NotificationMixinComponent {
   loading = true;
   is_possible = false;
   student_registered = false;
+  usages_available = false;
   teacher_registered = false;
   firstname = userStore.user.first_name;
   secondname = userStore.user.last_name
@@ -70,11 +76,12 @@ export default class CourseRegistrationView extends NotificationMixinComponent {
 
   async statusSetup() {
     const answer = await axios.get<{
-      is_possible: boolean; student_registered: boolean;
+      is_possible: boolean; usages_available: boolean; student_registered: boolean;
       teacher_registered: boolean; course: CourseModel; user: UserModel;
     }>(`/api/check-link/${this.linkProp}/`)
       .then(result => {
         this.is_possible = result.data.is_possible;
+        this.usages_available = result.data.usages_available;
         this.student_registered = result.data.student_registered;
         this.teacher_registered = result.data.teacher_registered;
         this.course = result.data.course;
