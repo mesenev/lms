@@ -42,8 +42,8 @@ import {Component, Prop, Vue} from "vue-property-decorator";
 
 @Component({})
 export default class LinksManagerComponent extends Vue {
-  @Prop({ required: true }) counter!: number;
-  @Prop({ required: true }) courseId!: number;
+  @Prop({required: true}) counter!: number;
+  @Prop({required: true}) courseId!: number;
   loading = true;
   Links: Array<LinkModel> = [];
   TrashCan16 = TrashCan16
@@ -51,15 +51,19 @@ export default class LinksManagerComponent extends Vue {
 
   async created() {
     await axios.get(
-      'http://localhost:8000/api/courselink/', { params: { course: this.courseId } },
-    ).then(response => { this.Links = response.data.filter((x: LinkModel) => x.usages > 0); },
-    ).catch(error => { console.log(error); })
+      'http://localhost:8000/api/courselink/', {params: {course: this.courseId}},
+    ).then(response => {
+        this.Links = response.data.filter((x: LinkModel) => x.usages > 0);
+      },
+    ).catch(error => {
+      console.log(error);
+    })
     this.loading = false;
   }
 
   async createNewLink() {
     const request = axios.post('http://localhost:8000/api/courselink/',
-      { course: this.courseId, usages: this.counter })
+      {course: this.courseId, usages: this.counter})
       .then(response => {
         this.Links.push(response.data);
         this.Links = [...this.Links];
@@ -70,12 +74,12 @@ export default class LinksManagerComponent extends Vue {
   }
 
   deleteLink(link: string) {
-    const request = axios.delete(`/api/delete-link/${link}/`)
-    /*TODO: proper request behaviour*/
+    this.Links = this.Links.filter((x: LinkModel) => x.link != link);
+    const request = axios.delete(`/api/delete-link/${link}/`);
   }
 
   copyLink(link: string) {
-    this.$clipboard(link)
+    this.$clipboard('http://localhost:8000/course-registration/' + link);
   }
 
 }

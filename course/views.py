@@ -110,6 +110,4 @@ def course_registration(request, link):
 def delete_link(request, link):
     courselinks = CourseLink.objects.all()
     courselinks.get(link=link).delete()
-    return Response()
-
-# TODO: Response wrk
+    return Response(link)

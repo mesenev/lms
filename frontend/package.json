@@ -23,6 +23,7 @@
     "package-lock.json": "^1.0.0",
     "package.json": "^2.0.1",
     "sass": "^1.29.0",
+    "v-clipboard": "^2.2.3",
     "vue": "^2.6.12",
     "vue-avatar": "^2.3.3",
     "vue-avatar-cropper": "^1.0.9",
