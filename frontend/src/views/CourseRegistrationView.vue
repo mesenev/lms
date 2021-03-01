@@ -1,5 +1,4 @@
 <template>
-  <!-- TODO: nice and clean prop work -->
   <div class="bx--grid">
     <div class="bx--row header">
       <cv-skeleton-text v-if="loading"/>
