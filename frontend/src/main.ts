@@ -6,7 +6,9 @@ import userStore from '@/store/modules/user';
 import CarbonComponentsVue from '@carbon/vue/src/index';
 import axios from 'axios';
 import Vue from 'vue';
+import Clipboard from 'v-clipboard'
 
+Vue.use(Clipboard)
 Vue.use(CarbonComponentsVue);
 
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';

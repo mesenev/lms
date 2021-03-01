@@ -75,8 +75,7 @@ export default class LinksManagerComponent extends Vue {
   }
 
   copyLink(link: string) {
-    /*TODO: use vClipboard*/
-    console.log(link)
+    this.$clipboard(link)
   }
 
 }
