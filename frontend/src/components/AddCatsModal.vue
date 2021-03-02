@@ -51,8 +51,6 @@ export default class AddCatsModal extends Vue {
   flex-direction row;
 }
 
-
-
 .input {
   width 650px;
   padding-right 20px;

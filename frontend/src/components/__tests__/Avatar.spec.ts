@@ -8,7 +8,6 @@ describe('Avatar.vue', () => {
     })
     console.log(wrapper.get('img').html())
     expect(wrapper.props('avatar_url')).toBe('test.url')
-    const avatar = wrapper.find('img')
   })
   test('Если в Avatar.vue не был передан url, картинка отрисовывается по дефолтному url', () => {
     const wrapper = shallowMount(Avatar, {
@@ -17,6 +16,17 @@ describe('Avatar.vue', () => {
     console.log(wrapper.get('img').html())
     expect(wrapper.props('avatar_url')).toBe('')
   })
+  test('Является ли страница объектом Vue', () => {
+    const wrapper = shallowMount(Avatar)
+    expect(wrapper.isVueInstance()).toBe(true)
+  })
+  test('Содержит ли Avatar.vue тег <\img\>', () => {
+    const wrapper = shallowMount(Avatar)
+    expect(wrapper.contains('img')).toBe(true)
+  })
+  test('Wrapper exists', () => {
+    const wrapper = shallowMount(Avatar)
+    expect(wrapper.exists()).toBe(true)
+  })
 })
-
 
