@@ -91,7 +91,8 @@ export default class LessonEditView extends NotificationMixinComponent {
   query = '';
 
   async created() {
-    this.lesson = await this.store.fetchLessonById(this.lessonId);
+    if (this.lessonId)
+      this.lesson = await this.store.fetchLessonById(this.lessonId);
     this.lessonEdit = { ...this.lesson };
     this.fetchingLesson = false;
   }
