@@ -7,7 +7,7 @@
     <div v-else class="bx--col-lg-8">
       <cv-inline-notification
         v-if="showNotification"
-        @close="hideSuccess"
+        @close="hideNotification"
         :kind="notificationKind"
         :sub-title="notificationText"
       />
@@ -41,7 +41,10 @@
           <cv-structured-list-heading> Домашняя работа</cv-structured-list-heading>
         </template>
         <template slot="items">
-          <cv-structured-list-item class="work" v-for="homework in getHomework" :key="homework.id">
+          <cv-structured-list-item
+            v-for="homework in getHomework"
+            :key="homework.id"
+            class="work">
             <div><h4>{{ homework.name }}</h4></div>
           </cv-structured-list-item>
         </template>
@@ -63,6 +66,7 @@
 
 <script lang="ts">
 import searchByProblems from '@/common/searchByTutorial'
+import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import EditLessonMaterialsModal from '@/components/EditLesson/EditLessonMaterialsModal.vue';
 import EditLessonModal from '@/components/EditLesson/EditLessonModal.vue';
 import CatsProblemModel from '@/models/CatsProblemModel';
@@ -70,45 +74,21 @@ import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
 import router from '@/router';
 import lessonStore from '@/store/modules/lesson';
-import Settings20 from '@carbon/icons-vue/es/settings/20';
 import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
 import axios from 'axios';
 import _ from 'lodash';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop } from 'vue-property-decorator';
 
-@Component({components: {EditLessonMaterialsModal, EditLessonModal}})
-export default class LessonEditView extends Vue {
-  @Prop({required: true}) lessonId!: number;
+@Component({ components: { EditLessonMaterialsModal, EditLessonModal } })
+export default class LessonEditView extends NotificationMixinComponent {
+  @Prop({ required: true }) lessonId!: number;
   TrashCan = TrashCan20;
-  Settings = Settings20;
-  showNotification = false;
-  notificationKind = 'success';
-  notificationText = '';
-  fetchingLesson = true;
-
-  calOptions = {
-    ateFormat: 'Y/m/d',
-  }
-
   store = lessonStore;
+  fetchingLesson = true;
+  lesson: LessonModel = this.store.getNewLesson;
+  lessonEdit: LessonModel = { ...this.lesson }
+  calOptions = { ateFormat: 'Y/m/d' }
   query = '';
-
-  lesson: LessonModel = {
-    id: NaN,
-    course: NaN,
-    description: '',
-    name: '',
-    problems: [],
-    materials: [],
-    deadline: '',
-    lessonContent: '',
-    progress:[],
-  };
-  lessonEdit: LessonModel = { ...this.lesson, course: this.lesson.course };
-
-  hideSuccess() {
-    this.showNotification = false;
-  }
 
   async created() {
     this.lesson = await this.store.fetchLessonById(this.lessonId);
@@ -146,7 +126,8 @@ export default class LessonEditView extends Vue {
     return this.lessonEdit.problems.filter(x => x.type === 'HW');
   }
 
-  searchByTutorial(problems: Array<ProblemModel | CatsProblemModel>): Array<ProblemModel | CatsProblemModel> {
+  searchByTutorial(problems: Array<ProblemModel | CatsProblemModel>):
+    Array<ProblemModel | CatsProblemModel> {
     return searchByProblems(this.query, problems);
   }
 

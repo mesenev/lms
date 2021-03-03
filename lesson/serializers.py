@@ -47,9 +47,12 @@ class LessonSerializer(serializers.ModelSerializer):
     progress = LessonProgressSerializer(many=True, required=False, default=list())
 
     def create(self, validated_data):
-        del validated_data["materials"]
-        del validated_data["problems"]
-        del validated_data["progress"]
+        if 'materials' in validated_data:
+            del validated_data["materials"]
+        if 'problems' in validated_data:
+            del validated_data["problems"]
+        if 'progress' in validated_data:
+            del validated_data["progress"]
         request = self.context.get("request")
         user = request.user if request and hasattr(request, 'user') else None
         return Lesson.objects.create(**validated_data, **{'author': user})
