@@ -10,13 +10,10 @@ class LessonViewSet(viewsets.ModelViewSet):
     filterset_fields = ['course_id', ]
 
     def get_queryset(self):
-        """
-        This view should return a list of all the lessons
-        for the currently authenticated user.
-        """
         user = self.request.user
-
-        return Lesson.objects.filter(Q(is_hidden=False) | Q(course__in=user.staff_for.all()))
+        return Lesson.objects.filter(
+            Q(is_hidden=False) | Q(course__in=user.staff_for.all())
+        )
 
 
 class MaterialViewSet(viewsets.ModelViewSet):
