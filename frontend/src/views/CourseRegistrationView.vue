@@ -52,7 +52,6 @@
 import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import CourseModel from '@/models/CourseModel';
 import UserModel from "@/models/UserModel";
-import userStore from "@/store/modules/user";
 import axios from 'axios';
 import {Component, Prop} from 'vue-property-decorator';
 import Home16 from '@carbon/icons-vue/lib/home/16'
@@ -63,15 +62,11 @@ import Education16 from '@carbon/icons-vue/lib/education/16'
 export default class CourseRegistrationView extends NotificationMixinComponent {
   @Prop({required: true}) linkProp!: string;
   course: CourseModel | null = null;
-  user: UserModel | null = null;
   loading = true;
   is_possible = false;
   student_registered = false;
   usages_available = false;
   teacher_registered = false;
-  username = userStore.user.username
-  firstname = userStore.user.first_name;
-  secondname = userStore.user.last_name
   registrationProcess = false;
   Home16 = Home16;
   Education16 = Education16;
