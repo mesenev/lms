@@ -10,6 +10,7 @@ class Lesson(models.Model):
     name = models.CharField(max_length=500)
     description = models.TextField()
     deadline = models.DateField(blank=True, null=True)
+    is_hidden = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name

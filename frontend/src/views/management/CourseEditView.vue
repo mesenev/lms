@@ -9,7 +9,7 @@
         <div class="items">
           <cv-inline-notification
             v-if="showNotification"
-            @close="hideSuccess"
+            @close="hideNotification"
             :kind="notificationKind"
             :sub-title="notificationText"
           />
@@ -58,6 +58,7 @@
 </template>
 
 <script lang="ts">
+import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import EditCourseLessons from '@/components/EditCourse/EditCourseLessons.vue';
 import EditCourseModal from '@/components/EditCourse/EditCourseModal.vue';
 import GenerateLinks from "@/components/EditCourse/GenerateLinks.vue";
@@ -67,55 +68,29 @@ import courseStore from "@/store/modules/course";
 import userStore from '@/store/modules/user';
 import axios from 'axios';
 import _ from 'lodash';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop } from 'vue-property-decorator';
 
 @Component({ components: { EditCourseLessons, EditCourseModal, GenerateLinks } })
-export default class CourseEditView extends Vue {
+export default class CourseEditView extends NotificationMixinComponent {
   @Prop() courseId!: number | null;
   sendingInfo = false;
   fetchingCourse = true;
   store = courseStore;
   userStore = userStore;
-  showNotification = false;
-  notificationKind = 'success';
-  notificationText = '';
   counter = 1;
+  course: CourseModel = { ...this.store.newCourse };
+  courseEdit = { ...this.course };
 
-  hideSuccess() {
-    this.showNotification = false;
-  }
 
   created() {
     if (this.courseId === null) {
       this.fetchingCourse = false;
       return;
     }
-
-    if (this.store.courses.length === 0) {
-      this.store.fetchCourses().then(() => {
-        this.course = this.store.courses.find(
-          (element) => { return this.courseId === element.id; }) as CourseModel;
-        this.courseEdit = { ...this.course };
-        this.fetchingCourse = false;
-      });
-    } else {
-      this.course = this.store.courses.find(
-        (element) => { return this.courseId === element.id; }) as CourseModel;
-      this.courseEdit = { ...this.course };
-      this.fetchingCourse = false;
-    }
+    this.course = this.store.currentCourse as CourseModel;
+    this.courseEdit = { ...this.course };
   }
 
-  course: CourseModel = {
-    id: NaN,
-    name: '',
-    author: { ...userStore.user },
-    lessons: [],
-    completed: false,
-    description: '',
-    students: [],
-  };
-  courseEdit = { ...this.course };
 
   createOrUpdate(): void {
     if (this.isNewCourse)

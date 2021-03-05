@@ -1,5 +1,6 @@
 import CourseModel from '@/models/CourseModel';
 import store from '@/store';
+import userStore from '@/store/modules/user';
 import axios from 'axios';
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
@@ -7,6 +8,13 @@ import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-dec
 class CourseModule extends VuexModule {
   currentCourse: CourseModel | null = null;
   courses: Array<CourseModel> = [];
+
+  get newCourse(): CourseModel {
+    return {
+      id: NaN, name: '', author: userStore.user, lessons: [],
+      completed: false, description: '', students: [],
+    };
+  }
 
   @Mutation
   setCourses(payload: Array<CourseModel>) {

@@ -17,13 +17,13 @@
           <cv-structured-list-data>
             {{ k.link }}
             <component :is="CopyLink16"
-                       class="icon"
+                       class="icon cross"
                        @click="copyLink(k.link)">
             </component>
           </cv-structured-list-data>
           <cv-structured-list-data>{{ k.usages }}
             <component :is="TrashCan16"
-                       class="icon"
+                       class="icon cross"
                        @click="deleteLink(k.link)">
             </component>
           </cv-structured-list-data>
@@ -86,5 +86,7 @@ export default class LinksManagerComponent extends Vue {
 </script>
 
 <style scoped>
-
+.cross {
+  cursor: pointer;
+}
 </style>

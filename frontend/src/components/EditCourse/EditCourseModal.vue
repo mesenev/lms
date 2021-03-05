@@ -13,8 +13,8 @@
       <template slot="label">{{ course.name }}</template>
       <cv-inline-notification
         v-if="showNotification"
-        @close="notificationKind"
-        kind="error"
+        :kind="notificationKind"
+        @close="hideNotification"
         :sub-title="notificationText"
       />
       <template slot="title">
@@ -73,7 +73,6 @@
 import searchByLessons from '@/common/searchByTutorial';
 import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import LessonCard from '@/components/EditCourse/LessonCard.vue';
-import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
 import courseStore from '@/store/modules/course';
 import lessonStore from '@/store/modules/lesson';
@@ -85,13 +84,13 @@ import { Component, Prop } from 'vue-property-decorator';
 
 @Component({ components: { LessonCard, AddAlt20, SubtractAlt20 } })
 export default class EditCourseModal extends NotificationMixinComponent {
-  @Prop({ required: true }) course!: CourseModel;
+  @Prop({ required: true }) courseId!: number;
 
   AddAlt32 = AddAlt20;
   SubtractAlt32 = SubtractAlt20;
   courseStore = courseStore;
   lessonStore = lessonStore;
-  currentLesson: LessonModel = { ...this.lessonStore.getNewLesson, course: this.course.id };
+  currentLesson: LessonModel = { ...this.lessonStore.getNewLesson, course: this.courseId };
   fetchingLessons = true;
   selectedNew = true;
   creationLoader = false;
@@ -110,9 +109,7 @@ export default class EditCourseModal extends NotificationMixinComponent {
   }
 
   async created() {
-    if (this.lessonStore.lessons.length === 0)
-      await this.lessonStore.fetchLessons();
-    this.fetchingLessons = false;
+    //
   }
 
   showModal() {
@@ -137,23 +134,11 @@ export default class EditCourseModal extends NotificationMixinComponent {
   }
 
   chooseLesson(lesson: LessonModel) {
-    if (!this.lessons.includes(lesson)) {
-      this.lessons.push(lesson);
-    } else {
-      this.lessons = this.lessons.filter((l) => lesson !== l);
-    }
+    //
   }
 
   async addLesson() {
-    if (this.selectedNew) {
-      this.creationLoader = true;
-      await this.createNewLesson();
-      this.creationLoader = false;
-    }
-    if (this.lessons.every((l) => l.name)) {
-      // this.lessons.forEach((lesson) => this.lessonStore.addLessonToCourse(lesson));
-      // this.lessons = [];
-    }
+    //
   }
 
 
@@ -161,7 +146,7 @@ export default class EditCourseModal extends NotificationMixinComponent {
     delete this.currentLesson.id;
     const request = axios.post('http://localhost:8000/api/lesson/', this.currentLesson);
     request.then(response => {
-      this.course.lessons.push(response.data as LessonModel);
+      this.lessonStore.lessonsByCourse[String(this.courseId)].push(response.data as LessonModel);
       this.modalHidden();
     });
     request.catch(error => {
