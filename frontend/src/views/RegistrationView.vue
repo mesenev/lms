@@ -28,13 +28,13 @@
                          label="Почта"
                          helper-text=""
           >
-            <template v-if="checkEmail" slot="invalid-message">Введите корректный Email</template>
+            <template v-if="checkEmail" id="test_mail" slot="invalid-message">Введите корректный Email</template>
           </cv-text-input>
           <br>
           <cv-text-input v-model.trim="login" id="login" label="Придумайте логин" helper-text="">
             <template v-if="checkLoginAlphabet" slot="invalid-message">Введите корректный логин<br></template>
             <!--Todo: сделать отступ-->
-            <template v-if="checkLoginLen" slot="invalid-message">Длина логина должна быть от 4 до 10 символов</template>
+            <template v-if="checkLoginLen" class="test_checkLoginLen" slot="invalid-message">Длина логина должна быть от 4 до 10 символов</template>
           </cv-text-input>
           <br>
           <cv-text-input label="Придумайте пароль" v-model.trim="password" helper-text="">
@@ -75,6 +75,7 @@ import Component from 'vue-class-component';
 
 @Component({ components: { Registration } })
 export default class RegistrationView extends Vue {
+
   showNotification = false;
   notificationText = '';
   modalVisible = false;
@@ -171,7 +172,6 @@ export default class RegistrationView extends Vue {
 
   get canAction(): boolean {
     return !(this.login && this.password && this.first_name && this.last_name && this.email && this.password_repeat && !this.validField);
-
   }
 
   modalHidden() {

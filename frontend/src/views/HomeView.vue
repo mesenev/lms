@@ -42,7 +42,6 @@ export default class HomeView extends Vue {
     this.loading = false;
   }
 
-
   get courses() {
     return this.store.courses;
   }
