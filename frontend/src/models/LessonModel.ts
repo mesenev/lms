@@ -1,7 +1,7 @@
 import MaterialModel from '@/models/MaterialModel';
 import ProblemModel from '@/models/ProblemModel';
-import UserProgress from '@/models/UserProgress';
 import { TutorialModel } from '@/models/TutorialModel';
+import UserProgress from '@/models/UserProgress';
 
 export default interface LessonModel extends TutorialModel {
   course: number;
@@ -11,4 +11,5 @@ export default interface LessonModel extends TutorialModel {
   materials: Array<MaterialModel>;
   lessonContent?: string;
   progress: Array<UserProgress>;
+  is_visible: boolean;
 }
