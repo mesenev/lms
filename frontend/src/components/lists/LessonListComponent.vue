@@ -3,12 +3,16 @@
     <cv-structured-list-data class="title">
       <h5>{{ lesson.name }}</h5>
       <span>Дедлайн: {{ lesson.deadline }}</span>
+      <span v-if="courseStore.is_staff">
+        {{ (lessonProp.is_visible) ? "Урок доступен" : "Урок скрыт" }}
+      </span>
     </cv-structured-list-data>
   </cv-link>
 </template>
 
 <script lang="ts">
 import LessonModel from "@/models/LessonModel";
+import courseStore from '@/store/modules/course';
 import userStore from '@/store/modules/user';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
@@ -17,6 +21,7 @@ export default class LessonListComponent extends Vue {
   @Prop({ required: true }) lessonProp!: LessonModel;
 
   userStore = userStore;
+  courseStore = courseStore;
 
   get openLesson() {
     return { name: 'LessonView', params: { lessonId: this.lesson.id.toString() } };

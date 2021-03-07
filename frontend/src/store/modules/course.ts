@@ -9,6 +9,12 @@ class CourseModule extends VuexModule {
   currentCourse: CourseModel | null = null;
   courses: Array<CourseModel> = [];
 
+  get is_staff() {
+    if (!this.currentCourse)
+      return false;
+    return userStore.user.staff_for.includes(this.currentCourse.id);
+  }
+
   get newCourse(): CourseModel {
     return {
       id: NaN, name: '', author: userStore.user, lessons: [],
