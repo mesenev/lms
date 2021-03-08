@@ -3,14 +3,18 @@
     <div class="bx--row title">
       <h1 v-if="!loading && lesson">{{ lesson.name }}</h1>
       <cv-skeleton-text v-else :heading="true" width="'50%'"/>
-      <p v-if="!loading && lesson">
-        Дедлайн {{ lesson.deadline }}
-        <cv-button-skeleton v-if="changingVisibility" kind="ghost"/>
-        <cv-button v-else :icon="eye" kind="ghost" v-on:click="changeLessonVisibility">
-          {{ (lesson.is_hidden) ? "Открыть урок" : "Скрыть урок" }}
-        </cv-button>
-      </p>
-      <cv-skeleton-text v-else width="'35%'"/>
+      <div class="underline--container">
+        <span v-if="!loading && lesson">
+          Дедлайн {{ lesson.deadline }}
+        </span>
+        <cv-skeleton-text v-else width="'35%'"/>
+        <div>
+          <cv-button-skeleton v-if="changingVisibility" kind="ghost"/>
+          <cv-button v-else :icon="eye" kind="ghost" v-on:click="changeLessonVisibility">
+            {{ (lesson.is_hidden) ? "Открыть урок" : "Скрыть урок" }}
+          </cv-button>
+        </div>
+      </div>
     </div>
     <div class="bx--row content">
       <div class="bx--col-lg-9 content-tasks">
@@ -141,6 +145,14 @@ export default class LessonView extends Vue {
   border 1px solid var(--cds-text-01)
   cursor pointer
   user-select none
+
+.underline--container
+  display flex
+  align-content center
+
+  & span
+    display inline-flex
+    align-items center
 
 .content
   margin-top 1rem
