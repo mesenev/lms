@@ -56,6 +56,7 @@ class LessonModule extends VuexModule {
       materials: [],
       deadline: '2000-01-01',
       progress: [],
+      is_visible: false,
     } as LessonModel;
   }
 
@@ -71,6 +72,19 @@ class LessonModule extends VuexModule {
       })
     const result = answer.data as Array<LessonModel>;
     this.setLessons({ [id]: result })
+    return result;
+  }
+
+  @Action
+  async patchLesson(params: { is_visible: boolean; id: number }) {
+    let answer = { data: {} };
+    await axios.patch(`/api/lesson/${params.id}/`, { ...params })
+      .then(response => answer = response)
+      .catch(error => {
+        console.log(error);
+      })
+    const result = answer.data as LessonModel;
+    this.changeCurrentLesson(result);
     return result;
   }
 }

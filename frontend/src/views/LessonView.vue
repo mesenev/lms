@@ -3,7 +3,12 @@
     <div class="bx--row title">
       <h1 v-if="!loading && lesson">{{ lesson.name }}</h1>
       <cv-skeleton-text v-else :heading="true" width="'50%'"/>
-      <p v-if="!loading && lesson">Дедлайн {{ lesson.deadline }}</p>
+      <p v-if="!loading && lesson">
+        Дедлайн {{ lesson.deadline }}
+        <cv-button :icon="eye" type="ghost" v-on:click="changeLessonVisibility">
+          Открыть урок
+        </cv-button>
+      </p>
       <cv-skeleton-text v-else width="'35%'"/>
     </div>
     <div class="bx--row content">
@@ -67,16 +72,18 @@ import ProblemModel from '@/models/ProblemModel';
 import lessonStore from '@/store/modules/lesson';
 import problemStore from '@/store/modules/problem';
 import userStore from '@/store/modules/user';
+import Eye from '@carbon/icons-vue/es/eyedropper/32';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: { MaterialListComponent, ProblemListComponent } })
+@Component({ components: { MaterialListComponent, ProblemListComponent, Eye } })
 export default class LessonView extends Vue {
-  @Prop({ required: true }) lessonId: number;
-  store = lessonStore;
+  @Prop({ required: true }) lessonId!: number;
+  lessonStore = lessonStore;
   problemStore = problemStore;
   userStore = userStore;
   problems: Array<ProblemModel> = [];
   loading = true;
+  eye = Eye;
 
   //TODO: move materials in separate component
   get materials(): Array<MaterialModel> {
@@ -86,7 +93,7 @@ export default class LessonView extends Vue {
   }
 
   get lesson() {
-    return this.store.currentLesson;
+    return this.lessonStore.currentLesson;
   }
 
   get classwork(): Array<ProblemModel> {
@@ -101,6 +108,11 @@ export default class LessonView extends Vue {
     this.problems = await this.problemStore.fetchProblemsByLessonId(this.lessonId);
     this.loading = false;
   }
+
+  async changeLessonVisibility() {
+    this.lessonStore.patchLesson({ id: this.lessonId, is_visible: !this.lesson?.is_visible });
+  }
+
 }
 </script>
 
