@@ -5,8 +5,9 @@
       <cv-skeleton-text v-else :heading="true" width="'50%'"/>
       <p v-if="!loading && lesson">
         Дедлайн {{ lesson.deadline }}
-        <cv-button :icon="eye" type="ghost" v-on:click="changeLessonVisibility">
-          Открыть урок
+        <cv-button-skeleton v-if="changingVisibility" kind="ghost"/>
+        <cv-button v-else :icon="eye" kind="ghost" v-on:click="changeLessonVisibility">
+          {{ (lesson.is_hidden) ? "Открыть урок" : "Скрыть урок" }}
         </cv-button>
       </p>
       <cv-skeleton-text v-else width="'35%'"/>
@@ -83,6 +84,7 @@ export default class LessonView extends Vue {
   userStore = userStore;
   problems: Array<ProblemModel> = [];
   loading = true;
+  changingVisibility = false;
   eye = Eye;
 
   //TODO: move materials in separate component
@@ -110,7 +112,11 @@ export default class LessonView extends Vue {
   }
 
   async changeLessonVisibility() {
-    this.lessonStore.patchLesson({ id: this.lessonId, is_visible: !this.lesson?.is_visible });
+    this.changingVisibility = true;
+    await this.lessonStore.patchLesson(
+      { id: this.lessonId, is_hidden: !this.lesson?.is_hidden },
+    );
+    this.changingVisibility = false;
   }
 
 }

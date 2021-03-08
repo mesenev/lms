@@ -56,7 +56,7 @@ class LessonModule extends VuexModule {
       materials: [],
       deadline: '2000-01-01',
       progress: [],
-      is_visible: false,
+      is_hidden: false,
     } as LessonModel;
   }
 
@@ -76,7 +76,7 @@ class LessonModule extends VuexModule {
   }
 
   @Action
-  async patchLesson(params: { is_visible: boolean; id: number }) {
+  async patchLesson(params: { is_hidden: boolean; id: number }) {
     let answer = { data: {} };
     await axios.patch(`/api/lesson/${params.id}/`, { ...params })
       .then(response => answer = response)

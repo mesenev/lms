@@ -11,9 +11,7 @@ class LessonViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return Lesson.objects.filter(
-            Q(is_hidden=False) | Q(course__in=user.staff_for.all())
-        )
+        return Lesson.objects.filter(Q(is_hidden=False) | Q(course__in=user.staff_for.all()))
 
 
 class MaterialViewSet(viewsets.ModelViewSet):

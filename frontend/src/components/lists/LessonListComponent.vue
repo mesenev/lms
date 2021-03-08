@@ -4,7 +4,7 @@
       <h5>{{ lesson.name }}</h5>
       <span>Дедлайн: {{ lesson.deadline }}</span>
       <span v-if="courseStore.is_staff">
-        {{ (lessonProp.is_visible) ? "Урок доступен" : "Урок скрыт" }}
+        {{ (lessonProp.is_hidden) ? "Урок скрыт" : "Урок доступен" }}
       </span>
     </cv-structured-list-data>
   </cv-link>

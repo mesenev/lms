@@ -11,5 +11,5 @@ export default interface LessonModel extends TutorialModel {
   materials: Array<MaterialModel>;
   lessonContent?: string;
   progress: Array<UserProgress>;
-  is_visible: boolean;
+  is_hidden: boolean;
 }

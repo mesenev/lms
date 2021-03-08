@@ -57,14 +57,6 @@ class LessonSerializer(serializers.ModelSerializer):
         user = request.user if request and hasattr(request, 'user') else None
         return Lesson.objects.create(**validated_data, **{'author': user})
 
-    def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
-        instance.description = validated_data.get('description', instance.description)
-        instance.author = validated_data.get('author', instance.author)
-        instance.deadline = validated_data.get('deadline', instance.deadline)
-        instance.save()
-        return instance
-
     class Meta:
         model = Lesson
         fields = '__all__'
