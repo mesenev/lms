@@ -3,8 +3,10 @@
     <cv-structured-list-data class="title">
       <h5>{{ lesson.name }}</h5>
       <span>Дедлайн: {{ lesson.deadline }}</span>
-      <span v-if="courseStore.is_staff">
-        {{ (lessonProp.is_hidden) ? "Урок скрыт" : "Урок доступен" }}
+      <span v-if="courseStore.is_staff" class="span--hidden">
+        {{ (lessonProp.is_hidden) ? "Урок скрыт " : "Урок доступен" }}
+        <view-off-icon v-if="lessonProp.is_hidden"/>
+        <view-icon v-else/>
       </span>
     </cv-structured-list-data>
   </cv-link>
@@ -14,14 +16,17 @@
 import LessonModel from "@/models/LessonModel";
 import courseStore from '@/store/modules/course';
 import userStore from '@/store/modules/user';
+import viewOffIcon from '@carbon/icons-vue/es/view--off/16';
+import viewIcon from '@carbon/icons-vue/es/view/16';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component
+@Component({ components: { viewIcon, viewOffIcon } })
 export default class LessonListComponent extends Vue {
   @Prop({ required: true }) lessonProp!: LessonModel;
 
   userStore = userStore;
   courseStore = courseStore;
+
 
   get openLesson() {
     return { name: 'LessonView', params: { lessonId: this.lesson.id.toString() } };
@@ -44,6 +49,9 @@ export default class LessonListComponent extends Vue {
   flex-direction row
   justify-content space-between
 
+.span--hidden
+  font-size small
+  align-content center
 
 .title
   display flex

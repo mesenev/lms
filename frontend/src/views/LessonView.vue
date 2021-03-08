@@ -9,8 +9,12 @@
         </span>
         <cv-skeleton-text v-else width="'35%'"/>
         <div>
-          <cv-button-skeleton v-if="changingVisibility" kind="ghost"/>
-          <cv-button v-else :icon="eye" kind="ghost" v-on:click="changeLessonVisibility">
+          <cv-button-skeleton v-if="changingVisibility || !this.lesson" kind="ghost"/>
+          <cv-button
+            v-else
+            :icon="hiddenIcon"
+            kind="ghost"
+            v-on:click="changeLessonVisibility">
             {{ (lesson.is_hidden) ? "Открыть урок" : "Скрыть урок" }}
           </cv-button>
         </div>
@@ -77,10 +81,11 @@ import ProblemModel from '@/models/ProblemModel';
 import lessonStore from '@/store/modules/lesson';
 import problemStore from '@/store/modules/problem';
 import userStore from '@/store/modules/user';
-import Eye from '@carbon/icons-vue/es/eyedropper/32';
+import viewOff from '@carbon/icons-vue/es/view--off/32';
+import view from '@carbon/icons-vue/es/view/32';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: { MaterialListComponent, ProblemListComponent, Eye } })
+@Component({ components: { MaterialListComponent, ProblemListComponent } })
 export default class LessonView extends Vue {
   @Prop({ required: true }) lessonId!: number;
   lessonStore = lessonStore;
@@ -89,7 +94,10 @@ export default class LessonView extends Vue {
   problems: Array<ProblemModel> = [];
   loading = true;
   changingVisibility = false;
-  eye = Eye;
+
+  get hiddenIcon() {
+    return (this.lesson?.is_hidden) ? viewOff : view;
+  }
 
   //TODO: move materials in separate component
   get materials(): Array<MaterialModel> {
