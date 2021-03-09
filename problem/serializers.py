@@ -9,7 +9,6 @@ class SubmitSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
     problem = serializers.PrimaryKeyRelatedField(queryset=Problem.objects.all())
     content = serializers.CharField()
-    cats_request_id = serializers.IntegerField(read_only=True)
     status = serializers.ChoiceField(choices=Submit.SUBMIT_STATUS, default='NP', required=False)
     student = serializers.PrimaryKeyRelatedField(default=serializers.CurrentUserDefault(), read_only=True)
 
@@ -25,7 +24,7 @@ class SubmitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submit
-        fields = ['id', 'problem', 'student', 'content', 'status', 'cats_request_id']
+        fields = ['id', 'problem', 'student', 'content', 'status', ]
 
 
 class ProblemSerializer(serializers.ModelSerializer):

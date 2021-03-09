@@ -105,11 +105,13 @@ export default class ProblemView extends Vue {
   }
 
   get students() {
-    return Object.keys(this.problem?.students).map(x => this.userStore.currentCourseStudents[x]);
+    if (this.problem && this.problem.students)
+      return Object.keys(this.problem?.students).map(x => this.userStore.currentCourseStudents[x]);
+
   }
 
   get submits(): SubmitModel[] {
-    return this.problem?.submits;
+    return this.problem?.submits as SubmitModel[];
   }
 
   checkedSubmit(submit: SubmitModel): boolean {
@@ -143,6 +145,8 @@ export default class ProblemView extends Vue {
   created() {
     if (this.submitId)
       this.studentId = this.submits?.find(x => x.id === this.submitId)?.student as number;
+    if (!this.isStaff)
+      this.studentId = Number(this.userStore.user.id);
   }
 
   checkedStudent(student: UserModel): boolean {

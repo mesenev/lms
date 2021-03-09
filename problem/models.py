@@ -67,8 +67,16 @@ class Submit(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name='submits', null=False)
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submits', null=False)
     content = models.TextField()
-    cats_request_id = models.IntegerField(null=True)
     status = models.CharField(max_length=2, choices=SUBMIT_STATUS, default='NP')
 
     def __str__(self):
         return self.status
+
+
+class CatsSubmit(models.Model):
+    submit = models.ForeignKey(
+        Submit, related_name='cats_submit', on_delete=models.DO_NOTHING, null=True
+    )
+    data = models.JSONField(null=False)
+    is_sent = models.BooleanField(default=False, null=False)
+    response = models.JSONField(null=True)
