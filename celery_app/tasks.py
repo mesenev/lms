@@ -4,7 +4,6 @@ from cathie.cats_api import cats_check_solution_status
 from celery_app.celery_settings import app
 from problem.models import Submit
 
-
 logger = get_task_logger(__name__)
 
 PROCESSED_STATUSES = [status for status, description in Submit.SUBMIT_STATUS if status not in ('NP', 'AW')]
@@ -19,3 +18,8 @@ def update_submit_status():
             submit.status = new_status
         submit.save()
         print(submit.status)
+
+
+@app.task
+def send_submit_to_cats(id: int):
+    submit = Submit.objects.get(id=id)

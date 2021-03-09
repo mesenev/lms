@@ -4,9 +4,9 @@ from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from cathie.cats_api import cats_get_problem_description_by_url, cats_submit_solution
+from cathie.cats_api import cats_get_problem_description_by_url
 from lesson.models import Lesson
-from problem.models import Problem, Submit
+from problem.models import Problem, Submit, CatsSubmit
 from problem.serializers import ProblemSerializer, SubmitSerializer
 from users.models import User
 
@@ -19,18 +19,20 @@ class ProblemViewSet(viewsets.ModelViewSet):
 
 class SubmitViewSet(viewsets.ModelViewSet):
     serializer_class = SubmitSerializer
-    queryset = Submit.objects.all()
+    queryset = Submit.objects.prefetch_related('cats_submit').all()
 
     def perform_create(self, serializer):
         request = serializer.context["request"]
         validated_data = serializer.validated_data
-        cats_request_id = cats_submit_solution(
-            validated_data.get('content'),
-            validated_data.get('cats_problem_id'),
-            validated_data.get('cats_de_id'),
-            validated_data.get('source')
-        )
-        serializer.save(student=request.user, cats_request_id=cats_request_id, status=Submit.DEFAULT_STATUS)
+        cats = CatsSubmit(data=dict(
+            source_text=validated_data.get('content'),
+            problem_id=validated_data.get('cats_problem_id'),
+            de_id=validated_data.get('cats_de_id'),
+            source=validated_data.get('source'),
+        ))
+        model = serializer.save(student=request.user, status=Submit.DEFAULT_STATUS)
+        cats.submit = model
+        cats.save()
 
     def get_queryset(self):
         request = self.get_serializer_context()['request']
