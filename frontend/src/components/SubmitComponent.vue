@@ -31,13 +31,13 @@
           :disabled="isNewSubmit"
           class="submit-btn rejected"
           v-on:click="rejectSubmit">
-          Rejected
+          Принять
         </cv-button>
         <cv-button
           :disabled="isNewSubmit"
           class="submit-btn accepted"
           v-on:click="acceptSubmit">
-          Accepted
+          Отклонить
         </cv-button>
       </div>
     </div>
@@ -98,7 +98,10 @@ export default class SubmitComponent extends NotificationMixinComponent {
   }
 
   patchSubmit(status: string) {
-    this.submitEdit = (this.submit) ? { ...this.submit } : { ...this.submitStore.defaultSubmit };
+
+    this.submitEdit = (this.submit)
+      ? { ...this.submit, status: status }
+      : { ...this.submitStore.defaultSubmit };
 
     axios.patch(`/api/submit/${this.submitEdit.id}/`, this.submitEdit)
       .then((response: AxiosResponse<SubmitModel>) => {
