@@ -31,15 +31,15 @@
 
 <script lang="ts">
 import MaterialModel from '@/models/MaterialModel';
-import MarkdownItVue from 'markdown-it-vue'
-import 'markdown-it-vue/dist/markdown-it-vue.css'
 import materialStore from '@/store/modules/material';
 import axios from 'axios';
 import _ from 'lodash';
-import {Component, Prop} from 'vue-property-decorator';
-import Vue, {VueConstructor} from 'vue';
+import MarkdownItVue from 'markdown-it-vue'
+import 'markdown-it-vue/dist/markdown-it-vue.css'
+import Vue, { VueConstructor } from 'vue';
+import { Component, Prop } from 'vue-property-decorator';
 
-@Component({components: {MarkdownItVue: MarkdownItVue as VueConstructor<Vue>}})
+@Component({ components: { MarkdownItVue: MarkdownItVue as VueConstructor<Vue> } })
 export default class MaterialEditView extends Vue {
   @Prop() materialId!: number;
   private materialStore = materialStore;
@@ -81,7 +81,7 @@ export default class MaterialEditView extends Vue {
   }
 
   ChangeMaterial() {
-    const request = axios.patch(`http://localhost:8000/api/material/${this.materialEdit.id}/`, this.materialEdit);
+    const request = axios.patch(`/api/material/${this.materialEdit.id}/`, this.materialEdit);
     request.then(() => {
       this.notificationKind = 'success';
       this.notificationText = 'Материалы успешно изменены';

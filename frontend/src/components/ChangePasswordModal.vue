@@ -92,8 +92,8 @@ export default class ChangePasswordModal extends Vue {
   }
 
   async Finished() {
-    const data =  { old_password: this.old_pass, new_password: this.new_pass };
-    const request = axios.post('http://localhost:8000/api/change-password/', data);
+    const data = { old_password: this.old_pass, new_password: this.new_pass };
+    const request = axios.post('/api/change-password/', data);
     request.then(response => {
       this.notificationKind = 'success';
       this.notificationText = "Пароль успешно сменён!";

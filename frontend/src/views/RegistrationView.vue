@@ -180,14 +180,14 @@ export default class RegistrationView extends Vue {
 
   async action() {
     const fd = new FormData();
-    fd.append('avatar_url',this.file );
+    fd.append('avatar_url', this.file);
     fd.append('email', this.email);
     fd.append('first_name', this.first_name);
     fd.append('last_name', this.last_name);
     fd.append('password', this.password);
     fd.append('username', this.login);
-    //const r = axios.post( 'http://localhost:8000/api/users/', fd)
-    const request = axios.post('http://localhost:8000/api/users/',fd);
+    //const r = axios.post( '/api/users/', fd)
+    const request = axios.post('/api/users/', fd);
     request.then(() => {
       this.notificationKind = 'success';
       this.notificationText = "Пользователь успешно создан";

@@ -16,7 +16,7 @@ class MaterialModule extends VuexModule {
 
   @Action
   async fetchMaterials() {
-    await axios.get('http://localhost:8000/api/material/')
+    await axios.get('/api/material/')
       .then(response => {
         this.setMaterials(response.data);
       })
@@ -58,7 +58,7 @@ class MaterialModule extends VuexModule {
   @Action
   async fetchMaterialById(id: number): Promise<MaterialModel> {
     let answer = {data: {}};
-    await axios.get(`http://localhost:8000/api/material/${id}/`)
+    await axios.get(`/api/material/${id}/`)
       .then(response => answer = response)
       .catch(error => {
         console.log(error);

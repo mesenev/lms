@@ -35,7 +35,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: { LessonListComponent } })
 export default class CourseView extends Vue {
-  @Prop({ required: true }) courseId: number;
+  @Prop({ required: true }) courseId!: number;
   courseStore = courseStore;
   lessonStore = lessonStore;
   searchValue = "";

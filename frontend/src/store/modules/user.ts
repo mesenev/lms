@@ -46,7 +46,7 @@ class UserModule extends VuexModule {
   @Action
   async fetchStudentsProgressByLessonId(): Promise<Array<UserProgress>> {
     let data = {data: {}}
-    await axios.get('http://localhost:8000/api/lessonprogress/').then(response => data = response)
+    await axios.get('/api/lessonprogress/').then(response => data = response)
       .catch(error => {
         console.log(error);
       })
@@ -56,7 +56,7 @@ class UserModule extends VuexModule {
   @Action
   async fetchUserById(userId: number): Promise<UserModel> {
     let data = {data: {}}
-    await axios.get(`http://localhost:8000/api/users/${userId}/`).then(response => data = response)
+    await axios.get(`/api/users/${userId}/`).then(response => data = response)
       .catch(error => {
         console.log(error);
       })

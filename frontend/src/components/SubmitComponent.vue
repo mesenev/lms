@@ -100,7 +100,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
   patchSubmit(status: string) {
     this.submitEdit = (this.submit) ? { ...this.submit } : { ...this.submitStore.defaultSubmit };
 
-    axios.patch(`http://localhost:8000/api/submit/${this.submitEdit.id}/`, this.submitEdit)
+    axios.patch(`/api/submit/${this.submitEdit.id}/`, this.submitEdit)
       .then((response: AxiosResponse<SubmitModel>) => {
         this.submitStore.changeSubmitStatus(response.data);
         this.submit = { ...response.data };
@@ -131,7 +131,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
       'problem': this.problemStore.currentProblem?.id as number,
     };
     delete this.submitEdit.student;
-    axios.post('http://localhost:8000/api/submit/', this.submitEdit)
+    axios.post('/api/submit/', this.submitEdit)
       .then((response: AxiosResponse<SubmitModel>) => {
         this.submitStore.addSubmitToArray(response.data);
         this.submit = { ...response.data };

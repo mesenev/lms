@@ -31,41 +31,41 @@ class ProblemModule extends VuexModule {
 
     @Action
     async fetchProblems() {
-        await axios.get('http://localhost:8000/api/problem/')
-            .then(response => {
-                this.setProblems(response.data);
-            })
-            .catch(error => {
-                console.log(error);
-            })
+        await axios.get('/api/problem/')
+          .then(response => {
+            this.setProblems(response.data);
+          })
+          .catch(error => {
+            console.log(error);
+          })
     }
 
     @Action
     async fetchProblemById(problemId: number): Promise<ProblemModel> {
         let answer = { data: {} };
-        await axios.get(`http://localhost:8000/api/problem/${problemId}/`)
-            .then(response => answer = response)
-            .catch(error => {
-                console.log(error);
-            })
+      await axios.get(`/api/problem/${problemId}/`)
+        .then(response => answer = response)
+        .catch(error => {
+          console.log(error);
+        })
         return answer.data as ProblemModel;
     }
 
     @Action
     async fetchCatsProblemById(catsId: number): Promise<CatsProblemModel> {
         let answer = { data: {} };
-        await axios.get(`http://localhost:8000/api/cats-problem/${catsId}/`)
-            .then(response => answer = response)
-            .catch(error => {
-                console.log(error);
-            })
+      await axios.get(`/api/cats-problem/${catsId}/`)
+        .then(response => answer = response)
+        .catch(error => {
+          console.log(error);
+        })
         return answer.data as CatsProblemModel;
 
     }
 
     @Action
     async patchProblem(problem: ProblemModel) {
-        return await axios.patch(`http://localhost:8000/api/problem/${problem.id}/`, problem);
+      return await axios.patch(`/api/problem/${problem.id}/`, problem);
     }
 
     @Action

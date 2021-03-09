@@ -104,6 +104,7 @@ export default class LessonProgressView extends Vue {
     materials: [],
     deadline: '',
     lessonContent: '',
+    is_hidden: true,
     progress: [],
   };
 

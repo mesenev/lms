@@ -29,7 +29,7 @@ class SubmitModule extends VuexModule {
   @Action
   async fetchSubmits(payload: { problemId: number; userId: number }): Promise<Array<SubmitModel>> {
     let answer = {};
-    await axios.get('http://localhost:8000/api/submit/', {
+    await axios.get('/api/submit/', {
       params: {
         problem: payload.problemId,
         user: payload.userId,
@@ -60,7 +60,7 @@ class SubmitModule extends VuexModule {
     const answer = this.submits.find(x => x.id === id);
     if (answer) { return answer; }
     let data = {};
-    await axios.get(`http://localhost:8000/api/submit/${id}/`)
+    await axios.get(`/api/submit/${id}/`)
       .then((response: AxiosResponse<SubmitModel>) => {
         this.addSubmitToArray(response.data);
         data = response.data

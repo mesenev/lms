@@ -32,12 +32,12 @@
 
 <script lang="ts">
 
-import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
-import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
-import {Component, Prop, Vue} from 'vue-property-decorator';
-import Edit32 from '@carbon/icons-vue/es/edit/32';
-import axios from "axios";
 import UserModel from "@/models/UserModel";
+import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
+import Edit32 from '@carbon/icons-vue/es/edit/32';
+import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
+import axios from "axios";
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: { AddAlt20, SubtractAlt20, Edit32 } })
 export default class EditAvatarModal extends Vue {
@@ -68,7 +68,7 @@ export default class EditAvatarModal extends Vue {
   changeAvatar() {
     const fd = new FormData();
     fd.append('avatar_url',this.file );
-    const request = axios.post('http://localhost:8000/api/change-avatar/', fd);
+    const request = axios.post('/api/change-avatar/', fd);
     request.then(response => {
       this.notificationKind = 'success';
       this.notificationText = "Фото профиля успешно изменено!";

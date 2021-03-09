@@ -44,13 +44,6 @@ class ProblemSerializer(serializers.ModelSerializer):
         return {student.id: student.submits.values('id', 'status', 'student').all().first()
                 for student in instance.students.all()}
 
-    def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
-        instance.description = validated_data.get('description', instance.description)
-        instance.author = validated_data.get('author', instance.author)
-        instance.save()
-        return instance
-
     def create(self, validated_data):
         request = self.context.get("request")
         user = request.user if request and hasattr(request, "user") else None

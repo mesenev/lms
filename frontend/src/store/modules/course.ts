@@ -46,7 +46,7 @@ class CourseModule extends VuexModule {
   @Action
   async fetchCourseById(id: number): Promise<CourseModel> {
     let answer = { data: {} };
-    await axios.get(`http://localhost:8000/api/course/${id}/`)
+    await axios.get(`/api/course/${id}/`)
       .then(response => answer = response)
       .catch(error => {
         console.log(error);

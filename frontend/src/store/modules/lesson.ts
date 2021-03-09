@@ -27,7 +27,7 @@ class LessonModule extends VuexModule {
 
   @Action
   async fetchLessons() {
-    await axios.get('http://localhost:8000/api/lesson/')
+    await axios.get('/api/lesson/')
       .then(response => {
         this.setLessons(response.data);
       }).catch(error => { console.log(error); })
@@ -36,7 +36,7 @@ class LessonModule extends VuexModule {
   @Action
   async fetchLessonById(id: number): Promise<LessonModel> {
     let answer = { data: {} };
-    await axios.get(`http://localhost:8000/api/lesson/${id}/`)
+    await axios.get(`/api/lesson/${id}/`)
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
@@ -65,7 +65,7 @@ class LessonModule extends VuexModule {
     if (id in this.lessonsByCourse) { return this.lessonsByCourse[id]; }
 
     let answer = { data: {} };
-    await axios.get('http://localhost:8000/api/lesson/', { params: { course_id: id } })
+    await axios.get('/api/lesson/', { params: { course_id: id } })
       .then(response => answer = response)
       .catch(error => {
         console.log(error);

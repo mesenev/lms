@@ -96,8 +96,8 @@ export default class CourseEditView extends NotificationMixinComponent {
     if (this.isNewCourse)
       delete this.courseEdit.id;
     const request = (this.isNewCourse) ?
-      axios.post('http://localhost:8000/api/course/', this.courseEdit) :
-      axios.patch(`http://localhost:8000/api/course/${this.courseEdit.id}/`, this.courseEdit);
+      axios.post('/api/course/', this.courseEdit) :
+      axios.patch(`/api/course/${this.courseEdit.id}/`, this.courseEdit);
     request.then(response => {
       this.notificationKind = 'success';
       this.notificationText = (this.courseId) ? 'Курс успешно изменён' : 'Курс успешно создан';

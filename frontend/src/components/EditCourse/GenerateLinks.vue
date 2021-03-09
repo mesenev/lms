@@ -38,7 +38,7 @@ import LinkModel from "@/models/LinkModel";
 import CopyLink16 from '@carbon/icons-vue/lib/copy--link/16';
 import TrashCan16 from '@carbon/icons-vue/lib/trash-can/16'
 import axios from 'axios';
-import {Component, Prop, Vue} from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component({})
 export default class LinksManagerComponent extends Vue {
@@ -51,7 +51,7 @@ export default class LinksManagerComponent extends Vue {
 
   async created() {
     await axios.get(
-      'http://localhost:8000/api/courselink/', {params: {course: this.courseId}},
+      '/api/courselink/', { params: { course: this.courseId } },
     ).then(response => {
         this.Links = response.data.filter((x: LinkModel) => x.usages > 0);
       },
@@ -62,8 +62,8 @@ export default class LinksManagerComponent extends Vue {
   }
 
   async createNewLink() {
-    const request = axios.post('http://localhost:8000/api/courselink/',
-      {course: this.courseId, usages: this.counter})
+    const request = axios.post('/api/courselink/',
+      { course: this.courseId, usages: this.counter })
       .then(response => {
         this.Links.push(response.data);
         this.Links = [...this.Links];
@@ -79,7 +79,8 @@ export default class LinksManagerComponent extends Vue {
   }
 
   copyLink(link: string) {
-    this.$clipboard('http://localhost:8000/course-registration/' + link);
+    // noinspection TypeScriptUnresolvedFunction
+    this.$clipboard(axios.defaults.baseURL + '/course-registration/' + link);
   }
 
 }
