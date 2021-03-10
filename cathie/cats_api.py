@@ -31,7 +31,7 @@ def cats_submit_solution(source_text: str, problem_id: int, de_id: int, source=N
         req_ids = re.search(r'(?<=rid=)\d+', r_content['href_run_details']).group()
         if req_ids.isdigit():
             req_ids = int(req_ids)
-    return req_ids
+    return req_ids, r_content
 
 
 def cats_submit_problem():
@@ -48,7 +48,7 @@ def cats_check_solution_status(req_ids: int):
     data = json.loads(r.content.decode('utf-8'))
     # print(f'data: {data}')
     if data:
-        return data[0]['verdict']
+        return data[0]['verdict'], data
 
 
 def cats_get_problems_from_contest(contest_id, user):

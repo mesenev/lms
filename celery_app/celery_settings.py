@@ -15,5 +15,9 @@ app.conf.beat_schedule = {
     'check_submit_status': {
         'task': 'celery_app.tasks.update_submit_status',
         'schedule': 10.0,
+    },
+    'send_solution': {
+        'task': 'celery_app.tasks.send_submit_to_cats',
+        'schedule': 6.0,
     }
 }

@@ -78,5 +78,7 @@ class CatsSubmit(models.Model):
         Submit, related_name='cats_submit', on_delete=models.DO_NOTHING, null=True
     )
     data = models.JSONField(null=False)
+    id_to_check = models.IntegerField(null=True, default=None)
     is_sent = models.BooleanField(default=False, null=False)
-    response = models.JSONField(null=True)
+    sending_result = models.JSONField(null=True)
+    testing_result = models.JSONField(null=True)
