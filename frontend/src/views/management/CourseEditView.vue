@@ -9,7 +9,7 @@
         <div class="items">
           <cv-inline-notification
             v-if="showNotification"
-            @close="hideNotification"
+            @close="hideSuccess"
             :kind="notificationKind"
             :sub-title="notificationText"
           />
@@ -36,13 +36,22 @@
       </div>
       <div class="bx--col-lg-5">
         <div class="link">
-        <h3>Создать ссылку-приглашение</h3>
+          <h1> Менеджмент курса </h1>
+        </div>
+        <div class="link">
+          <h3>
+            Добавить преподавателя
+          </h3>
+          <AddTeacherModal/>
+        </div>
+        <div class="link">
+          <h3>Создать ссылку-приглашение</h3>
           <cv-number-input
             :light="true"
             :label="'Выберите количество учеников курса'"
             :min="1"
             :step="1"
-          v-model="counter">
+            v-model="counter">
           </cv-number-input>
           <br>
           <GenerateLinks
@@ -58,7 +67,6 @@
 </template>
 
 <script lang="ts">
-import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import EditCourseLessons from '@/components/EditCourse/EditCourseLessons.vue';
 import EditCourseModal from '@/components/EditCourse/EditCourseModal.vue';
 import GenerateLinks from "@/components/EditCourse/GenerateLinks.vue";
@@ -68,29 +76,59 @@ import courseStore from "@/store/modules/course";
 import userStore from '@/store/modules/user';
 import axios from 'axios';
 import _ from 'lodash';
-import { Component, Prop } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
+import AddTeacherModal from "@/components/EditCourse/AddTeacherModal.vue";
 
-@Component({ components: { EditCourseLessons, EditCourseModal, GenerateLinks } })
-export default class CourseEditView extends NotificationMixinComponent {
+@Component({components: {AddTeacherModal, EditCourseLessons, EditCourseModal, GenerateLinks}})
+export default class CourseEditView extends Vue {
   @Prop() courseId!: number | null;
   sendingInfo = false;
   fetchingCourse = true;
   store = courseStore;
   userStore = userStore;
+  showNotification = false;
+  notificationKind = 'success';
+  notificationText = '';
   counter = 1;
-  course: CourseModel = { ...this.store.newCourse };
-  courseEdit = { ...this.course };
+  course: CourseModel = {
+    id: NaN,
+    name: '',
+    author: {...userStore.user},
+    lessons: [],
+    completed: false,
+    description: '',
+    students: [],
+  };
+  courseEdit = {...this.course};
 
+  hideSuccess() {
+    this.showNotification = false;
+  }
 
   created() {
     if (this.courseId === null) {
       this.fetchingCourse = false;
       return;
     }
-    this.course = this.store.currentCourse as CourseModel;
-    this.courseEdit = { ...this.course };
-  }
 
+    if (this.store.courses.length === 0) {
+      this.store.fetchCourses().then(() => {
+        this.course = this.store.courses.find(
+          (element) => {
+            return this.courseId === element.id;
+          }) as CourseModel;
+        this.courseEdit = {...this.course};
+        this.fetchingCourse = false;
+      });
+    } else {
+      this.course = this.store.courses.find(
+        (element) => {
+          return this.courseId === element.id;
+        }) as CourseModel;
+      this.courseEdit = {...this.course};
+      this.fetchingCourse = false;
+    }
+  }
 
   createOrUpdate(): void {
     if (this.isNewCourse)
