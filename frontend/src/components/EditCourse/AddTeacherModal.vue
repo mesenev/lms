@@ -43,7 +43,7 @@ import {Component} from 'vue-property-decorator';
 import UserModel from "@/models/UserModel";
 
 @Component({})
-export default class EditCourseModal extends NotificationMixinComponent {
+export default class AddTeacherModal extends NotificationMixinComponent {
 
   fetchingLessons = true;
   selectedNew = false;
