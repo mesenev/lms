@@ -1,1 +1,66 @@
 version: "3.9"
+
+
+services:
+    nginx:
+        container_name: nginx
+        image: nginx:1.17-alpine
+        restart: on-failure
+        volumes:
+            - "./.docker/conf/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
+            - "./.docker/conf/nginx/common.conf:/etc/nginx/common.conf:ro"
+            - "./.docker/conf/nginx/server.conf:/etc/nginx/server.conf:ro"
+        networks:
+            - nginx-net
+        depends_on:
+            - backend
+
+    redis:
+        image: redis:5.0.6-alpine
+        networks:
+            - db-net
+
+    database:
+        container_name: database
+        image: postgres:12
+        env_file: .env
+        environment:
+            POSTGRES_MULTIPLE_DATABASES: ${DATABASE_NAME}
+            POSTGRES_USER: ${DATABASE_USER}
+            POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+        volumes:
+            - "${DATABASE_DATA}:/var/lib/postgresql/data"
+        ports:
+            - "${DATABASE_PORT}:5432"
+
+    backend:
+        container_name: backend
+        build:
+            context: .
+            dockerfile: ./.docker/Dockerfile
+        image: backend:latest
+        command: "sh ./.docker/conf/gunicorn/django-dev.sh"
+        volumes:
+            - .:/application
+        working_dir: /application
+        depends_on:
+            - database
+        env_file:
+            - .env
+        environment:
+            PYTHONUNBUFFERED: 1
+        ports:
+            - "8000:8000"
+
+    beat:
+        image: backend:latest
+        command: "celery -A celery_app beat"
+        env_file:
+            - "./.docker/conf/common.env"
+            - "./.docker/conf/server.env"
+        networks:
+            - db-net
+        depends_on:
+            - database
+            - redis
+            - backend
