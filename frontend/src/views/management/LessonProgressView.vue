@@ -113,14 +113,14 @@ export default class LessonProgressView extends Vue {
 
   definition(column: number) {
     if (!this.loading && column != -1 && column != 0) {
-      const pr = this.problems.filter((problem) => problem.id === column)
-      column = pr[0].submits.filter(x => x.status === 'OK').length
+      const columnProblem = this.problems.filter((problem) => problem.id === column)[0].submits
+      column = (columnProblem) ? columnProblem.filter(x => x.status === 'OK').length : 0;
     }
-    return `Успешно решило ${column} из ${this.users.length} студентов`
+    return `Успешно решило ${column} из ${this.progress.length} студентов`
   }
 
-  create_submit(id: number, problemId: number, userid: number, status: string): SubmitModel {
-    return {id: 1, problem: problemId, student: userid, status: status};
+  create_submit(id: number, problemId: number, userid: UserModel, status: string): SubmitModel {
+    return {id: 1, problem: problemId, student: Number(userid), status: status};
   }
 
   get les() {

@@ -57,17 +57,17 @@ import SubmitModel from '@/models/SubmitModel';
 import UserModel from '@/models/UserModel';
 import courseStore from '@/store/modules/course';
 import userStore from '@/store/modules/user';
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { Dictionary } from 'vue-router/types/router';
+import {Component, Prop, Vue} from 'vue-property-decorator';
+import {Dictionary} from 'vue-router/types/router';
 
-@Component({ components: { UserComponent, SubmitStatus, StatsGraph } })
+@Component({components: {UserComponent, SubmitStatus, StatsGraph}})
 export default class ProblemStats extends Vue {
-  @Prop({ required: true }) problem!: ProblemModel;
+  @Prop({required: true}) problem!: ProblemModel;
   userStore = userStore;
   courseStore = courseStore;
 
-  usersWithSubmits: Set<string> = new Set(Object.keys(this.problem.students));
-  success_or_last_submits: Array<SubmitModel> = Object.values(this.problem.students);
+  usersWithSubmits: Set<string> = new Set(Object.keys(this.problem.students || ''));
+  success_or_last_submits: Array<SubmitModel> = Object.values(this.problem.students || '');
 
   get students(): Dictionary<UserModel> {
     if (!(this.$route.params.courseId in this.userStore.currentCourseStudents))
