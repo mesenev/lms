@@ -14,7 +14,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_filters',
     'rest_framework',
-    'debug_toolbar',
+
     'users',
     'course',
     'lesson',
@@ -22,6 +22,8 @@ INSTALLED_APPS = [
     'cathie',
     'celery_app',
 ]
+if DEBUG:
+    INSTALLED_APPS += ['debug_toolbar']
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
@@ -36,6 +38,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+if DEBUG:
+    MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
+
 ROOT_URLCONF = 'imcslms.urls'
 TEMPLATES = [
     {
