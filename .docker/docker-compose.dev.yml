@@ -4,7 +4,7 @@ version: "3.9"
 services:
     nginx:
         container_name: nginx
-        image: nginx:latest
+        image: nginx:1.17-alpine
         restart: on-failure
         volumes:
             - "./conf/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
@@ -12,18 +12,16 @@ services:
             - "./conf/nginx/server.conf:/etc/nginx/server.conf:ro"
         networks:
             - nginx-net
+        ports:
+            - "8000:80"
         depends_on:
             - backend
-
-    redis:
-        image: redis:5.0.6-alpine
-        networks:
-            - db-net
 
     database:
         container_name: database
         image: postgres:12
-        env_file: conf/common.env
+        env_file:
+            - "./conf/common.env"
         environment:
             POSTGRES_MULTIPLE_DATABASES: ${DATABASE_NAME}
             POSTGRES_USER: ${DATABASE_USER}
@@ -33,7 +31,7 @@ services:
             - "./conf/postgres/postgresql.conf:/etc/postgresql/postgresql.conf"
             - "v-database:/var/lib/postgresql/data"
         ports:
-            - "${DATABASE_PORT}:5432"
+            - "5432:5432"
 
     backend:
         container_name: backend
@@ -41,9 +39,9 @@ services:
             context: ../.
             dockerfile: ./.docker/Dockerfile
         image: backend:latest
-        command: "sh ./.docker/conf/gunicorn/django-dev.sh"
+        command: "sh .docker/conf/gunicorn/django-dev.sh"
         volumes:
-            - .:/application
+            - ../.:/application
         working_dir: /application
         depends_on:
             - database
@@ -52,8 +50,16 @@ services:
             - "conf/server.env"
         environment:
             PYTHONUNBUFFERED: 1
-        ports:
-            - "8000:8000"
+        expose:
+            - "8080"
+        networks:
+            - db-net
+            - nginx-net
+
+    redis:
+        image: redis:5.0.6-alpine
+        networks:
+            - db-net
 
     beat:
         image: backend:latest
@@ -71,7 +77,6 @@ services:
 networks:
     db-net:
     nginx-net:
-    broker-net:
 
 volumes:
     v-database:

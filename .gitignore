@@ -102,3 +102,4 @@ pnpm-debug.log*
 
 avatars
 /.docker/conf/server.env
+/.docker/conf/nginx/server.conf
