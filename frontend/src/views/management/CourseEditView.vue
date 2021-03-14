@@ -2,9 +2,9 @@
   <div class="bx--grid">
     <div class="bx--row">
       <div class="bx--col-lg-8">
-      <div>
-        <h1>{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}</h1>
-      </div>
+        <div>
+          <h1>{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}</h1>
+        </div>
         <br>  <!-- TODO: get off br -->
         <div class="items">
           <cv-inline-notification
@@ -55,18 +55,19 @@
           </cv-number-input>
           <br>
           <GenerateLinks
-          :counter="counter"
-          :courseId="courseId">
+            :counter="counter"
+            :courseId="courseId">
             Сгенерировать ссылку-приглашение
           </GenerateLinks>
           <br>
         </div>
       </div>
-      </div>
     </div>
+  </div>
 </template>
 
 <script lang="ts">
+import AddTeacherModal from "@/components/EditCourse/AddTeacherModal.vue";
 import EditCourseLessons from '@/components/EditCourse/EditCourseLessons.vue';
 import EditCourseModal from '@/components/EditCourse/EditCourseModal.vue';
 import GenerateLinks from "@/components/EditCourse/GenerateLinks.vue";
@@ -76,10 +77,9 @@ import courseStore from "@/store/modules/course";
 import userStore from '@/store/modules/user';
 import axios from 'axios';
 import _ from 'lodash';
-import {Component, Prop, Vue} from 'vue-property-decorator';
-import AddTeacherModal from "@/components/EditCourse/AddTeacherModal.vue";
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({components: {AddTeacherModal, EditCourseLessons, EditCourseModal, GenerateLinks}})
+@Component({ components: { AddTeacherModal, EditCourseLessons, EditCourseModal, GenerateLinks } })
 export default class CourseEditView extends Vue {
   @Prop() courseId!: number | null;
   sendingInfo = false;
@@ -93,13 +93,13 @@ export default class CourseEditView extends Vue {
   course: CourseModel = {
     id: NaN,
     name: '',
-    author: {...userStore.user},
+    author: { ...userStore.user },
     lessons: [],
     completed: false,
     description: '',
     students: [],
   };
-  courseEdit = {...this.course};
+  courseEdit = { ...this.course };
 
   hideSuccess() {
     this.showNotification = false;
@@ -110,24 +110,8 @@ export default class CourseEditView extends Vue {
       this.fetchingCourse = false;
       return;
     }
-
-    if (this.store.courses.length === 0) {
-      this.store.fetchCourses().then(() => {
-        this.course = this.store.courses.find(
-          (element) => {
-            return this.courseId === element.id;
-          }) as CourseModel;
-        this.courseEdit = {...this.course};
-        this.fetchingCourse = false;
-      });
-    } else {
-      this.course = this.store.courses.find(
-        (element) => {
-          return this.courseId === element.id;
-        }) as CourseModel;
-      this.courseEdit = {...this.course};
-      this.fetchingCourse = false;
-    }
+    this.course = this.store.currentCourse as CourseModel;
+    this.courseEdit = { ...this.course };
   }
 
   createOrUpdate(): void {

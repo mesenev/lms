@@ -81,12 +81,12 @@ export default class LessonProgressView extends Vue {
     return a
   }
 
-  definition(a: number) {
-    if (!this.loading && a != -1 && a != 0) {
-      const pr = this.lesson.problems.filter((problem) => problem.id === a)
-      a = pr[0].success_or_last_submits.filter(x => x.status === 'OK').length
+  definition(column: number) {
+    if (!this.loading && column != -1 && column != 0) {
+      const pr = this.lesson.problems.filter((problem) => problem.id === column)
+      column = pr[0].success_or_last_submits.filter(x => x.status === 'OK').length
     }
-    return `Успешно решило ${a} из ${this.users.length} студентов`
+    return `Успешно решило ${column} из ${this.users.length} студентов`
   }
 
   begin = true;

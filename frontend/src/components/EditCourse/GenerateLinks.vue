@@ -79,6 +79,7 @@ export default class LinksManagerComponent extends Vue {
   }
 
   copyLink(link: string) {
+    // eslint-disable-next-line
     // noinspection TypeScriptUnresolvedFunction
     this.$clipboard(axios.defaults.baseURL + '/course-registration/' + link);
   }

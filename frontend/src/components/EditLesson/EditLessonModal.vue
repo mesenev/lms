@@ -132,7 +132,7 @@ export default class EditLessonModal extends Vue {
   }
 
   get freeProblems(): ProblemModel[] {
-    [];
+    return [];
   }
 
   onSearch(value: string) {
