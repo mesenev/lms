@@ -81,9 +81,10 @@ import ProblemModel from '@/models/ProblemModel';
 import lessonStore from '@/store/modules/lesson';
 import problemStore from '@/store/modules/problem';
 import userStore from '@/store/modules/user';
+import materialStore from '@/store/modules/material';
 import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 
 @Component({ components: { MaterialListComponent, ProblemListComponent } })
 export default class LessonView extends Vue {
@@ -91,7 +92,9 @@ export default class LessonView extends Vue {
   lessonStore = lessonStore;
   problemStore = problemStore;
   userStore = userStore;
+  materialStore = materialStore;
   problems: Array<ProblemModel> = [];
+  material: Array<MaterialModel> = [];
   loading = true;
   changingVisibility = false;
 
@@ -102,7 +105,7 @@ export default class LessonView extends Vue {
   //TODO: move materials in separate component
   get materials(): Array<MaterialModel> {
     if (this.lesson)
-      return this.lesson.materials;
+      return this.material;
     return [];
   }
 
@@ -120,6 +123,7 @@ export default class LessonView extends Vue {
 
   async created() {
     this.problems = await this.problemStore.fetchProblemsByLessonId(this.lessonId);
+    this.material = await this.materialStore.fetchMaterialsByLessonId(this.lessonId);
     this.loading = false;
   }
 

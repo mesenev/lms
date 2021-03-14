@@ -17,6 +17,7 @@ class LessonViewSet(viewsets.ModelViewSet):
 class MaterialViewSet(viewsets.ModelViewSet):
     serializer_class = MaterialSerializer
     queryset = LessonContent.objects.all()
+    filterset_fields = ['lesson_id', ]
 
 
 class LessonProgressViewSet(viewsets.ModelViewSet):

@@ -1,16 +1,13 @@
 import MaterialModel from '@/models/MaterialModel';
 import store from '@/store';
 import axios from 'axios';
-import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
+import {Action, getModule, Module, Mutation, VuexModule} from 'vuex-module-decorators';
+import {Dictionary} from "vue-router/types/router";
 
-@Module({ namespaced: true, name: 'material', store, dynamic: true })
+@Module({namespaced: true, name: 'material', store, dynamic: true})
 class MaterialModule extends VuexModule {
 
-  _materials: Array<MaterialModel> = [];
-
-  get materials(): Array<MaterialModel> {
-    return this._materials;
-  }
+  _materials: Dictionary<MaterialModel[]> = {};
 
   private _currentMaterial: MaterialModel = {...this.getNewMaterial};
 
@@ -40,14 +37,8 @@ class MaterialModule extends VuexModule {
   }
 
   @Mutation
-  setMaterials(payload: Array<MaterialModel>) {
+  setMaterials(payload: Dictionary<MaterialModel[]>) {
     this._materials = payload;
-  }
-
-  @Mutation
-  addMaterialToArray(element: MaterialModel) {
-    this._materials.push(element);
-    this._materials = [...this._materials];
   }
 
   @Mutation
@@ -64,6 +55,23 @@ class MaterialModule extends VuexModule {
         console.log(error);
       })
     return answer.data as MaterialModel;
+  }
+
+  @Action
+  async fetchMaterialsByLessonId(id: number): Promise<MaterialModel[]> {
+    if (id in this._materials) {
+      return this._materials[id];
+    }
+
+    let answer = {data: {}};
+    await axios.get('/api/material/', {params: {lesson_id: id}})
+      .then(response => answer = response)
+      .catch(error => {
+        console.log(error);
+      })
+    const result = answer.data as Array<MaterialModel>;
+    this.setMaterials({[id]: result})
+    return result;
   }
 }
 
