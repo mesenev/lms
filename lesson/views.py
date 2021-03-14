@@ -23,3 +23,4 @@ class MaterialViewSet(viewsets.ModelViewSet):
 class LessonProgressViewSet(viewsets.ModelViewSet):
     serializer_class = LessonProgressSerializer
     queryset = LessonProgress.objects.all()
+    filterset_fields = ['lesson_id', ]

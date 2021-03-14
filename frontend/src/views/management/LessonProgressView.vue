@@ -22,7 +22,7 @@
         </cv-data-table-heading>
       </template>
       <template slot="data">
-        <cv-data-table-row v-for="user in users" :key="user.id">
+        <cv-data-table-row v-for="user in progress" :key="user.id">
           <cv-data-table-cell>
             <router-link :to="{ name: 'profile-page', params: { userId: user.user} }"
                          class="course--title" tag="p">
@@ -30,10 +30,10 @@
             </router-link>
           </cv-data-table-cell>
           <cv-data-table-cell class="mark"
-                              v-for="lessonId in les.problems"
+                              v-for="lessonId in problems"
                               :key="lessonId.id">
             <submit-status v-if="userMarks(user, lessonId.id)"
-                           :submit="create_submit(lessonId.id,user.user,user.solved[lessonId.id])"/>
+                           :submit="create_submit(user.solved[lessonId.id][1],lessonId.id,user.user,user.solved[lessonId.id][0])"/>
           </cv-data-table-cell>
           <cv-data-table-cell>
             {{ average(user) }}
@@ -55,42 +55,45 @@ import SubmitModel from "@/models/SubmitModel";
 import UserModel from "@/models/UserModel";
 import UserProgress from '@/models/UserProgress';
 import lessonStore from "@/store/modules/lesson";
+import problemStore from "@/store/modules/problem"
+import progressStore from "@/store/modules/progress"
 import userStore from '@/store/modules/user';
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { Dictionary } from "vue-router/types/router";
+import {Component, Prop, Vue} from 'vue-property-decorator';
+import {Dictionary} from "vue-router/types/router";
+import ProblemModel from "@/models/ProblemModel";
 
-@Component({ components: { SubmitStatus, UserComponent, UserAvatar20 } })
+@Component({components: {SubmitStatus, UserComponent, UserAvatar20}})
 export default class LessonProgressView extends Vue {
   @Prop() lessonId!: number;
 
   students: Array<UserProgress> = [];
-  users1: Dictionary<UserModel> = {};
+  users: Dictionary<UserModel> = {};
+  problems: Array<ProblemModel> = [];
   userStore = userStore;
   lessonStore = lessonStore;
+  progressStore = progressStore;
+  problemStore = problemStore;
 
   get columns() {
-    const a = this.les.problems.map(l => (
+    const a = this.problems.map(l => (
       {
         id: l.id,
         name: l.name,
       }
     ))
-    a.unshift({ id: -1, name: "Ученики" })
-    a.push({ id: 0, name: "Рейтинг" })
+    a.unshift({id: -1, name: "Ученики"})
+    a.push({id: 0, name: "Рейтинг"})
     return a
   }
 
-  definition(column: number) {
-    if (!this.loading && column != -1 && column != 0) {
-      const pr = this.lesson.problems.filter((problem) => problem.id === column)
-      column = pr[0].success_or_last_submits.filter(x => x.status === 'OK').length
+  get progress() {
+    if (this.dontSolved) {
+      return this.students.filter(x => Object.keys(x.solved).length === 0)
     }
-    return `Успешно решило ${column} из ${this.users.length} студентов`
+    return this.students;
   }
 
-  begin = true;
-  end = true;
   loading = true;
   sortable = true;
   dontSolved = false;
@@ -108,15 +111,16 @@ export default class LessonProgressView extends Vue {
     progress: [],
   };
 
-  create_submit(problemId: number, userid: number, status: string): SubmitModel {
-    return { id: 1, problem: problemId, student: userid, status: status };
+  definition(column: number) {
+    if (!this.loading && column != -1 && column != 0) {
+      const pr = this.problems.filter((problem) => problem.id === column)
+      column = pr[0].submits.filter(x => x.status === 'OK').length
+    }
+    return `Успешно решило ${column} из ${this.users.length} студентов`
   }
 
-  get users() {
-    if (this.dontSolved) {
-      return this.students.filter(x => Object.keys(x.solved).length === 0)
-    }
-    return this.students;
+  create_submit(id: number, problemId: number, userid: number, status: string): SubmitModel {
+    return {id: 1, problem: problemId, student: userid, status: status};
   }
 
   get les() {
@@ -125,11 +129,12 @@ export default class LessonProgressView extends Vue {
 
   async created() {
     this.lesson = await this.lessonStore.fetchLessonById(this.lessonId);
-    this.students = this.lesson.progress;
-    this.users1 = await this.userStore.fetchStudentsByCourseId(this.lesson.course);
+    this.students = await this.progressStore.fetchLessonProgressByLessonId(this.lessonId);
+    this.users = await this.userStore.fetchStudentsByCourseId(this.lesson.course);
+    this.problems = await this.problemStore.fetchProblemsByLessonId(this.lessonId);
     this.students = this.students.map(
       obj => Object.assign({}, obj,
-        { user: this.users1[obj.user.toLocaleString()] }));
+        {user: this.users[obj.user.toLocaleString()]}));
     this.loading = false;
   }
 
@@ -139,7 +144,7 @@ export default class LessonProgressView extends Vue {
 
   average(user: UserProgress): string {
     const solvedCount = Object.values(user.solved).filter(x => x == 'OK').length
-    return Number(solvedCount / this.les.problems.length) * 100 + "%";
+    return Number(solvedCount / this.problems.length) * 100 + "%";
   }
 
   isSortable(column: number): boolean {
