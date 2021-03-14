@@ -10,6 +10,18 @@ services:
             - "./conf/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
             - "./conf/nginx/common.conf:/etc/nginx/common.conf:ro"
             - "./conf/nginx/server.conf:/etc/nginx/server.conf:ro"
+            -   type: volume
+                source: v-static
+                target: /application/static
+                read_only: true
+                volume:
+                    nocopy: true
+            -   type: volume
+                source: v-media
+                target: /application/media
+                read_only: true
+                volume:
+                    nocopy: true
         networks:
             - nginx-net
         ports:
@@ -42,6 +54,8 @@ services:
         command: "sh .docker/conf/gunicorn/django-dev.sh"
         volumes:
             - ../.:/application
+            - v-media:/application/media
+            - v-static:/application/static
         working_dir: /application
         depends_on:
             - database
@@ -55,6 +69,7 @@ services:
         networks:
             - db-net
             - nginx-net
+
 
     redis:
         image: redis:5.0.6-alpine
