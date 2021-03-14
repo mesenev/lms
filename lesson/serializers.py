@@ -44,7 +44,6 @@ class LessonProgressSerializer(serializers.ModelSerializer):
 
 
 class LessonSerializer(serializers.ModelSerializer):
-    progress = LessonProgressSerializer(many=True, required=False, default=list())
 
     def create(self, validated_data):
         if 'materials' in validated_data:
