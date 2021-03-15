@@ -1,6 +1,5 @@
 <template>
   <div class="bx--grid">
-    <!-- TODO ссылка на задачу -->
     <cv-data-table title="Успеваемость урока" v-if="!loading" @sort="Sort">
       <template slot="helper-text">
         <router-link :to="{ name: 'LessonView', params: { lessonId: lesson.id } }"
@@ -18,7 +17,9 @@
         <cv-data-table-heading v-for="(column, id) in columns" :key="id" :sortable=isSortable(column.id)>
           <h5 v-if="(column.id === 0)">Результаты</h5>
           <h5 v-else-if="(column.id === -1)">Участник</h5>
-          <cv-definition-tooltip v-else :definition="definition(column.id)" :term="column.name"/>
+          <div v-else @click="openSubmitOrProblem(column.id)">
+            <cv-definition-tooltip :definition="definition(column.id)" :term="column.name"/>
+          </div>
         </cv-data-table-heading>
       </template>
       <template slot="data">
@@ -32,8 +33,10 @@
           <cv-data-table-cell class="mark"
                               v-for="lessonId in problems"
                               :key="lessonId.id">
-            <submit-status v-if="userMarks(user, lessonId.id)"
-                           :submit="create_submit(user.solved[lessonId.id][1],lessonId.id,user.user,user.solved[lessonId.id][0])"/>
+            <div @click="openSubmitOrProblem(lessonId.id, user.solved[lessonId.id][1])">
+              <submit-status v-if="userMarks(user, lessonId.id)"
+                             :submit="create_submit(user.solved[lessonId.id][1],lessonId.id,user.user,user.solved[lessonId.id][0])"/>
+            </div>
           </cv-data-table-cell>
           <cv-data-table-cell>
             {{ average(user) }}
@@ -124,6 +127,13 @@ export default class LessonProgressView extends Vue {
     this.loading = false;
   }
 
+  openSubmitOrProblem(problem: number, submit?: number) {
+    if (submit)
+      this.$router.push(`/course/${this.$route.params['courseId']}/lesson/${this.$route.params['lessonId']}/problem/${problem}/submit/${submit}`);
+    else
+      this.$router.push(`/course/${this.$route.params['courseId']}/lesson/${this.$route.params['lessonId']}/problem/${problem}`);
+  }
+
   definition(column: number) {
     if (!this.loading && column != -1 && column != 0) {
       const columnProblem = this.problems.filter((problem) => problem.id === column)[0].submits
@@ -151,7 +161,7 @@ export default class LessonProgressView extends Vue {
     const CWSolved = Object.keys(user.solved).filter(x => c.includes(x) && user.solved[x][0] === 'OK').length;
     const HWSolved = Object.keys(user.solved).filter(x => h.includes(x) && user.solved[x][0] === 'OK').length;
     const solvedCount = (50 / c.length) * CWSolved + (50 / h.length) * HWSolved;
-    return Number(solvedCount / this.problems.length) * 100 + "%";
+    return (solvedCount) ? Number(solvedCount) + '%' : 0 + '%';
   }
 
   isSortable(column: number): boolean {
