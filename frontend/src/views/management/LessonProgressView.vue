@@ -24,7 +24,7 @@
       <template slot="data">
         <cv-data-table-row v-for="user in progress" :key="user.id">
           <cv-data-table-cell>
-            <router-link :to="{ name: 'profile-page', params: { userId: user.user} }"
+            <router-link :to="{ name: 'profile-page', params: { userId: user.user.id } }"
                          class="course--title" tag="p">
               <UserComponent :user="user.user"/>
             </router-link>
@@ -70,10 +70,25 @@ export default class LessonProgressView extends Vue {
   students: Array<UserProgress> = [];
   users: Dictionary<UserModel> = {};
   problems: Array<ProblemModel> = [];
+  lesson: LessonModel = {
+    id: NaN,
+    course: NaN,
+    description: '',
+    name: '',
+    problems: [],
+    materials: [],
+    deadline: '',
+    lessonContent: '',
+    is_hidden: true,
+    progress: [],
+  };
   userStore = userStore;
   lessonStore = lessonStore;
   progressStore = progressStore;
   problemStore = problemStore;
+  loading = true;
+  sortable = true;
+  dontSolved = false;
 
   get columns() {
     const a = this.problems.map(l => (
@@ -94,35 +109,6 @@ export default class LessonProgressView extends Vue {
     return this.students;
   }
 
-  loading = true;
-  sortable = true;
-  dontSolved = false;
-
-  lesson: LessonModel = {
-    id: NaN,
-    course: NaN,
-    description: '',
-    name: '',
-    problems: [],
-    materials: [],
-    deadline: '',
-    lessonContent: '',
-    is_hidden: true,
-    progress: [],
-  };
-
-  definition(column: number) {
-    if (!this.loading && column != -1 && column != 0) {
-      const columnProblem = this.problems.filter((problem) => problem.id === column)[0].submits
-      column = (columnProblem) ? columnProblem.filter(x => x.status === 'OK').length : 0;
-    }
-    return `Успешно решило ${column} из ${this.progress.length} студентов`
-  }
-
-  create_submit(id: number, problemId: number, userid: UserModel, status: string): SubmitModel {
-    return {id: 1, problem: problemId, student: Number(userid), status: status};
-  }
-
   get les() {
     return this.lesson;
   }
@@ -138,12 +124,33 @@ export default class LessonProgressView extends Vue {
     this.loading = false;
   }
 
+  definition(column: number) {
+    if (!this.loading && column != -1 && column != 0) {
+      const columnProblem = this.problems.filter((problem) => problem.id === column)[0].submits
+      column = (columnProblem) ? columnProblem.filter(x => x.status === 'OK').length : 0;
+    }
+    return `Успешно решило ${column} из ${this.progress.length} студентов`
+  }
+
+  create_submit(id: number, problemId: number, userid: UserModel, status: string): SubmitModel {
+    return {id: 1, problem: problemId, student: Number(userid), status: status};
+  }
+
   userMarks(userId: UserProgress, lessonId: number) {
     return userId.solved[lessonId]
   }
 
   average(user: UserProgress): string {
-    const solvedCount = Object.values(user.solved).filter(x => x == 'OK').length
+    //TODO : change the coefficient when calculating the rating of HW and CW tasks, add extra task calc
+    const c = this.problems.filter(x => x.type === "CW").map(function (num) {
+      return num.id.toString();
+    })
+    const h = this.problems.filter(x => x.type === "HW").map(function (num) {
+      return num.id.toString();
+    })
+    const CWSolved = Object.keys(user.solved).filter(x => c.includes(x) && user.solved[x][0] === 'OK').length;
+    const HWSolved = Object.keys(user.solved).filter(x => h.includes(x) && user.solved[x][0] === 'OK').length;
+    const solvedCount = (50 / c.length) * CWSolved + (50 / h.length) * HWSolved;
     return Number(solvedCount / this.problems.length) * 100 + "%";
   }
 
