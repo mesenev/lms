@@ -3,21 +3,20 @@ from django.dispatch import receiver
 
 from lesson.models import Lesson
 from lesson.models import LessonProgress
-from problem.models import Submit
+from problem.models import Submit, Problem
 from users.models import CourseAssignStudent
 
 
 @receiver(post_save, sender=Submit)
 def update_lesson_progress(sender, instance, **kwargs):
     status = instance.status
-    user = instance.student
-    lesson_id = instance.problem.lesson
+    user = instance.student.id
     problem_id = instance.problem.id
-    progress = instance.problem.lesson.progress.filter(user=user).first()
+    progress = LessonProgress.objects.get(user=user, lesson=Problem.objects.get(id=problem_id).lesson.id)
     if progress:
-        pr = instance.problem.lesson.progress.get(user=user,lesson=lesson_id)
-        pr.solved[problem_id] = status
-        LessonProgress.objects.filter(user=user,lesson=lesson_id).update(**{'solved': pr.solved})
+        progress.solved[problem_id] = (status, instance.id)
+        LessonProgress.objects.filter(user=user, lesson=Problem.objects.get(id=problem_id).lesson.id).update(
+            **{'solved': progress.solved})
 
 
 @receiver(post_save, sender=CourseAssignStudent)

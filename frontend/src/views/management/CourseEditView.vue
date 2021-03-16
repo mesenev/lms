@@ -2,14 +2,14 @@
   <div class="bx--grid">
     <div class="bx--row">
       <div class="bx--col-lg-8">
-      <div>
-        <h1>{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}</h1>
-      </div>
+        <div>
+          <h1>{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}</h1>
+        </div>
         <br>  <!-- TODO: get off br -->
         <div class="items">
           <cv-inline-notification
             v-if="showNotification"
-            @close="hideNotification"
+            @close="hideSuccess"
             :kind="notificationKind"
             :sub-title="notificationText"
           />
@@ -36,29 +36,38 @@
       </div>
       <div class="bx--col-lg-5">
         <div class="link">
-        <h3>Создать ссылку-приглашение</h3>
+          <h1> Менеджмент курса </h1>
+        </div>
+        <div class="link">
+          <h3>
+            Добавить преподавателя
+          </h3>
+          <AddTeacherModal/>
+        </div>
+        <div class="link">
+          <h3>Создать ссылку-приглашение</h3>
           <cv-number-input
             :light="true"
             :label="'Выберите количество учеников курса'"
             :min="1"
             :step="1"
-          v-model="counter">
+            v-model="counter">
           </cv-number-input>
           <br>
           <GenerateLinks
-          :counter="counter"
-          :courseId="courseId">
+            :counter="counter"
+            :courseId="courseId">
             Сгенерировать ссылку-приглашение
           </GenerateLinks>
           <br>
         </div>
       </div>
-      </div>
     </div>
+  </div>
 </template>
 
 <script lang="ts">
-import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
+import AddTeacherModal from "@/components/EditCourse/AddTeacherModal.vue";
 import EditCourseLessons from '@/components/EditCourse/EditCourseLessons.vue';
 import EditCourseModal from '@/components/EditCourse/EditCourseModal.vue';
 import GenerateLinks from "@/components/EditCourse/GenerateLinks.vue";
@@ -68,19 +77,33 @@ import courseStore from "@/store/modules/course";
 import userStore from '@/store/modules/user';
 import axios from 'axios';
 import _ from 'lodash';
-import { Component, Prop } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: { EditCourseLessons, EditCourseModal, GenerateLinks } })
-export default class CourseEditView extends NotificationMixinComponent {
+@Component({ components: { AddTeacherModal, EditCourseLessons, EditCourseModal, GenerateLinks } })
+export default class CourseEditView extends Vue {
   @Prop() courseId!: number | null;
   sendingInfo = false;
   fetchingCourse = true;
   store = courseStore;
   userStore = userStore;
+  showNotification = false;
+  notificationKind = 'success';
+  notificationText = '';
   counter = 1;
-  course: CourseModel = { ...this.store.newCourse };
+  course: CourseModel = {
+    id: NaN,
+    name: '',
+    author: { ...userStore.user },
+    lessons: [],
+    completed: false,
+    description: '',
+    students: [],
+  };
   courseEdit = { ...this.course };
 
+  hideSuccess() {
+    this.showNotification = false;
+  }
 
   created() {
     if (this.courseId === null) {
@@ -90,7 +113,6 @@ export default class CourseEditView extends NotificationMixinComponent {
     this.course = this.store.currentCourse as CourseModel;
     this.courseEdit = { ...this.course };
   }
-
 
   createOrUpdate(): void {
     if (this.isNewCourse)

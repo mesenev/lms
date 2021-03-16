@@ -115,7 +115,7 @@ export default class EditCourseModal extends NotificationMixinComponent {
   showModal() {
     this.modalVisible = true;
     this.showNotification = false;
-    this.currentLesson = { ...this.lessonStore.getNewLesson, course: this.course.id };
+    this.currentLesson = { ...this.lessonStore.getNewLesson, course: this.courseId };
   }
 
   modalHidden() {

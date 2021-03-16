@@ -66,8 +66,8 @@ export default class ProblemStats extends Vue {
   userStore = userStore;
   courseStore = courseStore;
 
-  usersWithSubmits: Set<string> = new Set(Object.keys(this.problem.students));
-  success_or_last_submits: Array<SubmitModel> = Object.values(this.problem.students);
+  usersWithSubmits: Set<string> = new Set(Object.keys(this.problem.students || ''));
+  success_or_last_submits: Array<SubmitModel> = Object.values(this.problem.students || '');
 
   get students(): Dictionary<UserModel> {
     if (!(this.$route.params.courseId in this.userStore.currentCourseStudents))

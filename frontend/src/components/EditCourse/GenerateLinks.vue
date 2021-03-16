@@ -62,7 +62,7 @@ export default class LinksManagerComponent extends Vue {
   }
 
   async createNewLink() {
-    const request = axios.post('/api/courselink/',
+    axios.post('/api/courselink/',
       { course: this.courseId, usages: this.counter })
       .then(response => {
         this.Links.push(response.data);
@@ -75,12 +75,16 @@ export default class LinksManagerComponent extends Vue {
 
   deleteLink(link: string) {
     this.Links = this.Links.filter((x: LinkModel) => x.link != link);
-    const request = axios.delete(`/api/delete-link/${link}/`);
+    axios.delete(`/api/delete-link/${link}/`);
   }
 
   copyLink(link: string) {
-    // noinspection TypeScriptUnresolvedFunction
     this.$clipboard(axios.defaults.baseURL + '/course-registration/' + link);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  $clipboard(arg0: string) {
+    throw new Error("Method not implemented.");
   }
 
 }

@@ -1,6 +1,5 @@
 <template>
   <div class="bx--grid">
-    <!-- TODO ссылка на задачу -->
     <cv-data-table title="Успеваемость урока" v-if="!loading" @sort="Sort">
       <template slot="helper-text">
         <router-link :to="{ name: 'LessonView', params: { lessonId: lesson.id } }"
@@ -18,22 +17,26 @@
         <cv-data-table-heading v-for="(column, id) in columns" :key="id" :sortable=isSortable(column.id)>
           <h5 v-if="(column.id === 0)">Результаты</h5>
           <h5 v-else-if="(column.id === -1)">Участник</h5>
-          <cv-definition-tooltip v-else :definition="definition(column.id)" :term="column.name"/>
+          <div v-else @click="openSubmitOrProblem(column.id)">
+            <cv-definition-tooltip :definition="definition(column.id)" :term="column.name"/>
+          </div>
         </cv-data-table-heading>
       </template>
       <template slot="data">
-        <cv-data-table-row v-for="user in users" :key="user.id">
+        <cv-data-table-row v-for="user in progress" :key="user.id">
           <cv-data-table-cell>
-            <router-link :to="{ name: 'profile-page', params: { userId: user.user} }"
+            <router-link :to="{ name: 'profile-page', params: { userId: user.user.id } }"
                          class="course--title" tag="p">
               <UserComponent :user="user.user"/>
             </router-link>
           </cv-data-table-cell>
           <cv-data-table-cell class="mark"
-                              v-for="lessonId in les.problems"
+                              v-for="lessonId in problems"
                               :key="lessonId.id">
-            <submit-status v-if="userMarks(user, lessonId.id)"
-                           :submit="create_submit(lessonId.id,user.user,user.solved[lessonId.id])"/>
+            <div @click="openSubmitOrProblem(lessonId.id, user.solved[lessonId.id][1])">
+              <submit-status v-if="userMarks(user, lessonId.id)"
+                             :submit="create_submit(user.solved[lessonId.id][1],lessonId.id,user.user,user.solved[lessonId.id][0])"/>
+            </div>
           </cv-data-table-cell>
           <cv-data-table-cell>
             {{ average(user) }}
@@ -51,10 +54,13 @@
 import SubmitStatus from "@/components/SubmitStatus.vue";
 import UserComponent from "@/components/UserComponent.vue";
 import LessonModel from '@/models/LessonModel';
+import ProblemModel from "@/models/ProblemModel";
 import SubmitModel from "@/models/SubmitModel";
 import UserModel from "@/models/UserModel";
 import UserProgress from '@/models/UserProgress';
 import lessonStore from "@/store/modules/lesson";
+import problemStore from "@/store/modules/problem"
+import progressStore from "@/store/modules/progress"
 import userStore from '@/store/modules/user';
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
 import { Component, Prop, Vue } from 'vue-property-decorator';
@@ -65,36 +71,8 @@ export default class LessonProgressView extends Vue {
   @Prop() lessonId!: number;
 
   students: Array<UserProgress> = [];
-  users1: Dictionary<UserModel> = {};
-  userStore = userStore;
-  lessonStore = lessonStore;
-
-  get columns() {
-    const a = this.les.problems.map(l => (
-      {
-        id: l.id,
-        name: l.name,
-      }
-    ))
-    a.unshift({ id: -1, name: "Ученики" })
-    a.push({ id: 0, name: "Рейтинг" })
-    return a
-  }
-
-  definition(a: number) {
-    if (!this.loading && a != -1 && a != 0) {
-      const pr = this.lesson.problems.filter((problem) => problem.id === a)
-      a = pr[0].success_or_last_submits.filter(x => x.status === 'OK').length
-    }
-    return `Успешно решило ${a} из ${this.users.length} студентов`
-  }
-
-  begin = true;
-  end = true;
-  loading = true;
-  sortable = true;
-  dontSolved = false;
-
+  users: Dictionary<UserModel> = {};
+  problems: Array<ProblemModel> = [];
   lesson: LessonModel = {
     id: NaN,
     course: NaN,
@@ -107,12 +85,27 @@ export default class LessonProgressView extends Vue {
     is_hidden: true,
     progress: [],
   };
+  userStore = userStore;
+  lessonStore = lessonStore;
+  progressStore = progressStore;
+  problemStore = problemStore;
+  loading = true;
+  sortable = true;
+  dontSolved = false;
 
-  create_submit(problemId: number, userid: number, status: string): SubmitModel {
-    return { id: 1, problem: problemId, student: userid, status: status };
+  get columns() {
+    const a = this.problems.map(l => (
+      {
+        id: l.id,
+        name: l.name,
+      }
+    ))
+    a.unshift({ id: -1, name: "Ученики" })
+    a.push({ id: 0, name: "Рейтинг" })
+    return a
   }
 
-  get users() {
+  get progress() {
     if (this.dontSolved) {
       return this.students.filter(x => Object.keys(x.solved).length === 0)
     }
@@ -125,12 +118,32 @@ export default class LessonProgressView extends Vue {
 
   async created() {
     this.lesson = await this.lessonStore.fetchLessonById(this.lessonId);
-    this.students = this.lesson.progress;
-    this.users1 = await this.userStore.fetchStudentsByCourseId(this.lesson.course);
+    this.students = await this.progressStore.fetchLessonProgressByLessonId(this.lessonId);
+    this.users = await this.userStore.fetchStudentsByCourseId(this.lesson.course);
+    this.problems = await this.problemStore.fetchProblemsByLessonId(this.lessonId);
     this.students = this.students.map(
       obj => Object.assign({}, obj,
-        { user: this.users1[obj.user.toLocaleString()] }));
+        { user: this.users[obj.user.toLocaleString()] }));
     this.loading = false;
+  }
+
+  openSubmitOrProblem(problem: number, submit?: number) {
+    if (submit)
+      this.$router.push(`/course/${this.$route.params['courseId']}/lesson/${this.$route.params['lessonId']}/problem/${problem}/submit/${submit}`);
+    else
+      this.$router.push(`/course/${this.$route.params['courseId']}/lesson/${this.$route.params['lessonId']}/problem/${problem}`);
+  }
+
+  definition(column: number) {
+    if (!this.loading && column != -1 && column != 0) {
+      const columnProblem = this.problems.filter((problem) => problem.id === column)[0].submits
+      column = (columnProblem) ? columnProblem.filter(x => x.status === 'OK').length : 0;
+    }
+    return `Успешно решило ${column} из ${this.progress.length} студентов`
+  }
+
+  create_submit(id: number, problemId: number, userid: UserModel, status: string): SubmitModel {
+    return { id: 1, problem: problemId, student: Number(userid), status: status };
   }
 
   userMarks(userId: UserProgress, lessonId: number) {
@@ -138,8 +151,17 @@ export default class LessonProgressView extends Vue {
   }
 
   average(user: UserProgress): string {
-    const solvedCount = Object.values(user.solved).filter(x => x == 'OK').length
-    return Number(solvedCount / this.les.problems.length) * 100 + "%";
+    //TODO : change the coefficient when calculating the rating of HW and CW tasks, add extra task calc
+    const c = this.problems.filter(x => x.type === "CW").map(function (num) {
+      return num.id.toString();
+    })
+    const h = this.problems.filter(x => x.type === "HW").map(function (num) {
+      return num.id.toString();
+    })
+    const CWSolved = Object.keys(user.solved).filter(x => c.includes(x) && user.solved[x][0] === 'OK').length;
+    const HWSolved = Object.keys(user.solved).filter(x => h.includes(x) && user.solved[x][0] === 'OK').length;
+    const solvedCount = (50 / c.length) * CWSolved + (50 / h.length) * HWSolved;
+    return (solvedCount) ? Number(solvedCount) + '%' : 0 + '%';
   }
 
   isSortable(column: number): boolean {
