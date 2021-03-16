@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3.3"
 
 
 services:
@@ -34,10 +34,10 @@ services:
         image: postgres:12
         env_file:
             - "./conf/common.env"
-        environment:
-            POSTGRES_MULTIPLE_DATABASES: ${DATABASE_NAME}
-            POSTGRES_USER: ${DATABASE_USER}
-            POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+        #        environment:
+        #            POSTGRES_MULTIPLE_DATABASES: ${DATABASE_NAME}
+        #            POSTGRES_USER: ${DATABASE_USER}
+        #            POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
         volumes:
             - "./conf/postgres:/docker-entrypoint-initdb.d"
             - "./conf/postgres/postgresql.conf:/etc/postgresql/postgresql.conf"
