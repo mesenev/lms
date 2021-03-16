@@ -1,11 +1,10 @@
 import os
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'imcslms.settings')
-
-import django
-
-django.setup()
+from django import setup
 from django.contrib.auth.models import Group
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'imcslms.settings')
+setup()
 
 GROUPS = ['teacher', 'student', 'anonymous']
 MODELS = ['user']
