@@ -42,6 +42,8 @@ services:
             - "./conf/postgres:/docker-entrypoint-initdb.d"
             - "./conf/postgres/postgresql.conf:/etc/postgresql/postgresql.conf"
             - "v-database:/var/lib/postgresql/data"
+        networks:
+            - db-net
         ports:
             - "5432:5432"
 
