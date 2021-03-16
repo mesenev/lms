@@ -1,10 +1,10 @@
 from django.urls import reverse
-
+from model_mommy import mommy
 from rest_framework import status
+
 from course.models import Course
 from course.serializers import CourseSerializer
 from imcslms.test import MainSetup
-from model_mommy import mommy
 
 
 class CourseTests(MainSetup):
@@ -41,11 +41,10 @@ class CourseTests(MainSetup):
 
     def test_read_course(self):
         self.test_setup()
-        data = CourseSerializer(mommy.make(Course)).data
         url = reverse('course-list')
         # data = json.dumps(data)
         amount = Course.objects.count()
         self.client.force_authenticate(user=self.user)
-        response = self.client.get(url, data, format='json')
+        response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

@@ -53,7 +53,6 @@ factory.addStep(steps.ShellCommand(
     command=['python', 'notification.py'],
 ))
 
-
 c['builders'] = []
 c['builders'].append(
     util.BuilderConfig(
@@ -62,10 +61,12 @@ c['builders'].append(
         factory=factory)
 )
 
-# c['title'] = "Test"
-# c['titleURL'] = "mesenev/lms"
+c['title'] = "lms building system"
+c['titleURL'] = "mesenev/lms"
 
-
-# c['buildbotURL'] = "http://localhost:8010/"
-# c['www'] = dict(port=8010, plugins=dict(waterfall_view={}, console_view={}, grid_view={}))
-# c['db'] = {'db_url': "sqlite:///state.sqlite", }
+c['buildbotURL'] = "http://localhost:8010/"
+c['www'] = dict(
+    port=8010, plugins=dict(
+        waterfall_view={}, console_view={}, grid_view={})
+)
+c['db'] = {'db_url': "sqlite:///state.sqlite", }
