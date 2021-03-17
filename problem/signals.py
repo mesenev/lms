@@ -34,7 +34,7 @@ def add_student_to_rating(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Lesson)
 def add_student_to_rating_(sender, instance, created, **kwargs):
-    if not created:
+    if not created or instance.course is None:
         return
     for i in CourseAssignStudent.objects.filter(course=instance.course.id):
         validated_data = {'user': i.user, 'lesson': instance, 'solved': {}}
