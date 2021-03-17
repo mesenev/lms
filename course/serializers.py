@@ -3,7 +3,7 @@ import string
 
 from rest_framework import serializers
 
-from course.models import Course, CourseSchedule, CourseLink
+from course.models import Course, CourseSchedule, CourseLink, CourseProgress
 from lesson.serializers import LessonSerializer
 from users.models import CourseAssignTeacher
 from users.serializers import DefaultUserSerializer
@@ -93,4 +93,19 @@ class LinkSerializer(serializers.Serializer):
 
     class Meta:
         model = CourseLink
+        fields = '__all__'
+
+
+class CourseProgressSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        return CourseProgress.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.lessons = validated_data.get('lessons', instance.lessons)
+        instance.attendance = validated_data.get('attendance', instance.attendance)
+        instance.save()
+        return instance
+
+    class Meta:
+        model = CourseProgress
         fields = '__all__'
