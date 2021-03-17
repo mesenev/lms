@@ -3,8 +3,8 @@ import os
 
 from buildbot_worker.bot import Worker
 from twisted.application import service
-from twisted.python.logfile import LogFile
 from twisted.python.log import ILogObserver, FileLogObserver
+from twisted.python.logfile import LogFile
 
 basedir = '.'
 rotateLength = 10000000
@@ -27,7 +27,7 @@ application.setComponent(ILogObserver, FileLogObserver(logfile).emit)
 
 buildmaster_host = 'localhost'
 port = 9989
-name, passwd = 'frontend-build-worker', 'pass'
+name, passwd = 'lms-ci-system', 'pass'
 keepalive = 600
 umask = None
 maxdelay = 300
