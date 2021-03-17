@@ -11,6 +11,7 @@ class Lesson(models.Model):
     description = models.TextField()
     deadline = models.DateField(blank=True, null=True)
     is_hidden = models.BooleanField(default=True)
+    scores = models.JSONField(null=False, default=dict)
 
     def __str__(self):
         return self.name

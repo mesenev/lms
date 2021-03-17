@@ -26,7 +26,7 @@ class ProblemManager(models.Manager):
 
 
 class Problem(models.Model):
-    PROBLEM_TYPES = [('CW', 'classwork'), ('HW', 'homework')]
+    PROBLEM_TYPES = [('CW', 'classwork'), ('HW', 'homework'), ('EX', 'extratasks')]
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, related_name='problems', null=True)
     author = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='authored_problems', null=True)
     name = models.CharField(max_length=500)

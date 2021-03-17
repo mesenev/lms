@@ -54,6 +54,7 @@ class LessonSerializer(serializers.ModelSerializer):
             del validated_data["progress"]
         request = self.context.get("request")
         user = request.user if request and hasattr(request, 'user') else None
+        validated_data['scores'] = {'CW': 50, 'HW': 50, 'EX': 10}
         if 'author' in validated_data:
             del validated_data["author"]
         return Lesson.objects.create(**validated_data, **{'author': user})
