@@ -23,11 +23,7 @@
           <br>
           <cv-text-input id="group" label="Группа обучения" helper-text=""/>
           <br>
-          <cv-text-input v-model.trim="email"
-                         id="mail"
-                         label="Почта"
-                         helper-text=""
-          >
+          <cv-text-input id="mail" v-model.trim="email" helper-text="" label="Почта">
             <template v-if="checkEmail" id="test_mail" slot="invalid-message">Введите корректный Email</template>
           </cv-text-input>
           <br>
