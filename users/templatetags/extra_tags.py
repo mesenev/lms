@@ -13,8 +13,7 @@ def hmr_script(path):
     if settings.DEBUG and settings.WEBPACK_DEV_SERVER:
         script_origin = f'http://{settings.WEBPACK_DEV_SERVER}/'
     else:
-        path = static('js/' + path)
-
+        path = static(path)
     return format_html(
         mark_safe('<script type="text/javascript" src="{}{}"></script>'),
         script_origin,
