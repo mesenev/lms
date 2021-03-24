@@ -23,11 +23,7 @@
           <br>
           <cv-text-input id="group" label="Группа обучения" helper-text=""/>
           <br>
-          <cv-text-input v-model.trim="email"
-                         id="mail"
-                         label="Почта"
-                         helper-text=""
-          >
+          <cv-text-input id="mail" v-model.trim="email" helper-text="" label="Почта">
             <template v-if="checkEmail" id="test_mail" slot="invalid-message">Введите корректный Email</template>
           </cv-text-input>
           <br>
@@ -68,12 +64,11 @@
 <!-- TODO: password work w/ backend -->
 
 <script lang="ts">
-import Registration from '@/components/Registration.vue';
 import axios from "axios";
 import Vue from 'vue';
 import Component from 'vue-class-component';
 
-@Component({ components: { Registration } })
+@Component({ components: {} })
 export default class RegistrationView extends Vue {
 
   showNotification = false;

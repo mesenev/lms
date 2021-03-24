@@ -24,7 +24,7 @@
       <div class="bx--col-lg-9 content-tasks">
         <h2 class="content-tasks-title">Задачи урока</h2>
         <div class="content-tasks-problems">
-          <div class="classwork">
+          <div v-if="classwork.length > 0" class="classwork">
             <h4 class="classwork-title">Классная работа</h4>
             <div v-if="!loading">
               <cv-accordion align="end"
@@ -37,7 +37,7 @@
               <cv-accordion-skeleton/>
             </div>
           </div>
-          <div class="homework">
+          <div v-if="homework.length > 0" class="homework">
             <h4 class="homework-title">Домашняя работа</h4>
             <div v-if="!loading">
               <cv-accordion
@@ -45,6 +45,19 @@
                 v-for="problem in homework"
                 :key="problem.id"
               >
+                <problem-list-component :problem-prop="problem"/>
+              </cv-accordion>
+            </div>
+            <div v-else>
+              <cv-accordion-skeleton/>
+            </div>
+          </div>
+          <div v-if="extrawork.length > 0" class="extrawork">
+            <h4 class="classwork-title">Дополнительные задания</h4>
+            <div v-if="!loading">
+              <cv-accordion v-for="problem in extrawork"
+                            :key="problem.id"
+                            align="end">
                 <problem-list-component :problem-prop="problem"/>
               </cv-accordion>
             </div>
@@ -84,7 +97,7 @@ import problemStore from '@/store/modules/problem';
 import userStore from '@/store/modules/user';
 import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 
 @Component({ components: { MaterialListComponent, ProblemListComponent } })
 export default class LessonView extends Vue {
@@ -119,6 +132,10 @@ export default class LessonView extends Vue {
 
   get homework(): Array<ProblemModel> {
     return this.problems.filter(x => x.type === 'HW');
+  }
+
+  get extrawork(): Array<ProblemModel> {
+    return this.problems.filter(x => x.type === 'EX');
   }
 
   async created() {
@@ -183,7 +200,8 @@ export default class LessonView extends Vue {
   /deep/ .bx--accordion__heading
     align-items center
 
-  .classwork, .homework
+
+  .classwork, .homework, extrawork
     margin-bottom 1rem
 
     &-title
