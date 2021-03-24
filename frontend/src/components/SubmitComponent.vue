@@ -9,6 +9,7 @@
     <cv-skeleton-text v-if="loading"/>
     <div v-else>
       <cv-text-area
+        :rows="13"
         v-model="submitEdit.content"
         :class="{ 'text-area-teacher': isStaff, 'text-area-student': !isStaff }"
         :disabled="isStaff"
@@ -29,14 +30,15 @@
       <div v-if="isStaff" class="handlers">
         <cv-button
           :disabled="isNewSubmit"
-          class="submit-btn rejected"
-          v-on:click="rejectSubmit">
+          class="submit-btn accepted"
+          v-on:click="acceptSubmit">
           Принять
         </cv-button>
         <cv-button
+          kind='danger'
           :disabled="isNewSubmit"
-          class="submit-btn accepted"
-          v-on:click="acceptSubmit">
+          class="submit-btn rejected"
+          v-on:click="rejectSubmit">
           Отклонить
         </cv-button>
       </div>
@@ -153,5 +155,17 @@ export default class SubmitComponent extends NotificationMixinComponent {
 </script>
 
 <style lang="stylus" scoped>
+.text-area-teacher
+  opacity 80%
+
+.rejected
+  margin-left 0.5rem
+
+.handlers
+  margin-top 0.5rem
+  display flex
+  flex-direction row
+  justify-content flex-end
+
 
 </style>

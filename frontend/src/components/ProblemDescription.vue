@@ -20,6 +20,7 @@ export default class ProblemDescription extends Vue {
 
 <style lang="stylus">
 #problem-description-container
+  padding 0.5rem
   h2, .timing, .submit
     display none
 

@@ -1,11 +1,11 @@
 <template>
   <cv-grid class="problem-view">
     <cv-row>
-      <h1 v-if="problem">{{ problem.name }}</h1>
+      <h1 class="problem-title" v-if="problem">{{ problem.name }}</h1>
       <cv-skeleton-text v-else/>
     </cv-row>
     <cv-row>
-      <cv-column :lg="8">
+      <cv-column :lg="16">
         <div class="item">
           <problem-description v-if="problem" :problem="problem"/>
           <cv-skeleton-text v-else/>
@@ -167,6 +167,10 @@ export default class ProblemView extends Vue {
 </script>
 
 <style lang="stylus" scoped>
+
+.problem-title
+  margin-left 2rem
+
 .item
   background-color var(--cds-ui-background)
   padding 1rem
