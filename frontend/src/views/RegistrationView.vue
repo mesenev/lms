@@ -64,12 +64,11 @@
 <!-- TODO: password work w/ backend -->
 
 <script lang="ts">
-import Registration from '@/components/Registration.vue';
 import axios from "axios";
 import Vue from 'vue';
 import Component from 'vue-class-component';
 
-@Component({ components: { Registration } })
+@Component({ components: {} })
 export default class RegistrationView extends Vue {
 
   showNotification = false;
