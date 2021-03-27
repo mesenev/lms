@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.db import models
 
 from lesson.models import Lesson
@@ -82,3 +83,8 @@ class CatsSubmit(models.Model):
     is_sent = models.BooleanField(default=False, null=False)
     sending_result = models.JSONField(null=True)
     testing_result = models.JSONField(null=True)
+
+
+admin.site.register(Problem)
+admin.site.register(Submit)
+admin.site.register(CatsSubmit)

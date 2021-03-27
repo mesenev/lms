@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.db import models
 
 from course.models import Course
@@ -38,3 +39,6 @@ class LessonProgress(models.Model):
 
     class Meta:
         unique_together = ('lesson', 'user')
+
+
+admin.site.register(Lesson)
