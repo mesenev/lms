@@ -80,12 +80,14 @@ services:
 
     beat:
         image: backend:latest
-        command: "celery -A celery_app beat"
+        command: "celery -A celery_app beat && flower -A celery_app --port=7999"
         env_file:
             - "conf/common.env"
             - "conf/server.env"
         networks:
             - db-net
+        ports:
+            - "7999:7999"
         depends_on:
             - database
             - redis
