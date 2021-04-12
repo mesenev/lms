@@ -74,13 +74,15 @@ services:
 
 
     redis:
+        container_name: redis
         image: redis:5.0.6-alpine
         networks:
             - db-net
 
     beat:
+        container_name: beat
         image: backend:latest
-        command: "celery -A celery_app beat"
+        command: "celery -A celery_app beat && flower -A celery_app --port=7999"
         env_file:
             - "conf/common.env"
             - "conf/server.env"
