@@ -1,5 +1,5 @@
 For building composition please run
-```
+```bash
 docker-compose -f .docker/docker-compose.yml build
 ```
 For launching built composition please run
