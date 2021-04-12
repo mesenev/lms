@@ -80,7 +80,7 @@ services:
 
     beat:
         image: backend:latest
-        command: "celery -A celery_app beat && flower -A celery_app --port=7999"
+        command: "celery -A celery_app beat"
         env_file:
             - "conf/common.env"
             - "conf/server.env"
