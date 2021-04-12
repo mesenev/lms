@@ -1,7 +1,7 @@
+import { BaseModel } from '@/models/BaseModel';
 import SubmitModel from '@/models/SubmitModel';
-import { TutorialModel } from '@/models/TutorialModel';
 
-export default interface ProblemModel extends TutorialModel {
+export default interface ProblemModel extends BaseModel {
   lesson: number;
   type: string;
   description: string;

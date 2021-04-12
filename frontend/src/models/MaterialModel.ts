@@ -1,6 +1,6 @@
-import { TutorialModel } from '@/models/TutorialModel';
+import { BaseModel } from '@/models/BaseModel';
 
-export default interface MaterialModel extends TutorialModel {
+export default interface MaterialModel extends BaseModel {
   lesson: number;
   content_type: string;
   content: string;

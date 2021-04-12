@@ -1,6 +1,6 @@
-import { TutorialModel } from '@/models/TutorialModel';
+import { BaseModel } from '@/models/BaseModel';
 
-export default function <T extends TutorialModel>(query: string, arrayToSearch: T[]): T[] {
+export default function <T extends BaseModel>(query: string, arrayToSearch: T[]): T[] {
   if (!query) {
     return arrayToSearch;
   }
