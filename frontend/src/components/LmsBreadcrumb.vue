@@ -3,36 +3,28 @@
     <cv-breadcrumb>
       <transition name="fade" mode="out-in">
         <cv-breadcrumb-item>
-          <router-link :to="{
-            path: '/',
-          }">
-            Список курсов
-          </router-link>
+          <router-link :to="{ path: '/', }">Список курсов</router-link>
         </cv-breadcrumb-item>
       </transition>
       <lms-breadcrumb-item
         v-if="courseSelected.selected"
-        :id="courseSelected.id"
+        :model="courseStore.currentCourse"
         page-view="CourseView"
-        :fetch="courseStore.fetchCourseById"
       />
       <lms-breadcrumb-item
         v-if="lessonSelected.selected"
-        :id="lessonSelected.id"
+        :model="lessonStore.currentLesson"
         page-view="LessonView"
-        :fetch="lessonStore.fetchLessonById"
       />
       <lms-breadcrumb-item
         v-if="problemSelected.selected"
-        :id="problemSelected.id"
+        :model="problemStore.currentProblem"
         page-view="ProblemView"
-        :fetch="problemStore.fetchProblemById"
       />
       <lms-breadcrumb-item
         v-if="materialSelected.selected"
-        :id="materialSelected.id"
+        :model="materialStore.currentMaterial"
         page-view="MaterialView"
-        :fetch="materialStore.fetchMaterialById"
       />
     </cv-breadcrumb>
   </div>
@@ -40,17 +32,20 @@
 
 <script lang="ts">
 
-import { Component, Vue } from "vue-property-decorator";
-import problemStore from '@/store/modules/problem';
-import lessonStore from '@/store/modules/lesson';
-import courseStore from '@/store/modules/course';
-import materialStore from '@/store/modules/material';
 import LmsBreadcrumbItem from "@/components/LmsBreadcrumbItem.vue";
+import courseStore from '@/store/modules/course';
+import lessonStore from '@/store/modules/lesson';
+import materialStore from '@/store/modules/material';
+import problemStore from '@/store/modules/problem';
+import { Component, Vue } from "vue-property-decorator";
 
-@Component({
-  components: { LmsBreadcrumbItem }
-})
+@Component({ components: { LmsBreadcrumbItem } })
 export default class LmsBreadcrumb extends Vue {
+  problemStore = problemStore;
+  lessonStore = lessonStore;
+  courseStore = courseStore;
+  materialStore = materialStore;
+
   private isSelected(param: string) {
     const selected = this.$route.params.hasOwnProperty(param) && !!this.$route.params[param];
     return {
@@ -75,21 +70,19 @@ export default class LmsBreadcrumb extends Vue {
     return this.isSelected('materialId');
   }
 
-  problemStore = problemStore;
-  lessonStore = lessonStore;
-  courseStore = courseStore;
-  materialStore = materialStore;
 }
 </script>
 
 <style lang="stylus" scoped>
-  .breadcrumb
-    margin-top 1rem
+.breadcrumb
+  margin-top 1rem
 
-  .fade-enter-active, .fade-leave-active {
-    transition: opacity .1s
-  }
-  .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
-    opacity: 0
-  }
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .1s
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */
+{
+  opacity: 0
+}
 </style>

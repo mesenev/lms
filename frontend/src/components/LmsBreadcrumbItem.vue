@@ -1,65 +1,40 @@
 <template>
   <transition name="fade" mode="out-in">
-    <cv-breadcrumb-item v-if="!loading">
-      <router-link :to="{
-        name: PageView,
-        props: id
-      }">
-        {{ title }}
-      </router-link>
+    <cv-skeleton-text v-if="loading" class="skeleton" width="75px"/>
+    <cv-breadcrumb-item v-else>
+      <router-link :to="{ name: PageView, props: model.id }">{{ title }}</router-link>
     </cv-breadcrumb-item>
-    </transition>
+  </transition>
 </template>
 
 <script lang="ts">
+import { BaseModel } from '@/models/BaseModel';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { TutorialModel } from '@/models/TutorialModel';
-
-const errors: { [key: string]: string } = {
-  CourseView: 'Текущий курс',
-  LessonView: 'Текущий урок',
-  ProblemView: 'Текущая проблема',
-  MaterialView: 'Текщий материал',
-}
 
 @Component
 export default class LmsBreadcrumbItem extends Vue {
-  @Prop({type: Number, required: true,}) id!: number;
-  @Prop({
-    type: String,
-    required: true,
-    validator(value: string): boolean {
-      return errors.hasOwnProperty(value);
-    }
-  }) PageView!: string;
-  @Prop({type: Function, required: true}) fetch!: (id: number) => Promise<TutorialModel>;
+  @Prop({ required: true }) model!: BaseModel;
+  @Prop({ type: String, required: true }) PageView!: string;
 
-  title = '';
-
-  loading = true;
-
-  async setTitle() {
-    this.loading = true;
-    const localStorageKey = `${this.PageView}_${this.id}`;
-    if (!localStorage.getItem(localStorageKey)) {
-      localStorage.setItem(localStorageKey, (await this.fetch(this.id)).name);
-    }
-    this.title = localStorage.getItem(localStorageKey) ?? errors[this.PageView];
-    this.loading = false;
+  get loading() {
+    return (!this.model)
   }
 
-  async created() {
-    await this.setTitle();
+  get title() {
+    return this.model?.name;
   }
 }
 
 </script>
 
 <style lang="stylus" scoped>
-  .fade-enter-active, .fade-leave-active {
-    transition: opacity .1s
-  }
-  .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
-    opacity: 0
-  }
+.skeleton
+  margin-bottom -.5rem
+
+
+.fade-enter-active, .fade-leave-active
+  transition opacity .1s
+
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */
+  opacity 0
 </style>
