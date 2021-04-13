@@ -29,6 +29,4 @@ export default class Avatar extends Vue {
   .avatar
     object-fit:cover;
     border-radius: 150%;
-    padding: 0;
-    margin: 0;
 </style>

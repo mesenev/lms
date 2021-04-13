@@ -1,6 +1,13 @@
 <template>
   <div>
-    <Edit32 class="change-btn" @click="showModal"/>
+    <cv-button
+      kind="tertiary"
+      :size="size"
+      :disabled="disabled"
+      @click="showModal"
+      :icon="Edit32"
+    >Изменить
+    </cv-button>
     <cv-modal size="default"
               class="add_lesson_modal"
               :visible="modalVisible"
@@ -44,6 +51,7 @@ export default class EditAvatarModal extends Vue {
   @Prop() user!: UserModel;
   imagePreview: string | null | ArrayBuffer = '';
   showPreview = false;
+  Edit32 = Edit32;
   AddAlt32 = AddAlt20;
   SubtractAlt32 = SubtractAlt20;
   avatarChanged = false;

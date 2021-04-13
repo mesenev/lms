@@ -1,12 +1,12 @@
 <template>
   <div v-if="!loading" class="bx--grid bx--grid--narrow">
     <div class="bx--row header">
-      <h1> {{ user.first_name + ' ' + user.last_name }}</h1>
+      <h1 class="header-title"> {{ user.first_name + ' ' + user.last_name }}</h1>
     </div>
     <div class="bx--row content">
-      <div class="container">
-        <Avatar class="image" :avatar_url="user.avatar_url"/>
-        <EditAvatarModal v-if="!guestMode" :user="user"/>
+      <div class="avatar-container">
+          <Avatar class="image" :avatar_url="user.avatar_url"/>
+          <EditAvatarModal class="image-edit-icon" v-if="!guestMode" :user="user"/>
       </div>
       <div class="bx--col">
         <div class="courses-block">
@@ -40,13 +40,13 @@
                   <cv-structured-list-data>Аккаунт Cats</cv-structured-list-data>
                   <cv-structured-list-data class="cats_status">Не привязан</cv-structured-list-data>
                 </cv-structured-list-item>
-                <div class="info-btns">
-                  <AddCatsModal v-if="!guestMode" class="add-cats"/>
-                  <ChangePasswordModal v-if="!guestMode" class="change-pass"/>
-                </div>
               </template>
             </cv-structured-list>
           </div>
+          <div class="info-btns">
+                  <AddCatsModal v-if="!guestMode" class="add-cats"/>
+                  <ChangePasswordModal v-if="!guestMode" class="change-pass"/>
+            </div>
         </div>
       </div>
     </div>
@@ -105,11 +105,18 @@ export default class ProfileView extends Vue {
 
 <style scoped lang="stylus">
 
-// avatar edit//////////////////
+.avatar-container
+  padding-right 3rem
 
+.image
+  margin-top 2rem
 
-/////////////////////////
+.image-edit-icon
+  margin-top 0.8rem
+  text-align center
 
+.header-title
+  margin-left 2rem
 
 .courses-block
   margin 50px
@@ -125,20 +132,21 @@ export default class ProfileView extends Vue {
   background-color var(--cds-ui-background);
 
 .info-btns
-  padding-top 20px;
-  cursor: pointer;
-  display flex;
-  flex-direction row;
+  margin-top 0
+  display flex
+  flex-direction row
+  justify-content center
 
-.info-btns:after
-  clear: both;
-  display: table;
+.change-pass
+  margin-left 1rem
 
 .info
   margin-bottom 20px
 
 .list
-  margin-top 70px
+  margin-top 2rem
+  padding-bottom 0
+  margin-bottom 0
 
 ///
 

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <cv-button class="change-pass-btn" kind="ghost" @click="showModal">
+    <cv-button class="change-pass-btn" kind="tertiary" @click="showModal">
       Сменить пароль
     </cv-button>
     <cv-modal
