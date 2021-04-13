@@ -49,5 +49,6 @@ export default class UserComponent extends Vue {
   border-radius: 150%;
   padding: 0;
   margin: 0;
+  margin-left 1.5rem
 
 </style>

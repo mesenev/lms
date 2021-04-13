@@ -155,8 +155,10 @@ export default class SubmitComponent extends NotificationMixinComponent {
 </script>
 
 <style lang="stylus" scoped>
+
 .text-area-teacher
-  opacity 80%
+  opacity 90%
+  border 0.5px solid rgba(0, 0, 0, .3)
 
 .rejected
   margin-left 0.5rem

@@ -54,7 +54,7 @@
         <div class="item">
           <cv-structured-list class="student-list" condensed selectable @change="changeStudent">
             <template slot="headings">
-              <cv-structured-list-heading>Ученик</cv-structured-list-heading>
+              <cv-structured-list-heading class="table-title">Ученики</cv-structured-list-heading>
             </template>
             <template slot="items">
               <cv-structured-list-item
@@ -167,6 +167,11 @@ export default class ProblemView extends Vue {
 </script>
 
 <style lang="stylus" scoped>
+
+
+
+.table-title
+  margin-left 5rem
 
 .problem-title
   margin-left 2rem
