@@ -43,7 +43,7 @@ tornado==6.1
 treq==20.9.0
 Tubes==0.2.0
 Twisted==20.3.0
-txaio==20.4.1
+txaio==21.2.1
 txrequest==0.1.0
 typing==3.7.4.3
 tzlocal==2.1
