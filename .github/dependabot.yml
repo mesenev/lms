@@ -1,0 +1,20 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/frontend"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 10
+  target-branch: main
+- package-ecosystem: pip
+  directory: "/requirements"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 10
+  target-branch: main
+- package-ecosystem: pip
+  directory: "/.buildbot"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  target-branch: main
