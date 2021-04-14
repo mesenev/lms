@@ -71,7 +71,6 @@ export default class ChangePasswordModal extends Vue {
   showNotification = false;
   notificationText = '';
   notificationKind = 'success';
-
   old_pass = '';
   new_pass = '';
   new_pass_repeat = '';
