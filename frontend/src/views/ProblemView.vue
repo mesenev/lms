@@ -26,7 +26,7 @@
               v-if="submits" class="submit-list"
               condensed selectable @change="changeCurrentSubmit">
               <template slot="headings">
-                <cv-structured-list-heading>id</cv-structured-list-heading>
+                <cv-structured-list-heading>ID</cv-structured-list-heading>
                 <cv-structured-list-heading>Статус</cv-structured-list-heading>
               </template>
               <template slot="items">
@@ -35,7 +35,8 @@
                   :key="submit.id"
                   :checked="checkedSubmit(submit)"
                   :value="submit.id.toString()"
-                  name="submit">
+                  name="submit"
+                  class="submit-table-item">
                   <cv-structured-list-data>{{ submit.id }}</cv-structured-list-data>
                   <cv-structured-list-data>
                     <submit-status :submit="submit"/>
@@ -168,7 +169,11 @@ export default class ProblemView extends Vue {
 
 <style lang="stylus" scoped>
 
-
+.bx--structured-list.bx--structured-list--condensed .bx--structured-list-td,
+.bx--structured-list.bx--structured-list--condensed .bx--structured-list-th {
+    padding: 0.5rem;
+    padding-left: 1rem;
+}
 
 .table-title
   margin-left 5rem

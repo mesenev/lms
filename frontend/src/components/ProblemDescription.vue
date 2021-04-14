@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div v-if="!isNaN(problem.id)"
-         id="problem-description-container"
-         v-html="problem.description">
-    </div>
+    <h4 v-if="!isNaN(problem.id)"
+        class="problem-description-container"
+        v-html="problem.description">
+    </h4>
     <cv-skeleton-text v-else/>
   </div>
 </template>
@@ -19,22 +19,12 @@ export default class ProblemDescription extends Vue {
 </script>
 
 <style lang="stylus">
-#problem-description-container
-  padding 0.5rem
-  h2, .timing, .submit
-    display none
 
-  table.sample
-    border 1px
 
-    *
-      padding 5px
+.problem-description-container
+  margin 0.5rem
+  font-size 1.15rem
 
-    td
-      border 1px solid black
-
-  button.copy_button
-    display none
 </style>
 
 <style lang="stylus" scoped>
