@@ -3,7 +3,7 @@ attrs==20.3.0
 autobahn==20.7.1
 Automat==20.2.0
 buildbot==2.9.2
-buildbot-console-view==2.9.2
+buildbot-console-view==3.1.0
 buildbot-grid-view==2.9.2
 buildbot-waterfall-view==2.9.2
 buildbot-worker==2.9.2
