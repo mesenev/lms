@@ -19,7 +19,7 @@
     "core-js": "^3.6.5",
     "lodash": "^4.17.20",
     "markdown-it-vue": "^1.1.6",
-    "marked": "^1.2.7",
+    "marked": "^2.0.3",
     "package-lock.json": "^1.0.0",
     "package.json": "^2.0.1",
     "sass": "^1.29.0",
