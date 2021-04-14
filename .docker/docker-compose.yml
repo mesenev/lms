@@ -55,6 +55,7 @@ services:
         image: backend:latest
         command: "sh .docker/conf/gunicorn/django.sh"
         volumes:
+            - ../.:/application
             - v-media:/application/media
             - v-static:/application/static
         working_dir: /application
