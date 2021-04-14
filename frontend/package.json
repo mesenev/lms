@@ -16,7 +16,7 @@
     "@types/lodash": "^4.14.165",
     "axios": "^0.21.1",
     "carbon-components": "^10.25.0",
-    "core-js": "^3.6.5",
+    "core-js": "^3.10.1",
     "lodash": "^4.17.20",
     "markdown-it-vue": "^1.1.6",
     "marked": "^1.2.7",
