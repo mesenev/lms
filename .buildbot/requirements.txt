@@ -13,7 +13,7 @@ cffi==1.14.4
 characteristic==14.3.0
 chardet==3.0.4
 constantly==15.1.0
-cryptography==3.3
+cryptography==3.4.7
 decorator==4.4.2
 future==0.18.2
 hyperlink==20.0.1
