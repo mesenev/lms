@@ -14,7 +14,7 @@ django-cleanup==5.1.0
 django-debug-toolbar==3.2
 django-filter==2.4.0
 django-timezone-field==4.1.1
-djangorestframework==3.12.2
+djangorestframework==3.12.4
 flower==0.9.7
 humanize==3.4.1
 idna==2.10
