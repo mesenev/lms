@@ -14,24 +14,26 @@ def build_message_deploy(code):
 
 
 def deploy_backend():
+    print('deploying database')
     exec_code = subprocess.run(
         [
             "docker-compose",
-            "--detach",
             "-f",
-            ".docker/docker-compose.dev.yml",
+            ".docker/docker-compose.yml",
             "up",
+            "--detach",
             "database"
         ]).returncode
     message = build_message_database(exec_code)
     if exec_code:
         return exec_code, message
+    print('deploying composition')
     exec_code = subprocess.run(
         [
             "docker-compose",
-            "--detach",
             "-f",
-            ".docker/docker-compose.dev.yml",
-            "up"
+            ".docker/docker-compose.yml",
+            "up",
+            "--detach",
         ]).returncode
     return exec_code, '\n'.join([message, build_message_deploy(exec_code)])

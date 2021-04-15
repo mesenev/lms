@@ -3,11 +3,12 @@ import subprocess
 
 import telegram
 
-from .env import BOT_TOKEN, CHAT_ID
+from env import BOT_TOKEN, CHAT_ID
+from scripts import *
 
 
 def chdir(directory):
-    return lambda x: [0, '', os.chdir(directory)][:2]
+    return lambda: [0, '', os.chdir(directory)][:2]
 
 
 if __name__ == '__main__':

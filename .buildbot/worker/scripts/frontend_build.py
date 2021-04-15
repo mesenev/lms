@@ -14,5 +14,11 @@ def build_message(code):
 
 
 def build_frontend():
+    print('installing frontend dependencies')
+    exec_code = subprocess.run(["npm", "install", ]).returncode
+    if exec_code:
+        return exec_code, '<b>npm install</b> failed {random.choice(["🤦", "🤢"])}. Go and fix it!'
+    print('`npm run build` on the run')
     exec_code = subprocess.run(["npm", "run", "build"]).returncode
     return exec_code, build_message(exec_code)
+
