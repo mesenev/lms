@@ -39,5 +39,5 @@ if __name__ == '__main__':
         result_message += '\n' + 'Well done. All systems operational. 🚀'
     print(result_message)
     bot = telegram.Bot(token=BOT_TOKEN)
-    bot.send_message(CHAT_ID, result_message)
+    bot.send_message(CHAT_ID, result_message, parse_mode='html')
     exit(step_result)
