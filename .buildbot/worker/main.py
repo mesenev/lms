@@ -2,9 +2,7 @@ import os
 import subprocess
 
 import telegram
-
 from env import BOT_TOKEN, CHAT_ID
-from scripts import *
 
 
 def chdir(directory):
@@ -32,12 +30,12 @@ if __name__ == '__main__':
     for step in steps:
         step_result, message = step()
         if message:
-            result_message += '<br>' + message
+            result_message += '\n' + message
         if step_result:
             break
     if not step_result:
-        result_message += '<br>' + 'Well done. All systems operational. 🚀'
+        result_message += '\n' + 'Well done. All systems operational. 🚀'
+    print(result_message)
     bot = telegram.Bot(token=BOT_TOKEN)
     bot.send_message(CHAT_ID, result_message)
-    bot.close()
     exit(step_result)
