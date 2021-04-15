@@ -53,10 +53,8 @@ services:
             context: ../.
             dockerfile: ./.docker/Dockerfile
         image: backend:latest
-        command: "sh .docker/conf/gunicorn/django.sh"
+        command: "sh /application/.docker/conf/gunicorn/django.sh"
         volumes:
-            - ../static:/application/static
-            - ../media:/application/media
             - v-media:/application/media
             - v-static:/application/static
         working_dir: /application
@@ -105,3 +103,8 @@ volumes:
     v-redis:
     v-static:
     v-media:
+        driver: local
+        driver_opts:
+            type: 'none'
+            o: 'bind'
+            device: 'media'

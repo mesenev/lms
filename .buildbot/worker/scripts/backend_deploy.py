@@ -36,4 +36,18 @@ def deploy_backend():
             "up",
             "--detach",
         ]).returncode
+    print('collecting static')
+    if exec_code:
+        return exec_code, message
+    exec_code = subprocess.run(
+        [
+            "docker-compose",
+            "-f",
+            ".docker/docker-compose.yml",
+            "exec",
+            "backend",
+            "python", "manage.py", "collectstatic", '-c', '--noinput'
+        ]).returncode
+    if exec_code:
+        return exec_code, 'collectstatic failed.'
     return exec_code, '\n'.join([message, build_message_deploy(exec_code)])
