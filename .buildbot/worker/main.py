@@ -4,7 +4,7 @@ import sys
 
 import telegram
 from env import BOT_TOKEN, CHAT_ID
-
+from scripts import *
 sys.dont_write_bytecode = True
 
 def chdir(directory):
