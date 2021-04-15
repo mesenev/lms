@@ -1,7 +1,7 @@
 <template>
   <div class="bx--grid">
     <div class="bx--row header">
-      <h1>Список курсов</h1>
+      <h1 class="title">Список курсов</h1>
     </div>
     <div class=" bx--row">
       <div class="items bx--col-lg-8">
@@ -55,6 +55,10 @@ export default class HomeView extends Vue {
 </script>
 
 <style lang="stylus">
+
+.title
+  margin-left 2rem
+
 .header
   padding-bottom: 1.5rem
   padding-top: 1rem

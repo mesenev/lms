@@ -1,6 +1,6 @@
 <template>
   <div class="item">
-    <h5>Решение</h5>
+    <h4 class="submit-title">Решение задачи</h4>
     <cv-inline-notification
       v-if="showNotification"
       :kind="notificationKind"
@@ -67,6 +67,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
   submitEdit: SubmitModel = { ...this.submitStore.defaultSubmit };
   loading = true;
 
+
   get isChanged(): boolean {
     return !_.isEqual(this.submit, this.submitEdit);
   }
@@ -110,7 +111,10 @@ export default class SubmitComponent extends NotificationMixinComponent {
         this.submitStore.changeSubmitStatus(response.data);
         this.submit = { ...response.data };
         this.submitEdit = { ...this.submit };
-        this.notificationKind = 'success';
+        if (this.submit.status == 'OK')
+          this.notificationKind = 'success';
+        else
+          this.notificationKind = 'error';
         this.notificationText = `Работа оценена: ${status}`;
       })
       .catch((error: AxiosError) => {
@@ -155,6 +159,8 @@ export default class SubmitComponent extends NotificationMixinComponent {
 </script>
 
 <style lang="stylus" scoped>
+.submit-title
+  padding-bottom 0.5rem
 
 .text-area-teacher
   opacity 90%
