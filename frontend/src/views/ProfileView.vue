@@ -110,6 +110,8 @@ export default class ProfileView extends Vue {
 
 .image
   margin-top 2rem
+  border 1px solid rgba(0,0,0,0.3)
+  border-radius 150%;
 
 .image-edit-icon
   margin-top 0.8rem

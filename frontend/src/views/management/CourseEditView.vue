@@ -3,7 +3,7 @@
     <div class="bx--row">
       <div class="bx--col-lg-8">
         <div>
-          <h1>{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}</h1>
+          <h1 class="title">{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}</h1>
         </div>
         <br>  <!-- TODO: get off br -->
         <div class="items">
@@ -35,28 +35,26 @@
       </div>
       <div class="bx--col-lg-5">
         <div class="link">
-          <h1> Менеджмент курса </h1>
-        </div>
-        <div class="link">
-          <h3>
+          <h4 class="add-teacher">
             Добавить преподавателя
-          </h3>
+          </h4>
           <AddTeacherModal/>
         </div>
         <div class="link">
-          <h3>Создать ссылку-приглашение</h3>
+          <h4 class="create-link">Создать ссылку-приглашение</h4>
           <cv-number-input
             :light="true"
             :label="'Выберите количество учеников курса'"
             :min="1"
             :step="1"
-            v-model="counter">
+            v-model="counter"
+            class="create-link-input">
           </cv-number-input>
           <br>
           <GenerateLinks
             :counter="counter"
             :courseId="courseId">
-            Сгенерировать ссылку-приглашение
+            Сгенерировать ссылку
           </GenerateLinks>
           <br>
         </div>
@@ -147,6 +145,32 @@ export default class CourseEditView extends Vue {
 </script>
 
 <style lang="stylus">
+
+
+.create-link-input
+  margin-left 0.2rem
+  padding-bottom 0.5rem
+
+.items
+  margin-top 2rem
+
+.create-link
+  margin-top 2rem
+  margin-left 0.2rem
+  padding-bottom 0.5rem
+
+.add-teacher
+  margin-top 7rem
+  margin-left 0.2rem
+  padding-bottom 0.5rem
+
+.manage-title
+  margin-top 1rem
+
+.title
+  margin-left 3rem
+  margin-top 1rem
+
 .null
   background-color var(--cds-ui-02)
 

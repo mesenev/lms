@@ -1,7 +1,7 @@
 <template>
   <div class="bx--grid">
     <div v-if="!loading" class="bx--row header">
-      <h1>{{ (course) ? course.name : "" }}</h1>
+      <h1 class="course-title">Курс: {{ (course) ? course.name : "" }}</h1>
     </div>
     <div v-else class="bx--row header">
       <cv-skeleton-text :width="'65%'" :heading="true"/>
@@ -66,5 +66,9 @@ export default class CourseView extends Vue {
 
 </script>
 
-<style scoped>
+<style scoped lang="stylus">
+
+.course-title
+  margin-left 3rem
+
 </style>

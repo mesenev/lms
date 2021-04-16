@@ -23,6 +23,9 @@
     <div class="bx--row content">
       <div class="bx--col-lg-9 content-tasks">
         <h2 class="content-tasks-title">Задачи урока</h2>
+        <div v-if="isProblemsEmpty">
+          <h4 class="no-problems">В уроке пока нет задач.</h4>
+        </div>
         <div class="content-tasks-problems">
           <div v-if="classwork.length > 0" class="classwork">
             <h4 class="classwork-title">Классная работа</h4>
@@ -69,6 +72,9 @@
       </div>
       <div class="bx--col-lg-6 content-info">
         <h2 class="content-info-title">Материалы</h2>
+        <div v-if="isMaterialsEmpty">
+          <h4 class="no-problems">В уроке пока нет материалов.</h4>
+        </div>
         <div class="content-info-materials" v-if="!loading">
           <cv-structured-list class="list">
             <template slot="items">
@@ -99,7 +105,7 @@ import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
 import {Component, Prop, Vue} from 'vue-property-decorator';
 
-@Component({ components: { MaterialListComponent, ProblemListComponent } })
+@Component( { components: { MaterialListComponent, ProblemListComponent } })
 export default class LessonView extends Vue {
   @Prop({ required: true }) lessonId!: number;
   lessonStore = lessonStore;
@@ -110,6 +116,18 @@ export default class LessonView extends Vue {
   material: Array<MaterialModel> = [];
   loading = true;
   changingVisibility = false;
+
+  get isProblemsEmpty() {
+    if (this.problems.length === 0) {
+      return true;
+    }
+  }
+
+  get isMaterialsEmpty() {
+    if (this.material.length === 0) {
+      return true;
+    }
+  }
 
   get hiddenIcon() {
     return (this.lesson?.is_hidden) ? viewOff : view;
@@ -156,6 +174,16 @@ export default class LessonView extends Vue {
 </script>
 
 <style scoped lang="stylus">
+
+.no-problems
+  margin 1rem
+
+.content-info-title
+  margin 1rem
+
+.content-tasks-title
+  margin 1rem
+
 .less
   background-color var(--cds-ui-02)
   padding var(--cds-spacing-05)

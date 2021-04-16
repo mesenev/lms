@@ -54,8 +54,7 @@ class CourseModule extends VuexModule {
     return answer.data as CourseModel;
   }
 
-  @Mutation
-  addCourseToArray(element: CourseModel) {
+  @Mutation addCourseToArray(element: CourseModel) {
     this.courses.push(element);
     this.courses = [...this.courses];
   }

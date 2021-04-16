@@ -5,7 +5,7 @@
       <span>Дедлайн: {{ lesson.deadline }}</span>
       <span v-if="courseStore.is_staff" class="span--hidden">
         {{ (lessonProp.is_hidden) ? "Урок скрыт " : "Урок доступен" }}
-        <view-off-icon v-if="lessonProp.is_hidden"/>
+        <view-off-icon v-if="lessonProp.is_hidden" class="view-off-icon"/>
         <view-icon v-else/>
       </span>
     </cv-structured-list-data>
@@ -44,6 +44,9 @@ export default class LessonListComponent extends Vue {
 </script>
 
 <style scoped lang="stylus">
+.view-off-icon
+  margin-top 1rem
+
 .course
   display flex
   flex-direction row

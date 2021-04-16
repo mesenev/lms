@@ -3,7 +3,7 @@
     <div class="bx--row">
       <div class="bx--col-lg-16">
         <cv-tile>
-          <h1>{{ materials.name}}</h1>
+          <h1 class="material-title">{{ materials.name}}</h1>
         </cv-tile>
       </div>
       <div class="bx--col-lg-10">
@@ -46,9 +46,16 @@ export default class MaterialView extends Vue {
 </script>
 
 <style scoped lang="stylus">
+
+.material-title
+  margin-top 2rem
+
 .less
+  border 1px solid rgba(0,0,0,.3)
+  margin-left 2rem
   background-color var(--cds-ui-02)
   padding var(--cds-spacing-05)
+  min-height 10rem
 
 code
   color: var(--color-b)

@@ -1,9 +1,9 @@
 <template>
   <div>
-    <cv-button kind="secondary" size="field" @click="createNewLink">
-      Сгенерировать ссылку-приглашения
+    <cv-button kind="secondary" size="field" @click="createNewLink" class="generate-btn">
+      Сгенерировать ссылку
     </cv-button>
-    <cv-structured-list :condensed="false">
+    <cv-structured-list :condensed="false" class="main">
       <template slot="headings">
         <cv-structured-list-heading>
           Доступные ссылки
@@ -90,7 +90,13 @@ export default class LinksManagerComponent extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="stylus">
+.generate-btn
+  display inline-block
+
+.main
+  margin-top 2rem
+
 .cross {
   cursor: pointer;
 }
