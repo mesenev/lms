@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+import random
 
 import telegram
 from env import BOT_TOKEN, CHAT_ID
@@ -36,7 +37,7 @@ if __name__ == '__main__':
         if step_result:
             break
     if not step_result:
-        result_message += '\n' + 'Well done. All systems operational. 🚀'
+        result_message += '\n' + f'Well done. All systems operational. {random.choice(["🚀🎉", "💅💃"])}'
     print(result_message)
     bot = telegram.Bot(token=BOT_TOKEN)
     bot.send_message(CHAT_ID, result_message, parse_mode='html')

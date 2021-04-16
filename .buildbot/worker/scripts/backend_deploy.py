@@ -36,6 +36,24 @@ def deploy_backend():
             "up",
             "--detach",
         ]).returncode
+    message = '\n'.join([message, build_message_deploy(exec_code)])
+    if exec_code:
+        return exec_code, message
+    print('making a migration')
+    exec_code = subprocess.run(
+        [
+            "docker-compose",
+            "-f",
+            ".docker/docker-compose.yml",
+            "exec",
+            "-T",
+            "backend",
+            "sh", "-c",
+            "python manage.py migrate --noinput",
+        ]).returncode
+    message = '\n'.join([message, 'migrations failed.' if exec_code else 'migrations applied successfully'])
+    if exec_code:
+        return exec_code, message
     print('collecting static')
     if exec_code:
         return exec_code, message
@@ -45,9 +63,11 @@ def deploy_backend():
             "-f",
             ".docker/docker-compose.yml",
             "exec",
+            "-T",
             "backend",
-            "python", "manage.py", "collectstatic", '-c', '--noinput'
+            "sh", "-c",
+            "python manage.py collectstatic -c --noinput",
         ]).returncode
-    if exec_code:
-        return exec_code, 'collectstatic failed.'
-    return exec_code, '\n'.join([message, build_message_deploy(exec_code)])
+    message = '\n'.join([message, 'collectstatic failed.' if exec_code else 'collectstatic succeed'])
+    return exec_code, message
+
