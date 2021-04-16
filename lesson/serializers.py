@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
 from lesson.models import Lesson, LessonContent, LessonProgress
+from problem.models import Problem
+from problem.serializers import ProblemSerializer
 from users.serializers import DefaultUserSerializer
 
 
@@ -43,7 +45,20 @@ class LessonProgressSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class LessonShortSerializer(serializers.ModelSerializer):
+    problems = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    materials = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    progress = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
+    class Meta:
+        model = Lesson
+        fields = '__all__'
+
+
 class LessonSerializer(serializers.ModelSerializer):
+    problems = ProblemSerializer(many=True, read_only=True)
+    materials = MaterialSerializer(many=True, read_only=True)
+    progress = LessonProgressSerializer(many=True, read_only=True)
 
     def create(self, validated_data):
         if 'materials' in validated_data:
@@ -62,8 +77,3 @@ class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
         fields = '__all__'
-
-# class LessonShortSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Lesson
-#         fields = '__all__'

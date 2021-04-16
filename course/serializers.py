@@ -4,24 +4,10 @@ import string
 from rest_framework import serializers
 
 from course.models import Course, CourseSchedule, CourseLink, CourseProgress
-from lesson.serializers import LessonSerializer
+from lesson.serializers import LessonSerializer, LessonShortSerializer
 from users.models import CourseAssignTeacher
 from users.serializers import DefaultUserSerializer
-
-
-class DynamicFieldsModelSerializer(serializers.ModelSerializer):
-    # ?fields=id,data
-    def __init__(self, *args, **kwargs):
-        super(DynamicFieldsModelSerializer, self).__init__(*args, **kwargs)
-        fields = None
-        if 'request' in self.context:
-            fields = self.context['request'].query_params.get('fields')
-        if fields:
-            fields = fields.split(',')
-            allowed = set(fields)
-            existing = set(self.fields.keys())
-            for field_name in existing - allowed:
-                self.fields.pop(field_name)
+from utils.dynamic_fields_serializer import DynamicFieldsModelSerializer
 
 
 class CourseShortSerializer(serializers.ModelSerializer):
@@ -32,10 +18,10 @@ class CourseShortSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'author']
 
 
-class CourseSerializer(DynamicFieldsModelSerializer, serializers.ModelSerializer):
+class CourseSerializer(DynamicFieldsModelSerializer):
     id = serializers.ReadOnlyField()
     author = DefaultUserSerializer(required=False, read_only=True)
-    lessons = LessonSerializer(many=True, read_only=True)
+    lessons = LessonShortSerializer(many=True, read_only=True)
     students = DefaultUserSerializer(many=True, required=False, read_only=True)
 
     def validate_author(self, value):

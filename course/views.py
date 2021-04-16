@@ -21,21 +21,17 @@ class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     queryset = Course.objects.select_related('author').prefetch_related('staff', 'students').all()
 
-    # # TODO: make it work
-    # def get_queryset(self):
-    #     request = self.get_serializer_context()['request']
-    #     user: User = User.objects.get(pk=request.user.id)
-    #     queryset = user.staff_for.all().union(user.student_for.all())
-    #     return queryset
+    def list(self, request, *args, **kwargs):
+        queryset = Course.objects.all()
+        serializer = CourseShortSerializer(queryset, many=True)
+        return Response(serializer.data)
 
     @action(detail=False)
     def user_courses(self, request):
-        author = request.user.author_for.all()
-        ids = set(request.user.author_for.values_list('id', flat=True))
-        staff_for = request.user.staff_for.exclude(id__in=ids)
-        ids |= set(request.user.staff_for.values_list('id', flat=True).exclude(id__in=ids))
-        student_for = request.user.student_for.exclude(id__in=ids)
-        serializer = CourseShortSerializer(chain(author, staff_for, student_for), many=True)
+        queryset = request.user.author_for.all()
+        queryset = queryset.union(request.user.staff_for.all())
+        queryset = queryset.union(request.user.student_for.all())
+        serializer = CourseShortSerializer(queryset, many=True)
         return Response(serializer.data)
 
 

@@ -92,7 +92,7 @@ export default class LessonEditView extends NotificationMixinComponent {
 
   async created() {
     if (this.lessonId)
-      this.lesson = await this.store.fetchLessonById(this.lessonId);
+      this.lesson = this.store.currentLesson as LessonModel;
     this.lessonEdit = { ...this.lesson };
     this.fetchingLesson = false;
   }
@@ -141,7 +141,7 @@ export default class LessonEditView extends NotificationMixinComponent {
   }
 
   deleteProblem(problem: ProblemModel) {
-    return problem
+    return problem;
     //
   }
 }

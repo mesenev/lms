@@ -34,8 +34,7 @@ class LessonModule extends VuexModule {
       .catch(error => {
         console.log(error);
       })
-    const result = answer.data as LessonModel;
-    return result;
+    return answer.data as LessonModel;
   }
 
   get getNewLesson(): LessonModel {
