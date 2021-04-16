@@ -5,9 +5,7 @@
     </cv-button>
     <cv-structured-list :condensed="false" class="main">
       <template slot="headings">
-        <cv-structured-list-heading>
-          Доступные ссылки
-        </cv-structured-list-heading>
+        <cv-structured-list-heading>Доступные ссылки</cv-structured-list-heading>
         <cv-structured-list-heading>Количество использований</cv-structured-list-heading>
       </template>
       <template slot="items">
@@ -94,8 +92,10 @@ export default class LinksManagerComponent extends Vue {
 .generate-btn
   display inline-block
 
+
+
 .main
-  margin-top 2rem
+  margin-top 1rem
 
 .cross {
   cursor: pointer;

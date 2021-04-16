@@ -1,10 +1,12 @@
 <template>
   <div class="bx--grid">
-    <div class="bx--row">
-      <div class="bx--col-lg-8">
-        <div>
-          <h1 class="title">{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}</h1>
-        </div>
+    <div class="bx--row page--title">
+      <div>
+        <h1 class="title">{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}</h1>
+      </div>
+    </div>
+    <div class="bx--row main--content">
+      <div class="bx--col-lg-9 first--block">
         <div class="items">
           <cv-inline-notification
             v-if="showNotification"
@@ -17,35 +19,37 @@
             :disabled="true"
             :value="`${courseEdit.author.first_name} ${courseEdit.author.last_name} (${courseEdit.author.username})`.trim()"
           />
-          <cv-text-input label="Название курса" v-model.trim="courseEdit.name"/>
-          <cv-text-input label="Описание курса" v-model.trim="courseEdit.description"/>
+          <cv-text-input class="course--name" label="Название курса" v-model.trim="courseEdit.name"/>
 
-          <cv-button-skeleton v-if="fetchingCourse"/>
-          <cv-button v-else :disabled="!isChanged" v-on:click="createOrUpdate">
-            {{ isNewCourse ? 'Создать' : 'Изменить' }}
-          </cv-button>
+          <div class="description--block">
+            <cv-text-input class="course--description" label="Описание курса" v-model.trim="courseEdit.description"/>
+            <cv-button-skeleton v-if="fetchingCourse"/>
+            <cv-button class="create--change--btn" v-else :disabled="!isChanged" v-on:click="createOrUpdate">
+              {{ isNewCourse ? 'Создать' : 'Изменить' }}
+            </cv-button>
+          </div>
 
           <EditCourseLessons
             v-if="!isNewCourse"
             :course="courseEdit"
-            class="edit&#45;&#45;course-props"/>
+            class="edit&#45;&#45;course-props edit--course"/>
           <EditCourseModal
             v-if="!isNewCourse"
             :course-id="courseEdit.id"
-            class="edit&#45;&#45;course-props"/>
+            class="edit&#45;&#45;course-props add--btn"/>
         </div>
       </div>
-      <div class="bx--col-lg-5">
+      <div class="bx--col-lg-6 second--block">
         <div class="link">
           <h4 class="add-teacher">
             Добавить преподавателя
           </h4>
-          <AddTeacherModal/>
+          <AddTeacherModal class="choose--teacher"/>
         </div>
         <div class="link">
           <h4 class="create-link">Создать ссылку-приглашение</h4>
           <cv-number-input
-            :light="true"
+            :light="false"
             :label="'Выберите количество учеников курса'"
             :min="1"
             :step="1"
@@ -55,7 +59,8 @@
           <br>
           <GenerateLinks
             :counter="counter"
-            :courseId="courseId">
+            :courseId="courseId"
+            class="generate--link">
             Сгенерировать ссылку
           </GenerateLinks>
           <br>
@@ -76,9 +81,9 @@ import courseStore from "@/store/modules/course";
 import userStore from '@/store/modules/user';
 import axios from 'axios';
 import _ from 'lodash';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 
-@Component({ components: { AddTeacherModal, EditCourseLessons, EditCourseModal, GenerateLinks } })
+@Component({components: {AddTeacherModal, EditCourseLessons, EditCourseModal, GenerateLinks}})
 export default class CourseEditView extends Vue {
   @Prop() courseId!: number | null;
   sendingInfo = false;
@@ -92,13 +97,13 @@ export default class CourseEditView extends Vue {
   course: CourseModel = {
     id: NaN,
     name: '',
-    author: { ...userStore.user },
+    author: {...userStore.user},
     lessons: [],
     completed: false,
     description: '',
     students: [],
   };
-  courseEdit = { ...this.course };
+  courseEdit = {...this.course};
 
   hideSuccess() {
     this.showNotification = false;
@@ -110,7 +115,7 @@ export default class CourseEditView extends Vue {
       return;
     }
     this.course = this.store.currentCourse as CourseModel;
-    this.courseEdit = { ...this.course };
+    this.courseEdit = {...this.course};
     this.fetchingCourse = false;
   }
 
@@ -126,7 +131,7 @@ export default class CourseEditView extends Vue {
       if (this.isNewCourse) {
         this.store.addCourseToArray(response.data);
         router.replace(
-          { name: 'course-edit', params: { courseId: response.data.id.toString() } },
+          {name: 'course-edit', params: {courseId: response.data.id.toString()}},
         );
       }
     });
@@ -149,23 +154,65 @@ export default class CourseEditView extends Vue {
 
 <style lang="stylus">
 
+.description--block
+  display flex
+  flex-direction row
+
+.create--change--btn
+  margin-top 3.5rem
+  margin-left 0.5rem
+  margin-bottom 0
+
+.add--btn
+  float right
+
+.edit--course
+  margin-top 2rem
+
+.course--name
+  margin-top 2rem
+
+.course--description
+  margin-top 2rem
+
+.first--block
+  background-color var(--cds-ui-02)
+  margin-top 1rem
+
+.second--block
+  margin-top 1rem
+  margin-left 5rem
+  background-color var(--cds-ui-02)
+
+.main--content
+  margin-top 1rem
+
+.page--title
+  margin-top 1rem
+  display flex
+  flex-direction column
+  align-items flex-start
+
+.generate--link
+  margin-left 2rem
+  margin-top 0
+  margin-bottom 0
 
 .create-link-input
-  margin-left 0.2rem
-  padding-bottom 0.5rem
-
-.items
-  margin-top 2rem
+  margin-left 2rem
+  margin-bottom 0.5rem
 
 .create-link
-  margin-top 2rem
-  margin-left 0.2rem
-  padding-bottom 0.5rem
+  margin-left 2rem
+  margin-top 3rem
+  margin-bottom 1rem
+
+.choose--teacher
+  margin-left 2rem
 
 .add-teacher
-  margin-top 7rem
-  margin-left 0.2rem
-  padding-bottom 0.5rem
+  margin 2rem
+  margin-bottom 1rem
 
 .manage-title
   margin-top 1rem

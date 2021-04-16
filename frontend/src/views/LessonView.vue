@@ -47,6 +47,7 @@
                 align="end"
                 v-for="problem in homework"
                 :key="problem.id"
+                class="accordion"
               >
                 <problem-list-component :problem-prop="problem"/>
               </cv-accordion>
@@ -174,6 +175,9 @@ export default class LessonView extends Vue {
 </script>
 
 <style scoped lang="stylus">
+
+.accordion
+  height 100%
 
 .no-problems
   margin 1rem

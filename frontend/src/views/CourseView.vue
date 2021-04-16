@@ -6,6 +6,12 @@
     <div v-else class="bx--row header">
       <cv-skeleton-text :width="'65%'" :heading="true"/>
     </div>
+    <div class="description--container">
+        <span v-if="!loading">
+          {{ course.description }}
+        </span>
+      <cv-skeleton-text v-else width="'35%'"/>
+    </div>
     <div class=" bx--row">
       <div class="items bx--col-lg-8">
         <cv-search label="label" placeholder="search" v-model.trim="searchValue"/>
@@ -23,7 +29,9 @@
       </div>
     </div>
   </div>
+
 </template>
+
 
 <script lang="ts">
 import LessonListComponent from "@/components/lists/LessonListComponent.vue";
@@ -31,18 +39,20 @@ import CourseModel from '@/models/CourseModel';
 import LessonModel from "@/models/LessonModel";
 import courseStore from "@/store/modules/course";
 import lessonStore from "@/store/modules/lesson";
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 
-@Component({ components: { LessonListComponent } })
+@Component({components: {LessonListComponent}})
 export default class CourseView extends Vue {
-  @Prop({ required: true }) courseId!: number;
+  @Prop({required: true}) courseId!: number;
   courseStore = courseStore;
   lessonStore = lessonStore;
   searchValue = "";
   loading = true;
 
   get lessons(): Array<LessonModel> {
-    if (!(this.courseId in this.lessonStore.lessonsByCourse)) { return [];}
+    if (!(this.courseId in this.lessonStore.lessonsByCourse)) {
+      return [];
+    }
 
     return this.lessonStore.lessonsByCourse[this.courseId];
   }
@@ -67,6 +77,9 @@ export default class CourseView extends Vue {
 </script>
 
 <style scoped lang="stylus">
+.description--container
+  margin-left 2.5rem
+  padding-bottom 2rem
 
 .course-title
   margin-left 3rem

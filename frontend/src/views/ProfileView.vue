@@ -111,14 +111,15 @@ export default class ProfileView extends Vue {
 .image
   margin-top 2rem
   border 1px solid rgba(0,0,0,0.3)
-  border-radius 150%;
+  border-radius 150%
 
 .image-edit-icon
   margin-top 0.8rem
   text-align center
 
 .header-title
-  margin-left 2rem
+  margin-left -2rem
+  margin-top 2rem
 
 .courses-block
   margin 50px
