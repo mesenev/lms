@@ -25,13 +25,6 @@ class LessonModule extends VuexModule {
     this.currentLesson = payload;
   }
 
-  @Action
-  async fetchLessons() {
-    await axios.get('/api/lesson/')
-      .then(response => {
-        this.setLessons(response.data);
-      }).catch(error => { console.log(error); })
-  }
 
   @Action
   async fetchLessonById(id: number): Promise<LessonModel> {
@@ -41,8 +34,7 @@ class LessonModule extends VuexModule {
       .catch(error => {
         console.log(error);
       })
-    const result = answer.data as LessonModel;
-    return result;
+    return answer.data as LessonModel;
   }
 
   get getNewLesson(): LessonModel {
@@ -56,7 +48,7 @@ class LessonModule extends VuexModule {
       materials: [],
       deadline: '2000-01-01',
       progress: [],
-      is_hidden: false,
+      is_hidden: true,
     } as LessonModel;
   }
 

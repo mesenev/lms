@@ -71,7 +71,7 @@
           name: 'material-edit',
           params: { materialId: this.$route.params.materialId }
         }">
-        Изменить
+        Редактировать материалы
       </cv-header-menu-item>
     </cv-header-nav>
 

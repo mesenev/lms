@@ -5,7 +5,6 @@
         <div>
           <h1 class="title">{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}</h1>
         </div>
-        <br>  <!-- TODO: get off br -->
         <div class="items">
           <cv-inline-notification
             v-if="showNotification"
@@ -20,16 +19,19 @@
           />
           <cv-text-input label="Название курса" v-model.trim="courseEdit.name"/>
           <cv-text-input label="Описание курса" v-model.trim="courseEdit.description"/>
-          <cv-button v-if="!fetchingCourse" :disabled="!isChanged" v-on:click="createOrUpdate">
+
+          <cv-button-skeleton v-if="fetchingCourse"/>
+          <cv-button v-else :disabled="!isChanged" v-on:click="createOrUpdate">
             {{ isNewCourse ? 'Создать' : 'Изменить' }}
           </cv-button>
-          <cv-button-skeleton v-if="fetchingCourse"></cv-button-skeleton>
+
           <EditCourseLessons
             v-if="!isNewCourse"
             :course="courseEdit"
             class="edit&#45;&#45;course-props"/>
           <EditCourseModal
-            :course="courseEdit"
+            v-if="!isNewCourse"
+            :course-id="courseEdit.id"
             class="edit&#45;&#45;course-props"/>
         </div>
       </div>
@@ -109,6 +111,7 @@ export default class CourseEditView extends Vue {
     }
     this.course = this.store.currentCourse as CourseModel;
     this.courseEdit = { ...this.course };
+    this.fetchingCourse = false;
   }
 
   createOrUpdate(): void {

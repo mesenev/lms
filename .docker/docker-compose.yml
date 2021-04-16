@@ -53,9 +53,8 @@ services:
             context: ../.
             dockerfile: ./.docker/Dockerfile
         image: backend:latest
-        command: "sh .docker/conf/gunicorn/django-dev.sh"
+        command: "sh /application/.docker/conf/gunicorn/django.sh"
         volumes:
-            - ../.:/application
             - v-media:/application/media
             - v-static:/application/static
         working_dir: /application
@@ -82,7 +81,7 @@ services:
     beat:
         container_name: beat
         image: backend:latest
-        command: "celery -A celery_app beat && flower -A celery_app --port=7999"
+        command: "sh .docker/conf/gunicorn/celery.sh"
         env_file:
             - "conf/common.env"
             - "conf/server.env"
@@ -104,3 +103,8 @@ volumes:
     v-redis:
     v-static:
     v-media:
+        driver: local
+        driver_opts:
+            type: 'none'
+            o: 'bind'
+            device: 'media'

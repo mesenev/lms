@@ -2,9 +2,9 @@ import subprocess
 
 
 def build_message(code):
-    if code:
+    if not code:
         return 'Backend tests succeed!'
-    return 'Database deploy failed.'
+    return 'Backend tests failed.'
 
 
 def test_backend():
@@ -12,12 +12,12 @@ def test_backend():
         [
             'docker-compose',
             '-f',
-            '.docker/docker-compose.dev.yml',
+            '.docker/docker-compose.yml',
             'run',
             'backend',
             'python',
             'manage.py',
             'test',
         ]
-    )
+    ).returncode
     return exec_code, build_message(exec_code)
