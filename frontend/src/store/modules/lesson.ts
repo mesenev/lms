@@ -25,13 +25,6 @@ class LessonModule extends VuexModule {
     this.currentLesson = payload;
   }
 
-  @Action
-  async fetchLessons() {
-    await axios.get('/api/lesson/')
-      .then(response => {
-        this.setLessons(response.data);
-      }).catch(error => { console.log(error); })
-  }
 
   @Action
   async fetchLessonById(id: number): Promise<LessonModel> {

@@ -7,7 +7,7 @@
               class="add_lesson_modal"
               :visible="modalVisible"
               @modal-hidden="modalHidden"
-              :primary-button-disabled="!lessons.length && !currentLesson.name"
+              :primary-button-disabled="primaryButtonDisabled"
               @primary-click="addLesson"
               @secondary-click="() => {}">
       <template slot="label">{{ course.name }}</template>
@@ -73,6 +73,7 @@
 import searchByLessons from '@/common/searchByTutorial';
 import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import LessonCard from '@/components/EditCourse/LessonCard.vue';
+import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
 import courseStore from '@/store/modules/course';
 import lessonStore from '@/store/modules/lesson';
@@ -99,6 +100,14 @@ export default class EditCourseModal extends NotificationMixinComponent {
   modalVisible = false;
   searchQueryForAllLessons = '';
 
+  get primaryButtonDisabled(): boolean {
+    return !this.lessons.length && !this.currentLesson.name || this.creationLoader;
+  }
+
+  get course() {
+    return this.courseStore.currentCourse;
+  }
+
   get allLessons(): LessonModel[] {
     return searchByLessons(this.searchQueryForAllLessons, this.freeLessons);
   }
@@ -116,6 +125,7 @@ export default class EditCourseModal extends NotificationMixinComponent {
     this.modalVisible = true;
     this.showNotification = false;
     this.currentLesson = { ...this.lessonStore.getNewLesson, course: this.courseId };
+    this.creationLoader = false;
   }
 
   modalHidden() {
@@ -138,7 +148,11 @@ export default class EditCourseModal extends NotificationMixinComponent {
   }
 
   async addLesson() {
-    //
+    if (this.selectedNew) {
+      this.creationLoader = true;
+      await this.createNewLesson();
+      this.modalHidden();
+    }
   }
 
 
@@ -146,8 +160,8 @@ export default class EditCourseModal extends NotificationMixinComponent {
     delete this.currentLesson.id;
     const request = axios.post('/api/lesson/', this.currentLesson);
     request.then(response => {
-      this.lessonStore.lessonsByCourse[String(this.courseId)].push(response.data as LessonModel);
-      this.modalHidden();
+      const course = this.courseStore.currentCourse as CourseModel;
+      course.lessons.push(response.data as LessonModel);
     });
     request.catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
