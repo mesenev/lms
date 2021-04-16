@@ -49,7 +49,7 @@ class LessonModule extends VuexModule {
       materials: [],
       deadline: '2000-01-01',
       progress: [],
-      is_hidden: false,
+      is_hidden: true,
     } as LessonModel;
   }
 
