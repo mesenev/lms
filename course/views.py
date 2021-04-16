@@ -19,7 +19,11 @@ from users.models import User, CourseAssignStudent
 
 class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
-    queryset = Course.objects.select_related('author').prefetch_related('staff', 'students').all()
+    queryset = Course.objects.select_related(
+        'author'
+    ).prefetch_related(
+        'staff', 'students', 'lessons', 'lessons__problems'
+    ).all()
 
     def list(self, request, *args, **kwargs):
         queryset = Course.objects.all()

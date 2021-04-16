@@ -47,12 +47,10 @@ class LessonProgressSerializer(serializers.ModelSerializer):
 
 class LessonShortSerializer(serializers.ModelSerializer):
     problems = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    materials = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    progress = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Lesson
-        fields = '__all__'
+        fields = ['id', 'name', 'deadline', 'problems', 'is_hidden']
 
 
 class LessonSerializer(serializers.ModelSerializer):
