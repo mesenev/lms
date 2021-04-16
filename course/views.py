@@ -30,12 +30,12 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     @action(detail=False)
     def user_courses(self, request):
-        queryset = chain(
-            request.user.staff_for.all(),
-            request.user.author_for.all(),
-            self.request.user.student_for.all()
-        )
-        serializer = CourseShortSerializer(queryset, many=True)
+        author = request.user.author_for.all()
+        ids = set(request.user.author_for.values_list('id', flat=True))
+        staff_for = request.user.staff_for.exclude(id__in=ids)
+        ids |= set(request.user.staff_for.values_list('id', flat=True).exclude(id__in=ids))
+        student_for = request.user.student_for.exclude(id__in=ids)
+        serializer = CourseShortSerializer(chain(author, staff_for, student_for), many=True)
         return Response(serializer.data)
 
 
