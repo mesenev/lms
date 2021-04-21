@@ -98,8 +98,6 @@ export default class LessonEditView extends NotificationMixinComponent {
   }
 
   createOrUpdate(): void {
-    if (this.isNewLesson)
-      delete this.lessonEdit.id;
     const request = (this.isNewLesson) ?
       axios.post('/api/lesson/', this.lessonEdit) :
       axios.patch(`/api/lesson/${this.lessonEdit.id}/`, this.lessonEdit);

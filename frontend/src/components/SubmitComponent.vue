@@ -133,13 +133,10 @@ export default class SubmitComponent extends NotificationMixinComponent {
   }
 
   confirmSubmit() {
-    if (this.isNewSubmit) delete this.submitEdit.id;
-
     this.submitEdit = {
       ...this.submitEdit,
       'problem': this.problemStore.currentProblem?.id as number,
     };
-    delete this.submitEdit.student;
     axios.post('/api/submit/', this.submitEdit)
       .then((response: AxiosResponse<SubmitModel>) => {
         this.submitStore.addSubmitToArray(response.data);

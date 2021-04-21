@@ -120,8 +120,6 @@ export default class CourseEditView extends Vue {
   }
 
   createOrUpdate(): void {
-    if (this.isNewCourse)
-      delete this.courseEdit.id;
     const request = (this.isNewCourse) ?
       axios.post('/api/course/', this.courseEdit) :
       axios.patch(`/api/course/${this.courseEdit.id}/`, this.courseEdit);

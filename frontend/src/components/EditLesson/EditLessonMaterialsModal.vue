@@ -90,7 +90,6 @@ export default class EditLessonMaterialsModal extends Vue {
   }
 
   async createNewMaterial() {
-    delete this.currentMaterial.id;
     this.currentMaterial.content = "### материал"
     const request = axios.post('/api/material/', this.currentMaterial);
     request.then(response => {

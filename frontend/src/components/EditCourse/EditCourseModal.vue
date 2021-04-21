@@ -157,7 +157,6 @@ export default class EditCourseModal extends NotificationMixinComponent {
 
 
   async createNewLesson() {
-    delete this.currentLesson.id;
     const request = axios.post('/api/lesson/', this.currentLesson);
     request.then(response => {
       const course = this.courseStore.currentCourse as CourseModel;
