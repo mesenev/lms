@@ -4,15 +4,12 @@
       <h1>Расписание занятий</h1>
     </div>
     <div class="bx--row header">
-      <div class="items bx--col-lg-10">
-        <span>Начало занятий {{ startDate }}</span><br>
+      <div class="items-top bx--col-lg-10">
+        <div class="items-top--element"><span>Начало занятий: {{ startDate || ":warning:" }}</span></div>
         <hr>
-        <span>
-          {{ scheduleCurrent }}
-        </span>
-        <br>
-        <br>
+        <div class="items-top--element"><span> {{ scheduleCurrent }}</span></div>
         <cv-button
+          class="items-top--element"
           v-on:click="showModal" kind="secondary" tip-position="hidden"
           :icon="icon" size='small'>
           Изменить
@@ -290,9 +287,13 @@ export default class CourseCalendarView extends Vue {
   padding-bottom: 1.5rem
   padding-top: 1rem
 
-.items
+
+.items-top
   background-color var(--cds-ui-02)
   padding var(--cds-spacing-05)
+
+  &--element
+    padding-bottom 10px
 
   .bx--structured-list-thead
     display none
