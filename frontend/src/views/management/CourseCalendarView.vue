@@ -11,8 +11,8 @@
         <cv-button
           class="items-top--element"
           v-on:click="showModal" kind="secondary" tip-position="hidden"
-          :icon="icon" size='small'>
-          Изменить
+          :icon="iconEdit">
+          Редактировать
         </cv-button>
         <cv-modal
           close-aria-label="Закрыть"
@@ -96,10 +96,22 @@
     </div>
     <div class="bx--row">
       <div v-if="result != null" class="items bx--col-lg-10">
-        <div v-for="record in result" :key="record.date">
-          <span> {{ record.date }} </span><span> {{ record.lesson.name }} </span>
-        </div>
+        <cv-structured-list v-if="result" selectable>
+          <template slot="headings"></template>
+          <template slot="items">
+            <cv-structured-list-item v-for="record in result" :key="record.date">
+              <cv-structured-list-data> {{ record.date }}</cv-structured-list-data>
+              <cv-structured-list-data>{{ record.lesson.name }}</cv-structured-list-data>
+            </cv-structured-list-item>
+          </template>
+        </cv-structured-list>
       </div>
+    </div>
+    <div class="save-button">
+      <cv-button-set>
+        <cv-button kind="secondary">Отменить изменения</cv-button>
+        <cv-button kind="primary">Сохранить</cv-button>
+      </cv-button-set>
     </div>
   </div>
 </template>
@@ -108,15 +120,17 @@
 import CourseModel from '@/models/CourseModel';
 import courseStore from '@/store/modules/course';
 import Edit from '@carbon/icons-vue/es/edit/20';
+import Back from '@carbon/icons-vue/es/skip--back/20';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: { Edit } })
+@Component({ components: { Edit, Back } })
 export default class CourseCalendarView extends Vue {
   @Prop({ required: true }) courseId!: number;
   store = courseStore;
   course!: CourseModel;
-  public icon = Edit;
+  public iconEdit = Edit;
+  public iconBack = Back;
   public modalVisible = false;
   public startDate: string | null = null;
   public changedStartDate: string | null = null;
@@ -304,4 +318,6 @@ export default class CourseCalendarView extends Vue {
 
 .item
   min-height 85px
+
+
 </style>
