@@ -3,7 +3,7 @@ from model_mommy import mommy
 from rest_framework import status
 
 from course.models import Course
-from course.serializers import LessonSerializer
+from lesson.serializers import LessonSerializer
 from imcslms.test import MainSetup
 from lesson.models import Lesson
 from users.models import CourseAssignTeacher
