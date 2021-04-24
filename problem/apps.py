@@ -7,5 +7,5 @@ class ProblemConfig(AppConfig):
     verbose_name = _('profiles')
 
     def ready(self):
-        import problem.signals
+        import rating.signals
 

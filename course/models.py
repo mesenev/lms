@@ -28,14 +28,7 @@ class CourseLink(models.Model):
     usages = models.IntegerField(default=0)
 
 
-class CourseProgress(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.SET_NULL, related_name='progress', null=True)
-    lessons = models.JSONField(null=True)
-    attendance = models.JSONField(null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
-    class Meta:
-        unique_together = ('course', 'user')
 
 
 admin.site.register(Course)

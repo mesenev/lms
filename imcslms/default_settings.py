@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'problem',
     'cathie',
     'celery_app',
+    'rating',
 ]
 
 REST_FRAMEWORK = {

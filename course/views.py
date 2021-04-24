@@ -11,9 +11,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from course.models import CourseSchedule, Course, CourseLink, CourseProgress
-from course.serializers import CourseSerializer, ScheduleSerializer, LinkSerializer, CourseShortSerializer, \
-    CourseProgressSerializer
+from course.models import CourseSchedule, Course, CourseLink
+from course.serializers import CourseSerializer, ScheduleSerializer, LinkSerializer, CourseShortSerializer
 from users.models import User, CourseAssignStudent
 
 
@@ -57,10 +56,7 @@ class LinkViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class CourseProgressViewSet(viewsets.ModelViewSet):
-    serializer_class = CourseProgressSerializer
-    queryset = CourseProgress.objects.all()
-    filterset_fields = ['user_id', 'course_id']
+
 
 
 def __check(link, user_id):

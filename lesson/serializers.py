@@ -1,8 +1,9 @@
 from rest_framework import serializers
 
-from lesson.models import Lesson, LessonContent, LessonProgress
+from lesson.models import Lesson, LessonContent
 from problem.models import Problem
 from problem.serializers import ProblemSerializer
+from rating.serializers import LessonProgressSerializer
 from users.serializers import DefaultUserSerializer
 
 
@@ -29,20 +30,6 @@ class MaterialSerializer(serializers.Serializer):
     class Meta:
         model = LessonContent
         fields = ('id', 'lesson', 'content_type', 'author', 'content')
-
-
-class LessonProgressSerializer(serializers.ModelSerializer):
-    def create(self, validated_data):
-        return LessonProgress.objects.create(**validated_data)
-
-    def update(self, instance, validated_data):
-        instance.solved = validated_data.get('solved', instance.solved)
-        instance.save()
-        return instance
-
-    class Meta:
-        model = LessonProgress
-        fields = '__all__'
 
 
 class LessonShortSerializer(serializers.ModelSerializer):

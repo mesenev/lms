@@ -1,9 +1,9 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from course.models import CourseProgress
+from rating.models import CourseProgress
 from lesson.models import Lesson
-from lesson.models import LessonProgress
+from rating.models import LessonProgress
 from problem.models import Submit, Problem
 from users.models import CourseAssignStudent
 

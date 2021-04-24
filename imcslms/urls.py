@@ -5,9 +5,10 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework.routers import DefaultRouter
 
-from course.views import CourseViewSet, LinkViewSet, CourseProgressViewSet
-from lesson.views import LessonViewSet, MaterialViewSet, LessonProgressViewSet
+from course.views import CourseViewSet, LinkViewSet
+from lesson.views import LessonViewSet, MaterialViewSet
 from problem.views import ProblemViewSet, SubmitViewSet
+from rating.views import LessonProgressViewSet, CourseProgressViewSet
 from users.views import index, UsersViewSet
 
 router = DefaultRouter()

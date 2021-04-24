@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from lesson.models import Lesson, LessonContent, LessonProgress
+from lesson.models import Lesson, LessonContent
 from lesson.serializers import LessonSerializer, MaterialSerializer, LessonProgressSerializer, LessonShortSerializer
 
 
@@ -37,7 +37,3 @@ class MaterialViewSet(viewsets.ModelViewSet):
     filterset_fields = ['lesson_id', ]
 
 
-class LessonProgressViewSet(viewsets.ModelViewSet):
-    serializer_class = LessonProgressSerializer
-    queryset = LessonProgress.objects.all()
-    filterset_fields = ['lesson_id', ]

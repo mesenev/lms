@@ -32,13 +32,4 @@ class LessonContent(models.Model):
     content = models.TextField()
 
 
-class LessonProgress(models.Model):
-    lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, related_name='progress', null=True)
-    solved = models.JSONField(null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-
-    class Meta:
-        unique_together = ('lesson', 'user')
-
-
 admin.site.register(Lesson)
