@@ -4,7 +4,8 @@ from django.utils.translation import ugettext_lazy as _
 
 class ProblemConfig(AppConfig):
     name = 'problem'
-    verbose_name = _('problem')
+    verbose_name = _('profiles')
 
     def ready(self):
-        pass
+        import problem.signals
+

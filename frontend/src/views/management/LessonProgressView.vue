@@ -31,11 +31,11 @@
             </router-link>
           </cv-data-table-cell>
           <cv-data-table-cell class="mark"
-                              v-for="lessonId in problems"
-                              :key="lessonId.id">
-            <div @click="openSubmitOrProblem(lessonId.id, user.solved[lessonId.id][1])">
-              <submit-status v-if="userMarks(user, lessonId.id)"
-                             :submit="create_submit(user.solved[lessonId.id][1],lessonId.id,user.user,user.solved[lessonId.id][0])"/>
+                              v-for="problem in problems"
+                              :key="problem.id">
+            <div @click="openSubmitOrProblem(problem.id, user.solved[problem.type][problem.id][1])">
+              <submit-status v-if="userMarks(user,problem.type,problem.id)"
+                             :submit="create_submit(user.solved[problem.type][problem.id],problem.id,user.user)"/>
             </div>
           </cv-data-table-cell>
           <cv-data-table-cell>
@@ -107,7 +107,7 @@ export default class LessonProgressView extends Vue {
 
   get progress() {
     if (this.dontSolved) {
-      return this.students.filter(x => Object.keys(x.solved).length === 0)
+      return this.students.filter(x => Object.keys(x.solved["HW"]).length === 0)
     }
     return this.students;
   }
@@ -122,8 +122,7 @@ export default class LessonProgressView extends Vue {
     this.users = await this.userStore.fetchStudentsByCourseId(this.lesson.course);
     this.problems = await this.problemStore.fetchProblemsByLessonId(this.lessonId);
     this.students = this.students.map(
-      obj => Object.assign({}, obj,
-        { user: this.users[obj.user.toLocaleString()] }));
+      obj => Object.assign({}, obj, { user: this.users[obj.user.toLocaleString()]}));
     this.loading = false;
   }
 
@@ -142,12 +141,12 @@ export default class LessonProgressView extends Vue {
     return `Успешно решило ${column} из ${this.progress.length} студентов`
   }
 
-  create_submit(id: number, problemId: number, userid: UserModel, status: string): SubmitModel {
-    return { id: 1, problem: problemId, student: Number(userid), status: status };
-  }
+  create_submit(status_id: never, problemId: number, userid: number) {
+    return {id: Object.values(status_id)[1], problem: problemId, student: Number(userid), status: Object.values(status_id)[0]}
+  };
 
-  userMarks(userId: UserProgress, lessonId: number) {
-    return userId.solved[lessonId]
+  userMarks(userId: UserProgress, problemType: string, problemId: number){
+    return userId.solved[problemType][problemId];
   }
 
   average(user: UserProgress): string {

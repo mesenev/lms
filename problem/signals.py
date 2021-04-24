@@ -22,6 +22,9 @@ def update_lesson_progress(sender, instance, **kwargs):
         calc_lesson_stat(lesson, progress.solved, user)
 
 
+post_save.connect(update_lesson_progress, sender=Submit)
+
+
 def calc_lesson_stat(lesson, solved: dict, user):
     def calc(typeProblem: str) -> int:
         try:
@@ -48,6 +51,9 @@ def add_student_to_rating_of_lesson(sender, instance, created, **kwargs):
     for i in Lesson.objects.filter(course=course):
         validated_data = {'user': user, 'lesson': i, 'solved': {'CW': {}, 'HW': {}, 'EX': {}}}
         LessonProgress.objects.create(**validated_data)
+
+
+post_save.connect(add_student_to_rating_of_lesson, sender=CourseAssignStudent)
 
 
 @receiver(post_save, sender=Lesson)
