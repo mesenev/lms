@@ -14,7 +14,7 @@ class LessonViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return Lesson.objects.prefetch_related('problems', 'progress', 'materials').filter(
-            Q(is_hidden=False)
+            (Q(is_hidden=False) & Q(course__in=user.assigns.all()))
             | Q(course__in=user.staff_for.all())
             | Q(course__in=user.author_for.all())
         )

@@ -8,7 +8,10 @@ class SubmitModule extends VuexModule {
   private _submits: SubmitModel[] = []
 
   get defaultSubmit(): SubmitModel {
-    return { id: NaN, problem: NaN, student: NaN, content: '', status: 'NP' };
+    return {
+      id: NaN, problem: NaN, student: NaN, content: '',
+      status: 'NP', submit_date: '',
+    };
   }
 
   get submits(): SubmitModel[] {
@@ -27,12 +30,34 @@ class SubmitModule extends VuexModule {
   }
 
   @Action
-  async fetchSubmits(payload: { problemId: number; userId: number }): Promise<Array<SubmitModel>> {
+  async fetchSubmitsByProblemAndUser(
+    payload: { problemId: number; userId: number },
+  ): Promise<Array<SubmitModel>> {
     let answer = {};
     await axios.get('/api/submit/', {
       params: {
         problem: payload.problemId,
         user: payload.userId,
+      },
+    })
+      .then(response => {
+        this.setSubmits(response.data);
+        answer = response.data;
+      })
+      .catch(error => {
+        console.error(error);
+      })
+    return answer as Array<SubmitModel>;
+  }
+
+  @Action
+  async fetchSubmitsByCourse(
+    payload: { courseId: number },
+  ): Promise<Array<SubmitModel>> {
+    let answer = {};
+    await axios.get('/api/submit/', {
+      params: {
+        course_id: payload.courseId,
       },
     })
       .then(response => {

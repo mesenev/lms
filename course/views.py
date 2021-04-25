@@ -1,5 +1,3 @@
-from itertools import chain
-
 from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, action
@@ -24,8 +22,8 @@ class CourseViewSet(viewsets.ModelViewSet):
         'staff', 'students', 'lessons', 'lessons__problems'
     ).all()
 
-    def list(self, request, *args, **kwargs):
-        queryset = Course.objects.all()
+    def list(self, request: Request, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
         serializer = CourseShortSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -54,9 +52,6 @@ class LinkViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(course=request.query_params['course'])
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-
-
-
 
 
 def __check(link, user_id):

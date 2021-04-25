@@ -26,6 +26,14 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 @Component({ components: {} })
 export default class SolutionsListView extends Vue {
   @Prop() courseId!: number;
+
+  loading = true;
+
+  async created() {
+    await this.store.fetchUserCourses();
+    this.loading = false;
+  }
+
 }
 </script>
 

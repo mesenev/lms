@@ -66,6 +66,7 @@ class Submit(models.Model):
         ('BA', 'Banned'),
     ]
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name='submits', null=False)
+    submit_date = models.DateTimeField(auto_created=True)
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submits', null=False)
     content = models.TextField()
     status = models.CharField(max_length=2, choices=SUBMIT_STATUS, default='NP')

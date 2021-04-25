@@ -1,13 +1,16 @@
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from cathie.cats_api import cats_get_problem_description_by_url
 from lesson.models import Lesson
 from problem.models import Problem, Submit, CatsSubmit
-from problem.serializers import ProblemSerializer, SubmitSerializer
+from problem.serializers import ProblemSerializer, SubmitSerializer, SubmitListSerializer
 from users.models import User
 
 
@@ -17,9 +20,45 @@ class ProblemViewSet(viewsets.ModelViewSet):
     filterset_fields = ['lesson_id', ]
 
 
-class SubmitViewSet(viewsets.ModelViewSet):
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 100
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
+
+
+class SubmitViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
     serializer_class = SubmitSerializer
     queryset = Submit.objects.prefetch_related('cats_submit').all()
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Submit.objects.filter(
+            Q(student=user) | Q(problem__lesson__course__in=user.staff_for.all())
+        )
+        problem_id = self.request.query_params.get('problem', None)
+        user_id = self.request.query_params.get('user', None)
+
+        if problem_id:
+            user = User.objects.get(pk=user_id) if user_id else None
+            is_staff = True if user and user.is_staff else False
+            if is_staff:
+                return queryset.filter(problem__id=problem_id)
+            elif user:
+                return queryset.filter(problem__id=problem_id, student__id=user_id)
+
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def perform_create(self, serializer):
         request = serializer.context["request"]
@@ -33,21 +72,7 @@ class SubmitViewSet(viewsets.ModelViewSet):
         model = serializer.save(student=request.user, status=Submit.DEFAULT_STATUS)
         cats.submit = model
         cats.save()
-
-    def get_queryset(self):
-        request = self.get_serializer_context()['request']
-        problem_id = request.query_params.get('problem', None)
-        user_id = request.query_params.get('user', None)
-
-        if problem_id:
-            user = User.objects.get(pk=user_id) if user_id else None
-            is_staff = True if user and user.is_staff else False
-            if is_staff:
-                return Submit.objects.filter(problem__id=problem_id)
-            elif user:
-                return Submit.objects.filter(problem__id=problem_id, student__id=user_id)
-
-        return Submit.objects.all()
+        return
 
 
 @login_required

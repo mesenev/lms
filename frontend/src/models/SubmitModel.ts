@@ -2,6 +2,7 @@ export default interface SubmitModel {
   id: number;
   problem: number;
   student: number;
-  content?: string;
+  submit_date: string;
   status: string;
+  content?: string;
 }
