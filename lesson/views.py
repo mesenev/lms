@@ -4,7 +4,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from lesson.models import Lesson, LessonContent
-from lesson.serializers import LessonSerializer, MaterialSerializer, LessonProgressSerializer, LessonShortSerializer
+from lesson.serializers import LessonSerializer, MaterialSerializer, LessonShortSerializer
 
 
 class LessonViewSet(viewsets.ModelViewSet):
@@ -14,7 +14,7 @@ class LessonViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return Lesson.objects.prefetch_related('problems', 'progress', 'materials').filter(
-            (Q(is_hidden=False) & Q(course__in=user.assigns.all()))
+            (Q(is_hidden=False) & Q(course__in=user.student_for.all()))
             | Q(course__in=user.staff_for.all())
             | Q(course__in=user.author_for.all())
         )
