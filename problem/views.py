@@ -1,3 +1,4 @@
+import django_filters
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -8,6 +9,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from cathie.cats_api import cats_get_problem_description_by_url
+from course.models import Course
 from lesson.models import Lesson
 from problem.models import Problem, Submit, CatsSubmit
 from problem.serializers import ProblemSerializer, SubmitSerializer, SubmitListSerializer
@@ -21,23 +23,53 @@ class ProblemViewSet(viewsets.ModelViewSet):
 
 
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 100
+    page_size = 2
     page_size_query_param = 'page_size'
     max_page_size = 1000
+
+
+class SubmitFilter(django_filters.FilterSet):
+    course = django_filters.ModelChoiceFilter(
+        label='course', queryset=Course.objects.all(), method='course_filter'
+    )
+    lesson = django_filters.ModelChoiceFilter(
+        label='lesson', queryset=Lesson.objects.all(), method='lesson_filter'
+    )
+
+    class Meta:
+        model = Submit
+        fields = ['problem', 'student', 'status',
+                  'cats_submit__is_sent',
+                  ]
+
+    def course_filter(self, queryset, name, value):
+        queryset = queryset.filter(lesson__course=value)
+        return queryset
+
+    def lesson_filter(self, queryset, name, value):
+        queryset = queryset.filter(**{f'problem__{name}': value})
+        return queryset
 
 
 class SubmitViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
     serializer_class = SubmitSerializer
     queryset = Submit.objects.prefetch_related('cats_submit').all()
     pagination_class = StandardResultsSetPagination
+    filterset_class = SubmitFilter
 
     def get_queryset(self):
         user = self.request.user
         queryset = Submit.objects.filter(
             Q(student=user) | Q(problem__lesson__course__in=user.staff_for.all())
         )
-        problem_id = self.request.query_params.get('problem', None)
-        user_id = self.request.query_params.get('user', None)
+        problem_id = self.request.query_params.get('', None)
+        user_id = self.request.query_params.get('', None)
+        course_id = self.request.query_params.get('', None)
+        lesson_id = self.request.query_params.get('', None)
+        if course_id:
+            queryset = queryset.filter(lesson__course__id=course_id)
+        if lesson_id:
+            queryset = queryset.filter(lesson__course__id=lesson_id)
 
         if problem_id:
             user = User.objects.get(pk=user_id) if user_id else None

@@ -75,6 +75,9 @@ class Submit(models.Model):
     def __str__(self):
         return self.status
 
+    class Meta:
+        ordering = ['id']
+
 
 class CatsSubmit(models.Model):
     submit = models.ForeignKey(
