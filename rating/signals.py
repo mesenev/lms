@@ -14,11 +14,16 @@ def update_lesson_progress(sender, instance, **kwargs):
     user = instance.student.id
     problem_id = instance.problem.id
     lesson = Problem.objects.get(id=problem_id).lesson
-    progress = LessonProgress.objects.get(user=user, lesson=lesson.id)
+    progress = None
+    try:
+        progress = LessonProgress.objects.get(user=user, lesson=lesson.id)
+    except LessonProgress.DoesNotExist:
+        pass
     if progress:
         progress.solved[instance.problem.type][str(problem_id)] = (status, instance.id)
-        LessonProgress.objects.filter(user=user, lesson=Problem.objects.get(id=problem_id).lesson.id).update(
-            **{'solved': progress.solved})
+        LessonProgress.objects.filter(
+            user=user, lesson=Problem.objects.get(id=problem_id).lesson.id
+        ).update(**{'solved': progress.solved})
         calc_lesson_stat(lesson, progress.solved, user)
 
 

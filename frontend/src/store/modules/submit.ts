@@ -10,7 +10,7 @@ class SubmitModule extends VuexModule {
   get defaultSubmit(): SubmitModel {
     return {
       id: NaN, problem: NaN, student: NaN, content: '',
-      status: 'NP', submit_date: '',
+      status: 'NP', created_at: '',
     };
   }
 
