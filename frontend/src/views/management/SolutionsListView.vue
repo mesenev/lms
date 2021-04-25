@@ -79,7 +79,7 @@ export default class SolutionsListView extends Vue {
 
   loading = true;
   store = SubmitStore;
-  submits_request?: PaginatedList<SubmitModel> = null;
+  submits_request?: PaginatedList<SubmitModel> = undefined;
 
   get to_display() {
     if (this.submits_request)

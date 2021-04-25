@@ -1,3 +1,4 @@
+import PaginatedList from '@/models/PaginatedList';
 import SubmitModel from '@/models/SubmitModel';
 import store from '@/store';
 import axios, { AxiosResponse } from 'axios';
@@ -53,7 +54,7 @@ class SubmitModule extends VuexModule {
   @Action
   async fetchSubmitsByCourse(
     payload: { courseId: number },
-  ): Promise<Array<SubmitModel>> {
+  ): Promise<PaginatedList<SubmitModel>> {
     let answer = {};
     await axios.get('/api/submit/', {
       params: {
@@ -67,7 +68,7 @@ class SubmitModule extends VuexModule {
       .catch(error => {
         console.error(error);
       })
-    return answer as Array<SubmitModel>;
+    return answer as PaginatedList<SubmitModel>;
   }
 
   @Mutation
