@@ -53,13 +53,15 @@ class SubmitModule extends VuexModule {
 
   @Action
   async fetchSubmitsByCourse(
-    payload: { courseId: number },
+    payload: {
+      course_id: number;
+      page?: number;
+      page_size?: number;
+    },
   ): Promise<PaginatedList<SubmitModel>> {
     let answer = {};
     await axios.get('/api/submit/', {
-      params: {
-        course_id: payload.courseId,
-      },
+      params: payload,
     })
       .then(response => {
         this.setSubmits(response.data);

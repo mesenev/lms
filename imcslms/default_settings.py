@@ -21,7 +21,6 @@ INSTALLED_APPS = [
     'cathie',
     'celery_app',
     'rating',
-    # 'crispy_forms',
 ]
 
 REST_FRAMEWORK = {

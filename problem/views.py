@@ -38,9 +38,7 @@ class SubmitFilter(django_filters.FilterSet):
 
     class Meta:
         model = Submit
-        fields = ['problem', 'student', 'status',
-                  'cats_submit__is_sent',
-                  ]
+        fields = ['problem', 'student', 'status', 'cats_submit__is_sent', ]
 
     def course_filter(self, queryset, name, value):
         queryset = queryset.filter(lesson__course=value)
@@ -86,10 +84,10 @@ class SubmitViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
 
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_serializer(page, many=True)
+            serializer = SubmitListSerializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = SubmitListSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def perform_create(self, serializer):
