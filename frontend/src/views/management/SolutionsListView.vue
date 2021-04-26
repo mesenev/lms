@@ -94,9 +94,6 @@ interface TablePagination {
   background-color var(--cds-ui-02)
   padding var(--cds-spacing-05)
 
-  .bx--structured-list-thead
-    display none
-
 .item
   min-height 85px
 </style>
