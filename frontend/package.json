@@ -52,7 +52,7 @@
         "@vue/eslint-config-airbnb": "^5.0.2",
         "@vue/eslint-config-typescript": "^5.1.0",
         "@vue/test-utils": "^1.0.3",
-        "eslint": "^6.0.0",
+        "eslint": "^7.25.0",
         "eslint-plugin-import": "^2.20.2",
         "eslint-plugin-vue": "^6.2.2",
         "sass-loader": "^10.1.0",
