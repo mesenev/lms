@@ -1,28 +1,23 @@
 <template>
   <cv-grid>
     <cv-row class="header">
-      <cv-column>
-        <cv-list
-          :ordered="ordered">
-          <cv-list-item v-for="submit in submits"
-                        {{}}
-          />
-        </cv-list>
-      </cv-column>
+      <!--      <cv-column>-->
+      <!--        <cv-list :ordered="ordered"> <cv-list-item v-for="submit in submits" {{}} /> </cv-list>-->
+      <!--      </cv-column>-->
     </cv-row>
   </cv-grid>
 </template>
 
 <script lang="ts">
 import SubmitModel from '@/models/SubmitModel';
-import {Component, Prop, Vue} from 'vue-property-decorator';
 import SubmitStore from '@/store/modules/submit';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({components: {}})
+@Component({ components: {} })
 export default class SolutionsBarView extends Vue {
   @Prop() courseId!: number;
 
-  submits_request?: SubmitModel = undefined;
+  submits_request?: Array<SubmitModel> = undefined;
   loading = true;
   store = SubmitStore;
 
@@ -32,7 +27,9 @@ export default class SolutionsBarView extends Vue {
   }
 
   async created() {
-    this.submits_request = await this.store.fetchSubmitsByCourse({course_id: this.courseId});
+    this.submits_request = (
+      await this.store.fetchSubmitsByCourse({ course_id: this.courseId })
+    ).results;
     this.loading = false;
   }
 
