@@ -13,8 +13,16 @@
       <cv-skeleton-text v-else width="'35%'"/>
     </div>
     <div class=" bx--row">
-      <div class="items bx--col-lg-8">
-        <cv-search label="label" placeholder="search" v-model.trim="searchValue"/>
+      <div class="courses bx--col-lg-10">
+        <h4 class="lessons-title">Уроки</h4>
+        <cv-search
+          v-model.trim="searchValue"
+          class="search"
+          label="label"
+          placeholder="search"
+          size="size"
+
+        />
         <cv-data-table-skeleton v-if="loading" :columns="1" :rows="6"/>
         <cv-structured-list v-else>
           <template slot="items">
@@ -26,6 +34,10 @@
             </cv-structured-list-item>
           </template>
         </cv-structured-list>
+      </div>
+      <div class="submits bx--col-lg-4">
+        <h4 class="submits-title">Решения</h4>
+        <SolutionsBarView :course-id="this.courseStore.currentCourse.id"/>
       </div>
     </div>
   </div>
@@ -40,14 +52,16 @@ import LessonModel from "@/models/LessonModel";
 import courseStore from "@/store/modules/course";
 import lessonStore from "@/store/modules/lesson";
 import {Component, Prop, Vue} from 'vue-property-decorator';
+import SolutionsBarView from "@/views/management/SolutionsBarView.vue"
 
-@Component({components: {LessonListComponent}})
+@Component({components: {LessonListComponent, SolutionsBarView}})
 export default class CourseView extends Vue {
   @Prop({required: true}) courseId!: number;
   courseStore = courseStore;
   lessonStore = lessonStore;
   searchValue = "";
   loading = true;
+
 
   get lessons(): Array<LessonModel> {
     if (!(this.courseId in this.lessonStore.lessonsByCourse)) {
@@ -77,9 +91,33 @@ export default class CourseView extends Vue {
 </script>
 
 <style scoped lang="stylus">
+
+svg.bx--search-magnifier
+  margin-right 0.5rem
+
+.search
+  margin-top 1rem
+
+.submits-title
+  margin-left 1rem
+  margin-top 1rem
+  padding 0
+
+.lessons-title
+  margin-left 2rem
+  margin-top 1rem
+  padding 0
+
 .description--container
   margin-left 2.5rem
   padding-bottom 2rem
+
+.submits
+  margin-left 1rem
+  background-color var(--cds-ui-02)
+
+.courses
+  background-color var(--cds-ui-02)
 
 .course-title
   margin-left 3rem
