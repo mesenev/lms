@@ -95,12 +95,16 @@
       </div>
     </div>
     <div class="bx--row">
-      <div v-if="result != null" class="items bx--col-lg-10">
-        <cv-structured-list v-if="result" selectable>
+      <div class="items bx--col-lg-10">
+        <cv-structured-list selectable @change="actionChange">
           <template slot="headings"></template>
-          <template slot="items">
-            <cv-structured-list-item v-for="record in result" :key="record.date">
-              <cv-structured-list-data> {{ record.date }}</cv-structured-list-data>
+          <template v-if="!loading && result"
+                    slot="items">
+            <cv-structured-list-item
+              v-for="(record, index) in result"
+              :key="index" :checked="record.isSelected" :value="record.lesson.id.toString()"
+              name="group">
+              <cv-structured-list-data>{{ record.date }}</cv-structured-list-data>
               <cv-structured-list-data>{{ record.lesson.name }}</cv-structured-list-data>
             </cv-structured-list-item>
           </template>
@@ -118,11 +122,18 @@
 
 <script lang="ts">
 import CourseModel from '@/models/CourseModel';
+import LessonModel from '@/models/LessonModel';
 import courseStore from '@/store/modules/course';
 import Edit from '@carbon/icons-vue/es/edit/20';
 import Back from '@carbon/icons-vue/es/skip--back/20';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+
+interface ScheduleElement {
+  date: string;
+  lesson: LessonModel;
+  isSelected: boolean;
+}
 
 @Component({ components: { Edit, Back } })
 export default class CourseCalendarView extends Vue {
@@ -134,7 +145,7 @@ export default class CourseCalendarView extends Vue {
   public modalVisible = false;
   public startDate: string | null = null;
   public changedStartDate: string | null = null;
-  private result: Array<object> | null = null;
+  selected: string | null = null;
   loading = true;
 
   private monday_ = false;
@@ -144,11 +155,41 @@ export default class CourseCalendarView extends Vue {
   private friday_ = false;
   private saturday_ = false;
   private sunday_ = false;
+  private result: Array<ScheduleElement> = [];
 
+  get ints() {
+    return Array.from(Array(this.result?.length).keys())
+  }
 
   async created() {
     this.course = await this.store.fetchCourseById(this.courseId);
     this.loading = false;
+  }
+
+  async actionChange(obj: string) {
+    const n = this.result.findIndex(x => x.lesson.id === Number(obj));
+    if (!this.selected) {
+      this.selected = n.toString();
+      this.result[n].isSelected = true;
+      return;
+    }
+    this.loading = true;
+    // TODO: Research why THF I need async function for this
+    await this.updateResult(n);
+    this.loading = false;
+    return;
+  }
+
+  async updateResult(n: number) {
+    const newArr = [...this.result];
+    const tmp = newArr[Number(this.selected)];
+    newArr[Number(this.selected)] = newArr[n];
+    newArr[n] = tmp;
+    newArr[n].isSelected = false;
+    newArr[Number(this.selected)].isSelected = false;
+    this.result = [];
+    this.selected = null;
+    this.result = [...newArr];
   }
 
   set monday(value: boolean) {
@@ -250,7 +291,7 @@ export default class CourseCalendarView extends Vue {
       return;
     const lessons = this.course.lessons;
     const date = new Date(Date.parse(this.startDate));
-    const schedule = [];
+    const schedule: ScheduleElement[] = [];
     for (let i = 0; i < lessons.length; i++) {
       while (!Object.keys(this.workingDays).includes(((date.getDay() + 6) % 7).toString())) {
         date.setDate(date.getDate() + 1);
@@ -261,6 +302,7 @@ export default class CourseCalendarView extends Vue {
           { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
         ),
         lesson: lessons[i],
+        isSelected: false,
       })
       date.setDate(date.getDate() + 1);
     }
@@ -294,6 +336,8 @@ export default class CourseCalendarView extends Vue {
   }
 
 }
+
+
 </script>
 
 <style scoped lang="stylus">
