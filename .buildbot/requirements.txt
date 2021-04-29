@@ -7,7 +7,7 @@ buildbot-console-view==2.9.2
 buildbot-grid-view==2.9.2
 buildbot-waterfall-view==2.9.2
 buildbot-worker==2.9.2
-buildbot-www==2.9.2
+buildbot-www==3.1.1
 certifi==2020.12.5
 cffi==1.14.5
 characteristic==14.3.0
