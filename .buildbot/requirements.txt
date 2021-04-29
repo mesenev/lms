@@ -5,7 +5,7 @@ Automat==20.2.0
 buildbot==2.9.2
 buildbot-console-view==2.9.2
 buildbot-grid-view==2.9.2
-buildbot-waterfall-view==2.9.2
+buildbot-waterfall-view==3.1.1
 buildbot-worker==2.9.2
 buildbot-www==2.9.2
 certifi==2020.12.5
