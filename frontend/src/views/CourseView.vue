@@ -35,9 +35,8 @@
           </template>
         </cv-structured-list>
       </div>
-      <div class="submits bx--col-lg-4">
-        <h4 class="submits-title">Решения</h4>
-        <SolutionsBarView :course-id="this.courseStore.currentCourse.id"/>
+      <div v-if="!isStaff" class="submits bx--col-lg-4">
+        <SolutionsBarView :course-id="course.id" :user-id="user.id"/>
       </div>
     </div>
   </div>
@@ -51,17 +50,24 @@ import CourseModel from '@/models/CourseModel';
 import LessonModel from "@/models/LessonModel";
 import courseStore from "@/store/modules/course";
 import lessonStore from "@/store/modules/lesson";
+import userStore from '@/store/modules/user';
 import {Component, Prop, Vue} from 'vue-property-decorator';
 import SolutionsBarView from "@/views/management/SolutionsBarView.vue"
+import UserComponent from '@/components/UserComponent.vue';
 
-@Component({components: {LessonListComponent, SolutionsBarView}})
+@Component({components: {LessonListComponent, SolutionsBarView, UserComponent}})
 export default class CourseView extends Vue {
   @Prop({required: true}) courseId!: number;
   courseStore = courseStore;
   lessonStore = lessonStore;
   searchValue = "";
   loading = true;
+  private userStore = userStore;
+  private user = this.userStore.user;
 
+  get isStaff(): boolean {
+    return this.user.staff_for.includes(Number(this.courseId));
+  }
 
   get lessons(): Array<LessonModel> {
     if (!(this.courseId in this.lessonStore.lessonsByCourse)) {

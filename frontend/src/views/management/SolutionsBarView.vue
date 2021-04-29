@@ -1,43 +1,76 @@
 <template>
   <cv-grid>
     <cv-row class="header">
-      <!--      <cv-column>-->
-      <!--        <cv-list :ordered="ordered"> <cv-list-item v-for="submit in submits" {{}} /> </cv-list>-->
-      <!--      </cv-column>-->
+      <cv-column>
+        <div class="solution-container--submit-list">
+          <cv-structured-list
+            class="submit-list">
+            <template slot="headings">
+              <cv-structured-list-heading class="list-header">Задачи:</cv-structured-list-heading>
+            </template>
+
+
+            <template slot="items">
+              <cv-structured-list-item
+                v-for="problem in problems"
+                :key="problem.name"
+                class="problem-table-item">
+                <cv-structured-list-data>
+                  <cv-tag class="tag" kind="gray" label=""></cv-tag>
+                </cv-structured-list-data>
+                <cv-structured-list-data>{{ problem }}</cv-structured-list-data>
+              </cv-structured-list-item>
+            </template>
+
+
+          </cv-structured-list>
+        </div>
+      </cv-column>
     </cv-row>
   </cv-grid>
 </template>
 
 <script lang="ts">
-import SubmitModel from '@/models/SubmitModel';
-import SubmitStore from '@/store/modules/submit';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
+import ProblemModel from "@/models/ProblemModel";
+import userStore from '@/store/modules/user';
+import problemStore from '@/store/modules/problem';
+import courseStore from '@/store/modules/course';
 
-@Component({ components: {} })
+@Component({components: {}})
 export default class SolutionsBarView extends Vue {
-  @Prop() courseId!: number;
+  @Prop({required: true}) courseId!: number;
+  @Prop({required: true}) userId!: number;
 
-  submits_request?: Array<SubmitModel> = undefined;
-  loading = true;
-  store = SubmitStore;
+  private problemStore = problemStore;
+  private userStore = userStore;
+  private courseStore = courseStore;
 
-  get to_display() {
-    if (this.submits_request)
-      return
+  get problems() {
+    return ["Остров невезения", "Фибоначчи", "Простые числа на миллион долларов", "Очень сложная задача)", "Задача номер пять!", "Задача, которая не должна отображаться)"];
   }
 
-  async created() {
-    this.submits_request = (
-      await this.store.fetchSubmitsByCourse({ course_id: this.courseId })
-    ).results;
-    this.loading = false;
-  }
+  // get problems(): Promise<string[]> {
+  //   console.log(this.problemStore.fetchProblemsByUserId() as Promise<string[]>);
+  // }
+
 
 }
 </script>
 
 <style lang="stylus" scoped>
+
+.list-header
+  font-size 1.1rem
+  padding-bottom 1rem
+
+.submit-list
+  justify-content center
+
 .table
   width 1rem
+
+.list-item
+  border 1px solid rgba(0, 0, 0, .3)
 
 </style>
