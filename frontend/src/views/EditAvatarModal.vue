@@ -2,8 +2,6 @@
   <div>
     <cv-button
       kind="tertiary"
-      :size="size"
-      :disabled="disabled"
       @click="showModal"
       :icon="Edit32"
     >Изменить
