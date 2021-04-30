@@ -8,7 +8,7 @@
           Дедлайн {{ lesson.deadline }}
         </span>
         <cv-skeleton-text v-else width="'35%'"/>
-        <div>
+        <div v-if="isStaff">
           <cv-button-skeleton v-if="changingVisibility || !this.lesson" kind="ghost"/>
           <cv-button
             v-else
@@ -104,9 +104,9 @@ import problemStore from '@/store/modules/problem';
 import userStore from '@/store/modules/user';
 import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
-import {Component, Prop, Vue} from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component( { components: { MaterialListComponent, ProblemListComponent } })
+@Component({ components: { MaterialListComponent, ProblemListComponent } })
 export default class LessonView extends Vue {
   @Prop({ required: true }) lessonId!: number;
   lessonStore = lessonStore;
@@ -128,6 +128,10 @@ export default class LessonView extends Vue {
     if (this.material.length === 0) {
       return true;
     }
+  }
+
+  get isStaff(): boolean {
+    return this.userStore.user.staff_for.includes(Number(this.lesson?.course));
   }
 
   get hiddenIcon() {
