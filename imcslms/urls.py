@@ -5,7 +5,8 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework.routers import DefaultRouter
 
-from course.views import CourseViewSet, LinkViewSet
+from course.models import CourseSchedule
+from course.views import CourseViewSet, LinkViewSet, ScheduleViewSet
 from lesson.views import LessonViewSet, MaterialViewSet
 from problem.views import ProblemViewSet, SubmitViewSet
 from rating.views import LessonProgressViewSet, CourseProgressViewSet
@@ -13,6 +14,7 @@ from users.views import index, UsersViewSet
 
 router = DefaultRouter()
 router.register('course', CourseViewSet, basename='course')
+router.register('course-schedule', ScheduleViewSet, basename='schedule')
 router.register('lesson', LessonViewSet, basename='lesson')
 router.register('problem', ProblemViewSet, basename='problem')
 router.register('submit', SubmitViewSet, basename='submit')
