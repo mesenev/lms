@@ -5,23 +5,35 @@
 <div class="content">
     {% if error %}
         <div class="alert">
-            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
             {{ error_message }}
         </div>
     {% endif %}
 
-    <h1>Login page</h1>
+    <h1 class="header">Авторизация</h1>
     <br>
     <form action="." method="post">
         <table class="bx--data-table  bx--data-table--tall  ">
             {{ form.as_table }}
         </table>
         {% csrf_token %}
-        <p><input type="submit" value="Login"></p>
+        <div class="login-btn"><input type="submit" value="Войти"></div>
     </form>
 </div>
 </body>
 <style>
+    .header {
+        margin-left: 1rem;
+    }
+
+    .login-btn {
+        margin-top: 1rem;
+        margin-left: 2rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
     .content {
         width: 250px;
         height: 250px;
@@ -34,13 +46,13 @@
     }
 
     .alert {
-        padding: 20px;
+        margin-left: 1.5rem;
         background-color: #f44336;
         color: white;
-        margin-bottom: 15px;
+        padding: 1rem;
     }
 
-    .closebtn {
+    .close-btn {
         margin-left: 15px;
         color: white;
         font-weight: bold;
@@ -51,7 +63,7 @@
         transition: 0.3s;
     }
 
-    .closebtn:hover {
+    .close-btn:hover {
         color: black;
     }
 </style>

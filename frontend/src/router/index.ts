@@ -9,7 +9,8 @@ import CourseEditView from '@/views/management/CourseEditView.vue';
 import ProfileView from "@/views/ProfileView.vue";
 import RegistrationView from '@/views/RegistrationView.vue';
 import Vue from 'vue';
-import VueRouter, { RouteConfig } from 'vue-router';
+import VueRouter, {RouteConfig} from 'vue-router';
+import LoginView from '@/views/LoginView.vue';
 
 Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
@@ -51,7 +52,7 @@ const routes: Array<RouteConfig> = [
         ],
         props: (route) => {
           const lessonId = Number.parseInt(route.params.lessonId as string, 10);
-          return { lessonId, ...route.params };
+          return {lessonId, ...route.params};
         },
       },
     ],
@@ -62,12 +63,17 @@ const routes: Array<RouteConfig> = [
     component: RegistrationView,
   },
   {
+    path: '/login',
+    name: 'LoginView',
+    component: LoginView,
+  },
+  {
     path: '/profile/:userId',
     name: 'profile-page',
     component: ProfileView,
     props: (route) => {
       const userId = Number.parseInt(route.params.userId as string, 10);
-      return { userId, ...route.params };
+      return {userId, ...route.params};
     },
   },
 ];
