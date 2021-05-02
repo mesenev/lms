@@ -4,7 +4,6 @@ import store from '@/store';
 import axios from 'axios';
 import {Dictionary} from 'vue-router/types/router';
 import {Action, getModule, Module, Mutation, VuexModule} from 'vuex-module-decorators';
-import SubmitModel from "@/models/SubmitModel";
 
 @Module({namespaced: true, name: 'problem', store, dynamic: true})
 class ProblemModule extends VuexModule {
@@ -74,7 +73,6 @@ class ProblemModule extends VuexModule {
     if (id in this.problemsByLesson) {
       return this.problemsByLesson[id];
     }
-
     let answer = {data: {}};
     await axios.get('/api/problem/', {params: {lesson_id: id}})
       .then(response => answer = response)

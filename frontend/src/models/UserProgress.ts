@@ -3,10 +3,11 @@ import UserModel from "@/models/UserModel";
 
 export default interface UserProgress {
   id: number;
-  //name: string;
   //marks: Array<number>;
-  //attendance: Array<boolean>;
-  lesson: number;
-  solved: Dictionary<string>;
+  attendance?: Array<boolean>;
+  lesson?: number;
+  course?: number;
+  lessons?: Dictionary<string>;
+  solved: Dictionary<Dictionary<string>>;
   user: UserModel;
 }

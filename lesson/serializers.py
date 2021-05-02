@@ -37,7 +37,7 @@ class LessonShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lesson
-        fields = ['id', 'name', 'deadline', 'problems', 'is_hidden']
+        fields = ['id', 'name', 'deadline', 'problems', 'is_hidden', 'scores']
 
 
 class LessonSerializer(serializers.ModelSerializer):

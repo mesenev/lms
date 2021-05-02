@@ -55,7 +55,6 @@ import SubmitStatus from "@/components/SubmitStatus.vue";
 import UserComponent from "@/components/UserComponent.vue";
 import LessonModel from '@/models/LessonModel';
 import ProblemModel from "@/models/ProblemModel";
-import SubmitModel from "@/models/SubmitModel";
 import UserModel from "@/models/UserModel";
 import UserProgress from '@/models/UserProgress';
 import lessonStore from "@/store/modules/lesson";
@@ -84,6 +83,7 @@ export default class LessonProgressView extends Vue {
     lessonContent: '',
     is_hidden: true,
     progress: [],
+    scores: {},
   };
   userStore = userStore;
   lessonStore = lessonStore;
@@ -150,17 +150,35 @@ export default class LessonProgressView extends Vue {
   }
 
   average(user: UserProgress): string {
-    //TODO : change the coefficient when calculating the rating of HW and CW tasks, add extra task calc
     const c = this.problems.filter(x => x.type === "CW").map(function (num) {
       return num.id.toString();
     })
     const h = this.problems.filter(x => x.type === "HW").map(function (num) {
       return num.id.toString();
     })
-    const CWSolved = Object.keys(user.solved).filter(x => c.includes(x) && user.solved[x][0] === 'OK').length;
-    const HWSolved = Object.keys(user.solved).filter(x => h.includes(x) && user.solved[x][0] === 'OK').length;
-    const solvedCount = (50 / c.length) * CWSolved + (50 / h.length) * HWSolved;
-    return (solvedCount) ? Number(solvedCount) + '%' : 0 + '%';
+    const e = this.problems.filter(x => x.type === "EX").map(function (num) {
+      return num.id.toString();
+    })
+    let coefCW = this.lesson.scores['CW'];
+    let coefHW = this.lesson.scores['HW'];
+    if (c.length === 0){
+      coefHW = 100;
+    }
+    if (h.length === 0) {
+      coefCW = 100;
+    }
+
+    let CWSolved = Object.keys(user.solved['CW']).filter(x => c.includes(x) && user.solved['CW'][x][0] === 'OK').length;
+    let HWSolved = Object.keys(user.solved['HW']).filter(x => h.includes(x) && user.solved['HW'][x][0] === 'OK').length;
+    let EXSolved = Object.keys(user.solved['EX']).filter(x => h.includes(x) && user.solved['EX'][x][0] === 'OK').length;
+    CWSolved =  (coefCW/ c.length) * CWSolved;
+    HWSolved =  (coefHW/ h.length) * HWSolved;
+    EXSolved =  (this.lesson.scores['EX'] / e.length) * EXSolved;
+    let  solvedCount = 0;
+    solvedCount += (CWSolved != CWSolved) ? 0 : CWSolved;
+    solvedCount += (HWSolved != HWSolved) ? 0 : HWSolved;
+    solvedCount += (EXSolved != EXSolved) ? 0 : EXSolved;
+    return solvedCount + '%';
   }
 
   isSortable(column: number): boolean {

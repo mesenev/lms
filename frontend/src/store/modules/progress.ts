@@ -8,10 +8,16 @@ import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-dec
 class ProgressModule extends VuexModule {
 
   lessonProgress: Dictionary<UserProgress[]> = {};
+  courseProgress: Dictionary<UserProgress[]> = {};
 
   @Mutation
   setProgress(payload: Dictionary<UserProgress[]>) {
     this.lessonProgress = payload;
+  }
+
+  @Mutation
+  setCourseProgress(payload: Dictionary<UserProgress[]>) {
+    this.courseProgress = payload;
   }
 
   @Action
@@ -28,6 +34,22 @@ class ProgressModule extends VuexModule {
       })
     const result = answer.data as Array<UserProgress>;
     this.setProgress({ [id]: result })
+    return result;
+  }
+
+  @Action
+  async fetchCourseProgressById(id: number): Promise<UserProgress[]>{
+    if (id in this.courseProgress) {
+      return this.courseProgress[id];
+    }
+    let answer = { data: {} };
+    await axios.get('/api/courseprogress/', { params: { lesson_id: id } })
+      .then(response => answer = response)
+      .catch(error => {
+        console.log(error);
+      })
+    const result = answer.data as Array<UserProgress>;
+    this.setCourseProgress({ [id]: result })
     return result;
   }
 }
