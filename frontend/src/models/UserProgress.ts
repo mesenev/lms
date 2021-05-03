@@ -9,5 +9,5 @@ export default interface UserProgress {
   course?: number;
   lessons?: Dictionary<string>;
   solved: Dictionary<Dictionary<string>>;
-  user: UserModel;
+  user: UserModel | number;
 }

@@ -1,103 +1,191 @@
 <template>
   <div class="bx--grid">
-    <!-- TODO ссылка на задачу -->
-    <cv-data-table title="Успеваемость курса">
+    <cv-data-table title="Успеваемость курса" v-if="!loading" @sort="Sort">
       <template slot="helper-text">
         <router-link :to="{ name: 'CourseView', params: { courseId: course.id } }"
                      tag="p" class="course--title">
           {{ course.name }}
         </router-link>
       </template>
+      <template slot="actions">
+        <cv-button :disabled="change" v-on:click="mark">
+          Отметить посещаемость
+        </cv-button>
+      </template>
       <template slot="headings">
-        <cv-data-table-heading v-for="(column, id) in columns" :key="id">
-          {{ column }}
+        <cv-data-table-heading v-for="(column, id) in columns" :key="id" :sortable=true>
+          <h5 v-if="(column.id === 0)">Результаты</h5>
+          <h5 v-else-if="(column.id === -2)">{{ column.name }}</h5>
+          <div v-else @click="openSubmitOrProblem(column.id)">
+            <h5>{{ column.name }}</h5>
+          </div>
         </cv-data-table-heading>
       </template>
       <template slot="data">
-        <cv-data-table-row v-for="user in users" :key="user.id">
+        <cv-data-table-row v-for="user in progress" :key="user.id">
           <cv-data-table-cell>
-            <!-- TODO ссылка на профиль -->
-            {{ user.name }}
+            <router-link :to="{ name: 'profile-page', params: { userId: user.user.id } }"
+                         class="course--title" tag="p">
+              <UserComponent :user="user.user"/>
+            </router-link>
           </cv-data-table-cell>
-          <cv-data-table-cell class="mark"
-                              v-for="lessonId in course.lessons.length"
-                              :key="lessonId - 1">
-            <!-- TODO цвет в зависимости от оценки по-человечески -->
-            <cv-tag v-if="userMarks(user.id - 1, lessonId - 1)"
-                    :label="`${userMarks(user.id - 1, lessonId - 1)}`"
-                    :kind="kind(user, lessonId - 1)">
-            </cv-tag>
-            <cv-checkbox :value="`${userAttendance(user.id - 1, lessonId - 1)}`"
-                         @change="changeAttendance(user.id - 1, lessonId - 1)"
-                         class="attendance">
-            </cv-checkbox>
+          <cv-data-table-cell
+                v-for="les in lessons"
+                              :key="les.id">
+            {{sum(user.lessons[les.id])}}
+              <div class="mark" v-for="(value, name) in user.lessons[les.id]" :key="value">
+                <cv-tag :label="value.toString()"
+                :kind="color(name)"/>
+              </div>
+            <cv-checkbox v-model="user.attendance[les.id]" class="mark">3</cv-checkbox>
           </cv-data-table-cell>
           <cv-data-table-cell>
-            {{ average(user) }}
+            {{ average(user.lessons)}}
           </cv-data-table-cell>
         </cv-data-table-row>
       </template>
     </cv-data-table>
+    <cv-data-table-skeleton v-else :columns="2" :rows="6"/>
   </div>
 </template>
 
 
 <script lang="ts">
-import CourseModel from '@/models/CourseModel';
+import SubmitStatus from "@/components/SubmitStatus.vue";
+import UserComponent from "@/components/UserComponent.vue";;
+import _ from 'lodash';
+import UserModel, {AuthorModel} from "@/models/UserModel";
 import UserProgress from '@/models/UserProgress';
-import courseStore from "@/store/modules/course";
+import courseStore from '@/store/modules/course'
+import problemStore from "@/store/modules/problem"
+import progressStore from "@/store/modules/progress"
 import userStore from '@/store/modules/user';
+import lessonStore from '@/store/modules/lesson'
+import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Dictionary } from "vue-router/types/router";
+import CourseModel from "@/models/CourseModel";
+import LessonModel from "@/models/LessonModel";
+import axios from "axios";
+import router from "@/router";
 
-@Component({ components: {} })
+@Component({ components: { SubmitStatus, UserComponent, UserAvatar20 } })
 export default class CourseProgressView extends Vue {
   @Prop() courseId!: number;
-  students!: Array<UserProgress>;
+
+  students: Array<UserProgress> = [];
+  students1: Array<UserProgress> = [ ...this.students];
+  users: Dictionary<UserModel> | Array<UserProgress> = {};
+  lessons: Array<LessonModel> = [];
+  course: CourseModel = {
+    id: NaN,
+    name: '',
+    author: {...userStore.user},
+    lessons: [],
+    completed: false,
+    description: '',
+    students: [],
+  };
   userStore = userStore;
   courseStore = courseStore;
-  course!: CourseModel;
+  progressStore = progressStore;
+  problemStore = problemStore;
+  lessonStore = lessonStore;
+
   loading = true;
+  sortable = true;
+  dontSolved = false;
 
-  async created() {
-    //this.students = await this.userStore.fetchStudentsProgressByCourseId(this.courseId);
-    this.course = await this.courseStore.fetchCourseById(this.courseId);
-    this.loading = false;
+  get columns() {
+    const a = this.lessons.map(l => (
+      {
+        id: l.id,
+        name: l.name,
+      }
+    ))
+    a.unshift({ id: -2, name: "Ученики" })
+    a.push({ id: 0, name: "Рейтинг" })
+    return a
   }
 
-  kind(user: UserProgress, lessonId: number) {
-    const colors = ['red', 'magenta', 'cyan', 'green'];
-    //const mark = user.marks[lessonId] - 2;
-    //return colors[mark % colors.length];
-  }
-
-  get users() {
+  get progress() {
+    if (this.dontSolved) {
+      return this.students.filter(x => Object.keys(x.solved["HW"]).length === 0)
+    }
     return this.students;
   }
 
-
-  get columns() {
-    return ['Ученики'].concat(this.course.lessons.map((l) => l.name)).concat('Рейтинг');
+  get cours() {
+    return this.course;
   }
 
-  userMarks(userId: number, lessonId: number) {
-    // return this.users[userId].marks[lessonId];
-    return [];
+  async created() {
+    this.course = await this.courseStore.fetchCourseById(this.courseId);
+    this.students = await this.progressStore.fetchCourseProgressById(this.courseId);
+    this.users = await this.userStore.fetchStudentsByCourseId(this.courseId);
+    this.lessons = await this.lessonStore.fetchLessonsByCourseId(this.courseId);
+    this.students = this.students.map(
+      obj => Object.assign({}, obj, { user: this.users[obj.user.toLocaleString()]}));
+    this.students1 = JSON.parse(JSON.stringify(this.students))
+    this.loading = false;
   }
 
-  userAttendance(userId: number, lessonId: number) {
-    // return this.users[userId].attendance[lessonId];
-    return [];
+  openSubmitOrProblem(problem: number, submit?: number) {
+    if (submit)
+      this.$router.push(`/course/${this.$route.params['courseId']}/lesson/${this.$route.params['lessonId']}/problem/${problem}/submit/${submit}`);
+    else
+      this.$router.push(`/course/${this.$route.params['courseId']}/lesson/${this.$route.params['lessonId']}/problem/${problem}`);
   }
 
-  changeAttendance(userId: number, lessonId: number) {
-    //
+  color(type: string) {
+    if (type === 'CW') {
+      return 'blue'
+    }
+    if (type === 'HW') {
+      return 'green'
+    }
+    if (type === 'EX') {
+      return 'purple'
+    }
+  }
+  sum(type: any){
+    let s = 0;
+    s += type['CW'] + type['HW'] +type['EX'];
+    return s
+  }
+  average(progress: any) {
+    let sum = 0;
+    for(const i in progress){
+      sum += progress[i]['CW'];
+      sum += progress[i]['HW'];
+      sum += progress[i]['EX'];
+    }
+    return sum;
+  }
+  get change(){
+    return  _.isEqual(this.students,this.students1);
   }
 
-  average(user: UserProgress): number {
-    const sum = (marks: number[]) => marks.reduce((total, value) => total + value);
-    //const { marks } = user;
-    //return sum(marks) / marks.length;
-    return 0
+  mark(): void {
+    let progress: UserProgress = {
+      id: NaN,
+      user: {...userStore.user},
+      solved: {},
+    }
+    let request: any;
+    for (const i in this.students){
+      progress = JSON.parse(JSON.stringify(this.students[i]));
+      progress.user = progress.user.id;
+      request = axios.patch(`/api/courseprogress/${this.students[i].id}/`, progress);
+    }
+    request.then(response => {
+      console.log("Успех")
+    });
+    request.catch(error => {
+      console.log("Не успех")
+    })
+    request.finally(() =>this.students1 = this.students);
+
   }
 }
 </script>
@@ -109,7 +197,7 @@ export default class CourseProgressView extends Vue {
   display inline
 
 .mark
-  user-select none
+  display: inline-block;
 
 .attendance
   display inline

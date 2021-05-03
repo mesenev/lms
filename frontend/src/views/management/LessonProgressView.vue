@@ -16,7 +16,7 @@
       <template slot="headings">
         <cv-data-table-heading v-for="(column, id) in columns" :key="id" :sortable=isSortable(column.id)>
           <h5 v-if="(column.id === 0)">Результаты</h5>
-          <h5 v-else-if="(column.id === -1)">Участник</h5>
+          <h5 v-else-if="(column.id === -2)">{{ column.name }}</h5>
           <div v-else @click="openSubmitOrProblem(column.id)">
             <cv-definition-tooltip :definition="definition(column.id)" :term="column.name"/>
           </div>
@@ -100,7 +100,7 @@ export default class LessonProgressView extends Vue {
         name: l.name,
       }
     ))
-    a.unshift({ id: -1, name: "Ученики" })
+    a.unshift({ id: -2, name: "Ученики" })
     a.push({ id: 0, name: "Рейтинг" })
     return a
   }
