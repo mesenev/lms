@@ -62,10 +62,10 @@ import problemStore from "@/store/modules/problem"
 import progressStore from "@/store/modules/progress"
 import userStore from '@/store/modules/user';
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { Dictionary } from "vue-router/types/router";
+import {Component, Prop, Vue} from 'vue-property-decorator';
+import {Dictionary} from "vue-router/types/router";
 
-@Component({ components: { SubmitStatus, UserComponent, UserAvatar20 } })
+@Component({components: {SubmitStatus, UserComponent, UserAvatar20}})
 export default class LessonProgressView extends Vue {
   @Prop() lessonId!: number;
 
@@ -201,8 +201,8 @@ export default class LessonProgressView extends Vue {
       })
     } else {
       return this.students.sort((a, b) => {
-        const A = Object.values(a.solved).filter(a => a == 'OK')
-        const B = Object.values(b.solved).filter(b => b == 'OK')
+        const A = Object.values(a.solved['CW'] && a.solved['HW'] && a.solved['EX']).filter(a => a == 'OK')
+        const B = Object.values(b.solved['CW'] && b.solved['HW'] && b.solved['EX']).filter(b => b == 'OK')
         return (Object.keys(A).length > Object.keys(B).length) ? order : -1 * order
       })
     }

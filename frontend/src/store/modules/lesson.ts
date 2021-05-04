@@ -1,8 +1,8 @@
 import LessonModel from '@/models/LessonModel';
 import store from '@/store';
 import axios from 'axios';
-import { Dictionary } from 'vue-router/types/router';
-import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
+import {Dictionary} from 'vue-router/types/router';
+import {Action, getModule, Module, Mutation, VuexModule} from 'vuex-module-decorators';
 
 @Module({
   namespaced: true,
@@ -48,6 +48,7 @@ class LessonModule extends VuexModule {
       materials: [],
       deadline: '2000-01-01',
       progress: [],
+      scores: {},
       is_hidden: true,
     } as LessonModel;
   }

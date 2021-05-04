@@ -52,9 +52,9 @@
 
 <script lang="ts">
 import SubmitStatus from "@/components/SubmitStatus.vue";
-import UserComponent from "@/components/UserComponent.vue";;
+import UserComponent from "@/components/UserComponent.vue";
 import _ from 'lodash';
-import UserModel, {AuthorModel} from "@/models/UserModel";
+import UserModel from "@/models/UserModel";
 import UserProgress from '@/models/UserProgress';
 import courseStore from '@/store/modules/course'
 import problemStore from "@/store/modules/problem"
@@ -62,20 +62,19 @@ import progressStore from "@/store/modules/progress"
 import userStore from '@/store/modules/user';
 import lessonStore from '@/store/modules/lesson'
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import { Dictionary } from "vue-router/types/router";
+import {Component, Prop, Vue} from 'vue-property-decorator';
+import {Dictionary} from "vue-router/types/router";
 import CourseModel from "@/models/CourseModel";
 import LessonModel from "@/models/LessonModel";
 import axios from "axios";
-import router from "@/router";
 
-@Component({ components: { SubmitStatus, UserComponent, UserAvatar20 } })
+@Component({components: {SubmitStatus, UserComponent, UserAvatar20}})
 export default class CourseProgressView extends Vue {
   @Prop() courseId!: number;
 
   students: Array<UserProgress> = [];
-  students1: Array<UserProgress> = [ ...this.students];
-  users: Dictionary<UserModel> | Array<UserProgress> = {};
+  students1: Array<UserProgress> = [...this.students];
+  users: Dictionary<UserModel> = {};
   lessons: Array<LessonModel> = [];
   course: CourseModel = {
     id: NaN,
@@ -148,43 +147,46 @@ export default class CourseProgressView extends Vue {
       return 'purple'
     }
   }
-  sum(type: any){
+
+  sum(type: Dictionary<number>) {
     let s = 0;
-    s += type['CW'] + type['HW'] +type['EX'];
+    s += type['CW'] + type['HW'] + type['EX'];
     return s
   }
-  average(progress: any) {
+
+  average(progress: Dictionary<Dictionary<number>>) {
     let sum = 0;
-    for(const i in progress){
+    for (const i in progress) {
       sum += progress[i]['CW'];
       sum += progress[i]['HW'];
       sum += progress[i]['EX'];
     }
     return sum;
   }
-  get change(){
-    return  _.isEqual(this.students,this.students1);
+
+  get change() {
+    return _.isEqual(this.students, this.students1);
   }
 
   mark(): void {
     let progress: UserProgress = {
       id: NaN,
-      user: {...userStore.user},
+      user: NaN,
       solved: {},
     }
     let request: any;
-    for (const i in this.students){
+    for (const i in this.students) {
       progress = JSON.parse(JSON.stringify(this.students[i]));
       progress.user = progress.user.id;
       request = axios.patch(`/api/courseprogress/${this.students[i].id}/`, progress);
     }
-    request.then(response => {
+    request.then((response: any) => {
       console.log("Успех")
     });
-    request.catch(error => {
+    request.catch((error: any) => {
       console.log("Не успех")
     })
-    request.finally(() =>this.students1 = this.students);
+    request.finally(() => this.students1 = this.students);
 
   }
 }
