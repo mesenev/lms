@@ -121,7 +121,6 @@
     <div class="save-button">
       <cv-button-set>
         <cv-button kind="secondary">Отменить</cv-button>
-        <!-- преодолел непреодолимое желание поидиотничать в названиях кнопок -->
         <cv-button :disabled="scheduleChanged" kind="primary">
           {{ (isNewSchedule) ? "Создать расписание" : "Сохранить изменения"
         </cv-button>
@@ -134,14 +133,13 @@
 import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
-import router from '@/router';
 import courseStore from '@/store/modules/course';
 import Edit from '@carbon/icons-vue/es/edit/20';
 import Back from '@carbon/icons-vue/es/skip--back/20';
 import axios from 'axios';
 import _ from 'lodash';
 import { mixins } from 'vue-class-component';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop } from 'vue-property-decorator';
 
 interface ScheduleElement {
   date: string;
@@ -152,9 +150,9 @@ interface ScheduleElement {
 @Component({ components: { Edit, Back } })
 export default class CourseCalendarView extends mixins(NotificationMixinComponent) {
   @Prop({ required: true }) courseId!: number;
-  store = courseStore;
+  courseStore = courseStore;
   courseSchedule: Array<ScheduleElement> = [];
-  old_result: Array<ScheduleElement> = [];
+  oldCourseSchedule: Array<ScheduleElement> = [];
   iconEdit = Edit;
   iconBack = Back;
   modalVisible = false;
@@ -172,27 +170,32 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   private sunday_ = false;
 
   get scheduleChanged(): boolean {
-    return !_.isEqual(this.courseSchedule, this.old_result);
+    return !_.isEqual(this.courseSchedule, this.oldCourseSchedule);
   }
 
   get isNewSchedule() {
-
+    //
   }
 
   get course(): CourseModel {
-    return this.store.currentCourse;
+    return this.courseStore.currentCourse;
   }
 
   get scheduleCurrent() {
     let courseSchedule = '';
     Object.keys(this.workingDays).forEach(
-      value => result += `${this.alias[parseInt(value)]}: ${this.workingDays[value]} `,
+      value => courseSchedule += `${this.alias[parseInt(value)]}: ${this.workingDays[value]} `,
     );
-    return result;
+    return courseSchedule;
   }
 
-  async created() {
-    this.course = await this.store.currentCourse;
+  async getSchedule() {
+    //
+  }
+
+  created() {
+    this.course = this.courseStore.currentCourse;
+    this.oldCourseSchedule = this.course.schedule;
     this.loading = false;
   }
 
