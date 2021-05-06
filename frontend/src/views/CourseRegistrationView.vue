@@ -81,7 +81,7 @@ export default class CourseRegistrationView extends NotificationMixinComponent {
       is_possible: boolean; usages_available: boolean; student_registered: boolean;
       teacher_registered: boolean; course: CourseModel; user: UserModel;
     }>(`/api/check-link/${this.linkProp}/`)
-      .then(result => {
+      .then(courseSchedule => {
         this.is_possible = result.data.is_possible;
         this.usages_available = result.data.usages_available;
         this.student_registered = result.data.student_registered;
@@ -99,10 +99,10 @@ export default class CourseRegistrationView extends NotificationMixinComponent {
   async registration() {
     this.registrationProcess = true;
     await axios.get(`/api/course-registration/${this.linkProp}/`)
-      .then(result => {
+      .then(courseSchedule => {
         this.$router.push({
           name: 'CourseView',
-          params: {courseId: result.data.courseId},
+          params: { courseId: result.data.courseId },
         })
         this.registrationProcess = false;
       }).catch(error => {

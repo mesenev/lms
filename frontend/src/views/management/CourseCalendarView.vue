@@ -24,6 +24,13 @@
           <template slot="title">Редактирование расписания</template>
           <template slot="content">
             <cv-grid>
+              <cv-row v-if="showNotification">
+                <cv-inline-notification
+                  :kind="notificationKind"
+                  :sub-title="notificationText"
+                  @close="hideNotification"
+                />
+              </cv-row>
               <cv-row>
                 <cv-column :sm="1">
                   <h4 class="">Начало занятий</h4>
@@ -98,10 +105,10 @@
       <div class="items bx--col-lg-10">
         <cv-structured-list selectable @change="actionChange">
           <template slot="headings"></template>
-          <template v-if="!loading && result"
+          <template v-if="!loading && courseSchedule"
                     slot="items">
             <cv-structured-list-item
-              v-for="(record, index) in result"
+              v-for="(record, index) in courseSchedule"
               :key="index" :checked="record.isSelected" :value="record.lesson.id.toString()"
               name="group">
               <cv-structured-list-data>{{ record.date }}</cv-structured-list-data>
@@ -113,20 +120,27 @@
     </div>
     <div class="save-button">
       <cv-button-set>
-        <cv-button kind="secondary">Отменить изменения</cv-button>
-        <cv-button kind="primary">Сохранить</cv-button>
+        <cv-button kind="secondary">Отменить</cv-button>
+        <!-- преодолел непреодолимое желание поидиотничать в названиях кнопок -->
+        <cv-button :disabled="scheduleChanged" kind="primary">
+          {{ (isNewSchedule) ? "Создать расписание" : "Сохранить изменения"
+        </cv-button>
       </cv-button-set>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
+import router from '@/router';
 import courseStore from '@/store/modules/course';
 import Edit from '@carbon/icons-vue/es/edit/20';
 import Back from '@carbon/icons-vue/es/skip--back/20';
+import axios from 'axios';
 import _ from 'lodash';
+import { mixins } from 'vue-class-component';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 interface ScheduleElement {
@@ -136,15 +150,16 @@ interface ScheduleElement {
 }
 
 @Component({ components: { Edit, Back } })
-export default class CourseCalendarView extends Vue {
+export default class CourseCalendarView extends mixins(NotificationMixinComponent) {
   @Prop({ required: true }) courseId!: number;
   store = courseStore;
-  course!: CourseModel;
-  public iconEdit = Edit;
-  public iconBack = Back;
-  public modalVisible = false;
-  public startDate: string | null = null;
-  public changedStartDate: string | null = null;
+  courseSchedule: Array<ScheduleElement> = [];
+  old_result: Array<ScheduleElement> = [];
+  iconEdit = Edit;
+  iconBack = Back;
+  modalVisible = false;
+  startDate: string | null = null;
+  changedStartDate: string | null = null;
   selected: string | null = null;
   loading = true;
 
@@ -155,22 +170,37 @@ export default class CourseCalendarView extends Vue {
   private friday_ = false;
   private saturday_ = false;
   private sunday_ = false;
-  private result: Array<ScheduleElement> = [];
 
-  get ints() {
-    return Array.from(Array(this.result?.length).keys())
+  get scheduleChanged(): boolean {
+    return !_.isEqual(this.courseSchedule, this.old_result);
+  }
+
+  get isNewSchedule() {
+
+  }
+
+  get course(): CourseModel {
+    return this.store.currentCourse;
+  }
+
+  get scheduleCurrent() {
+    let courseSchedule = '';
+    Object.keys(this.workingDays).forEach(
+      value => result += `${this.alias[parseInt(value)]}: ${this.workingDays[value]} `,
+    );
+    return result;
   }
 
   async created() {
-    this.course = await this.store.fetchCourseById(this.courseId);
+    this.course = await this.store.currentCourse;
     this.loading = false;
   }
 
   async actionChange(obj: string) {
-    const n = this.result.findIndex(x => x.lesson.id === Number(obj));
+    const n = this.courseSchedule.findIndex(x => x.lesson.id === Number(obj));
     if (!this.selected) {
       this.selected = n.toString();
-      this.result[n].isSelected = true;
+      this.courseSchedule[n].isSelected = true;
       return;
     }
     this.loading = true;
@@ -181,15 +211,15 @@ export default class CourseCalendarView extends Vue {
   }
 
   async updateResult(n: number) {
-    const newArr = [...this.result];
+    const newArr = [...this.courseSchedule];
     const tmp = newArr[Number(this.selected)];
     newArr[Number(this.selected)] = newArr[n];
     newArr[n] = tmp;
     newArr[n].isSelected = false;
     newArr[Number(this.selected)].isSelected = false;
-    this.result = [];
+    this.courseSchedule = [];
     this.selected = null;
-    this.result = [...newArr];
+    this.courseSchedule = [...newArr];
   }
 
   set monday(value: boolean) {
@@ -286,6 +316,34 @@ export default class CourseCalendarView extends Vue {
     this.generateSchedule();
   }
 
+  saveOrUpdateSchedule(): void {
+    const request = (this.isNewSchedule) ?
+      axios.post('/api/course-schedule/', this.courseSchedule) :
+      axios.patch(`/api/course-schedule/${this.courseSchedule.id}/`, this.courseSchedule);
+    request.then(() => {
+      this.notificationKind = 'success';
+      this.notificationText = (this.isNewSchedule)
+        ? 'Расписание успешно создано'
+        : 'Расписание успешно изменено';
+    }).catch(error => {
+      this.notificationText = `Что-то пошло не так: ${error.message}`;
+      this.notificationKind = 'error';
+    }).finally(() => this.showNotification = true);
+  }
+
+  get workingDays() {
+    return Object.keys(this.schedule)
+      .filter(key => this.schedule[key] != null)
+      .reduce((obj: Record<string, string>, key: string) => {
+        obj[key] = this.schedule[key] as string;
+        return obj;
+      }, {});
+  }
+
+  private alias = [
+    'Понедельник', 'Вторник', "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье",
+  ];
+
   generateSchedule(): void {
     if (Object.keys(this.schedule).length === 0 || this.startDate === null)
       return;
@@ -306,28 +364,7 @@ export default class CourseCalendarView extends Vue {
       })
       date.setDate(date.getDate() + 1);
     }
-    this.result = schedule;
-  }
-
-  get workingDays() {
-    return Object.keys(this.schedule)
-      .filter(key => this.schedule[key] != null)
-      .reduce((obj: Record<string, string>, key: string) => {
-        obj[key] = this.schedule[key] as string;
-        return obj;
-      }, {});
-  }
-
-  private alias = [
-    'Понедельник', 'Вторник', "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье",
-  ];
-
-  get scheduleCurrent() {
-    let result = '';
-    Object.keys(this.workingDays).forEach(
-      value => result += `${this.alias[parseInt(value)]}: ${this.workingDays[value]} `,
-    );
-    return result;
+    this.courseSchedule = schedule;
   }
 
   get isScheduleChanged() {

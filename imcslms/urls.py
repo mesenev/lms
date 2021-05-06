@@ -5,7 +5,6 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework.routers import DefaultRouter
 
-from course.models import CourseSchedule
 from course.views import CourseViewSet, LinkViewSet, ScheduleViewSet
 from lesson.views import LessonViewSet, MaterialViewSet
 from problem.views import ProblemViewSet, SubmitViewSet
