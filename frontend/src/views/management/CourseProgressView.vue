@@ -76,15 +76,7 @@ export default class CourseProgressView extends Vue {
   students1: Array<UserProgress> = [...this.students];
   users: Dictionary<UserModel> = {};
   lessons: Array<LessonModel> = [];
-  course: CourseModel = {
-    id: NaN,
-    name: '',
-    author: {...userStore.user},
-    lessons: [],
-    completed: false,
-    description: '',
-    students: [],
-  };
+  course: CourseModel = { ...courseStore.newCourse };
   userStore = userStore;
   courseStore = courseStore;
   progressStore = progressStore;

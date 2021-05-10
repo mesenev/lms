@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, action
 from rest_framework.exceptions import PermissionDenied, NotFound
@@ -39,6 +40,13 @@ class CourseViewSet(viewsets.ModelViewSet):
 class ScheduleViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
     serializer_class = ScheduleSerializer
     queryset = CourseSchedule.objects.all()
+
+    @action(detail=False, url_path='by_course/(?P<course_id>\d+)')  # hate regexes
+    def by_course(self, request, course_id):
+        queryset = CourseSchedule.objects.all()
+        instance = get_object_or_404(queryset, course__id=course_id)
+        serializer = ScheduleSerializer(instance)
+        return Response(serializer.data)
 
 
 class LinkViewSet(viewsets.ModelViewSet):

@@ -94,16 +94,8 @@ export default class CourseEditView extends Vue {
   notificationKind = 'success';
   notificationText = '';
   counter = 1;
-  course: CourseModel = {
-    id: NaN,
-    name: '',
-    author: {...userStore.user},
-    lessons: [],
-    completed: false,
-    description: '',
-    students: [],
-  };
-  courseEdit = {...this.course};
+  course: CourseModel = { ...courseStore.newCourse };
+  courseEdit = { ...this.course };
 
   hideSuccess() {
     this.showNotification = false;

@@ -58,6 +58,16 @@ class CourseModule extends VuexModule {
     this.courses.push(element);
     this.courses = [...this.courses];
   }
+
+  async fetchCourseScheduleByCourseId(id: number) {
+    let answer = { data: {} };
+    await axios.get(`/api/course-schedule/by_course/${id}/`)
+      .then(response => answer = response)
+      .catch(error => {
+        console.log(error);
+      })
+    return answer.data as CourseModel;
+  }
 }
 
 export default getModule(CourseModule);

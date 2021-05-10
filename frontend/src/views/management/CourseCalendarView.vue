@@ -105,10 +105,10 @@
       <div class="items bx--col-lg-10">
         <cv-structured-list selectable @change="actionChange">
           <template slot="headings"></template>
-          <template v-if="!loading && courseSchedule"
+          <template v-if="!loading && courseSchedule && courseSchedule.lessons"
                     slot="items">
             <cv-structured-list-item
-              v-for="(record, index) in courseSchedule"
+              v-for="(record, index) in courseSchedule.lessons"
               :key="index" :checked="record.isSelected" :value="record.lesson.id.toString()"
               name="group">
               <cv-structured-list-data>{{ record.date }}</cv-structured-list-data>
@@ -132,7 +132,7 @@
 <script lang="ts">
 import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import CourseModel from '@/models/CourseModel';
-import LessonModel from '@/models/LessonModel';
+import CourseScheduleModel, { ScheduleElement } from '@/models/ScheduleModel';
 import courseStore from '@/store/modules/course';
 import Edit from '@carbon/icons-vue/es/edit/20';
 import Back from '@carbon/icons-vue/es/skip--back/20';
@@ -141,18 +141,13 @@ import _ from 'lodash';
 import { mixins } from 'vue-class-component';
 import { Component, Prop } from 'vue-property-decorator';
 
-interface ScheduleElement {
-  date: string;
-  lesson: LessonModel;
-  isSelected: boolean;
-}
 
 @Component({ components: { Edit, Back } })
 export default class CourseCalendarView extends mixins(NotificationMixinComponent) {
   @Prop({ required: true }) courseId!: number;
   courseStore = courseStore;
-  courseSchedule: Array<ScheduleElement> = [];
-  oldCourseSchedule: Array<ScheduleElement> = [];
+  courseSchedule: CourseScheduleModel | null = null;
+  oldCourseSchedule: CourseScheduleModel | null = null;
   iconEdit = Edit;
   iconBack = Back;
   modalVisible = false;
@@ -174,11 +169,12 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   }
 
   get isNewSchedule() {
+    return false;
     //
   }
 
   get course(): CourseModel {
-    return this.courseStore.currentCourse;
+    return this.courseStore.currentCourse as CourseModel;
   }
 
   get scheduleCurrent() {
@@ -193,36 +189,38 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     //
   }
 
-  created() {
-    this.course = this.courseStore.currentCourse;
-    this.oldCourseSchedule = this.course.schedule;
+  async created() {
+    if (this.course.schedule) {
+      this.courseSchedule = await this.courseStore.fetchCourseScheduleByCourseId(this.course.id);
+      this.oldCourseSchedule = { ...this.courseSchedule };
+    }
     this.loading = false;
   }
 
   async actionChange(obj: string) {
-    const n = this.courseSchedule.findIndex(x => x.lesson.id === Number(obj));
+    const n = this.courseSchedule.lessons.findIndex(x => x.lesson.id === Number(obj));
     if (!this.selected) {
       this.selected = n.toString();
-      this.courseSchedule[n].isSelected = true;
+      this.courseSchedule.lessons[n].isSelected = true;
       return;
     }
+    // TODO: Research why THF I need this async construction for this for drop selection
     this.loading = true;
-    // TODO: Research why THF I need async function for this
     await this.updateResult(n);
     this.loading = false;
     return;
   }
 
   async updateResult(n: number) {
-    const newArr = [...this.courseSchedule];
+    const newArr = [...this.courseSchedule?.lessons];
     const tmp = newArr[Number(this.selected)];
     newArr[Number(this.selected)] = newArr[n];
     newArr[n] = tmp;
     newArr[n].isSelected = false;
     newArr[Number(this.selected)].isSelected = false;
-    this.courseSchedule = [];
+    this.courseSchedule.lessons = [...newArr];
     this.selected = null;
-    this.courseSchedule = [...newArr];
+    this.courseSchedule = { ...this.courseSchedule as CourseScheduleModel };
   }
 
   set monday(value: boolean) {
@@ -322,7 +320,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   saveOrUpdateSchedule(): void {
     const request = (this.isNewSchedule) ?
       axios.post('/api/course-schedule/', this.courseSchedule) :
-      axios.patch(`/api/course-schedule/${this.courseSchedule.id}/`, this.courseSchedule);
+      axios.patch(`/api/course-schedule/${this.courseSchedule?.id}/`, this.courseSchedule);
     request.then(() => {
       this.notificationKind = 'success';
       this.notificationText = (this.isNewSchedule)
@@ -352,19 +350,25 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       return;
     const lessons = this.course.lessons;
     const date = new Date(Date.parse(this.startDate));
-    const schedule: ScheduleElement[] = [];
+    const schedule: CourseScheduleModel = {
+      id: NaN,
+      name: '',
+      course: this.course.id,
+      lessons: [],
+    }
     for (let i = 0; i < lessons.length; i++) {
       while (!Object.keys(this.workingDays).includes(((date.getDay() + 6) % 7).toString())) {
         date.setDate(date.getDate() + 1);
       }
-      schedule.push({
-        date: date.toLocaleDateString(
-          'ru-RU',
-          { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
-        ),
-        lesson: lessons[i],
-        isSelected: false,
-      })
+      schedule.lessons.push({
+          date: date.toLocaleDateString(
+            'ru-RU',
+            { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
+          ),
+          lesson: lessons[i],
+          isSelected: false,
+        } as ScheduleElement,
+      )
       date.setDate(date.getDate() + 1);
     }
     this.courseSchedule = schedule;
