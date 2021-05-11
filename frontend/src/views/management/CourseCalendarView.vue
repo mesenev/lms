@@ -39,6 +39,9 @@
                   <cv-date-picker
                     date-label=""
                     kind="single"
+                    :cal-options="dpOptions"
+                    date-format="d/m/Y"
+                    placeholder="dd/mm/yyyy"
                     v-model="changedStartDate">
                   </cv-date-picker>
                 </cv-column>
@@ -121,8 +124,8 @@
     <div class="save-button">
       <cv-button-set>
         <cv-button kind="secondary">Отменить</cv-button>
-        <cv-button :disabled="scheduleChanged" kind="primary">
-          {{ (isNewSchedule) ? "Создать расписание" : "Сохранить изменения"
+        <cv-button :disabled="!scheduleChanged" kind="primary" v-on:click="saveOrUpdateSchedule">
+          {{ (isNewSchedule) ? "Создать расписание" : "Сохранить изменения" }}
         </cv-button>
       </cv-button-set>
     </div>
@@ -169,8 +172,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   }
 
   get isNewSchedule() {
-    return false;
-    //
+    return !this.courseSchedule?.id;
   }
 
   get course(): CourseModel {
@@ -185,42 +187,29 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     return courseSchedule;
   }
 
-  async getSchedule() {
-    //
+  get isScheduleChanged() {
+    return !!this.changedStartDate && (
+      !_.isEqual(this.schedule, this.newSchedule)
+      || !_.isEqual(this.startDate, this.changedStartDate)
+    );
+  }
+
+  get dpOptions() {
+    return {
+      dateFormat: "d/m/Y",
+    };
   }
 
   async created() {
     if (this.course.schedule) {
       this.courseSchedule = await this.courseStore.fetchCourseScheduleByCourseId(this.course.id);
       this.oldCourseSchedule = { ...this.courseSchedule };
+      //TODO: Same data in two fields. Ambigous. Normalize it.
+      this.startDate = this.courseSchedule.start_date;
+      this.schedule = this.courseSchedule.week_schedule;
+      //TODO: correct init state for days (modal init state)
     }
     this.loading = false;
-  }
-
-  async actionChange(obj: string) {
-    const n = this.courseSchedule.lessons.findIndex(x => x.lesson.id === Number(obj));
-    if (!this.selected) {
-      this.selected = n.toString();
-      this.courseSchedule.lessons[n].isSelected = true;
-      return;
-    }
-    // TODO: Research why THF I need this async construction for this for drop selection
-    this.loading = true;
-    await this.updateResult(n);
-    this.loading = false;
-    return;
-  }
-
-  async updateResult(n: number) {
-    const newArr = [...this.courseSchedule?.lessons];
-    const tmp = newArr[Number(this.selected)];
-    newArr[Number(this.selected)] = newArr[n];
-    newArr[n] = tmp;
-    newArr[n].isSelected = false;
-    newArr[Number(this.selected)].isSelected = false;
-    this.courseSchedule.lessons = [...newArr];
-    this.selected = null;
-    this.courseSchedule = { ...this.courseSchedule as CourseScheduleModel };
   }
 
   set monday(value: boolean) {
@@ -317,19 +306,19 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     this.generateSchedule();
   }
 
-  saveOrUpdateSchedule(): void {
-    const request = (this.isNewSchedule) ?
-      axios.post('/api/course-schedule/', this.courseSchedule) :
-      axios.patch(`/api/course-schedule/${this.courseSchedule?.id}/`, this.courseSchedule);
-    request.then(() => {
-      this.notificationKind = 'success';
-      this.notificationText = (this.isNewSchedule)
-        ? 'Расписание успешно создано'
-        : 'Расписание успешно изменено';
-    }).catch(error => {
-      this.notificationText = `Что-то пошло не так: ${error.message}`;
-      this.notificationKind = 'error';
-    }).finally(() => this.showNotification = true);
+  async actionChange(obj: string) {
+    const schedule = this.courseSchedule as CourseScheduleModel;
+    const n = schedule.lessons.findIndex(x => x.lesson.id === Number(obj));
+    if (!this.selected) {
+      this.selected = n.toString();
+      schedule.lessons[n].isSelected = true;
+      return;
+    }
+    // TODO: Research why THF I need this async construction for this for drop selection
+    this.loading = true;
+    await this.updateResult(n);
+    this.loading = false;
+    return;
   }
 
   get workingDays() {
@@ -345,16 +334,48 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     'Понедельник', 'Вторник', "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье",
   ];
 
+  async updateResult(n: number) {
+    const schedule = this.courseSchedule as CourseScheduleModel;
+    const newArr = [...schedule.lessons];
+    const tmp = newArr[Number(this.selected)];
+    newArr[Number(this.selected)] = newArr[n];
+    newArr[n] = tmp;
+    newArr[n].isSelected = false;
+    newArr[Number(this.selected)].isSelected = false;
+    this.selected = null;
+    this.courseSchedule = { ...schedule, lessons: newArr };
+  }
+
+  saveOrUpdateSchedule(): void {
+    const request = (this.isNewSchedule) ?
+      axios.post('/api/course-schedule/', this.courseSchedule) :
+      axios.patch(`/api/course-schedule/${this.courseSchedule?.id}/`, this.courseSchedule);
+    request.then(answer => {
+      this.notificationKind = 'success';
+      this.notificationText = (this.isNewSchedule)
+        ? 'Расписание успешно создано'
+        : 'Расписание успешно изменено';
+      this.courseSchedule = answer.data as CourseScheduleModel;
+      this.oldCourseSchedule = { ...this.courseSchedule };
+    }).catch(error => {
+      this.notificationText = `Что-то пошло не так: ${error.message}`;
+      this.notificationKind = 'error';
+    }).finally(() => this.showNotification = true);
+  }
+
   generateSchedule(): void {
     if (Object.keys(this.schedule).length === 0 || this.startDate === null)
       return;
     const lessons = this.course.lessons;
-    const date = new Date(Date.parse(this.startDate));
+    const parsed = this.startDate.split('/').reverse().map((x) => Number(x));
+    const date: Date = new Date(parsed[0], parsed[1], parsed[2]);
     const schedule: CourseScheduleModel = {
       id: NaN,
       name: '',
       course: this.course.id,
       lessons: [],
+      start_date: this.startDate as string,
+      week_schedule: this.schedule,
     }
     for (let i = 0; i < lessons.length; i++) {
       while (!Object.keys(this.workingDays).includes(((date.getDay() + 6) % 7).toString())) {
@@ -373,12 +394,6 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     }
     this.courseSchedule = schedule;
   }
-
-  get isScheduleChanged() {
-    return !_.isEqual(this.schedule, this.newSchedule)
-      || !_.isEqual(this.startDate, this.changedStartDate);
-  }
-
 }
 
 

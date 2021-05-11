@@ -1,4 +1,5 @@
 import CourseModel from '@/models/CourseModel';
+import CourseScheduleModel from '@/models/ScheduleModel';
 import store from '@/store';
 import userStore from '@/store/modules/user';
 import axios from 'axios';
@@ -54,19 +55,21 @@ class CourseModule extends VuexModule {
     return answer.data as CourseModel;
   }
 
-  @Mutation addCourseToArray(element: CourseModel) {
+  @Mutation
+  addCourseToArray(element: CourseModel) {
     this.courses.push(element);
     this.courses = [...this.courses];
   }
 
-  async fetchCourseScheduleByCourseId(id: number) {
+  @Action
+  async fetchCourseScheduleByCourseId(id: number): Promise<CourseScheduleModel> {
     let answer = { data: {} };
     await axios.get(`/api/course-schedule/by_course/${id}/`)
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
       })
-    return answer.data as CourseModel;
+    return answer.data as CourseScheduleModel;
   }
 }
 

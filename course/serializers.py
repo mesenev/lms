@@ -45,16 +45,10 @@ class CourseSerializer(DynamicFieldsModelSerializer):
 
     class Meta:
         model = Course
-        fields = ['id', 'name', 'description', 'author', 'lessons', 'students', 'staff']
+        fields = ['id', 'name', 'description', 'author', 'lessons', 'students', 'staff', 'schedule']
 
 
-class ScheduleSerializer(serializers.Serializer):
-    def update(self, instance, validated_data):
-        pass
-
-    def create(self, validated_data):
-        pass
-
+class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseSchedule
         fields = '__all__'

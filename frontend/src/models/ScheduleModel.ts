@@ -10,5 +10,7 @@ export interface ScheduleElement {
 export default interface CourseScheduleModel extends BaseModel {
   lessons: Array<ScheduleElement>;
   course: number;
+  start_date: string;
+  week_schedule: Record<string, string | null>;
 }
 

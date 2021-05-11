@@ -23,9 +23,11 @@ INSTALLED_APPS = [
     'rating',
 ]
 
-REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
-}
+REST_FRAMEWORK = dict(
+    DEFAULT_FILTER_BACKENDS=['django_filters.rest_framework.DjangoFilterBackend'],
+    DATE_INPUT_FORMATS=["%d/%m/%Y", ["%d-%m-%Y"]],
+    DATE_FORMAT="%d/%m/%Y",
+)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

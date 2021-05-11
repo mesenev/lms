@@ -17,9 +17,10 @@ class Course(models.Model):
 
 
 class CourseSchedule(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    start_date = models.DateField(null=True)
-    week_schedule = models.CharField(max_length=500, null=True)
+    course = models.OneToOneField(Course, on_delete=models.CASCADE, related_name='schedule')
+    start_date = models.DateField(null=True, )
+    week_schedule = models.JSONField(null=True, default=dict)
+    lessons = models.JSONField(null=True, default=dict)
 
 
 class CourseLink(models.Model):
