@@ -1,8 +1,5 @@
 version: "3.3"
 
-x-debuggable: &debuggable
-    stdin_open: true
-    tty: true
 
 services:
     nginx:
@@ -10,14 +7,25 @@ services:
         image: nginx:1.17-alpine
         restart: on-failure
         volumes:
-            - "../.:/application"
             - "./conf/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
             - "./conf/nginx/common.conf:/etc/nginx/common.conf:ro"
             - "./conf/nginx/server.conf:/etc/nginx/server.conf:ro"
-        ports:
-            - "8000:80"
+            -   type: volume
+                source: v-static
+                target: /application/static
+                read_only: true
+                volume:
+                    nocopy: true
+            -   type: volume
+                source: v-media
+                target: /application/media
+                read_only: true
+                volume:
+                    nocopy: true
         networks:
             - nginx-net
+        ports:
+            - "8000:80"
         depends_on:
             - backend
 
@@ -29,6 +37,7 @@ services:
         volumes:
             - "./conf/postgres:/docker-entrypoint-initdb.d"
             - "./conf/postgres/postgresql.conf:/etc/postgresql/postgresql.conf"
+            - "v-database:/var/lib/postgresql/data"
         networks:
             - db-net
         ports:
@@ -40,10 +49,10 @@ services:
             context: ../.
             dockerfile: ./.docker/Dockerfile
         image: backend:latest
-        command: "sh /application/.docker/conf/gunicorn/django-dev.sh"
-        <<: *debuggable
+        command: "sh /application/.docker/conf/gunicorn/django.sh"
         volumes:
-            - "../.:/application"
+            - v-media:/application/media
+            - v-static:/application/static
         working_dir: /application
         depends_on:
             - database
@@ -57,6 +66,7 @@ services:
         networks:
             - db-net
             - nginx-net
+
 
     redis:
         container_name: redis
@@ -80,7 +90,17 @@ services:
             - redis
             - backend
 
-
 networks:
     db-net:
     nginx-net:
+
+volumes:
+    v-database:
+    v-redis:
+    v-static:
+    v-media:
+        driver: local
+        driver_opts:
+            type: 'none'
+            o: 'bind'
+            device: 'media'
