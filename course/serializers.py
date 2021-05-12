@@ -23,6 +23,9 @@ class CourseSerializer(DynamicFieldsModelSerializer):
     author = DefaultUserSerializer(required=False, read_only=True)
     lessons = LessonShortSerializer(many=True, read_only=True)
     students = DefaultUserSerializer(many=True, required=False, read_only=True)
+    schedule = serializers.PrimaryKeyRelatedField(
+        read_only=True, required=False
+    )
 
     def validate_author(self, value):
         return
