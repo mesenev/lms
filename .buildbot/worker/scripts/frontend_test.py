@@ -4,10 +4,8 @@ import subprocess
 
 def build_message(code):
     if code:
-        return f'<b>npm run test:unit</b> failed \
-        {random.choice(["🤦", "🤢"])}. Go and fix it!'
-    return f'<b>npm run test:unit</b> was successful! \
-        {random.choice(["🚀🎉", "💅💃"])}\n Gj, gl and proceed.'
+        return f'<b>npm run test:unit</b> failed'
+    return f'<b>npm run test:unit</b> was successful!'
 
 
 def test_frontend():
