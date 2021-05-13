@@ -19,7 +19,7 @@ def deploy_backend():
         [
             "docker-compose",
             "-f",
-            ".docker/docker-compose.yml",
+            ".docker/docker-compose.prod.yml",
             "up",
             "--detach",
             "database"
@@ -32,7 +32,7 @@ def deploy_backend():
         [
             "docker-compose",
             "-f",
-            ".docker/docker-compose.yml",
+            ".docker/docker-compose.prod.yml",
             "up",
             "--detach",
         ]).returncode
@@ -44,7 +44,7 @@ def deploy_backend():
         [
             "docker-compose",
             "-f",
-            ".docker/docker-compose.yml",
+            ".docker/docker-compose.prod.yml",
             "exec",
             "-T",
             "backend",
@@ -61,7 +61,7 @@ def deploy_backend():
         [
             "docker-compose",
             "-f",
-            ".docker/docker-compose.yml",
+            ".docker/docker-compose.prod.yml",
             "exec",
             "-T",
             "backend",

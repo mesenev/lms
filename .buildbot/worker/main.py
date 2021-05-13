@@ -35,8 +35,10 @@ if __name__ == '__main__':
         if message:
             result_message += '\n' + message
         if step_result:
+            result_message = '❌' + result_message
             break
     if not step_result:
+        result_message = '✅' + result_message
         result_message += '\n' + f'Well done. All systems operational. {random.choice(["🚀🎉", "💅💃"])}'
     print(result_message)
     bot = telegram.Bot(token=BOT_TOKEN)

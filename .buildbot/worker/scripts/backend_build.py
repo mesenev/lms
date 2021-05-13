@@ -13,7 +13,7 @@ def build_backend():
         [
             "docker-compose",
             "-f",
-            ".docker/docker-compose.yml",
+            ".docker/docker-compose.prod.yml",
             "build"
         ]).returncode
     return exec_code, build_message(exec_code)

@@ -12,7 +12,7 @@ def test_backend():
         [
             'docker-compose',
             '-f',
-            '.docker/docker-compose.yml',
+            ".docker/docker-compose.prod.yml",
             'run',
             'backend',
             'python',
