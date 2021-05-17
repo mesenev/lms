@@ -39,7 +39,6 @@ import SubmitStatus from '@/components/SubmitStatus.vue';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import ProblemModel from "@/models/ProblemModel";
 import problemStore from '@/store/modules/problem';
-import { Route } from 'vue-router';
 
 @Component({ components: { SubmitStatus } })
 export default class UserProblemsListComponent extends Vue {
@@ -55,11 +54,11 @@ export default class UserProblemsListComponent extends Vue {
     this.loading = false;
   }
 
-  linkRoute(data: ProblemModel): Route {
+  linkRoute(data: ProblemModel) {
     const params = {
       courseId: this.$route.params.courseId,
-      lessonId: data.lesson,
-      problemId: data.id,
+      lessonId: Number(data.lesson).toString(),
+      problemId: data.id.toString(),
     };
     if (!data.last_submit) {
       return {
@@ -68,7 +67,7 @@ export default class UserProblemsListComponent extends Vue {
     }
     return {
       name: 'ProblemViewWithSubmit', params: {
-        ...params, submitId: data.last_submit.id.toString(),
+        ...params, submitId: Number(data.last_submit.id).toString(),
       },
     };
   }

@@ -60,8 +60,7 @@ import UserComponent from '@/components/UserComponent.vue';
 
 @Component({
   components: {
-    UserProblemsListComponent, LessonListComponent,
-    UserProblemsListComponent, UserComponent,
+    UserProblemsListComponent, LessonListComponent, UserComponent,
   },
 })
 export default class CourseView extends Vue {
