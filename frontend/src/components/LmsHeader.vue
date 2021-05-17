@@ -156,19 +156,19 @@ export default class LmsHeader extends Vue {
   user = userStore.user;
 
   get courseSelected(): boolean {
-    return this.$route.params.hasOwnProperty('courseId');
+    return Number.isInteger(this.$route.params.hasOwnProperty('courseId'));
   }
 
   get lessonSelected(): boolean {
-    return this.$route.params.hasOwnProperty('lessonId');
+    return Number.isInteger(this.$route.params.hasOwnProperty('lessonId'));
   }
 
   get problemSelected(): boolean {
-    return this.$route.params.hasOwnProperty('problemId');
+    return Number.isInteger(this.$route.params.hasOwnProperty('problemId'));
   }
 
   get materialSelected(): boolean {
-    return this.$route.params.hasOwnProperty('materialId');
+    return Number.isInteger(this.$route.params.hasOwnProperty('materialId'));
   }
 
   get isStaff(): boolean {
