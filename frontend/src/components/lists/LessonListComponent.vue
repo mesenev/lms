@@ -1,11 +1,13 @@
 <template>
-  <cv-link :to="openLesson" class="course" v-on:click="openLesson">
+  <cv-link :to="openLesson" class="lesson" v-bind:class="{ 'lesson--hidden': lessonProp.is_hidden, }"
+           v-on:click="openLesson"
+  >
     <cv-structured-list-data class="title">
       <h5>{{ lesson.name }}</h5>
       <span>Дедлайн: {{ lesson.deadline }}</span>
       <span v-if="courseStore.is_staff" class="span--hidden">
         {{ (lessonProp.is_hidden) ? "Урок скрыт " : "Урок доступен" }}
-        <view-off-icon v-if="lessonProp.is_hidden" class="view-off-icon"/>
+        <view-off-icon v-if="lessonProp.is_hidden"/>
         <view-icon v-else/>
       </span>
     </cv-structured-list-data>
@@ -44,23 +46,19 @@ export default class LessonListComponent extends Vue {
 </script>
 
 <style scoped lang="stylus">
-.view-off-icon
-  margin-top 1rem
 
-.course
-  display flex
-  flex-direction row
-  justify-content space-between
+.lesson
+  text-decoration none
+  color black
+  width 100%
 
-.span--hidden
-  font-size small
-  align-content center
+
+.lesson--hidden
+  opacity 0.7
 
 .title
   display flex
   flex-direction column
 
-.cv-link:hover
-  text-decoration none
 
 </style>
