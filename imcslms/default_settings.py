@@ -25,7 +25,7 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = dict(
     DEFAULT_FILTER_BACKENDS=['django_filters.rest_framework.DjangoFilterBackend'],
-    DATE_INPUT_FORMATS=["%d/%m/%Y", ["%d-%m-%Y"]],
+    DATE_INPUT_FORMATS=["%d/%m/%Y", "%Y-%m-%d"],
     DATE_FORMAT="%d/%m/%Y",
 )
 
