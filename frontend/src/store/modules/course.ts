@@ -64,7 +64,7 @@ class CourseModule extends VuexModule {
   @Action
   async fetchCourseScheduleByCourseId(id: number): Promise<CourseScheduleModel> {
     let answer = { data: {} };
-    await axios.get(`/api/course-schedule/by_course/${id}/`)
+    await axios.get(`/api/course-schedule/by-course/${id}/`)
       .then(response => answer = response)
       .catch(error => {
         console.log(error);

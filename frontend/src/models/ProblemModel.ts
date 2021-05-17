@@ -12,4 +12,5 @@ export default interface ProblemModel extends BaseModel {
   language: Array<string> | null; //Todo : fix this
   students?: {};
   submits?: Array<SubmitModel>;
+  last_submit?: SubmitModel;
 }

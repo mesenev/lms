@@ -32,6 +32,22 @@ class SubmitListSerializer(serializers.ModelSerializer):
         fields = ['id', 'problem', 'student', 'status', 'created_at', ]
 
 
+class ProblemListSerializer(serializers.ModelSerializer):
+    last_submit = serializers.SerializerMethodField()
+
+    def get_last_submit(self, instance):
+        if len(instance.last_submit) > 0:
+            return SubmitListSerializer(instance.last_submit[0]).data
+        else:
+            return None
+
+    class Meta:
+        model = Problem
+        fields = (
+            'id', 'name', 'last_submit', 'lesson'
+        )
+
+
 class ProblemSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
     lesson = serializers.PrimaryKeyRelatedField(queryset=Lesson.objects.all())

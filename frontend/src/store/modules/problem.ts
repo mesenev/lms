@@ -2,10 +2,10 @@ import CatsProblemModel from '@/models/CatsProblemModel';
 import ProblemModel from '@/models/ProblemModel';
 import store from '@/store';
 import axios from 'axios';
-import {Dictionary} from 'vue-router/types/router';
-import {Action, getModule, Module, Mutation, VuexModule} from 'vuex-module-decorators';
+import { Dictionary } from 'vue-router/types/router';
+import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
-@Module({namespaced: true, name: 'problem', store, dynamic: true})
+@Module({ namespaced: true, name: 'problem', store, dynamic: true })
 class ProblemModule extends VuexModule {
 
   problemsByLesson: Dictionary<ProblemModel[]> = {};
@@ -26,7 +26,7 @@ class ProblemModule extends VuexModule {
 
   @Mutation
   setProblems(payload: Dictionary<ProblemModel[]>) {
-    this.problemsByLesson = {...this.problemsByLesson, ...payload};
+    this.problemsByLesson = { ...this.problemsByLesson, ...payload };
   }
 
   @Action
@@ -42,7 +42,7 @@ class ProblemModule extends VuexModule {
 
   @Action
   async fetchProblemById(problemId: number): Promise<ProblemModel> {
-    let answer = {data: {}};
+    let answer = { data: {} };
     await axios.get(`/api/problem/${problemId}/`)
       .then(response => answer = response)
       .catch(error => {
@@ -53,7 +53,7 @@ class ProblemModule extends VuexModule {
 
   @Action
   async fetchCatsProblemById(catsId: number): Promise<CatsProblemModel> {
-    let answer = {data: {}};
+    let answer = { data: {} };
     await axios.get(`/api/cats-problem/${catsId}/`)
       .then(response => answer = response)
       .catch(error => {
@@ -73,20 +73,26 @@ class ProblemModule extends VuexModule {
     if (id in this.problemsByLesson) {
       return this.problemsByLesson[id];
     }
-    let answer = {data: {}};
-    await axios.get('/api/problem/', {params: {lesson_id: id}})
+    let answer = { data: {} };
+    await axios.get('/api/problem/', { params: { lesson_id: id } })
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
       })
     const result = answer.data as Array<ProblemModel>;
-    this.setProblems({[id]: result})
+    this.setProblems({ [id]: result })
     return result;
   }
 
   @Action
-  async fetchProblemsByUserId(): Promise<string[]> {
-    return ['problem1', 'problem2', 'problem3'];
+  async fetchProblemsForCourse(course_id: number): Promise<ProblemModel[]> {
+    let answer = { data: {} };
+    await axios.get(`/api/problem/by-course/${course_id}/`)
+      .then(response => answer = response)
+      .catch(error => {
+        console.log(error);
+      })
+    return answer.data as Array<ProblemModel>;
   }
 }
 

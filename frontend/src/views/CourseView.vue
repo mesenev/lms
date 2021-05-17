@@ -36,7 +36,10 @@
         </cv-structured-list>
       </div>
       <div v-if="!isStaff" class="submits bx--col-lg-4">
-        <SolutionsBarView :course-id="course.id" :user-id="user.id"/>
+        <user-problems-list-component :course-id="course.id"/>
+      </div>
+      <div v-if="isStaff" class="submits bx--col-lg-4">
+        <!--        <user-submits-list-component :course-id="course.id"/>-->
       </div>
     </div>
   </div>
@@ -51,13 +54,18 @@ import LessonModel from "@/models/LessonModel";
 import courseStore from "@/store/modules/course";
 import lessonStore from "@/store/modules/lesson";
 import userStore from '@/store/modules/user';
-import {Component, Prop, Vue} from 'vue-property-decorator';
-import SolutionsBarView from "@/views/management/SolutionsBarView.vue"
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import UserProblemsListComponent from "@/components/UserProblemsListComponent.vue"
 import UserComponent from '@/components/UserComponent.vue';
 
-@Component({components: {LessonListComponent, SolutionsBarView, UserComponent}})
+@Component({
+  components: {
+    UserProblemsListComponent, LessonListComponent,
+    UserProblemsListComponent, UserComponent,
+  },
+})
 export default class CourseView extends Vue {
-  @Prop({required: true}) courseId!: number;
+  @Prop({ required: true }) courseId!: number;
   courseStore = courseStore;
   lessonStore = lessonStore;
   searchValue = "";
@@ -97,12 +105,6 @@ export default class CourseView extends Vue {
 </script>
 
 <style scoped lang="stylus">
-
-svg.bx--search-magnifier
-  margin-right 0.5rem
-
-.search
-  margin-top 1rem
 
 .submits-title
   margin-left 1rem

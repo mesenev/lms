@@ -1,9 +1,9 @@
 import django_filters
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
+from django.db import models
 from django.db.models import Q
 from rest_framework import viewsets
-from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.decorators import api_view, renderer_classes, action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -12,7 +12,7 @@ from cathie.cats_api import cats_get_problem_description_by_url
 from course.models import Course
 from lesson.models import Lesson
 from problem.models import Problem, Submit, CatsSubmit
-from problem.serializers import ProblemSerializer, SubmitSerializer, SubmitListSerializer
+from problem.serializers import ProblemSerializer, SubmitSerializer, SubmitListSerializer, ProblemListSerializer
 from users.models import User
 
 
@@ -20,6 +20,29 @@ class ProblemViewSet(viewsets.ModelViewSet):
     serializer_class = ProblemSerializer
     queryset = Problem.objects.all()
     filterset_fields = ['lesson_id', ]
+
+    @action(detail=False, url_path='by-course/(?P<course_id>\d+)')
+    def by_course(self, request, course_id):
+        submits = request.user.submits.annotate(
+            ordering=models.Case(
+                models.When(status="OK", then=models.Value(0)),
+                models.When(status="AW", then=models.Value(1)),
+                default=models.Value(2),
+                output_field=models.IntegerField()
+            )
+        ).order_by('problem', 'ordering', '-id').distinct('problem')
+        queryset = self.queryset.filter(
+            lesson__course=course_id
+        ).exclude(
+            submits__status__in=[
+                Submit.AWAITING_MANUAL,
+                Submit.OK,
+                Submit.DEFAULT_STATUS
+            ]
+        ).prefetch_related(models.Prefetch(lookup='submits', to_attr='last_submit', queryset=submits))
+        serializer = ProblemListSerializer(queryset, many=True)
+
+        return Response(serializer.data)
 
 
 class StandardResultsSetPagination(PageNumberPagination):
