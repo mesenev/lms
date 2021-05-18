@@ -5,11 +5,12 @@ import store from '@/store';
 import userStore from '@/store/modules/user';
 import CarbonComponentsVue from '@carbon/vue/src/index';
 import axios from 'axios';
-import Clipboard from 'v-clipboard';
 import Vue from 'vue';
+import VueClipboard from 'vue-clipboard2'
 
-Vue.use(Clipboard);
+Vue.use(VueClipboard)
 Vue.use(CarbonComponentsVue);
+VueClipboard.config.autoSetContainer = true
 
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 axios.defaults.xsrfCookieName = 'csrftoken';

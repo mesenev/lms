@@ -77,7 +77,7 @@ export default class LinksManagerComponent extends Vue {
   }
 
   copyLink(link: string) {
-    this.$clipboard(axios.defaults.baseURL + '/course-registration/' + link);
+    this.$copyText(axios.defaults.baseURL + '/course-registration/' + link);
   }
 
 }
