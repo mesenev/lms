@@ -14,8 +14,10 @@
       <template slot="content">
         <cv-structured-list>
           <template slot="headings">
-            <cv-structured-list-heading>Выбор</cv-structured-list-heading>
-            <cv-structured-list-heading>ФИО преподавателя</cv-structured-list-heading>
+            <cv-search
+              label="label"
+              placeholder="search"
+              v-model.trim="searchValue"/>
           </template>
           <template slot="items">
             <cv-structured-list-item v-for="k in teachersArray" :key="k.id" checked>
@@ -25,7 +27,7 @@
                   v-on:click="actionSelected(k)">
                 </cv-checkbox>
               </cv-structured-list-data>
-              <cv-structured-list-data>{{ k.first_name }} {{ k.last_name }}</cv-structured-list-data>
+              <cv-structured-list-data>{{k.username}} </cv-structured-list-data>
             </cv-structured-list-item>
           </template>
         </cv-structured-list>
@@ -40,24 +42,30 @@ import NotificationMixinComponent from '@/components/common/NotificationMixinCom
 import UserModel from "@/models/UserModel";
 import userStore from '@/store/modules/user';
 
-import { Component } from 'vue-property-decorator';
+import {Component, Watch} from 'vue-property-decorator';
+import axios from "axios";
 
 @Component({})
 export default class AddTeacherModal extends NotificationMixinComponent {
-
-  fetchingLessons = true;
+  searchValue = "";
+  @Watch('searchValue')
+  async onSearchBarChange(val: string, oldVal: string) {
+    if (val.length >= 4) {
+      await axios.get(
+        `/api/teachersbymail/${this.searchValue}/`
+      ).then(response => {
+        this.teachersArray = response.data;
+        },
+      ).catch(error => {
+        console.log(error);
+      })
+    }
+  };
   selectedNew = false;
   userStore = userStore;
-  creationLoader = false;
   teachersArray: UserModel[] = [];
   pickedTeachers: UserModel[] = [];
   modalVisible = false;
-
-  created() {
-    if (this.userStore.user.staff_for.length != 0) {
-      this.teachersArray.push(this.userStore.user);
-    }
-  }
 
   appendTeachers(teacher: UserModel) {
     this.pickedTeachers.push(teacher);

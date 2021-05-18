@@ -80,19 +80,12 @@ export default class LinksManagerComponent extends Vue {
     this.$clipboard(axios.defaults.baseURL + '/course-registration/' + link);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  $clipboard(arg0: string) {
-    throw new Error("Method not implemented.");
-  }
-
 }
 </script>
 
 <style scoped lang="stylus">
 .generate-btn
   display inline-block
-
-
 
 .main
   margin-top 1rem

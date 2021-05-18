@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.core import exceptions
 from django.forms import Form, CharField, PasswordInput
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from rest_framework.decorators import api_view, renderer_classes
@@ -14,6 +14,7 @@ from rest_framework.mixins import (
 )
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
@@ -75,6 +76,17 @@ def students_for_course(request: HttpRequest, course_id):
         .all().values_list('id', 'username', 'first_name', 'middle_name', 'last_name', 'avatar_url')
     return Response(list(queryset))
 
+
+@login_required
+@api_view(['GET'])
+@renderer_classes([JSONRenderer])
+def find_teacher_by_email(request: HttpRequest, email):
+        queryset = User.objects.filter(email__startswith=email).all()
+        serializer = DefaultUserSerializer(queryset, many=True)
+        if len(serializer.data) != 0:
+            return Response(serializer.data)
+        else:
+            return HttpResponse("No matched")
 
 @login_required
 @api_view(['GET'])
