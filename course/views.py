@@ -75,8 +75,6 @@ def __check(link, user_id):
         if not answer['usages_available']:
             answer.update(dict(link_exists=False, is_possible=False))
 
-    # TODO: if needed - prettify that expression
-
     except CourseLink.DoesNotExist:
         answer.update(dict(link_exists=False, is_possible=False))
         return Response(answer)

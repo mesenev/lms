@@ -18,7 +18,8 @@ from rest_framework.request import Request
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
-from users.models import User
+from course.models import Course
+from users.models import User, CourseAssignTeacher
 from users.serializers import DefaultUserSerializer
 
 
@@ -80,13 +81,29 @@ def students_for_course(request: HttpRequest, course_id):
 @login_required
 @api_view(['GET'])
 @renderer_classes([JSONRenderer])
-def find_teacher_by_email(request: HttpRequest, email):
-        queryset = User.objects.filter(email__startswith=email).all()
+def find_teacher_by_email(request: HttpRequest, course_id, email):
+        queryset = User.objects.filter(email__startswith=email).exclude(staff_for__id=course_id).all()
         serializer = DefaultUserSerializer(queryset, many=True)
         if len(serializer.data) != 0:
             return Response(serializer.data)
         else:
-            return HttpResponse("No matched")
+            return HttpResponse("No match found :(")
+
+@login_required
+@api_view(['POST'])
+@renderer_classes([JSONRenderer])
+def assign_teacher(request, course_id):
+    course = Course.objects.get(id=course_id)
+    print(request.data)
+    for user in request.data:
+        user_data = DefaultUserSerializer(instance=user).data
+        print(user_data)
+        #assignment = CourseAssignTeacher(course=course, user=user_data)
+        #assignment.save()
+
+        #TODO: make request.data users from json to User model
+
+    return Response(request.data)
 
 @login_required
 @api_view(['GET'])

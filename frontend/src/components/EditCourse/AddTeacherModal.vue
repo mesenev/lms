@@ -29,6 +29,15 @@
               </cv-structured-list-data>
               <cv-structured-list-data>{{k.username}} </cv-structured-list-data>
             </cv-structured-list-item>
+            <cv-button
+              disabled="True"
+              v-if="pickedTeachers.length === 0">
+                Подтвердить выбор
+            </cv-button>
+            <cv-button v-else
+            v-on:click="addStuff()">
+              Подтвердить выбор
+            </cv-button>
           </template>
         </cv-structured-list>
       </template>
@@ -42,19 +51,25 @@ import NotificationMixinComponent from '@/components/common/NotificationMixinCom
 import UserModel from "@/models/UserModel";
 import userStore from '@/store/modules/user';
 
-import {Component, Watch} from 'vue-property-decorator';
+import {Component, Prop, Watch} from 'vue-property-decorator';
 import axios from "axios";
 
 @Component({})
 export default class AddTeacherModal extends NotificationMixinComponent {
+  @Prop({required: true}) courseId!: number;
   searchValue = "";
   @Watch('searchValue')
-  async onSearchBarChange(val: string, oldVal: string) {
+  async onSearchBarChange(val: string) {
+    console.log(this.courseId)
     if (val.length >= 4) {
       await axios.get(
-        `/api/teachersbymail/${this.searchValue}/`
+        `/api/teachersbymail/${this.courseId}/${this.searchValue}/`
       ).then(response => {
-        this.teachersArray = response.data;
+        if (response.data == "No match found :("){
+        } else {
+          this.teachersArray = response.data;
+          console.log(this.teachersArray[0].staff_for)
+        }
         },
       ).catch(error => {
         console.log(error);
@@ -67,10 +82,6 @@ export default class AddTeacherModal extends NotificationMixinComponent {
   pickedTeachers: UserModel[] = [];
   modalVisible = false;
 
-  appendTeachers(teacher: UserModel) {
-    this.pickedTeachers.push(teacher);
-    console.log(this.pickedTeachers)
-  }
 
   showModal() {
     this.modalVisible = true;
@@ -78,6 +89,17 @@ export default class AddTeacherModal extends NotificationMixinComponent {
 
   modalHidden() {
     this.modalVisible = false;
+  }
+
+  addStuff() {
+    console.log(this.pickedTeachers)
+    axios.post(`/api/assignteacher/${this.courseId}/`, this.pickedTeachers)
+      .then(response => {
+        console.log(response.data)
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
   actionSelected(user: UserModel) {

@@ -52,8 +52,6 @@ export default class MaterialView extends Vue {
     return this.materialStore.currentMaterialUrl;
   }
 
-  function
-
   youTubeGetID(url) {
     let ID = '';
     url = url.replace(/(>|<)/gi, '').split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/);

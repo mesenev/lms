@@ -44,7 +44,8 @@
           <h4 class="add-teacher">
             Добавить преподавателя
           </h4>
-          <AddTeacherModal class="choose--teacher"/>
+          <AddTeacherModal class="choose--teacher"
+                           :courseId="courseId"/>
         </div>
         <div class="link">
           <h4 class="create-link">Создать ссылку-приглашение</h4>
