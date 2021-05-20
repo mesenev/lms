@@ -26,6 +26,16 @@ class MaterialModule extends VuexModule {
     return this._currentMaterial;
   }
 
+  get currentMaterialType() {
+    return this._currentMaterial.content_type;
+  }
+
+  get currentMaterialUrl() {
+    if (this.currentMaterialType === 'video') {
+      return this._currentMaterial.content;
+    }
+  }
+
   get getNewMaterial(): MaterialModel {
     return {
       id: NaN,
