@@ -34,6 +34,7 @@ class MaterialModule extends VuexModule {
     if (this.currentMaterialType === 'video') {
       return this._currentMaterial.content;
     }
+    return undefined;
   }
 
   get getNewMaterial(): MaterialModel {
