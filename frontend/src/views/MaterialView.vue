@@ -7,7 +7,7 @@
         </cv-tile>
       </div>
       <div v-if="isMaterialAVideo" class="video bx--col-lg-10">
-        <youtube :video-id="getVideoId"
+        <youtube :video-id="youTubeGetID"
                  ref="youtube"
                  player-width="980"
                  player-height="480"></youtube>
@@ -37,10 +37,6 @@ export default class MaterialView extends Vue {
   material!: MaterialModel;
 
 
-  get getVideoId() {
-    return this.youTubeGetID(this.materialUrl)
-  }
-
   async created() {
     const material = await this.materialStore.fetchMaterialById(this.materialId);
     if (material) {
@@ -52,7 +48,8 @@ export default class MaterialView extends Vue {
     return this.materialStore.currentMaterialUrl;
   }
 
-  youTubeGetID(url) {
+  get youTubeGetID() {
+    let url = this.materialUrl;
     let ID = '';
     url = url.replace(/(>|<)/gi, '').split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/);
     if (url[2] !== undefined) {
