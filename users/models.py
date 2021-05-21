@@ -61,5 +61,10 @@ class CourseAssignTeacher(models.Model):
     course = models.ForeignKey('course.Course', on_delete=models.CASCADE, null=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
 
+    class Meta:
+        unique_together = ('course', 'user',)
+
 
 admin.site.register(User)
+admin.site.register(CourseAssignStudent)
+admin.site.register(CourseAssignTeacher)
