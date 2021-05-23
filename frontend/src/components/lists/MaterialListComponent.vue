@@ -1,7 +1,7 @@
 <template>
   <cv-structured-list-data class="material">
-    <VideoChat24 v-if="this.materialProp.content_type === 'video'" class="icon_video"/>
-    <Document24 v-else class="icon_text"/>
+    <VideoChat24 @click="openMaterial" v-if="this.materialProp.content_type === 'video'" class="icon"/>
+    <Document24 @click="openMaterial" v-else class="icon"/>
     <p @click="openMaterial">{{ material.name }}</p>
   </cv-structured-list-data>
 </template>
@@ -37,12 +37,13 @@ export default class MaterialListComponent extends Vue {
   align-items center
   padding 0.5rem 0 0.5rem 1rem
 
-  .icon_video
+  .icon
     margin-right 0.5rem
+    cursor pointer
 
-  .icon_text
+  .icon
     margin-right 0.5rem
-    size 1rem
+    cursor pointer
 
   p
     display inline-flex
