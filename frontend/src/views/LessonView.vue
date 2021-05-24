@@ -125,7 +125,7 @@ export default class LessonView extends Vue {
   }
 
   get isMaterialsEmpty() {
-    return this.material.length === 0;
+    return !this.material.length
   }
 
   get isStaff(): boolean {
