@@ -1,13 +1,12 @@
 <template>
-  <div>
+  <div v-if="loading">
+    <cv-loading/>
+  </div>
+  <div v-else>
     <cv-structured-list class="sent">
       <template slot="headings">
         <cv-structured-list-heading class="headings">
-          <span>Решений: {{ successful.concat(testing).concat(wrong).length }}</span>
           <div class="stats">
-            <stats-graph
-              :size="usersWithSubmits.size" :successful="successful.length"
-              :testing="testing.length" :wrong="wrong.length"/>
             <span>Зачтено: {{ successful.length }}</span>
             <span>Ждут проверки: {{ testing.length }}</span>
             <span>Неправильно: {{ wrong.length }}</span>
@@ -65,6 +64,7 @@ export default class ProblemStats extends Vue {
   @Prop({ required: true }) problem!: ProblemModel;
   userStore = userStore;
   courseStore = courseStore;
+  loading = true;
 
   usersWithSubmits: Set<string> = new Set(Object.keys(this.problem.students || ''));
   success_or_last_submits: Array<SubmitModel> = Object.values(this.problem.students || '');

@@ -22,5 +22,6 @@ export const statusAssociations: { [index: string]: string } = {
 export const graphColor: { [index: string]: string } = {
   'successful': statusAssociations['OK'],
   'testing': statusAssociations['NP'],
-  'wrong': statusAssociations['WA']
+  'wrong': statusAssociations['WA'],
+  'noSolution': statusAssociations['default'],
 }

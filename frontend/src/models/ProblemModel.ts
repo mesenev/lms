@@ -1,6 +1,13 @@
 import { BaseModel } from '@/models/BaseModel';
 import SubmitModel from '@/models/SubmitModel';
 
+
+export interface ProblemStatsModel {
+  green: number;
+  yellow: number;
+  red: number;
+}
+
 export default interface ProblemModel extends BaseModel {
   lesson: number;
   type: string;
@@ -13,4 +20,5 @@ export default interface ProblemModel extends BaseModel {
   students?: {};
   submits?: Array<SubmitModel>;
   last_submit?: SubmitModel;
+  stats?: ProblemStatsModel;
 }

@@ -1,46 +1,68 @@
 <template xmlns:cv-tag="http://www.w3.org/1999/html">
-  <!--TODO: padding for status of lesson and fix the the router open the same problem -->
   <cv-accordion-item class="accordion" :class="{ doNotShowAccordionContent: !isStaff }">
     <template slot="title">
-      <cv-link
-        :to="{ name: 'ProblemView', params: { problemId: this.problem.id.toString() } }"
-        class="title">
+      <div class="problem-list-component--header">
+        <cv-link :to="target">
+          <Launch/>
+        </cv-link>
         {{ problem.name }}
         <div class="tags" v-if="!isStaff">
           <submit-status v-if="!!lastSubmit" :submit="lastSubmit"/>
           <cv-tag v-else kind="red" label="Не сдано"/>
         </div>
-      </cv-link>
+        <div v-else>
+          <stats-graph v-if="problem.stats" :stats="problem.stats"/>
+        </div>
+      </div>
     </template>
     <template slot="content">
-      <problem-stats v-if="isStaff" :problem="problemProp"/>
+      <problem-stats v-if="isStaff && open" :problem="problem"/>
     </template>
   </cv-accordion-item>
 </template>
 
 <script lang="ts">
 import ProblemStats from '@/components/ProblemStats.vue';
+import StatsGraph from '@/components/StatsGraph.vue';
 import SubmitStatus from "@/components/SubmitStatus.vue";
 import ProblemModel from '@/models/ProblemModel';
 import SubmitModel from "@/models/SubmitModel";
+import Launch from '@carbon/icons-vue/es/launch/16';
 
-import userStore from '@/store/modules/user'
+import userStore from '@/store/modules/user';
+import courseStore from '@/store/modules/course';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: { ProblemStats, SubmitStatus } })
+@Component({ components: { ProblemStats, SubmitStatus, Launch, StatsGraph } })
 export default class ProblemListComponent extends Vue {
   @Prop() problemProp!: ProblemModel;
+  @Prop() isOpen!: boolean;
 
-  userStore = userStore
+  userStore = userStore;
+  courseStore = courseStore;
+
+  get open() {
+    return this.isOpen;
+  }
 
   get lastSubmit(): SubmitModel | null {
-    // return this.problemProp.success_or_last_submits
-    //   .find((submit: SubmitModel) => submit.student === userStore.user.id)
     return null;
+  }
+
+  get target() {
+    return { name: 'ProblemView', params: { problemId: this.problem.id.toString() } };
   }
 
   get problem() {
     return this.problemProp;
+  }
+
+  created() {
+    this.$on('cv:change', this.eventHandler);
+  }
+
+  eventHandler(event: object) {
+    this.isOpen = !this.isOpen;
   }
 
   get isStaff(): boolean {
@@ -49,7 +71,6 @@ export default class ProblemListComponent extends Vue {
   }
 }
 </script>
-<!-- TODO: Prop -->
 <style scoped lang="stylus">
 .aw
   text-align right
@@ -57,15 +78,5 @@ export default class ProblemListComponent extends Vue {
 .accordion /deep/ .bx--accordion__content
   padding-right 0
 
-.title
-  display flex
-  align-items center
-  justify-content space-between
-  text-decoration none
-
-.doNotShowAccordionContent
-  /deep/ .bx--accordion__content,
-  /deep/ .bx--accordion__arrow
-    display none
 
 </style>

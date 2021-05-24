@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.db import models
-
 from lesson.models import Lesson
 from users.models import User
 
@@ -39,6 +38,13 @@ class Problem(models.Model):
     cats_material_url = models.URLField(null=False)
     students = models.ManyToManyField(through='problem.Submit', related_name='problems_with_submits', to=User)
     objects = ProblemManager()
+
+
+class ProblemStats(models.Model):
+    problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
+    green = models.IntegerField()
+    yellow = models.IntegerField()
+    red = models.IntegerField()
 
 
 class Submit(models.Model):

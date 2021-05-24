@@ -4,7 +4,7 @@
       <h1 class="title">Список курсов</h1>
     </div>
     <div class=" bx--row">
-      <div class="items bx--col-lg-8">
+      <div class="items bx--col-lg-7">
         <cv-search
           label="label"
           placeholder="search"

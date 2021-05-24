@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from lesson.models import Lesson
-from problem.models import Problem, Submit
+from problem.models import Problem, Submit, ProblemStats
 from users.serializers import DefaultUserSerializer
 
 
@@ -32,19 +32,31 @@ class SubmitListSerializer(serializers.ModelSerializer):
         fields = ['id', 'problem', 'student', 'status', 'created_at', ]
 
 
+class ProblemStatsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProblemStats
+        fields = ('green', 'red', 'yellow')
+
+
 class ProblemListSerializer(serializers.ModelSerializer):
     last_submit = serializers.SerializerMethodField()
+    stats = serializers.SerializerMethodField()
 
     def get_last_submit(self, instance):
-        if len(instance.last_submit) > 0:
+        if hasattr(instance, 'last_submit') and len(instance.last_submit) > 0:
             return SubmitListSerializer(instance.last_submit[0]).data
         else:
             return None
 
+    def get_stats(self, instance):
+        if hasattr(instance, 'stats') and instance.stats:
+            return ProblemStatsSerializer(instance.stats).data
+        return None
+
     class Meta:
         model = Problem
         fields = (
-            'id', 'name', 'last_submit', 'lesson'
+            'id', 'name', 'last_submit', 'lesson', 'type', 'stats'
         )
 
 

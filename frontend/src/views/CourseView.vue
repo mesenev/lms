@@ -7,22 +7,18 @@
       <cv-skeleton-text :width="'65%'" :heading="true"/>
     </div>
     <div class="description--container">
-        <span v-if="!loading">
-          {{ course.description }}
-        </span>
+      <span v-if="!loading"> {{ course.description }} </span>
       <cv-skeleton-text v-else width="'35%'"/>
     </div>
     <div class=" bx--row">
-      <div class="courses bx--col-lg-10">
+      <div class="courses bx--col-lg-7">
         <h4 class="lessons-title">Уроки</h4>
         <cv-search
           v-model.trim="searchValue"
           class="search"
           label="label"
           placeholder="search"
-          size="size"
-
-        />
+          size="size"/>
         <cv-data-table-skeleton v-if="loading" :columns="1" :rows="6"/>
         <cv-structured-list v-else>
           <template slot="items">

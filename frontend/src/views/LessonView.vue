@@ -10,29 +10,29 @@
         <cv-skeleton-text v-else width="'35%'"/>
         <div v-if="isStaff">
           <cv-button-skeleton v-if="changingVisibility || !this.lesson" kind="ghost"/>
-          <cv-button
-            v-else
-            :icon="hiddenIcon"
-            kind="ghost"
-            v-on:click="changeLessonVisibility">
+          <cv-button v-else
+                     :icon="hiddenIcon"
+                     kind="ghost"
+                     v-on:click="changeLessonVisibility">
             {{ (lesson.is_hidden) ? "Открыть урок" : "Скрыть урок" }}
           </cv-button>
         </div>
       </div>
     </div>
     <div class="bx--row content">
-      <div class="bx--col-lg-9 content-tasks">
+      <div class="bx--col-lg-7 content-tasks">
         <h2 class="content-tasks-title">Задачи урока</h2>
         <div v-if="isProblemsEmpty">
-          <h4 class="no-problems">В уроке пока нет задач.</h4>
+          <h4 class="no-problems">В уроке пока нет задач</h4>
         </div>
         <div class="content-tasks-problems">
           <div v-if="classwork.length > 0" class="classwork">
             <h4 class="classwork-title">Классная работа</h4>
             <div v-if="!loading">
-              <cv-accordion align="end"
-                            v-for="problem in classwork"
-                            :key="problem.id">
+              <cv-accordion
+                v-for="problem in classwork"
+                :key="problem.id"
+                align="end">
                 <problem-list-component :problem-prop="problem"/>
               </cv-accordion>
             </div>
@@ -47,8 +47,7 @@
                 align="end"
                 v-for="problem in homework"
                 :key="problem.id"
-                class="accordion"
-              >
+                class="accordion">
                 <problem-list-component :problem-prop="problem"/>
               </cv-accordion>
             </div>
@@ -71,18 +70,17 @@
           </div>
         </div>
       </div>
-      <div class="bx--col-lg-6 content-info">
+      <div class="bx--col-lg-4 content-info">
         <h2 class="content-info-title">Материалы</h2>
         <div v-if="isMaterialsEmpty">
-          <h4 class="no-problems">В уроке пока нет материалов.</h4>
+          <h4 class="no-problems">В уроке пока нет материалов</h4>
         </div>
         <div class="content-info-materials" v-if="!loading">
           <cv-structured-list class="list">
             <template slot="items">
               <cv-structured-list-item
                 v-for="material in materials"
-                :key="material.id"
-              >
+                :key="material.id">
                 <material-list-component :material-prop="material"/>
               </cv-structured-list-item>
             </template>

@@ -13,7 +13,7 @@
       </cv-column>
     </cv-row>
     <cv-row>
-      <cv-column :lg="10">
+      <cv-column :lg="7">
         <div class="solution-container item">
           <submit-component
             v-if="problem"

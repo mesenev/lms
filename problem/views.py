@@ -1,7 +1,7 @@
 import django_filters
 from django.contrib.auth.decorators import login_required
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, renderer_classes, action
 from rest_framework.pagination import PageNumberPagination
@@ -11,15 +11,33 @@ from rest_framework.response import Response
 from cathie.cats_api import cats_get_problem_description_by_url
 from course.models import Course
 from lesson.models import Lesson
-from problem.models import Problem, Submit, CatsSubmit
+from problem.models import Problem, Submit, CatsSubmit, ProblemStats
 from problem.serializers import ProblemSerializer, SubmitSerializer, SubmitListSerializer, ProblemListSerializer
 from users.models import User
 
 
 class ProblemViewSet(viewsets.ModelViewSet):
-    serializer_class = ProblemSerializer
     queryset = Problem.objects.all()
     filterset_fields = ['lesson_id', ]
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return ProblemListSerializer
+        return ProblemSerializer
+
+    def list(self, request, *args, **kwargs):
+        stats_query = ProblemStats.objects.filter(problem__lesson__course__staff=request.user)
+        queryset = self.filter_queryset(self.get_queryset().prefetch_related(
+            Prefetch(lookup='problemstats', to_attr='stats', queryset=stats_query)
+        ))
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     @action(detail=False, url_path='by-course/(?P<course_id>\d+)')
     def by_course(self, request, course_id):
@@ -40,7 +58,7 @@ class ProblemViewSet(viewsets.ModelViewSet):
                 Submit.DEFAULT_STATUS
             ]
         ).prefetch_related(models.Prefetch(lookup='submits', to_attr='last_submit', queryset=submits))
-        serializer = ProblemListSerializer(queryset, many=True)
+        serializer = ProblemListSerializer(list(queryset)[:5], many=True)
 
         return Response(serializer.data)
 

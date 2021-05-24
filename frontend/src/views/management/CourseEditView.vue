@@ -82,9 +82,13 @@ import courseStore from "@/store/modules/course";
 import userStore from '@/store/modules/user';
 import axios from 'axios';
 import _ from 'lodash';
-import {Component, Prop, Vue} from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({components: {AddTeacherModal, EditCourseLessons, EditCourseModal, GenerateLinks}})
+@Component({
+  components: {
+    AddTeacherModal, EditCourseLessons, EditCourseModal, GenerateLinks,
+  },
+})
 export default class CourseEditView extends Vue {
   @Prop() courseId!: number | null;
   sendingInfo = false;
@@ -108,7 +112,7 @@ export default class CourseEditView extends Vue {
       return;
     }
     this.course = this.store.currentCourse as CourseModel;
-    this.courseEdit = {...this.course};
+    this.courseEdit = { ...this.course };
     this.fetchingCourse = false;
   }
 
@@ -122,7 +126,7 @@ export default class CourseEditView extends Vue {
       if (this.isNewCourse) {
         this.store.addCourseToArray(response.data);
         router.replace(
-          {name: 'course-edit', params: {courseId: response.data.id.toString()}},
+          { name: 'course-edit', params: { courseId: response.data.id.toString() } },
         );
       }
     });
