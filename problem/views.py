@@ -1,11 +1,11 @@
 import django_filters
-from django.contrib.auth.decorators import login_required
 from django.db import models
 from django.db.models import Q, Prefetch
-from rest_framework import viewsets
+from rest_framework import viewsets, exceptions
 from rest_framework.decorators import api_view, renderer_classes, action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.renderers import JSONRenderer
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from cathie.cats_api import cats_get_problem_description_by_url
@@ -14,9 +14,11 @@ from lesson.models import Lesson
 from problem.models import Problem, Submit, CatsSubmit, ProblemStats
 from problem.serializers import ProblemSerializer, SubmitSerializer, SubmitListSerializer, ProblemListSerializer
 from users.models import User
+from users.permissions import CourseStaffOrReadOnlyForStudents, object_to_course
 
 
 class ProblemViewSet(viewsets.ModelViewSet):
+    permission_classes = [CourseStaffOrReadOnlyForStudents]
     queryset = Problem.objects.all()
     filterset_fields = ['lesson_id', ]
 
@@ -91,6 +93,7 @@ class SubmitFilter(django_filters.FilterSet):
 
 
 class SubmitViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
+    permission_classes = [CourseStaffOrReadOnlyForStudents]
     serializer_class = SubmitSerializer
     queryset = Submit.objects.prefetch_related('cats_submit').all()
     pagination_class = StandardResultsSetPagination
@@ -120,6 +123,15 @@ class SubmitViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
 
         return queryset
 
+    def create(self, request: Request, *args, **kwargs):
+        problem = Problem.objects.get(id=request.data['problem'])
+        course = object_to_course(problem)
+        if course in request.user.assigns:
+            return super().create(request, *args, **kwargs)
+        if course in list(request.user.staff_for) + list(request.user.author_for):
+            return super().create(request, *args, **kwargs)
+        raise exceptions.PermissionDenied
+
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -146,11 +158,12 @@ class SubmitViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
         return
 
 
-@login_required
 @api_view(['POST'])
 @renderer_classes([JSONRenderer])
 def add_cats_problems(request, lesson_id):
     lesson = Lesson.objects.get(pk=lesson_id)
+    if lesson.course not in list(request.user.staff_for) + list(request.user.author_for):
+        raise exceptions.PermissionDenied
     data = request.data
     answer = list()
     for cats_problem in data:

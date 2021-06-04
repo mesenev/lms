@@ -27,6 +27,7 @@ REST_FRAMEWORK = dict(
     DEFAULT_FILTER_BACKENDS=['django_filters.rest_framework.DjangoFilterBackend'],
     DATE_INPUT_FORMATS=["%d/%m/%Y", "%Y-%m-%d"],
     DATE_FORMAT="%d/%m/%Y",
+    DEFAULT_PERMISSION_CLASSES=['rest_framework.permissions.IsAuthenticated']
 )
 
 MIDDLEWARE = [

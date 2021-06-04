@@ -1,6 +1,5 @@
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
+from rest_framework import viewsets, exceptions
 from rest_framework.decorators import api_view, action
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.mixins import (
@@ -12,10 +11,13 @@ from rest_framework.viewsets import GenericViewSet
 
 from course.models import CourseSchedule, Course, CourseLink
 from course.serializers import CourseSerializer, ScheduleSerializer, LinkSerializer, CourseShortSerializer
+from users.management.commands.registergroups import TEACHER
 from users.models import User, CourseAssignStudent
+from users.permissions import CourseStaffOrReadOnlyForStudents, CourseStaffOrAuthorReadOnly
 
 
 class CourseViewSet(viewsets.ModelViewSet):
+    permission_classes = [CourseStaffOrReadOnlyForStudents]
     serializer_class = CourseSerializer
     queryset = Course.objects.select_related(
         'author'
@@ -28,6 +30,11 @@ class CourseViewSet(viewsets.ModelViewSet):
         serializer = CourseShortSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    def create(self, request, *args, **kwargs):
+        if request.user.groups.filter(name=TEACHER).exists():
+            return super().create(request, *args, **kwargs)
+        raise exceptions.PermissionDenied
+
     @action(detail=False)
     def user_courses(self, request):
         queryset = request.user.author_for.all()
@@ -38,6 +45,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
 
 class ScheduleViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
+    permission_classes = [CourseStaffOrAuthorReadOnly]
     serializer_class = ScheduleSerializer
     queryset = CourseSchedule.objects.all()
 
@@ -50,9 +58,9 @@ class ScheduleViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, Upda
 
 
 class LinkViewSet(viewsets.ModelViewSet):
+    permission_classes = [CourseStaffOrAuthorReadOnly]
     queryset = CourseLink.objects.all()
     serializer_class = LinkSerializer
-    permission_classes = []
 
     def list(self, request: Request, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -91,13 +99,11 @@ def __check(link, user_id):
     return answer
 
 
-@login_required
 @api_view(['GET'])
 def check_link(request: Request, link):
     return Response(__check(link, request.user.id))
 
 
-@login_required
 @api_view(['GET'])
 def course_registration(request, link):
     if not __check(link, request.user.id)['is_possible']:
@@ -113,7 +119,6 @@ def course_registration(request, link):
         raise NotFound()
 
 
-@login_required
 @api_view(['DELETE'])
 def delete_link(request, link):
     courselinks = CourseLink.objects.all()

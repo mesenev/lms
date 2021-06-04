@@ -5,9 +5,11 @@ from rest_framework.response import Response
 
 from lesson.models import Lesson, LessonContent
 from lesson.serializers import LessonSerializer, MaterialSerializer, LessonShortSerializer
+from users.permissions import CourseStaffOrReadOnlyForStudents
 
 
 class LessonViewSet(viewsets.ModelViewSet):
+    permission_classes = [CourseStaffOrReadOnlyForStudents]
     serializer_class = LessonSerializer
     filterset_fields = ['course_id', ]
 
@@ -32,8 +34,7 @@ class LessonViewSet(viewsets.ModelViewSet):
 
 
 class MaterialViewSet(viewsets.ModelViewSet):
+    permission_classes = [CourseStaffOrReadOnlyForStudents]
     serializer_class = MaterialSerializer
     queryset = LessonContent.objects.all()
     filterset_fields = ['lesson_id', ]
-
-
