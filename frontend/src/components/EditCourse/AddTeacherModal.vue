@@ -68,7 +68,6 @@ export default class AddTeacherModal extends NotificationMixinComponent {
         if (response.data == "No match found :("){
         } else {
           this.teachersArray = response.data;
-          console.log(this.teachersArray[0].staff_for)
         }
         },
       ).catch(error => {
@@ -92,13 +91,10 @@ export default class AddTeacherModal extends NotificationMixinComponent {
   }
 
   addStuff() {
-    axios.post(`/api/assignteacher/${this.courseId}/`, this.pickedTeachers)
-      .then(response => {
-        console.log(response.data)
-      })
-      .catch(error => {
-        console.log(error);
-      });
+    axios.post(`/api/assignteacher/${this.courseId}/`, this.pickedTeachers);
+    this.modalHidden();
+    this.searchValue = "";
+    this.teachersArray = [];
   }
 
   actionSelected(user: UserModel) {
