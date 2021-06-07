@@ -27,14 +27,17 @@ def object_to_course(obj):
 
 
 class CourseStaffOrReadOnlyForStudents(permissions.BasePermission):
+
+    # TODO: if needed - remove .all() in _for-s
+
     def has_object_permission(self, request, view, obj):
         course = object_to_course(obj)
 
-        if course in request.user.staff_for:
+        if course in request.user.staff_for.all():
             return True
-        if course in request.user.author_for:
+        if course in request.user.author_for.all():
             return True
-        if course not in request.user.student_for:
+        if course not in request.user.student_for.all():
             return False
         return request.method in permissions.SAFE_METHODS
 

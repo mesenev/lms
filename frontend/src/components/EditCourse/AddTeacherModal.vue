@@ -92,7 +92,6 @@ export default class AddTeacherModal extends NotificationMixinComponent {
   }
 
   addStuff() {
-    console.log(this.pickedTeachers)
     axios.post(`/api/assignteacher/${this.courseId}/`, this.pickedTeachers)
       .then(response => {
         console.log(response.data)
