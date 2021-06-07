@@ -5,12 +5,15 @@ from rest_framework import status
 from course.models import Course
 from course.serializers import CourseSerializer
 from imcslms.test import MainSetup
+from users.models import CourseAssignTeacher
 
 
 class CourseTests(MainSetup):
     def test_create_course(self):
         self.test_setup()
-        data = CourseSerializer(mommy.make(Course)).data
+        course = mommy.make(Course)
+        CourseAssignTeacher(course=course, user=self.user).save()
+        data = CourseSerializer(course).data
         url = reverse('course-list')
         amount = Course.objects.count()
         self.client.force_authenticate(user=self.user)
@@ -20,12 +23,12 @@ class CourseTests(MainSetup):
 
     def test_update_course(self):
         self.test_setup()
-        mommy.make(Course).save()
+        course = mommy.make(Course)
+        CourseAssignTeacher(course=course, user=self.user).save()
         instance = Course.objects.first()
         data = CourseSerializer(instance).data
         data['id'] = instance.id
         url = reverse('course-detail', kwargs=dict(pk=instance.id))
-        self.client.force_authenticate(user=self.user)
         response = self.client.patch(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -35,7 +38,7 @@ class CourseTests(MainSetup):
         data = CourseSerializer(instance).data
         url = reverse('course-detail', kwargs=dict(pk=instance.id))
         amount = Course.objects.count()
-        self.client.force_authenticate(user=self.user)
+        CourseAssignTeacher(course=instance, user=self.user).save()
         response = self.client.delete(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Course.objects.count(), amount - 1)

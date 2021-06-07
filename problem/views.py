@@ -162,7 +162,7 @@ class SubmitViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
 @renderer_classes([JSONRenderer])
 def add_cats_problems(request, lesson_id):
     lesson = Lesson.objects.get(pk=lesson_id)
-    if lesson.course not in list(request.user.staff_for) + list(request.user.author_for):
+    if lesson.course not in list(request.user.staff_for.all()) + list(request.user.author_for.all()):
         raise exceptions.PermissionDenied
     data = request.data
     answer = list()
