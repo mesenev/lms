@@ -66,5 +66,6 @@ class CourseAssignTeacher(models.Model):
         unique_together = ('course', 'user',)
 
 
+# admin.site.register(User)
 admin.site.register(CourseAssignStudent)
 admin.site.register(CourseAssignTeacher)
