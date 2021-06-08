@@ -1,15 +1,16 @@
 import os
 from io import BytesIO
+
+from PIL import Image
 from django.contrib import admin
 from django.contrib.auth.models import AbstractUser
 from django.core.files.base import ContentFile
 from django.db import models
-from PIL import Image, ImageChops
 
 
 def content_file_name(instance, filename):
     filename = f"{instance.username}_avatar{os.path.splitext(filename)[1]}"
-    return '/'.join(['avatars', 'originals',filename])
+    return '/'.join(['avatars', 'originals', filename])
 
 
 class User(AbstractUser):
@@ -71,6 +72,6 @@ class CourseAssignTeacher(models.Model):
         unique_together = ('course', 'user',)
 
 
-admin.site.register(User)
+# admin.site.register(User)
 admin.site.register(CourseAssignStudent)
 admin.site.register(CourseAssignTeacher)
