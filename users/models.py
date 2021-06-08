@@ -56,10 +56,16 @@ class CourseAssignStudent(models.Model):
     course = models.ForeignKey('course.Course', on_delete=models.CASCADE, null=False)
     user = models.ForeignKey(User, related_name='assigns', on_delete=models.CASCADE, null=False)
 
+    def __str__(self):
+        return f"user {self.user} on course {self.course}"
+
 
 class CourseAssignTeacher(models.Model):
     course = models.ForeignKey('course.Course', on_delete=models.CASCADE, null=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+
+    def __str__(self):
+        return f"user {self.user} on course {self.course}"
 
     class Meta:
         unique_together = ('course', 'user',)
