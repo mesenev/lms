@@ -30,7 +30,19 @@
             <cv-radio-button v-model="currentMaterial.content_type" label="Видео" value="video"/>
           </cv-radio-group>
           <br>
-          <span>Редактирование материалов доступно после создания</span>
+          <cv-structured-list :condensed="condensed">
+            <template slot="headings">
+              <cv-structured-list-heading>Материалы урока</cv-structured-list-heading>
+            </template>
+            <template slot="items">
+              <cv-structured-list-item
+                v-for="material in materials"
+                :key="material.id"
+              >
+                <material-list-component :material-prop="material"/>
+              </cv-structured-list-item>
+            </template>
+          </cv-structured-list>
         </section>
       </template>
       <template slot="primary-button">
@@ -41,16 +53,16 @@
 </template>
 
 <script lang="ts">
+import MaterialListComponent from '@/components/lists/MaterialListComponent.vue';
 import LessonModel from '@/models/LessonModel';
 import MaterialModel from '@/models/MaterialModel';
-import materialStore from '@/store/modules/material';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import axios from 'axios';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import materialStore from '@/store/modules/material';
 
-
-@Component({ components: {AddAlt20, SubtractAlt20 } })
+@Component({ components: {AddAlt20, SubtractAlt20, MaterialListComponent } })
 export default class EditLessonMaterialsModal extends Vue {
   @Prop({ required: true }) lesson!: LessonModel;
   AddAlt32 = AddAlt20;
@@ -61,10 +73,13 @@ export default class EditLessonMaterialsModal extends Vue {
   showNotification = false;
   notificationText = '';
   creationLoader = false;
-  materials: MaterialModel[] = [];
+  material: Array<MaterialModel> = [];
   modalVisible = false;
   searchQueryForAllMaterials = '';
 
+  async created() {
+    this.material = await this.materialStore.fetchMaterialsByLessonId(this.lesson.id);
+  }
 
   showModal() {
     this.modalVisible = true;
@@ -101,10 +116,17 @@ export default class EditLessonMaterialsModal extends Vue {
       this.showNotification = true;
     });
   }
+
+  get materials(): Array<MaterialModel> {
+    if (this.lesson)
+      return this.material;
+    return [];
+  }
 }
 </script>
 
 <style scoped lang="stylus">
+
 .bx--modal-content:focus
   outline none
 .change-btn

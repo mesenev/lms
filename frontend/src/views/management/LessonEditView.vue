@@ -4,62 +4,68 @@
       <h1>{{ isNewLesson ? 'Создание урока' : 'Редактирование урока' }}</h1>
     </div>
     <cv-loading v-if="fetchingLesson"/>
-    <div v-else class="bx--col-lg-8">
-      <cv-inline-notification
-        v-if="showNotification"
-        @close="hideNotification"
-        :kind="notificationKind"
-        :sub-title="notificationText"
-      />
-      <cv-text-input
-        label="Название урока"
-        v-model.trim="lessonEdit.name"/>
-      <cv-text-input
-        label="Описание урока"
-        v-model.trim="lessonEdit.description"/>
-      <cv-date-picker
-        class="deadLine"
-        kind="single"
-        v-model="lessonEdit.deadline"
-        date-label="Дедлайн"
-        :cal-options=calOptions
-      />
-      <cv-search class="search" v-model="query"></cv-search>
-      <cv-structured-list class="classwork">
-        <template slot="headings">
-          <cv-structured-list-heading> Классная работа</cv-structured-list-heading>
-        </template>
-        <template slot="items">
-          <cv-structured-list-item
-            class="work" v-for="classwork in getClasswork" :key="classwork.id">
-            <div><h4>{{ classwork.name }}</h4></div>
-          </cv-structured-list-item>
-        </template>
-      </cv-structured-list>
-      <cv-structured-list class="homework">
-        <template slot="headings">
-          <cv-structured-list-heading> Домашняя работа</cv-structured-list-heading>
-        </template>
-        <template slot="items">
-          <cv-structured-list-item
-            v-for="homework in getHomework"
-            :key="homework.id"
-            class="work">
-            <div><h4>{{ homework.name }}</h4></div>
-          </cv-structured-list-item>
-        </template>
-      </cv-structured-list>
-      <div class="lesson-buttons">
-        <EditLessonModal
-          :lesson="lessonEdit"
-          class="edit--lesson-props"/>
-        <EditLessonMaterialsModal
-          :lesson="lessonEdit"
-          class="edit--lesson-props"/>
+    <div v-else class="bx-row content">
+      <div class="bx--col-lg-8 left">
+        <cv-inline-notification
+          v-if="showNotification"
+          @close="hideNotification"
+          :kind="notificationKind"
+          :sub-title="notificationText"
+        />
+        <cv-text-input
+          class="text_field"
+          label="Название урока"
+          v-model.trim="lessonEdit.name"/>
+        <cv-text-input
+          class="text_field"
+          label="Описание урока"
+          v-model.trim="lessonEdit.description"/>
+        <cv-date-picker
+          class="deadLine text_field"
+          kind="single"
+          v-model="lessonEdit.deadline"
+          date-label="Дедлайн"
+          :cal-options=calOptions
+        />
       </div>
-      <cv-button class="finishButton" :disabled="!isChanged" v-on:click="createOrUpdate">
-        {{ isNewLesson ? 'Создать урок' : 'Изменить урок' }}
-      </cv-button>
+      <div class="bx--col-lg-8 right">
+        <cv-search class="search" v-model="query"></cv-search>
+        <cv-structured-list class="classwork">
+          <template slot="headings">
+            <cv-structured-list-heading> Классная работа</cv-structured-list-heading>
+          </template>
+          <template slot="items">
+            <cv-structured-list-item
+              class="work" v-for="classwork in getClasswork" :key="classwork.id">
+              <div><h4>{{ classwork.name }}</h4></div>
+            </cv-structured-list-item>
+          </template>
+        </cv-structured-list>
+        <cv-structured-list class="homework">
+          <template slot="headings">
+            <cv-structured-list-heading> Домашняя работа</cv-structured-list-heading>
+          </template>
+          <template slot="items">
+            <cv-structured-list-item
+              v-for="homework in getHomework"
+              :key="homework.id"
+              class="work">
+              <div><h4>{{ homework.name }}</h4></div>
+            </cv-structured-list-item>
+          </template>
+        </cv-structured-list>
+        <div class="lesson-buttons">
+          <EditLessonModal
+            :lesson="lessonEdit"
+            class="edit--lesson-props"/>
+          <EditLessonMaterialsModal
+            :lesson="lessonEdit"
+            class="edit--lesson-props"/>
+        </div>
+        <cv-button class="finishButton" :disabled="!isChanged" v-on:click="createOrUpdate">
+          {{ isNewLesson ? 'Создать урок' : 'Изменить урок' }}
+        </cv-button>
+      </div>
     </div>
   </div>
 </template>
@@ -146,6 +152,14 @@ export default class LessonEditView extends NotificationMixinComponent {
 </script>
 
 <style scoped lang="stylus">
+.text_field
+  min-width 10rem
+  max-width 18rem
+  padding-top 2rem
+
+.content
+  display flex
+
 .head-content
   margin: 50px
 
@@ -169,8 +183,6 @@ export default class LessonEditView extends NotificationMixinComponent {
 .classwork, .homework
   margin: 20px 0
 
-.deadLine
-  padding-top 10px
 
 .finishButton
   margin-top 25px
