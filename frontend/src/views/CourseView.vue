@@ -29,9 +29,9 @@
           </template>
         </cv-structured-list>
       </div>
-      <div class="submits bx--col-lg-4">
-        <user-problems-list-component v-if="!isStaff" :course-id="course.id"/>
-        <user-submits-list-component v-else :course-id="course.id"/>
+      <div v-if='course' class="submits bx--col-lg-4">
+        <user-problem-list-component v-if="!isStaff" :course-id="course.id"/>
+        <user-submit-list-component v-else :course-id="course.id"/>
       </div>
     </div>
   </div>
@@ -42,7 +42,8 @@
 <script lang="ts">
 import LessonListComponent from "@/components/lists/LessonListComponent.vue";
 import UserComponent from '@/components/UserComponent.vue';
-import UserProblemsListComponent from "@/components/UserProblemsListComponent.vue"
+import UserProblemListComponent from "@/components/UserProblemListComponent.vue"
+import UserSubmitListComponent from "@/components/UserSubmitListComponent.vue"
 import CourseModel from '@/models/CourseModel';
 import LessonModel from "@/models/LessonModel";
 import courseStore from "@/store/modules/course";
@@ -52,7 +53,8 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({
   components: {
-    UserProblemsListComponent, LessonListComponent, UserComponent,
+    UserProblemListComponent, LessonListComponent, UserComponent,
+    UserSubmitListComponent,
   },
 })
 export default class CourseView extends Vue {
