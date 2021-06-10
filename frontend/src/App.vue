@@ -2,9 +2,9 @@
   <div class="layout">
     <lms-header class="layout-header"/>
     <main class="layout-content">
-      <lms-breadcrumb />
+      <lms-breadcrumb class="main--breadcrumb"/>
       <transition name="fade" mode="out-in">
-        <router-view />
+        <router-view/>
       </transition>
     </main>
     <footer class="layout-footer">
@@ -19,8 +19,26 @@
   </div>
 </template>
 
-<style scoped lang="stylus">
 
+<style lang="scss">
+@import "styles/carbon";
+@import "styles/base";
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .1s;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */
+{
+  opacity: 0;
+}
+</style>
+
+<style scoped lang="stylus">
+@import 'styles/_list-elements.styl';
+
+.main--breadcrumb
+  margin-top var(--cds-spacing-06);
 
 .items
   display flex
@@ -34,7 +52,6 @@
   height: 100%
   display flex
   flex-flow column
-  //background gray
 
   &-content
     background-color var(--cds-ui-01)
@@ -50,7 +67,7 @@
     font-size 0.7em
 
     &-label
-      margin 30px 30px
+      margin var(--cds-spacing-06) var(--cds-spacing-06)
 
   &-content
     flex-grow 1
@@ -68,22 +85,3 @@ export default class App extends Vue {
 
 }
 </script>
-
-<style lang="scss">
-@import "styles/carbon";
-
-html, body, body > div {
-  height: 100%;
-  background-color: var(--cds-ui-background);
-  color: var(--cds-text-01);
-}
-
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .1s
-}
-
-.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */
-{
-  opacity: 0
-}
-</style>

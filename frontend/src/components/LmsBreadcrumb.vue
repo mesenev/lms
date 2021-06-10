@@ -1,5 +1,5 @@
 <template>
-  <div class="bx--grid breadcrumb">
+  <div class="bx--grid">
     <cv-breadcrumb>
       <transition name="fade" mode="out-in">
         <cv-breadcrumb-item>
@@ -74,8 +74,6 @@ export default class LmsBreadcrumb extends Vue {
 </script>
 
 <style lang="stylus" scoped>
-.breadcrumb
-  margin-top 1rem
 
 .fade-enter-active, .fade-leave-active {
   transition: opacity .1s

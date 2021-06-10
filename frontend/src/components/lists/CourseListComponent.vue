@@ -24,21 +24,25 @@ export default class CourseListComponent extends Vue {
 </script>
 
 <template>
-  <cv-link
+  <router-link
     :to="{ name: 'CourseView', params: { courseId: this.course.id.toString() } }"
-    class="course">
-    <div>
-      <h5>{{ course.name }}</h5>
-      <span>Преподаватель: </span> {{ teacher }}<br>
-      <span>Следующий урок:</span> 24/1
-    </div>
-  </cv-link>
+    class="list-element">
+    <h5 class="list-element--title">{{ course.name }}</h5>
+    <span class="list-element--info">Преподаватель: {{ teacher }}</span>
+    <span class="list-element--info">Следующий урок: {{ "24/1" }}</span>
+  </router-link>
 </template>
 
 <style scoped lang="stylus">
-.course
+.list-element
+  padding-top var(--cds-spacing-05)
+  padding-bottom var(--cds-spacing-05)
+  display flex
+  flex-flow column
   text-decoration none
-  color black
-  width 100%
+  color var(--cds-color-01)
+
+.list-element:hover
+  background-color #f3f3f3
 
 </style>

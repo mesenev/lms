@@ -1,7 +1,7 @@
 <template>
   <div class="bx--grid">
-    <div class="bx--row header">
-      <h1 class="title">Список курсов</h1>
+    <div class="bx--row">
+      <h1 class="main-title">Список курсов</h1>
     </div>
     <div class=" bx--row">
       <div class="items bx--col-lg-7">
@@ -12,7 +12,8 @@
         </cv-search>
         <cv-structured-list v-if="!loading">
           <template slot="items">
-            <cv-structured-list-item class="item" v-for="course in filterCourses" :key="course.id">
+            <cv-structured-list-item
+              v-for="course in filterCourses" :key="course.id" class="item">
               <Course :courseProp='course'/>
             </cv-structured-list-item>
           </template>
@@ -54,10 +55,7 @@ export default class HomeView extends Vue {
 }
 </script>
 
-<style lang="stylus">
-
-.title
-  margin-left 2rem
+<style lang="stylus" scoped>
 
 .header
   padding-bottom: 1.5rem
