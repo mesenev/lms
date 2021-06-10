@@ -1,14 +1,1 @@
-$feature-flags: (
-  grid-columns-16: true,
-);
 
-@import '~@carbon/themes/scss/themes';
-$carbon--theme: $carbon--theme--white;
-@include carbon--theme($carbon--theme);
-
-@import '~@carbon/grid/scss/grid';
-@import '~carbon-components/css/carbon-components.css';
-
-:root {
-  @include carbon--theme($carbon--theme, true);
-}

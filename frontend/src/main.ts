@@ -5,8 +5,9 @@ import store from '@/store';
 import userStore from '@/store/modules/user';
 import CarbonComponentsVue from '@carbon/vue/src/index';
 import axios from 'axios';
+import 'carbon-components/css/carbon-components.css';
 import Vue from 'vue';
-import VueClipboard from 'vue-clipboard2'
+import VueClipboard from 'vue-clipboard2';
 
 Vue.use(VueClipboard);
 Vue.use(CarbonComponentsVue);
