@@ -1,10 +1,10 @@
 <template>
-  <transition name="fade" mode="out-in">
-    <cv-skeleton-text v-if="loading" class="skeleton" width="75px"/>
-    <cv-breadcrumb-item v-else>
-      <router-link :to="{ name: PageView, props: model.id }">{{ title }}</router-link>
-    </cv-breadcrumb-item>
-  </transition>
+  <cv-breadcrumb-item>
+    <transition mode="out-in" name="fade">
+      <cv-skeleton-text v-if="loading" class="skeleton" width="75px"/>
+      <router-link v-else :to="{ name: PageView, props: model.id }">{{ title }}</router-link>
+    </transition>
+  </cv-breadcrumb-item>
 </template>
 
 <script lang="ts">

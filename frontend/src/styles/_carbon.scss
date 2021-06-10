@@ -1,1 +1,6 @@
+//@import '~carbon-components/css/carbon-components.css';
+@import '~carbon-components/scss/globals/scss/styles';
 
+:root {
+    @include carbon--colors();
+}

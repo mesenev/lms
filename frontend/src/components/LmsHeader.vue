@@ -178,8 +178,6 @@ export default class LmsHeader extends Vue {
 </script>
 
 <style scoped lang="stylus">
-.bx--header
-  position: unset
 
 .lms
   padding-left 5px

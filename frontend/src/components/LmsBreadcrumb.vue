@@ -1,11 +1,9 @@
 <template>
   <div class="bx--grid">
     <cv-breadcrumb>
-      <transition name="fade" mode="out-in">
         <cv-breadcrumb-item>
           <router-link :to="{ path: '/', }">Список курсов</router-link>
         </cv-breadcrumb-item>
-      </transition>
       <lms-breadcrumb-item
         v-if="courseSelected.selected"
         :model="courseStore.currentCourse"

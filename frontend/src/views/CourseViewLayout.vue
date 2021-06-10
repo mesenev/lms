@@ -1,7 +1,6 @@
 <template>
   <transition mode="out-in" name="fade">
-    <router-view v-if="course"/>
-    <cv-loading v-else/>
+    <router-view/>
   </transition>
 </template>
 

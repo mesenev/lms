@@ -1,17 +1,15 @@
 <template>
   <div class="bx--grid">
-    <div v-if="!loading" class="bx--row header">
-      <h1 class="course-title">Курс: {{ (course) ? course.name : "" }}</h1>
-    </div>
-    <div v-else class="bx--row header">
-      <cv-skeleton-text :width="'65%'" :heading="true"/>
+    <div class="bx--row header">
+      <h1 v-if="!loading" class="course-title">Курс: {{ (course) ? course.name : "" }}</h1>
+      <cv-skeleton-text v-else :heading="true" :width="'65%'"/>
     </div>
     <div class="description--container">
-      <span v-if="!loading"> {{ course.description }} </span>
+      <span v-if="!loading"> {{ (course) ? course.description : "" }} </span>
       <cv-skeleton-text v-else width="'35%'"/>
     </div>
     <div class=" bx--row">
-      <div class="courses bx--col-lg-7">
+      <div class="courses bx--col-lg-6">
         <h4 class="lessons-title">Уроки</h4>
         <cv-search
           v-model.trim="searchValue"
@@ -31,11 +29,9 @@
           </template>
         </cv-structured-list>
       </div>
-      <div v-if="!isStaff" class="submits bx--col-lg-4">
-        <user-problems-list-component :course-id="course.id"/>
-      </div>
-      <div v-if="isStaff" class="submits bx--col-lg-4">
-        <!--        <user-submits-list-component :course-id="course.id"/>-->
+      <div class="submits bx--col-lg-4">
+        <user-problems-list-component v-if="!isStaff" :course-id="course.id"/>
+        <user-submits-list-component v-else :course-id="course.id"/>
       </div>
     </div>
   </div>
@@ -45,14 +41,14 @@
 
 <script lang="ts">
 import LessonListComponent from "@/components/lists/LessonListComponent.vue";
+import UserComponent from '@/components/UserComponent.vue';
+import UserProblemsListComponent from "@/components/UserProblemsListComponent.vue"
 import CourseModel from '@/models/CourseModel';
 import LessonModel from "@/models/LessonModel";
 import courseStore from "@/store/modules/course";
 import lessonStore from "@/store/modules/lesson";
 import userStore from '@/store/modules/user';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import UserProblemsListComponent from "@/components/UserProblemsListComponent.vue"
-import UserComponent from '@/components/UserComponent.vue';
 
 @Component({
   components: {

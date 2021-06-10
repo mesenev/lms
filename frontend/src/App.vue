@@ -56,6 +56,7 @@
   &-content
     background-color var(--cds-ui-01)
     padding-bottom var(--cds-spacing-05)
+    margin-top: 3rem;
 
   &-header, &-footer
     flex-shrink 0
