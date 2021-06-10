@@ -126,8 +126,7 @@ class SubmitViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
     def create(self, request: Request, *args, **kwargs):
         problem = Problem.objects.get(id=request.data['problem'])
         course = object_to_course(problem)
-        #TODO check this
-        if course.id == request.user.assigns.filter(course=course)[0].course.id:
+        if course.id == request.user.assigns.filter(course=course).exists():
             return super().create(request, *args, **kwargs)
         if course in list(request.user.staff_for.all()) + list(request.user.author_for.all()):
             return super().create(request, *args, **kwargs)
