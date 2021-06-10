@@ -27,9 +27,18 @@ class SubmitSerializer(serializers.ModelSerializer):
 
 
 class SubmitListSerializer(serializers.ModelSerializer):
+    problem = serializers.SerializerMethodField()
+    lesson = serializers.SerializerMethodField()
+
+    def get_problem(self, instance):
+        return dict(id=instance.problem.id, name=instance.problem.name)
+
+    def get_lesson(self, instance):
+        return instance.problem.lesson_id
+
     class Meta:
         model = Submit
-        fields = ['id', 'problem', 'student', 'status', 'created_at', ]
+        fields = ['id', 'problem', 'student', 'status', 'created_at', 'lesson']
 
 
 class ProblemStatsSerializer(serializers.ModelSerializer):

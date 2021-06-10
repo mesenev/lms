@@ -1,6 +1,7 @@
 export default interface SubmitModel {
   id: number;
-  problem: number;
+  lesson: number;
+  problem: { id: number; name: string };
   student: number;
   created_at: string;
   status: string;

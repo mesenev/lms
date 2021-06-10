@@ -36,12 +36,12 @@
 
 <script lang="ts">
 import SubmitStatus from '@/components/SubmitStatus.vue';
-import { Component, Prop, Vue } from 'vue-property-decorator';
 import ProblemModel from "@/models/ProblemModel";
 import problemStore from '@/store/modules/problem';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: { SubmitStatus } })
-export default class UserProblemsListComponent extends Vue {
+export default class UserProblemListComponent extends Vue {
   @Prop({ required: true }) courseId!: number;
 
   private problemStore = problemStore;

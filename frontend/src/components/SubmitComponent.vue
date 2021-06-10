@@ -135,21 +135,20 @@ export default class SubmitComponent extends NotificationMixinComponent {
   confirmSubmit() {
     this.submitEdit = {
       ...this.submitEdit,
-      'problem': this.problemStore.currentProblem?.id as number,
     };
-    axios.post('/api/submit/', this.submitEdit)
-      .then((response: AxiosResponse<SubmitModel>) => {
-        this.submitStore.addSubmitToArray(response.data);
-        this.submit = { ...response.data };
-        this.submitEdit = { ...this.submit };
-        this.notificationKind = 'success';
-        this.notificationText = 'Попытка отправлена';
-      })
-      .catch((error: AxiosError) => {
-        this.notificationKind = 'error';
-        this.notificationText = `Что-то пошло не так ${error.message}`;
-      })
-      .finally(() => this.showNotification = true);
+    axios.post('/api/submit/', {
+      ...this.submitEdit,
+      'problem': this.problemStore.currentProblem?.id as number,
+    }).then((response: AxiosResponse<SubmitModel>) => {
+      this.submitStore.addSubmitToArray(response.data);
+      this.submit = { ...response.data };
+      this.submitEdit = { ...this.submit };
+      this.notificationKind = 'success';
+      this.notificationText = 'Попытка отправлена';
+    }).catch((error: AxiosError) => {
+      this.notificationKind = 'error';
+      this.notificationText = `Что-то пошло не так ${error.message}`;
+    }).finally(() => this.showNotification = true);
   }
 
 }

@@ -103,7 +103,7 @@ class SubmitViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
         user = self.request.user
         queryset = Submit.objects.filter(
             Q(student=user) | Q(problem__lesson__course__in=user.staff_for.all())
-        )
+        ).prefetch_related('problem')
         problem_id = self.request.query_params.get('', None)
         user_id = self.request.query_params.get('', None)
         course_id = self.request.query_params.get('', None)

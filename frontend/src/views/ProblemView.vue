@@ -59,13 +59,13 @@
             </template>
             <template slot="items">
               <cv-structured-list-item
-                v-for="student in students"
-                :key="student.id"
+                v-for="student in studentIds"
+                :key="student"
                 :checked="checkedStudent(student)"
-                :value="student.id.toString()"
+                :value="student.toString()"
                 name="student">
                 <cv-structured-list-data>
-                  <user-component :user="student"/>
+                  <user-component :user-id="student"/>
                 </cv-structured-list-data>
               </cv-structured-list-item>
             </template>
@@ -82,7 +82,6 @@ import SubmitComponent from '@/components/SubmitComponent.vue';
 import SubmitStatus from "@/components/SubmitStatus.vue";
 import UserComponent from '@/components/UserComponent.vue';
 import SubmitModel from '@/models/SubmitModel';
-import UserModel from '@/models/UserModel';
 import problemStore from '@/store/modules/problem';
 import submitStore from '@/store/modules/submit';
 import userStore from '@/store/modules/user';
@@ -105,10 +104,9 @@ export default class ProblemView extends Vue {
     return this.problemStore.currentProblem;
   }
 
-  get students() {
+  get studentIds() {
     if (this.problem && this.problem.students)
-      return Object.keys(this.problem?.students).map(x => this.userStore.currentCourseStudents[x]);
-
+      return Object.keys(this.problem?.students)
   }
 
   get submits(): SubmitModel[] {
@@ -150,8 +148,8 @@ export default class ProblemView extends Vue {
       this.studentId = Number(this.userStore.user.id);
   }
 
-  checkedStudent(student: UserModel): boolean {
-    return student.id === this.studentId;
+  checkedStudent(studentId: number): boolean {
+    return studentId === this.studentId;
   }
 
   async changeStudent(id: number) {

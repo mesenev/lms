@@ -30,8 +30,9 @@ class ProblemModule extends VuexModule {
   }
 
   @Action
-  async fetchProblems() {
-    await axios.get('/api/problem/')
+  async fetchProblems(data: object) {
+    //TODO: remove or fix (data here is set of fields to filter)
+    await axios.get('/api/problem/', { params: data })
       .then(response => {
         this.setProblems(response.data);
       })

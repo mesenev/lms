@@ -6,12 +6,12 @@ import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-dec
 
 @Module({ namespaced: true, name: 'submit', store, dynamic: true })
 class SubmitModule extends VuexModule {
-  private _submits: SubmitModel[] = []
+  private _submits: SubmitModel[] = [];
 
   get defaultSubmit(): SubmitModel {
     return {
-      id: NaN, problem: NaN, student: NaN, content: '',
-      status: 'NP', created_at: '',
+      id: NaN, problem: { id: NaN, name: '' }, student: NaN, content: '',
+      status: 'NP', created_at: '', lesson: NaN,
     };
   }
 
@@ -57,6 +57,7 @@ class SubmitModule extends VuexModule {
       course_id: number;
       page?: number;
       page_size?: number;
+      [key: string]: number | string | undefined;
     },
   ): Promise<PaginatedList<SubmitModel>> {
     let answer = {};
