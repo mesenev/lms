@@ -19,6 +19,9 @@
   </div>
 </template>
 
+<style lang="stylus">
+@import "styles/list-elements";
+</style>
 
 <style lang="scss">
 @import "styles/carbon";
@@ -35,7 +38,7 @@
 </style>
 
 <style scoped lang="stylus">
-@import 'styles/_list-elements.styl';
+@import 'styles/list-elements.styl';
 
 .main--breadcrumb
   margin-top var(--cds-spacing-06);

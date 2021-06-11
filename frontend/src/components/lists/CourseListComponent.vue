@@ -34,15 +34,5 @@ export default class CourseListComponent extends Vue {
 </template>
 
 <style scoped lang="stylus">
-.list-element
-  padding-top var(--cds-spacing-05)
-  padding-bottom var(--cds-spacing-05)
-  display flex
-  flex-flow column
-  text-decoration none
-  color var(--cds-color-01)
-
-.list-element:hover
-  background-color #f3f3f3
 
 </style>
