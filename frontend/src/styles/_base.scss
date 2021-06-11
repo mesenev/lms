@@ -3,3 +3,12 @@
     margin-bottom: var(--cds-spacing-06);
     margin-left: var(--cds-spacing-05);
 }
+
+.header-container {
+    display: flex;
+    flex-flow: column;
+
+    .course-description {
+        padding-left: var(--cds-spacing-05);
+    }
+}

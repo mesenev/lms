@@ -1,8 +1,11 @@
 <template>
   <div class="bx--grid">
-    <div class="bx--row title">
-      <h1 v-if="!loading && lesson">{{ lesson.name }}</h1>
-      <cv-skeleton-text v-else :heading="true" width="'50%'"/>
+    <div class="bx--row">
+      <h1 v-if="!loading && lesson" class="main-title">
+        {{ lesson.name }}
+      </h1>
+      <cv-skeleton-text
+        v-else :heading="true" class="main-title" width="'35%'"/>
       <div class="underline--container">
         <span v-if="!loading && lesson">
           Дедлайн {{ lesson.deadline }}
@@ -19,9 +22,8 @@
         </div>
       </div>
     </div>
-    <div class="bx--row content">
-      <div class="bx--col-lg-7 content-tasks">
-        <h2 class="content-tasks-title">Задачи урока</h2>
+    <div class="bx--row">
+      <div class="items bx--col-lg-6">
         <div v-if="isProblemsEmpty">
           <h4 class="no-problems">В уроке пока нет задач</h4>
         </div>

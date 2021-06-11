@@ -1,40 +1,41 @@
 <template>
-  <cv-grid>
-    <cv-row class="header">
-      <cv-column>
-        <div class="solution-container--submit-list">
-          <cv-structured-list
-            class="submit-list">
-            <template slot="headings">
-              <cv-structured-list-heading>Студент</cv-structured-list-heading>
-              <cv-structured-list-heading>Задача</cv-structured-list-heading>
-              <cv-structured-list-heading>Статус</cv-structured-list-heading>
-            </template>
-            <template slot="items">
-              <cv-structured-list-item v-if="loading">
-                <cv-skeleton-text/>
-              </cv-structured-list-item>
-              <cv-structured-list-item v-for="submit in submits"
-                                       v-else-if="submits.length > 0" :key="submit.id">
-                <cv-structured-list-data>
-                  <user-component :user-id="submit.student"/>
-                </cv-structured-list-data>
-                <cv-structured-list-data>
-                  <cv-link :to="linkRoute(submit)">{{ submit.problem.name }}</cv-link>
-                </cv-structured-list-data>
-                <cv-structured-list-data>
-                  <submit-status :submit='submit'/>
-                </cv-structured-list-data>
-              </cv-structured-list-item>
-              <div v-else>
-                <span>Отправки отсутствуют</span>
+  <div class="solution-container">
+    <div v-if="loading || submits.length > 0" class="submit-list-data">
+      <cv-structured-list v-if="!loading"
+                          class="submit-list">
+        <template slot="headings">
+          <cv-structured-list-heading>Студент</cv-structured-list-heading>
+          <cv-structured-list-heading>Задача</cv-structured-list-heading>
+          <cv-structured-list-heading>Статус</cv-structured-list-heading>
+        </template>
+        <template slot="items">
+          <cv-structured-list-item
+            v-for="submit in submits"
+            :key="submit.id">
+            <cv-structured-list-data>
+              <div class="user-component-container-main">
+                <user-component :user-id="submit.student" class="user-component-container"/>
               </div>
-            </template>
-          </cv-structured-list>
-        </div>
-      </cv-column>
-    </cv-row>
-  </cv-grid>
+            </cv-structured-list-data>
+            <cv-structured-list-data>
+              <cv-link :to="linkRoute(submit)">{{ submit.problem.name }}</cv-link>
+            </cv-structured-list-data>
+            <cv-structured-list-data>
+              <submit-status :submit='submit'/>
+            </cv-structured-list-data>
+          </cv-structured-list-item>
+        </template>
+      </cv-structured-list>
+      <cv-data-table-skeleton v-else :columns="3" :rows="1"/>
+    </div>
+    <div v-else class="submit-list-empty">
+      <div class="submit-list-empty--wrapper">
+        <task-icon class="submit-list-empty--icon"/>
+        <h4>Ручная проверка не требуется</h4>
+        <span>Вы проверили все работы на ручной проверке, или студенты ничего не отправили</span>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -42,9 +43,11 @@ import SubmitStatus from '@/components/SubmitStatus.vue';
 import UserComponent from '@/components/UserComponent.vue';
 import SubmitModel from "@/models/SubmitModel";
 import submitStore from '@/store/modules/submit';
+
+import TaskIcon from '@carbon/icons-vue/es/task/32';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({ components: { UserComponent, SubmitStatus } })
+@Component({ components: { TaskIcon, UserComponent, SubmitStatus } })
 export default class UserSubmitListComponent extends Vue {
   @Prop({ required: true }) courseId!: number;
   submits: Array<SubmitModel> = [];
@@ -59,6 +62,7 @@ export default class UserSubmitListComponent extends Vue {
       status: 'AW',
     })).results;
     this.loading = false;
+    // this.submits = [];
   }
 
   linkRoute(data: SubmitModel) {
@@ -78,17 +82,31 @@ export default class UserSubmitListComponent extends Vue {
 
 <style lang="stylus" scoped>
 
-.list-header
-  font-size 1.1rem
-  padding-bottom 1rem
+.submit-list-data
+  background-color var(--cds-ui-background)
+  padding var(--cds-spacing-05)
+  width 100%
+  min-height 300px
 
-.submit-list
-  justify-content center
+.user-component-container-main
+  height 0
+  width 200px
 
-.table
-  width 1rem
+.user-component-container
+  position absolute
 
-.list-item
-  border 1px solid rgba(0, 0, 0, .3)
+.submit-list-empty
+  background-color var(--cds-ui-background)
+  padding var(--cds-spacing-05)
+  display flex
+  height 300px
 
+  &--wrapper
+    align-self center
+    width: 300px
+
+  &--icon
+    width 100px
+    height 100px
+    opacity 0.8
 </style>

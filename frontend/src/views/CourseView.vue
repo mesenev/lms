@@ -1,16 +1,19 @@
 <template>
   <div class="bx--grid">
-    <div class="bx--row header">
-      <h1 v-if="!loading" class="course-title">Курс: {{ (course) ? course.name : "" }}</h1>
-      <cv-skeleton-text v-else :heading="true" :width="'65%'"/>
-    </div>
-    <div class="description--container">
-      <span v-if="!loading"> {{ (course) ? course.description : "" }} </span>
-      <cv-skeleton-text v-else width="'35%'"/>
+    <div class="bx--row header-container">
+      <div class="main-title">
+        <h1 v-if="!loading" class=""> Курс: {{ (course) ? course.name : "" }} </h1>
+        <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
+        <div class="description-container">
+          <span v-if="!loading" class="course-description">
+            {{ (course) ? course.description : "" }}
+          </span>
+          <cv-skeleton-text v-else class="course-description" width="'35%'"/>
+        </div>
+      </div>
     </div>
     <div class=" bx--row">
-      <div class="courses bx--col-lg-6">
-        <h4 class="lessons-title">Уроки</h4>
+      <div class="items bx--col-lg-6">
         <cv-search
           v-model.trim="searchValue"
           class="search"
@@ -30,12 +33,11 @@
         </cv-structured-list>
       </div>
       <div v-if='course' class="submits bx--col-lg-4">
-        <user-problem-list-component v-if="!isStaff" :course-id="course.id"/>
-        <user-submit-list-component v-else :course-id="course.id"/>
+        <user-submit-list-component v-if="isStaff" :course-id="course.id"/>
+        <user-problem-list-component v-else :course-id="course.id"/>
       </div>
     </div>
   </div>
-
 </template>
 
 
@@ -66,6 +68,11 @@ export default class CourseView extends Vue {
   private userStore = userStore;
   private user = this.userStore.user;
 
+  async created() {
+    await this.lessonStore.fetchLessonsByCourseId(this.courseId);
+    this.loading = false;
+  }
+
   get isStaff(): boolean {
     return this.user.staff_for.includes(Number(this.courseId));
   }
@@ -78,15 +85,9 @@ export default class CourseView extends Vue {
     return this.lessonStore.lessonsByCourse[this.courseId];
   }
 
-  async created() {
-    await this.lessonStore.fetchLessonsByCourseId(this.courseId);
-    this.loading = false;
-  }
-
   get course(): CourseModel | null {
     return this.courseStore.currentCourse;
   }
-
 
   get filterLessons() {
     return this.lessons.filter((l: LessonModel) => {
@@ -98,29 +99,4 @@ export default class CourseView extends Vue {
 </script>
 
 <style scoped lang="stylus">
-
-.submits-title
-  margin-left 1rem
-  margin-top 1rem
-  padding 0
-
-.lessons-title
-  margin-left 2rem
-  margin-top 1rem
-  padding 0
-
-.description--container
-  margin-left 2.5rem
-  padding-bottom 2rem
-
-.submits
-  margin-left 1rem
-  background-color var(--cds-ui-02)
-
-.courses
-  background-color var(--cds-ui-02)
-
-.course-title
-  margin-left 3rem
-
 </style>

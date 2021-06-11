@@ -12,20 +12,18 @@
         <span>dvfu/imcs/staff & Daria-squad</span><br>
         <span>
           feel free to contribute
-          <cv-link href="https://github.com/mesenev/lms"><logo-github/></cv-link>
+          <cv-link href="https://github.com/mesenev/lms">
+            <logo-github/>
+          </cv-link>
         </span>
       </div>
     </footer>
   </div>
 </template>
 
-<style lang="stylus">
-@import "styles/list-elements";
-</style>
-
 <style lang="scss">
-@import "styles/carbon";
 @import "styles/base";
+@import "styles/carbon";
 
 .fade-enter-active, .fade-leave-active {
   transition: opacity .1s;
@@ -78,6 +76,10 @@
     width: 100%
 </style>
 
+<style lang="stylus">
+@import "styles/list-elements";
+</style>
+
 <script lang="ts">
 import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue'
 import LmsHeader from '@/components/LmsHeader.vue';
@@ -85,7 +87,5 @@ import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
 import { Component, Vue } from 'vue-property-decorator';
 
 @Component({ components: { LmsHeader, LmsBreadcrumb, LogoGithub } })
-export default class App extends Vue {
-
-}
+export default class App extends Vue {}
 </script>

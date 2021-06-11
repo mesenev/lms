@@ -1,20 +1,3 @@
-<template>
-  <div>
-    <div class="bx--row user">
-      <img class="avatar"
-           v-bind:src="pic_url"
-           alt=""
-           width="30"
-           height="30">
-      <cv-tooltip v-if="warning" tip="Пользователь не является студентом курса"/>
-      <div class="name">
-        <cv-loading v-if="loading" :small="true"/>
-        <span v-else>{{ name }}</span>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script lang="ts">
 import UserModel from "@/models/UserModel";
 import userStore from '@/store/modules/user';
@@ -58,20 +41,44 @@ export default class UserComponent extends Vue {
 }
 </script>
 
+<template>
+  <div class="user-component">
+    <div class="user-component--wrapper">
+      <img class="user-component--avatar" v-bind:src="pic_url"/>
+      <div class="user-component--name">
+        <cv-inline-loading v-if="loading"/>
+        <span v-else>{{ name }}</span>
+      </div>
+      <div v-if="warning" class="user-component--warning">
+        <cv-tooltip tip="Пользователь не является студентом курса"/>
+      </div>
+    </div>
+  </div>
+</template>
+
 <style scoped lang="stylus">
-.name
-  padding-left 10px
+.user-component
+  width 200px
+  height 32px
 
-.user
-  display flex
-  flex-direction row
-  align-items center
+  &--wrapper
+    display flex
+    flex-flow row
+    align-items center
 
-.avatar
-  object-fit: cover;
-  border-radius: 150%;
-  padding: 0;
-  margin: 0;
-  margin-left 1.5rem
+  &--avatar
+    height 32px
+    width 32px
+    border-radius: 150%
+    padding 0
+    margin 0
+
+  &--name
+    padding-left var(--cds-spacing-02)
+
+  &--warning
+    padding-left var(--cds-spacing-02)
+    display flex
+    align-items center
 
 </style>
