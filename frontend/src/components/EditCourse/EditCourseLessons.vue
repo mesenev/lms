@@ -32,6 +32,7 @@ import LessonModel from '@/models/LessonModel';
 import Settings20 from '@carbon/icons-vue/es/settings/20';
 import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import axios from "axios";
 
 @Component({
   components: {
@@ -54,7 +55,9 @@ export default class EditCourseLessons extends Vue {
   }
 
   deleteLesson(lesson: LessonModel) {
-    //
+    axios.delete(`/api/delete-lesson/${lesson.id}/`).then(response => {
+      console.log(response)
+      });
   }
 }
 </script>
