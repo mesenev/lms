@@ -57,7 +57,6 @@ export default class UserProblemListComponent extends Vue {
   async created() {
     this.problems = await this.problemStore.fetchProblemsForCourse(this.courseId);
     this.loading = false;
-    this.problems = [];
   }
 
   linkRoute(data: ProblemModel) {

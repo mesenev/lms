@@ -55,14 +55,8 @@ export default class UserSubmitListComponent extends Vue {
   private submitStore = submitStore;
 
   async created() {
-    this.submits = (await this.submitStore.fetchSubmitsByCourse({
-      course_id: this.courseId,
-      page: 1,
-      page_size: 5,
-      status: 'AW',
-    })).results;
+    this.submits = (await this.submitStore.fetchFirstFiveAW(this.courseId));
     this.loading = false;
-    // this.submits = [];
   }
 
   linkRoute(data: SubmitModel) {

@@ -52,6 +52,19 @@ class SubmitModule extends VuexModule {
   }
 
   @Action
+  async fetchFirstFiveAW(course_id: number): Promise<SubmitModel[]> {
+    let answer = {};
+    await axios.get(`/api/submit/five-aw/${course_id}/`)
+      .then(response => {
+        answer = response.data;
+      })
+      .catch(error => {
+        console.error(error);
+      })
+    return answer as SubmitModel[];
+  }
+
+  @Action
   async fetchSubmitsByCourse(
     payload: {
       course_id: number;
@@ -65,7 +78,6 @@ class SubmitModule extends VuexModule {
       params: payload,
     })
       .then(response => {
-        this.setSubmits(response.data);
         answer = response.data;
       })
       .catch(error => {

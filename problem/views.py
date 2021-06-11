@@ -123,6 +123,32 @@ class SubmitViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
 
         return queryset
 
+    @action(detail=False, url_path='five-aw/(?P<course_id>\d+)')
+    def five_aw(self, request, course_id):
+        # TODO: check permissions for it
+        queryset = Submit.objects.filter(
+            problem__lesson__course__id=course_id
+        ).annotate(
+            ordering=models.Case(
+                models.When(status="OK", then=models.Value(0)),
+                models.When(status="AW", then=models.Value(1)),
+                default=models.Value(2),
+                output_field=models.IntegerField()
+            )
+        ).prefetch_related(
+            'problem'
+        ).order_by(
+            'student', 'problem', 'ordering', 'id'
+        ).distinct('student', 'problem')
+        # filtering over distinct leads to ignoring distinct oO
+        # that's why I have to filter manually gg
+
+        serializer = SubmitListSerializer(list(filter(
+            lambda x: x.status == Submit.AWAITING_MANUAL,
+            queryset
+        ))[:5], many=True)
+        return Response(serializer.data)
+
     def create(self, request: Request, *args, **kwargs):
         problem = Problem.objects.get(id=request.data['problem'])
         course = object_to_course(problem)
