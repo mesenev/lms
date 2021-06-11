@@ -32,7 +32,7 @@
             <cv-button
               disabled="True"
               v-if="pickedTeachers.length === 0">
-                Подтвердить выбор
+                Введите почту сотрудника
             </cv-button>
             <cv-button v-else
             v-on:click="addStuff()">

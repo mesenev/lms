@@ -1,10 +1,12 @@
 from django.db.models import Q
-from rest_framework import viewsets
+from rest_framework import viewsets, exceptions
+from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from lesson.models import Lesson, LessonContent
 from lesson.serializers import LessonSerializer, MaterialSerializer, LessonShortSerializer
+from users.management.commands.registergroups import TEACHER
 from users.permissions import CourseStaffOrReadOnlyForStudents
 
 
@@ -31,6 +33,18 @@ class LessonViewSet(viewsets.ModelViewSet):
         user = get_object_or_404(queryset, pk=pk)
         serializer = LessonSerializer(user)
         return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        if request.user.groups.filter(name=TEACHER).exists():
+            return super().create(request, *args, **kwargs)
+        raise exceptions.PermissionDenied
+
+
+@api_view(['DELETE'])
+def delete_lesson(request, id):
+    deletedLesson = Lesson.objects.all()
+    deletedLesson.get(id=id).delete()
+    return Response(id)
 
 
 class MaterialViewSet(viewsets.ModelViewSet):
