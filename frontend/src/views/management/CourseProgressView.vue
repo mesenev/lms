@@ -32,8 +32,8 @@
           <cv-data-table-cell
                 v-for="les in lessons"
                               :key="les.id">
-            {{sum(user.lessons[les.id])}}
-              <div class="mark" v-for="(value, name) in user.lessons[les.id]" :key="value">
+            {{sum(user.progress[les.id])}}
+              <div class="mark" v-for="(value, name) in user.progress[les.id]" :key="value">
                 <cv-tag :label="value.toString()"
                 :kind="color(name)"/>
               </div>
@@ -117,7 +117,8 @@ export default class CourseProgressView extends Vue {
     this.lessons = await this.lessonStore.fetchLessonsByCourseId(this.courseId);
     this.students = this.students.map(
       obj => Object.assign({}, obj, { user: this.users[obj.user.toLocaleString()]}));
-    this.students1 = JSON.parse(JSON.stringify(this.students))
+    this.students1 = JSON.parse(JSON.stringify(this.students));
+    console.log(1234567890)
     this.loading = false;
   }
 

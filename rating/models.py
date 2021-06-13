@@ -4,11 +4,20 @@ from lesson.models import Lesson
 from users.models import User
 
 
+class Attendance(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.SET_NULL, related_name='attendance', null=True)
+    lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, related_name='attendance', null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    be = models.BooleanField(default=False)
+
+
+
+
 class CourseProgress(models.Model):
     course = models.ForeignKey(Course, on_delete=models.SET_NULL, related_name='progress', null=True)
-    lessons = models.JSONField(null=True)
-    attendance = models.JSONField(null=True)
+    progress = models.JSONField(null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    attendance = models.ForeignKey(Attendance, on_delete=models.SET_NULL, related_name='course_attendance', null=True)
 
     class Meta:
         unique_together = ('course', 'user')
@@ -18,6 +27,7 @@ class LessonProgress(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, related_name='progress', null=True)
     solved = models.JSONField(null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    attendance = models.ForeignKey(Attendance, on_delete=models.SET_NULL, related_name='lesson_attendance', null=True)
 
     class Meta:
         unique_together = ('lesson', 'user')
