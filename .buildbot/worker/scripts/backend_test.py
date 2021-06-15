@@ -18,6 +18,7 @@ def test_backend():
             'python',
             'manage.py',
             'test',
+            '--noinput'
         ]
     ).returncode
     return exec_code, build_message(exec_code)
