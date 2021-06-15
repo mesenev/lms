@@ -1,4 +1,5 @@
 from django.db import models
+
 from course.models import Course
 from lesson.models import Lesson
 from users.models import User
@@ -9,8 +10,6 @@ class Attendance(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, related_name='attendance', null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     be = models.BooleanField(default=False)
-
-
 
 
 class CourseProgress(models.Model):

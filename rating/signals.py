@@ -1,9 +1,9 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from rating.models import CourseProgress, LessonProgress, Attendance
 from lesson.models import Lesson
 from problem.models import Submit, Problem
+from rating.models import CourseProgress, LessonProgress, Attendance
 from users.models import CourseAssignStudent
 
 
@@ -55,7 +55,7 @@ def add_student_to_rating_of_lesson(sender, instance, created, **kwargs):
     for i in Lesson.objects.filter(course=course):
         validated_data = {'course': course, 'lesson': i, 'user': user}
         at = Attendance.objects.create(**validated_data)
-        validated_data = {'user': user, 'lesson': i, 'solved': {'CW': {}, 'HW': {}, 'EX': {}},'attendance': at}
+        validated_data = {'user': user, 'lesson': i, 'solved': {'CW': {}, 'HW': {}, 'EX': {}}, 'attendance': at}
         LessonProgress.objects.create(**validated_data)
 
 
@@ -64,7 +64,6 @@ post_save.connect(add_student_to_rating_of_lesson, sender=CourseAssignStudent)
 
 @receiver(post_save, sender=Lesson)
 def add_student_to_rating_lesson(sender, instance, created, **kwargs):
-    print("Добавляем урок")
     if not created or instance.course is None:
         return
     for i in CourseAssignStudent.objects.filter(course=instance.course.id):
