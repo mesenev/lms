@@ -13,9 +13,10 @@ class CourseProgressViewSet(viewsets.ModelViewSet):
 class LessonProgressViewSet(viewsets.ModelViewSet):
     serializer_class = LessonProgressSerializer
     queryset = LessonProgress.objects.all()
-    filterset_fields = ['lesson_id', ]
+    filterset_fields = ['lesson_id' ]
 
 
 class AttendanceViewSet(viewsets.ModelViewSet):
     serializer_class = AttendanceSerializer
     queryset = Attendance.objects.all()
+    filterset_fields = ['lesson_id','course_id']

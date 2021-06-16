@@ -1,8 +1,9 @@
 import UserProgress from '@/models/UserProgress';
+import Attendance from '@/models/Attendance';
 import store from '@/store';
 import axios from 'axios';
-import { Dictionary } from "vue-router/types/router";
-import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
+import {Dictionary} from "vue-router/types/router";
+import {Action, getModule, Module, Mutation, VuexModule} from 'vuex-module-decorators';
 
 @Module({ namespaced: true, name: 'progress', store, dynamic: true })
 class ProgressModule extends VuexModule {
@@ -43,13 +44,26 @@ class ProgressModule extends VuexModule {
       return this.courseProgress[id];
     }
     let answer = { data: {} };
-    await axios.get('/api/courseprogress/', { params: { lesson_id: id } })
+    await axios.get('/api/courseprogress/', { params: { course_id: id } })
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
       })
     const result = answer.data as Array<UserProgress>;
     this.setCourseProgress({ [id]: result })
+    return result;
+  }
+
+
+  @Action
+  async fetchAttendance(id: number): Promise<Attendance[]>{
+    let answer = { data: {} };
+    await axios.get('/api/attendance/', { params: { course_id: id } })
+      .then(response => answer = response)
+      .catch(error => {
+        console.log(error);
+      })
+    const result = answer.data as Array<Attendance>;
     return result;
   }
 }

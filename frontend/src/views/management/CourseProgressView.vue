@@ -22,25 +22,22 @@
         </cv-data-table-heading>
       </template>
       <template slot="data">
-        <cv-data-table-row v-for="user in progress" :key="user.id">
+        <cv-data-table-row v-for="user_progress in progress" :key="user_progress.id">
           <cv-data-table-cell>
-            <router-link :to="{ name: 'profile-page', params: { userId: user.user.id } }"
+            <router-link :to="{ name: 'profile-page', params: { userId: user_progress.user.id } }"
                          class="course--title" tag="p">
-              <UserComponent :user="user.user"/>
+              <UserComponent :user="user_progress.user"/>
             </router-link>
           </cv-data-table-cell>
-          <cv-data-table-cell
-                v-for="les in lessons"
-                              :key="les.id">
-            {{sum(user.progress[les.id])}}
-              <div class="mark" v-for="(value, name) in user.progress[les.id]" :key="value">
-                <cv-tag :label="value.toString()"
-                :kind="color(name)"/>
-              </div>
-            <cv-checkbox v-model="user.attendance[les.id]" class="mark">3</cv-checkbox>
+          <cv-data-table-cell v-for="les in lessons" :key="les.id">
+            {{sum(user_progress.progress[les.id])}}
+            <div class="mark" v-for="(value, name) in user_progress.progress[les.id]" :key="value">
+              <cv-tag :label="value.toString()" :kind="color(name)"/>
+            </div>
+            <cv-checkbox v-model="student_attendance[user_progress.user.id][les.id]" class="mark">3</cv-checkbox>
           </cv-data-table-cell>
           <cv-data-table-cell>
-            {{ average(user.lessons)}}
+            {{ average(user_progress.lessons)}}
           </cv-data-table-cell>
         </cv-data-table-row>
       </template>
@@ -56,6 +53,7 @@ import UserComponent from "@/components/UserComponent.vue";
 import _ from 'lodash';
 import UserModel from "@/models/UserModel";
 import UserProgress from '@/models/UserProgress';
+import Attendance from '@/models/Attendance'
 import courseStore from '@/store/modules/course'
 import problemStore from "@/store/modules/problem"
 import progressStore from "@/store/modules/progress"
@@ -72,9 +70,11 @@ import axios from "axios";
 export default class CourseProgressView extends Vue {
   @Prop() courseId!: number;
 
-  students: Array<UserProgress> = [];
-  students1: Array<UserProgress> = [...this.students];
+  students_progress: Array<UserProgress> = [];
+  s: Array<Attendance> = [];
   users: Dictionary<UserModel> = {};
+  student_attendance: Dictionary<any> = {}
+  student_attendance_copy: Dictionary<any> = {}
   lessons: Array<LessonModel> = [];
   course: CourseModel = { ...courseStore.newCourse };
   userStore = userStore;
@@ -101,9 +101,13 @@ export default class CourseProgressView extends Vue {
 
   get progress() {
     if (this.dontSolved) {
-      return this.students.filter(x => Object.keys(x.solved["HW"]).length === 0)
+      return this.students_progress.filter(x => Object.keys(x.solved["HW"]).length === 0)
     }
-    return this.students;
+    return this.students_progress;
+  }
+
+  get attendance() {
+    return this.student_attendance
   }
 
   get cours() {
@@ -112,13 +116,25 @@ export default class CourseProgressView extends Vue {
 
   async created() {
     this.course = await this.courseStore.fetchCourseById(this.courseId);
-    this.students = await this.progressStore.fetchCourseProgressById(this.courseId);
+    this.students_progress = await this.progressStore.fetchCourseProgressById(this.courseId);
     this.users = await this.userStore.fetchStudentsByCourseId(this.courseId);
     this.lessons = await this.lessonStore.fetchLessonsByCourseId(this.courseId);
-    this.students = this.students.map(
+    this.students_progress = this.students_progress.map(
       obj => Object.assign({}, obj, { user: this.users[obj.user.toLocaleString()]}));
-    this.students1 = JSON.parse(JSON.stringify(this.students));
-    console.log(1234567890)
+    this.s = await this.progressStore.fetchAttendance(this.courseId);
+    let a = null
+    for (const i in this.s) {
+      a = this.s[i]
+      if (this.student_attendance[a.user]) {
+         this.student_attendance[a.user][a.lesson] = a.be
+      }
+      else {
+        this.student_attendance[a.user] = {}
+        this.student_attendance[a.user][a.lesson] = a.be
+      }
+    }
+    //this.student_attendance_copy = JSON.parse(JSON.stringify(this.student_attendance));
+    this.student_attendance_copy = _.cloneDeep(this.student_attendance)
     this.loading = false;
   }
 
@@ -141,10 +157,8 @@ export default class CourseProgressView extends Vue {
     }
   }
 
-  sum(type: Dictionary<number>) {
-    let s = 0;
-    s += type['CW'] + type['HW'] + type['EX'];
-    return s
+  sum(type: any) {
+    return (type['CW'] + type['HW'] + type['EX'])
   }
 
   average(progress: Dictionary<Dictionary<number>>) {
@@ -158,20 +172,21 @@ export default class CourseProgressView extends Vue {
   }
 
   get change() {
-    return _.isEqual(this.students, this.students1);
+    console.log(Object.values(this.student_attendance) === Object.values(this.student_attendance_copy))
+    return _.isEqualWith(Object.values(this.student_attendance),Object.values(this.student_attendance_copy))
   }
 
   mark(): void {
-    let progress: UserProgress = {
+    /*let progress: UserProgress = {
       id: NaN,
       user: NaN,
       solved: {},
     }
     let request: any;
-    for (const i in this.students) {
-      progress = JSON.parse(JSON.stringify(this.students[i]));
+    for (const i in this.students_progress) {
+      progress = JSON.parse(JSON.stringify(this.students_progress[i]));
       progress.user = progress.user.id;
-      request = axios.patch(`/api/courseprogress/${this.students[i].id}/`, progress);
+      request = axios.patch(`/api/courseprogress/${this.students_progress[i].id}/`, progress);
     }
     request.then((response: any) => {
       console.log("Успех")
@@ -179,7 +194,7 @@ export default class CourseProgressView extends Vue {
     request.catch((error: any) => {
       console.log("Не успех")
     })
-    request.finally(() => this.students1 = this.students);
+    request.finally(() => this.students_progress_copy = this.students_progress);*/
 
   }
 }

@@ -72,8 +72,6 @@ def add_student_to_rating_lesson(sender, instance, created, **kwargs):
         validated_data = {'user': i.user, 'lesson': instance, 'solved': {'CW': {}, 'HW': {}, 'EX': {}},
                           'attendance': at}
         LessonProgress.objects.create(**validated_data)
-        CourseProgress.objects.filter(user=i.user, course=i.course).update(
-            **{'progress': {'CW': 0, 'HW': 0, 'EX': 0}})
 
 
 @receiver(post_save, sender=CourseAssignStudent)
@@ -84,7 +82,8 @@ def add_student_to_rating_course(sender, instance, created, **kwargs):
     for i in Lesson.objects.filter(course=instance.course):
         existLessons[i.id] = {'CW': 0, 'HW': 0, 'EX': 0}
     validated_data = {'course': instance.course, 'user': instance.user, 'progress': existLessons}
-    CourseProgress.objects.create(**validated_data)
+    i = CourseProgress.objects.create(**validated_data)
+    i.attendance.add(*(Attendance.objects.filter(user=instance.user, course=instance.course)))
 
 
 @receiver(post_save, sender=Lesson)
@@ -92,18 +91,18 @@ def add_lessons_to_course_rating(sender, instance, created, **kwargs):
     if not created and not instance.course:
         return
     for i in CourseProgress.objects.filter(course=instance.course):
-        i.progress[instance.id] = {'CW': 0, 'HW': 0, 'EX': 0}
-        #i.attendance.add(Attendance.objects.filter(lesson=sender))
+        i.progress.update({instance.id:{'CW': 0, 'HW': 0, 'EX': 0}})
+        i.attendance.add(*(Attendance.objects.filter(user=i.user, course=i.course)))
         i.save()
 
 
-@receiver(post_save, sender=Attendance)
-def update_attendance(sender, instance, created, **kwargs):
-    if not created and not instance.course:
+'''@receiver(post_save, sender=Attendance)
+def update_attendance(sender, instance, updated, **kwargs):
+    if not updated and not instance.course:
         return
     for i in CourseProgress.objects.filter(course=instance.course):
         i.progress[instance.id] = {'CW': 0, 'HW': 0, 'EX': 0}
         #print(Attendance.objects.filter(user=instance.user, course=instance.course))
         i.attendance.add(*(Attendance.objects.filter(user=instance.user, course=instance.course)))
         print(i.attendance)
-        i.save()
+        i.save()'''

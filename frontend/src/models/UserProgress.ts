@@ -6,7 +6,7 @@ export default interface UserProgress {
   attendance?: Array<boolean>;
   lesson?: number;
   course?: number;
-  lessons?: Dictionary<string>;
+  progress?: Dictionary<string>;
   solved: Dictionary<Dictionary<string>>;
-  user: UserModel | any;
+  user?: UserModel | any;
 }
