@@ -31,7 +31,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
-        if request.user.groups.filter(name=TEACHER).exists():
+        if request.user.groups.filter(name='TEACHER').exists():
             return super().create(request, *args, **kwargs)
         raise exceptions.PermissionDenied
 
