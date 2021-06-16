@@ -1,5 +1,15 @@
-//@import '~carbon-components/css/carbon-components.css';
+$feature-flags: (
+    enable-css-custom-properties: true,
+);
+
+@import '~carbon-components/css/carbon-components.css';
 @import '~carbon-components/scss/globals/scss/styles';
+
+
+$carbon--theme: $carbon--theme--g90;
+@include carbon--theme();
+
+@import 'carbon-components/scss/globals/scss/styles';
 
 :root {
     @include carbon--colors();
