@@ -1,12 +1,12 @@
 <template>
   <div class="bx--grid">
-    <div class="bx--row">
+    <div class="bx--row header-container">
       <h1 v-if="!loading && lesson" class="main-title">
         {{ lesson.name }}
       </h1>
       <cv-skeleton-text
         v-else :heading="true" class="main-title" width="'35%'"/>
-      <div class="underline--container">
+      <div class="description-container">
         <span v-if="!loading && lesson">
           Дедлайн {{ lesson.deadline }}
         </span>
@@ -14,6 +14,7 @@
         <div v-if="isStaff">
           <cv-button-skeleton v-if="changingVisibility || !this.lesson" kind="ghost"/>
           <cv-button v-else
+                     class="lesson-hide-button"
                      :icon="hiddenIcon"
                      kind="ghost"
                      v-on:click="changeLessonVisibility">
@@ -178,6 +179,13 @@ export default class LessonView extends Vue {
 
 <style scoped lang="stylus">
 
+.description-container
+  margin-left var(--cds-spacing-05)
+  padding-left var(--cds-spacing-05)
+
+.lesson-hide-button
+  margin-left -1rem
+
 .accordion
   height 100%
 
@@ -197,25 +205,11 @@ export default class LessonView extends Vue {
 .add
   background-color var(--cds-ui-02)
 
-.title
-  margin-top 1rem
-  display flex
-  flex-direction column
-  align-items flex-start
-
 .back-to-lesson
   background-color transparent
   border 1px solid var(--cds-text-01)
   cursor pointer
   user-select none
-
-.underline--container
-  display flex
-  align-content center
-
-  & span
-    display inline-flex
-    align-items center
 
 .content
   margin-top 1rem
