@@ -4,8 +4,8 @@
       <h1>{{ isNewLesson ? 'Создание урока' : 'Редактирование урока' }}</h1>
     </div>
     <cv-loading v-if="fetchingLesson"/>
-    <div v-else class="bx-row content">
-      <div class="bx--col-lg-8 left">
+    <div v-else class="bx--row content">
+      <div class="bx--col-lg-8 bx--col-md-4 bx--col-sm-2">
         <cv-inline-notification
           v-if="showNotification"
           @close="hideNotification"
@@ -28,8 +28,8 @@
           :cal-options=calOptions
         />
       </div>
-      <div class="bx--col-lg-8 right">
-        <cv-search class="search" v-model="query"></cv-search>
+
+      <div class="bx--col-lg-8 bx--col-md-4 bx--col-sm-2">
         <cv-structured-list class="classwork">
           <template slot="headings">
             <cv-structured-list-heading> Классная работа</cv-structured-list-heading>
@@ -93,7 +93,7 @@ export default class LessonEditView extends NotificationMixinComponent {
   fetchingLesson = true;
   lesson: LessonModel = this.store.getNewLesson;
   lessonEdit: LessonModel = { ...this.lesson }
-  calOptions = { ateFormat: 'Y/m/d' }
+  calOptions = { dateFormat: 'd/m/Y ' }
   query = '';
 
   async created() {
