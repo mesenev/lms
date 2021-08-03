@@ -1,11 +1,11 @@
 <template>
   <cv-grid>
     <cv-row class="header">
-      <h1>Отправленные решения</h1>
+      <h1>Отправленные решения </h1>
     </cv-row>
     <cv-row>
       <cv-column :lg="8" class="items">
-        <cv-search label="label" placeholder="search"/>
+        <cv-search label="label" placeholder="поиск"/>
         <cv-data-table
           ref="table"
           :columns="columns"
@@ -30,20 +30,44 @@ import SubmitStore from '@/store/modules/submit';
 import TrashCan16 from '@carbon/icons-vue/es/trash-can/16';
 import Save16 from '@carbon/icons-vue/es/save/16';
 import Download16 from '@carbon/icons-vue/es/download/16';
+import SubmitModule from "@/store/modules/submit";
+
 
 
 @Component({ components: { TrashCan16, Save16, Download16 } })
 export default class SolutionsListView extends Vue {
   @Prop() courseId!: number;
-  loading = false;
+  loading = false
   store = SubmitStore;
   submits_request: PaginatedList<SubmitModel> = { count: 0, results: [] };
   pagination_settings?: TablePagination;
 
+
+
   get to_display() {
-    if (this.submits_request)
-      return this.submits_request.results;
-    return [];
+    let i: number
+    const returned: Array<Array<string>> = [["Tom", "Bob", "Alice"]]
+    returned.pop()
+    if (this.submits_request) {
+      for (i = 0 ; i < this.submits_request.results.length; i++){
+        const problem_data: string = "ID : " + this.submits_request.results[i].problem.id as unknown as string + " Название : " + this.submits_request.results[i].problem.name
+        const created_at_data: string = this.submits_request.results[i].created_at.slice(0, 4) + "." + this.submits_request.results[i].created_at.slice(5, 7) + "." + this.submits_request.results[i].created_at.slice(8, 10) + "---" + this.submits_request.results[i].created_at.slice(11, 19)
+        returned.push(
+          [
+            this.submits_request.results[i].id as unknown as string,
+            problem_data,
+            this.submits_request.results[i].student as unknown as string,
+            this.submits_request.results[i].status as unknown as string,
+            created_at_data
+          ]
+        )
+      }
+
+      return returned;
+    }
+    else {
+      return [];
+    }
   }
 
   get pagination() {
