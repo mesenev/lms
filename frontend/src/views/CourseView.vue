@@ -97,6 +97,3 @@ export default class CourseView extends Vue {
 }
 
 </script>
-
-<style scoped lang="stylus">
-</style>

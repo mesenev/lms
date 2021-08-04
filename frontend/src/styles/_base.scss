@@ -11,6 +11,7 @@ html, body {
 .header-container {
     display: flex;
     flex-flow: column;
+    min-height: 90px;
 
     .course-description {
         padding-left: var(--cds-spacing-05);
