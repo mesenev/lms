@@ -42,6 +42,7 @@ export default class SolutionsListView extends Vue {
 
   get to_display() {
 <<<<<<< HEAD
+<<<<<<< HEAD
     let i: number
     const returned: Array<Array<string>> = [["Tom", "Bob", "Alice"]]
     returned.pop()
@@ -65,6 +66,11 @@ export default class SolutionsListView extends Vue {
     else {
       return [];
     }
+=======
+    if (this.submits_request)
+      return this.submits_request.results;
+    return [];
+>>>>>>> parent of bec8744 (Табличку починил)
 =======
     if (this.submits_request)
       return this.submits_request.results;
