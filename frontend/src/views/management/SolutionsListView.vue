@@ -1,11 +1,11 @@
 <template>
   <cv-grid>
     <cv-row class="header">
-      <h1>Отправленные решения </h1>
+      <h1>Отправленные решения</h1>
     </cv-row>
     <cv-row>
       <cv-column :lg="8" class="items">
-        <cv-search label="label" placeholder="поиск"/>
+        <cv-search label="label" placeholder="search"/>
         <cv-data-table
           ref="table"
           :columns="columns"
@@ -35,14 +35,13 @@ import Download16 from '@carbon/icons-vue/es/download/16';
 @Component({ components: { TrashCan16, Save16, Download16 } })
 export default class SolutionsListView extends Vue {
   @Prop() courseId!: number;
-  loading = false
+  loading = false;
   store = SubmitStore;
   submits_request: PaginatedList<SubmitModel> = { count: 0, results: [] };
   pagination_settings?: TablePagination;
 
-
-
   get to_display() {
+<<<<<<< HEAD
     let i: number
     const returned: Array<Array<string>> = [["Tom", "Bob", "Alice"]]
     returned.pop()
@@ -66,6 +65,11 @@ export default class SolutionsListView extends Vue {
     else {
       return [];
     }
+=======
+    if (this.submits_request)
+      return this.submits_request.results;
+    return [];
+>>>>>>> parent of bec8744 (Табличку починил)
   }
 
   get pagination() {
