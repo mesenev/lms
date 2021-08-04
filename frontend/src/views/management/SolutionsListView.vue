@@ -30,8 +30,6 @@ import SubmitStore from '@/store/modules/submit';
 import TrashCan16 from '@carbon/icons-vue/es/trash-can/16';
 import Save16 from '@carbon/icons-vue/es/save/16';
 import Download16 from '@carbon/icons-vue/es/download/16';
-import SubmitModule from "@/store/modules/submit";
-
 
 
 @Component({ components: { TrashCan16, Save16, Download16 } })
@@ -54,8 +52,8 @@ export default class SolutionsListView extends Vue {
         const created_at_data: string = this.submits_request.results[i].created_at.slice(0, 4) + "." + this.submits_request.results[i].created_at.slice(5, 7) + "." + this.submits_request.results[i].created_at.slice(8, 10) + "---" + this.submits_request.results[i].created_at.slice(11, 19)
         returned.push(
           [
-            this.submits_request.results[i].id as unknown as string,
             problem_data,
+            this.submits_request.results[i].id as unknown as string,
             this.submits_request.results[i].student as unknown as string,
             this.submits_request.results[i].status as unknown as string,
             created_at_data
@@ -79,7 +77,7 @@ export default class SolutionsListView extends Vue {
   }
 
   get columns() {
-    return ['id', 'Проблема', 'Студент', 'Статус', 'Отправка']
+    return ['Проблема', 'Ссылка на решение', 'Студент', 'Статус', 'Отправка']
   }
 
   async created() {
