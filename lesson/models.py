@@ -32,4 +32,10 @@ class LessonContent(models.Model):
     content = models.TextField()
 
 
+class LessonInSchedule(models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    order = models.IntegerField()
+
+
 admin.site.register(Lesson)
