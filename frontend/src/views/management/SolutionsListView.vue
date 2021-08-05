@@ -17,14 +17,18 @@
           <template v-if="loading" slot='data'>
             <cv-data-table-skeleton/>
           </template>
-          <template slot="data">
+          <template v-else slot="data">
             <cv-data-table-row v-for="(row, rowIndex) in to_display" :key="`${rowIndex}`" :value="`${rowIndex}`">
 
-              <cv-data-table-cell><p>{{row[0]}}</p></cv-data-table-cell>
+              <cv-data-table-cell>
+                {{row[0]}}
+                <a :href = "row[1]"><svg data-v-65e70dec="" focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path data-v-65e70dec="" d="M13,14H3c-0.6,0-1-0.4-1-1V3c0-0.6,0.4-1,1-1h5v1H3v10h10V8h1v5C14,13.6,13.6,14,13,14z"></path><path data-v-65e70dec="" d="M10 1L10 2 13.3 2 9 6.3 9.7 7 14 2.7 14 6 15 6 15 1z"></path></svg></a>
+              </cv-data-table-cell>
 
-              <cv-data-table-cell><a :href = "row[1]">Ссылка на решение</a></cv-data-table-cell>
 
-              <cv-data-table-cell>{{row[2]}}</cv-data-table-cell>
+              <cv-data-table-cell>
+                <user-component :user-id="row[2]"></user-component>
+              </cv-data-table-cell>
 
               <cv-data-table-cell v-if="row[3]==='OK'">
                 <cv-tag kind="green" :label="row[3]"/>
@@ -32,7 +36,6 @@
               <cv-data-table-cell v-if="row[3]==='NP'">
                 <cv-tag kind="purple" :label="row[3]"/>
               </cv-data-table-cell>
-
               <cv-data-table-cell><cv-tag kind="blue" :label="row[4]" /></cv-data-table-cell>
 
 
@@ -53,12 +56,12 @@ import SubmitStore from '@/store/modules/submit';
 import TrashCan16 from '@carbon/icons-vue/es/trash-can/16';
 import Save16 from '@carbon/icons-vue/es/save/16';
 import Download16 from '@carbon/icons-vue/es/download/16';
+import UserComponent from "@/components/UserComponent.vue";
 
 
 
 
-
-@Component({ components: { TrashCan16, Save16, Download16 } })
+@Component({ components: {UserComponent, TrashCan16, Save16, Download16 } })
 export default class SolutionsListView extends Vue {
   @Prop() courseId!: number;
   loading = false
@@ -74,7 +77,7 @@ export default class SolutionsListView extends Vue {
     returned.pop()
     if (this.submits_request) {
       for (i = 0 ; i < this.submits_request.results.length; i++){
-        const problem_data: string = "ID : " + this.submits_request.results[i].problem.id as unknown as string + " Название : " + this.submits_request.results[i].problem.name
+        const problem_data: string = this.submits_request.results[i].problem.name
         const created_at_data: string = this.submits_request.results[i].created_at.slice(0, 4) + "." + this.submits_request.results[i].created_at.slice(5, 7) + "." + this.submits_request.results[i].created_at.slice(8, 10) + "---" + this.submits_request.results[i].created_at.slice(11, 19)
         const href_to_submit: string = "/course/" + this.courseId as unknown as string + "/lesson/" + this.submits_request.results[i].lesson as unknown as string + "/problem/" + this.submits_request.results[i].problem.id as unknown as string + "/submit/" + this.submits_request.results[i].id as unknown as string
         returned.push(
@@ -104,7 +107,7 @@ export default class SolutionsListView extends Vue {
   }
 
   get columns() {
-    return ['Проблема', 'Ссылка на решение', 'Студент', 'Статус', 'Отправка']
+    return ['Проблема', 'Студент', 'Статус', 'Отправка']
   }
 
   async created() {
