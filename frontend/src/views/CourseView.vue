@@ -22,13 +22,16 @@
           size="size"/>
         <cv-data-table-skeleton v-if="loading" :columns="1" :rows="6"/>
         <cv-structured-list v-else>
-          <template slot="items">
+          <template slot="items" v-if="filterLessons.length > 0">
             <cv-structured-list-item
               class="item"
               v-for="lesson in filterLessons"
               :key="lesson.id">
               <lesson-list-component :lesson-prop='lesson'/>
             </cv-structured-list-item>
+          </template>
+          <template slot="items" v-if="filterLessons.length === 0">
+              <h1 v-if="user.staff_for.includes(course.id)">Расписание для курса не составлено</h1>
           </template>
         </cv-structured-list>
       </div>
@@ -90,6 +93,10 @@ export default class CourseView extends Vue {
   }
 
   get filterLessons() {
+    if (typeof(this.lessons === String)) {
+      console.log('ADSAASDADSD')
+      return this.lessons
+    }
     return this.lessons.filter((l: LessonModel) => {
       return l.name.toLowerCase().includes(this.searchValue.toLowerCase());
     });

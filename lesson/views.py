@@ -28,8 +28,11 @@ class LessonViewSet(viewsets.ModelViewSet):
         )
         ordered_lessons = list()
         for lesson in lessons:
-            for position in lesson.course.schedule.lessons:
-                ordered_lessons.append((position['lesson']['id'], position['lesson']['name']))
+            try:
+                for position in lesson.course.schedule.lessons:
+                    ordered_lessons.append((position['lesson']['id'], position['lesson']['name']))
+            except CourseSchedule.DoesNotExist:
+                return Lesson.objects.none()
         ordered_lessons = sorted(list(set(ordered_lessons)), key=lambda x: x[0])
         bulk_lesson_in_schedule = [LessonInSchedule(lesson=Lesson.objects.get(name=name),
                                                     course=Course.objects.get(id=course_id),
@@ -37,6 +40,7 @@ class LessonViewSet(viewsets.ModelViewSet):
         LessonInSchedule.objects.bulk_create(bulk_lesson_in_schedule)
         lessons = lessons.annotate(lesson_order=Min('lessoninschedule__order')).order_by('lesson_order')
         return lessons
+
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -47,6 +51,7 @@ class LessonViewSet(viewsets.ModelViewSet):
         queryset = self.get_queryset()
         user = get_object_or_404(queryset, pk=pk)
         serializer = LessonSerializer(user)
+        print('='*50, 'and here too00')
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
