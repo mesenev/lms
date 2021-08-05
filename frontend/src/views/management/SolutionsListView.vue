@@ -9,12 +9,35 @@
         <cv-data-table
           ref="table"
           :columns="columns"
+
           :data="to_display"
           :pagination="pagination"
           :zebra="true"
           @pagination="actionOnPagination">
           <template v-if="loading" slot='data'>
             <cv-data-table-skeleton/>
+          </template>
+          <template slot="data">
+            <cv-data-table-row v-for="(row, rowIndex) in to_display" :key="`${rowIndex}`" :value="`${rowIndex}`">
+
+              <cv-data-table-cell><p>{{row[0]}}</p></cv-data-table-cell>
+
+              <cv-data-table-cell><a :href = "row[1]">Ссылка на решение</a></cv-data-table-cell>
+
+              <cv-data-table-cell>{{row[2]}}</cv-data-table-cell>
+
+              <cv-data-table-cell v-if="row[3]==='OK'">
+                <cv-tag kind="green" :label="row[3]"/>
+              </cv-data-table-cell>
+              <cv-data-table-cell v-if="row[3]==='NP'">
+                <cv-tag kind="purple" :label="row[3]"/>
+              </cv-data-table-cell>
+
+              <cv-data-table-cell><cv-tag kind="blue" :label="row[4]" /></cv-data-table-cell>
+
+
+          </cv-data-table-row>
+
           </template>
         </cv-data-table>
       </cv-column>
@@ -30,6 +53,9 @@ import SubmitStore from '@/store/modules/submit';
 import TrashCan16 from '@carbon/icons-vue/es/trash-can/16';
 import Save16 from '@carbon/icons-vue/es/save/16';
 import Download16 from '@carbon/icons-vue/es/download/16';
+
+
+
 
 
 @Component({ components: { TrashCan16, Save16, Download16 } })
@@ -50,10 +76,11 @@ export default class SolutionsListView extends Vue {
       for (i = 0 ; i < this.submits_request.results.length; i++){
         const problem_data: string = "ID : " + this.submits_request.results[i].problem.id as unknown as string + " Название : " + this.submits_request.results[i].problem.name
         const created_at_data: string = this.submits_request.results[i].created_at.slice(0, 4) + "." + this.submits_request.results[i].created_at.slice(5, 7) + "." + this.submits_request.results[i].created_at.slice(8, 10) + "---" + this.submits_request.results[i].created_at.slice(11, 19)
+        const href_to_submit: string = "/course/" + this.courseId as unknown as string + "/lesson/" + this.submits_request.results[i].lesson as unknown as string + "/problem/" + this.submits_request.results[i].problem.id as unknown as string + "/submit/" + this.submits_request.results[i].id as unknown as string
         returned.push(
           [
             problem_data,
-            this.submits_request.results[i].id as unknown as string,
+            href_to_submit,
             this.submits_request.results[i].student as unknown as string,
             this.submits_request.results[i].status as unknown as string,
             created_at_data
