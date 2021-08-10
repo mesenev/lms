@@ -8,7 +8,6 @@
           <cv-link v-if="problem"
                    class="show-problem-link"
                    @click="showProblem">
-
             Условие задачи
           </cv-link>
           <cv-skeleton-text v-else class="" width="'35%'"/>
@@ -99,12 +98,12 @@ import SubmitModel from '@/models/SubmitModel';
 import problemStore from '@/store/modules/problem';
 import submitStore from '@/store/modules/submit';
 import userStore from '@/store/modules/user';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 
 
-@Component({ components: { SubmitComponent, ProblemDescription, SubmitStatus, UserComponent } })
+@Component({components: {SubmitComponent, ProblemDescription, SubmitStatus, UserComponent}})
 export default class ProblemView extends Vue {
-  @Prop({ required: false, default: null }) submitIdProp!: number | null;
+  @Prop({required: false, default: null}) submitIdProp!: number | null;
   public submitId = this.submitIdProp;
   public studentId = NaN;
 
@@ -169,8 +168,8 @@ export default class ProblemView extends Vue {
     }
   }
 
-  checkedStudent(studentId: number): boolean {
-    return studentId === this.studentId;
+  checkedStudent(studentId: string): boolean {
+    return Number(studentId) === this.studentId;
   }
 
   showProblem() {
