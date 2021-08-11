@@ -27,7 +27,7 @@
 
 
               <cv-data-table-cell>
-                <user-component :user-id="row[2]"></user-component>
+                <user-component :user-id="row[2]" ></user-component>
               </cv-data-table-cell>
 
               <cv-data-table-cell v-if="row[3]==='OK'">
@@ -36,6 +36,7 @@
               <cv-data-table-cell v-if="row[3]==='NP'">
                 <cv-tag kind="purple" :label="row[3]"/>
               </cv-data-table-cell>
+
               <cv-data-table-cell><cv-tag kind="blue" :label="row[4]" /></cv-data-table-cell>
 
 
@@ -72,24 +73,30 @@ export default class SolutionsListView extends Vue {
 
 
   get to_display() {
-    let i: number
-    const returned: Array<Array<string>> = [["Tom", "Bob", "Alice"]]
-    returned.pop()
+    const returned: string[][] = []
     if (this.submits_request) {
-      for (i = 0 ; i < this.submits_request.results.length; i++){
-        const problem_data: string = this.submits_request.results[i].problem.name
-        const created_at_data: string = this.submits_request.results[i].created_at.slice(0, 4) + "." + this.submits_request.results[i].created_at.slice(5, 7) + "." + this.submits_request.results[i].created_at.slice(8, 10) + "---" + this.submits_request.results[i].created_at.slice(11, 19)
-        const href_to_submit: string = "/course/" + this.courseId as unknown as string + "/lesson/" + this.submits_request.results[i].lesson as unknown as string + "/problem/" + this.submits_request.results[i].problem.id as unknown as string + "/submit/" + this.submits_request.results[i].id as unknown as string
+      this.submits_request.results.forEach(element =>{
+        const problem_data: string = element.problem.name;
+        const created_at_data: string = element.created_at.slice(0, 4) + "."
+          + element.created_at.slice(5, 7) + "." +
+          element.created_at.slice(8, 10) +
+          "---" + element.created_at.slice(11, 19);
+
+        const href_to_submit: string = "/course/" + this.courseId as unknown as string   + "/lesson/" +
+          element.lesson as unknown as string + "/problem/" +
+          element.problem.id as unknown as string + "/submit/" +
+          element.id as unknown as string;
+
         returned.push(
           [
             problem_data,
             href_to_submit,
-            this.submits_request.results[i].student as unknown as string,
-            this.submits_request.results[i].status as unknown as string,
+            element.student as unknown as string,
+            element.status as unknown as string,
             created_at_data
           ]
         )
-      }
+      });
 
       return returned;
     }
