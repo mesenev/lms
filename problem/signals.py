@@ -19,8 +19,11 @@ def update_problem_status(sender, instance, **kwargs):
         )
     ).filter(problem=instance.problem).order_by('student', 'ordering', '-id').distinct('student')
     stats.green = len(list((filter(lambda x: x.status == Submit.OK, queryset))))
-    stats.yellow = len(list((filter(lambda x: x.status == Submit.AWAITING_MANUAL, queryset))))
-    stats.red = len(list((filter(lambda x: x.status not in [Submit.OK, Submit.AWAITING_MANUAL], queryset))))
+    stats.yellow = len(list((filter(lambda x: x.status in [Submit.AWAITING_MANUAL, Submit.DEFAULT_STATUS], queryset))))
+    stats.red = len(list((filter(
+        lambda x: x.status not in [Submit.OK, Submit.AWAITING_MANUAL, Submit.DEFAULT_STATUS],
+        queryset
+    ))))
     stats.save()
 
 

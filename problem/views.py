@@ -54,6 +54,7 @@ class ProblemViewSet(viewsets.ModelViewSet):
         queryset = self.queryset.filter(
             lesson__course=course_id
         ).exclude(
+            lesson__is_hidden=True,
             submits__status__in=[
                 Submit.AWAITING_MANUAL,
                 Submit.OK,
