@@ -99,6 +99,12 @@ class SubmitViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
     queryset = Submit.objects.prefetch_related('cats_submit').all()
     pagination_class = StandardResultsSetPagination
     filterset_class = SubmitFilter
+    stats_ordering = models.Case(
+        models.When(status=Submit.OK, then=models.Value(0)),
+        models.When(status=Submit.AWAITING_MANUAL, then=models.Value(1)),
+        default=models.Value(2),
+        output_field=models.IntegerField()
+    )
 
     def get_queryset(self):
         user = self.request.user
@@ -130,16 +136,11 @@ class SubmitViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
         queryset = Submit.objects.filter(
             problem__lesson__course__id=course_id
         ).annotate(
-            ordering=models.Case(
-                models.When(status="OK", then=models.Value(0)),
-                models.When(status="AW", then=models.Value(1)),
-                default=models.Value(2),
-                output_field=models.IntegerField()
-            )
+            ordering=self.stats_ordering
         ).prefetch_related(
             'problem'
         ).order_by(
-            'student', 'problem', 'ordering', 'id'
+            'student', 'problem', 'ordering', '-id'
         ).distinct('student', 'problem')
         # filtering over distinct leads to ignoring distinct oO
         # that's why I have to filter manually gg
@@ -148,6 +149,17 @@ class SubmitViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
             lambda x: x.status == Submit.AWAITING_MANUAL,
             queryset
         ))[:5], many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, url_path='problem-stats/(?P<problem_id>\d+)')
+    def problem_stats(self, request, problem_id):
+        # TODO: check permissions for it
+        queryset = Submit.objects.filter(
+            problem__id=problem_id
+        ).annotate(
+            ordering=self.stats_ordering
+        ).order_by('student', 'ordering', '-id').distinct('student')
+        serializer = SubmitListSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def create(self, request: Request, *args, **kwargs):
