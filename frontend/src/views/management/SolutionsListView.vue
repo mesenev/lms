@@ -82,28 +82,26 @@ export default class SolutionsListView extends Vue {
     };
   }
 
+  get_data_for_table(submit: SubmitModel){
+    const problem_data: string = submit.problem.name;
+    const created_at_data: string = submit.created_at.slice(0, 4) + "."
+        + submit.created_at.slice(5, 7) + "." +
+        submit.created_at.slice(8, 10) +
+        "---" + submit.created_at.slice(11, 19);
+    const href_to_submit = this.linkRoute(submit)
+    return [ problem_data, href_to_submit as unknown as string, submit.student as unknown as string,
+      submit.status as unknown as string, created_at_data
+    ]
+  }
+
   get to_display() {
     const returned: string[][] = []
     if ( !this.submits_request) {
       return []
     }
-    this.submits_request.results.forEach(element =>{
+    this.submits_request.results.forEach( element =>{
 
-      const problem_data: string = element.problem.name;
-      const created_at_data: string = element.created_at.slice(0, 4) + "."
-        + element.created_at.slice(5, 7) + "." +
-        element.created_at.slice(8, 10) +
-        "---" + element.created_at.slice(11, 19);
-      const href_to_submit = this.linkRoute(element)
-      returned.push(
-        [
-          problem_data,
-          href_to_submit as unknown as string,
-          element.student as unknown as string,
-          element.status as unknown as string,
-          created_at_data,
-        ]
-      )
+      returned.push(this.get_data_for_table(element))
     });
 
       return returned;
