@@ -15,7 +15,7 @@
             </cv-structured-list-data>
             <cv-structured-list-data>
               <submit-status v-if='problem.last_submit' :submit='problem.last_submit'/>
-              <div v-else style="background-color: gray; width: 1em; height: 1em; border-radius: 1em"/>
+              <div class="else--bordered" v-else/>
             </cv-structured-list-data>
           </cv-structured-list-item>
         </template>
@@ -109,5 +109,11 @@ export default class UserProblemListComponent extends Vue {
     width 100px
     height 100px
     opacity 0.8
+
+.else--bordered
+  background-color gray
+  width 1em
+  height 1em
+  border-radius 1em
 </style>
 

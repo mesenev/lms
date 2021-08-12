@@ -86,9 +86,7 @@ export default class ProblemStats extends Vue {
   }
 
   get testing() {
-    return this.submits.filter(x => {
-      return x.status === 'AW' || x.status === 'NP';
-    });
+    return this.submits.filter(x => x.status === 'AW' || x.status === 'NP');
   }
 
   get wrong() {
@@ -97,7 +95,7 @@ export default class ProblemStats extends Vue {
 
   get noSubmitsUsers(): Array<UserModel> {
     return Object.keys(this.students)
-      .filter(x => x in this.usersWithSubmits)
+      .filter(x => !(x in this.usersWithSubmits))
       .map(x => this.students[x]);
   }
 }
