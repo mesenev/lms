@@ -106,7 +106,8 @@
     </div>
     <div class="bx--row">
       <div class="items bx--col-lg-10">
-        <cv-structured-list selectable @change="actionChange">
+        <cv-structured-list 
+          selectable @change="actionChange">
           <template slot="headings"></template>
           <template v-if="!loading && courseSchedule && courseSchedule.lessons"
                     slot="items">
@@ -116,8 +117,52 @@
               name="group">
               <cv-structured-list-data>{{ record.date }}</cv-structured-list-data>
               <cv-structured-list-data>{{ record.lesson.name }}</cv-structured-list-data>
+              <cv-structured-list-data>
+                <cv-checkbox label="Установаить собственное время" value='123' v-model="self_time"/>
+                <!-- <cv-button
+                  class="items-top--element"
+                  kind="secondary"
+                  :disabled="!self_time" 
+                  :icon="iconEdit">
+                  Изменить
+                </cv-button> -->
+                <!-- <cv-time-picker 
+                  class="s_t_dis"
+                  label="Время" ampm="24" :disabled="!self_time"
+                  :form-item="true"/>
+                <cv-text-input
+                  class="s_t_dis"
+                  label="Дата"
+                  :value="value"
+                  :disabled="!self_time"
+                  placeholder="dd/mm/yyyy">
+                </cv-text-input> -->
+              </cv-structured-list-data>
+              <cv-structured-list-data>
+                <cv-icon-button
+                  :kind="secondary"
+                  :size="size"
+                  :disabled="!self_time"
+                  tip-position="hidden"
+                  :icon="iconEdit"
+                  v-on:click="st_showModal"/>
+
+                <cv-modal
+                close-aria-label="Закрыть"
+                :visible="st_modalVisible"
+                @modal-hidden="st_actionHidden"
+                :auto-hide-off="false">
+                <template slot="title">Редактирование расписания</template>
+                <template slot="content">
+                  
+                </template>
+                <template slot="primary-button">Сохранить изменения</template>
+                </cv-modal>
+              </cv-structured-list-data>
             </cv-structured-list-item>
+            
           </template>
+          
         </cv-structured-list>
       </div>
     </div>
@@ -154,6 +199,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   iconEdit = Edit;
   iconBack = Back;
   modalVisible = false;
+  st_modalVisible = false;
   startDate: string | null = null;
   changedStartDate: string | null = null;
   selected: string | null = null;
@@ -166,6 +212,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   private friday_ = false;
   private saturday_ = false;
   private sunday_ = false;
+  private self_time_ = false;
 
   get scheduleChanged(): boolean {
     return !_.isEqual(this.courseSchedule, this.oldCourseSchedule);
@@ -210,6 +257,16 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       //TODO: correct init state for days (modal init state)
     }
     this.loading = false;
+  }
+
+  get self_time() 
+  {
+    return this.self_time_;
+  }
+
+  set self_time(value: boolean)
+  {
+    this.self_time_ = value;
   }
 
   set monday(value: boolean) {
@@ -295,8 +352,17 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     this.modalVisible = true;
   }
 
+  st_showModal()
+  {
+    this.st_modalVisible = true;
+  }
+
   actionHidden() {
     this.modalVisible = false;
+  }
+
+  st_actionHidden() {
+    this.st_modalVisible = false;
   }
 
   changeSchedule() {
