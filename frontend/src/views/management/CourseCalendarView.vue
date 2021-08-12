@@ -100,6 +100,7 @@
               </cv-row>
             </cv-grid>
           </template>
+          <template slot="secondary-button">Отмена</template>
           <template slot="primary-button">Сохранить изменения</template>
         </cv-modal>
       </div>
@@ -154,9 +155,23 @@
                 :auto-hide-off="false">
                 <template slot="title">Редактирование расписания</template>
                 <template slot="content">
-                  
+                  <cv-date-picker
+                    dateLabel="Дата"
+                    kind="single"
+                    pattern="\d{1,2}/\d{1,2}/\d{4}"
+                    placeholder="mm/dd/yyyy"
+                    :cal-options="calOptions"
+                    @onChange="actionChange"
+                  >
+                  </cv-date-picker>
+                  <cv-time-picker 
+                  class="s_t_dis"
+                  label="Время" ampm="24"
+                  :form-item="true"/>
                 </template>
+                <template slot="secondary-button">Отмена</template>
                 <template slot="primary-button">Сохранить изменения</template>
+                
                 </cv-modal>
               </cv-structured-list-data>
             </cv-structured-list-item>
