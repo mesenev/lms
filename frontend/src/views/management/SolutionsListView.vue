@@ -26,7 +26,7 @@
 
 
               <cv-data-table-cell>
-                <user-component :user-id="row[2]" ></user-component>
+                <user-component :user-id="row[2]"></user-component>
               </cv-data-table-cell>
 
               <cv-data-table-cell v-if="row[3]==='OK'">
@@ -36,10 +36,12 @@
                 <cv-tag kind="purple" :label="row[3]"/>
               </cv-data-table-cell>
 
-              <cv-data-table-cell><cv-tag kind="blue" :label="row[4]" /></cv-data-table-cell>
+              <cv-data-table-cell>
+                <cv-tag kind="blue" :label="row[4]"/>
+              </cv-data-table-cell>
 
 
-          </cv-data-table-row>
+            </cv-data-table-row>
 
           </template>
         </cv-data-table>
@@ -59,10 +61,7 @@ import Download16 from '@carbon/icons-vue/es/download/16';
 import UserComponent from "@/components/UserComponent.vue";
 
 
-
-
-
-@Component({ components: {UserComponent, TrashCan16, Save16, Download16 } })
+@Component({ components: { UserComponent, TrashCan16, Save16, Download16 } })
 export default class SolutionsListView extends Vue {
   @Prop() courseId!: number;
   loading = false
@@ -82,29 +81,29 @@ export default class SolutionsListView extends Vue {
     };
   }
 
-  get_data_for_table(submit: SubmitModel){
+  get_data_for_table(submit: SubmitModel) {
     const problem_data: string = submit.problem.name;
     const created_at_data: string = submit.created_at.slice(0, 4) + "."
-        + submit.created_at.slice(5, 7) + "." +
-        submit.created_at.slice(8, 10) +
-        "---" + submit.created_at.slice(11, 19);
+      + submit.created_at.slice(5, 7) + "." +
+      submit.created_at.slice(8, 10) +
+      "---" + submit.created_at.slice(11, 19);
     const href_to_submit = this.linkRoute(submit)
-    return [ problem_data, href_to_submit as unknown as string, submit.student as unknown as string,
+    return [problem_data, href_to_submit as unknown as string, submit.student as unknown as string,
       submit.status as unknown as string, created_at_data
     ]
   }
 
   get to_display() {
     const returned: string[][] = []
-    if ( !this.submits_request) {
+    if (!this.submits_request) {
       return []
     }
-    this.submits_request.results.forEach( element =>{
+    this.submits_request.results.forEach(element => {
 
       returned.push(this.get_data_for_table(element))
     });
 
-      return returned;
+    return returned;
   }
 
   get pagination() {
