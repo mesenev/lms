@@ -110,7 +110,7 @@ export default class SolutionsListView extends Vue {
     return {
       numberOfItems: Math.max(Math.floor((this.submits_request?.count || 0) + 1
         / (this.pagination_settings?.length || 1))),
-      pageSizes: [2, 5, 10],
+      pageSizes: [5, 10, 25],
     };
   }
 
