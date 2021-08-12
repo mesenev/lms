@@ -21,8 +21,7 @@
             <cv-data-table-row v-for="(row, rowIndex) in to_display" :key="`${rowIndex}`" :value="`${rowIndex}`">
 
               <cv-data-table-cell>
-                {{row[0]}}
-                <a :href = "row[1]"><svg data-v-65e70dec="" focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path data-v-65e70dec="" d="M13,14H3c-0.6,0-1-0.4-1-1V3c0-0.6,0.4-1,1-1h5v1H3v10h10V8h1v5C14,13.6,13.6,14,13,14z"></path><path data-v-65e70dec="" d="M10 1L10 2 13.3 2 9 6.3 9.7 7 14 2.7 14 6 15 6 15 1z"></path></svg></a>
+                <cv-link :to="row[1]">{{ row[0] }}</cv-link>
               </cv-data-table-cell>
 
 
@@ -62,6 +61,7 @@ import UserComponent from "@/components/UserComponent.vue";
 
 
 
+
 @Component({ components: {UserComponent, TrashCan16, Save16, Download16 } })
 export default class SolutionsListView extends Vue {
   @Prop() courseId!: number;
@@ -70,39 +70,43 @@ export default class SolutionsListView extends Vue {
   submits_request: PaginatedList<SubmitModel> = { count: 0, results: [] };
   pagination_settings?: TablePagination;
 
-
+  linkRoute(data: SubmitModel) {
+    const params = {
+      courseId: this.courseId.toString(),
+      lessonId: data.lesson.toString(),
+      problemId: data.problem.id.toString(),
+      submitId: data.id.toString()
+    };
+    return {
+      name: 'ProblemViewWithSubmit', params: { ...params },
+    };
+  }
 
   get to_display() {
     const returned: string[][] = []
-    if (this.submits_request) {
-      this.submits_request.results.forEach(element =>{
-        const problem_data: string = element.problem.name;
-        const created_at_data: string = element.created_at.slice(0, 4) + "."
-          + element.created_at.slice(5, 7) + "." +
-          element.created_at.slice(8, 10) +
-          "---" + element.created_at.slice(11, 19);
+    if ( !this.submits_request) {
+      return []
+    }
+    this.submits_request.results.forEach(element =>{
 
-        const href_to_submit: string = "/course/" + this.courseId as unknown as string   + "/lesson/" +
-          element.lesson as unknown as string + "/problem/" +
-          element.problem.id as unknown as string + "/submit/" +
-          element.id as unknown as string;
-
-        returned.push(
-          [
-            problem_data,
-            href_to_submit,
-            element.student as unknown as string,
-            element.status as unknown as string,
-            created_at_data
-          ]
-        )
-      });
+      const problem_data: string = element.problem.name;
+      const created_at_data: string = element.created_at.slice(0, 4) + "."
+        + element.created_at.slice(5, 7) + "." +
+        element.created_at.slice(8, 10) +
+        "---" + element.created_at.slice(11, 19);
+      const href_to_submit = this.linkRoute(element)
+      returned.push(
+        [
+          problem_data,
+          href_to_submit as unknown as string,
+          element.student as unknown as string,
+          element.status as unknown as string,
+          created_at_data,
+        ]
+      )
+    });
 
       return returned;
-    }
-    else {
-      return [];
-    }
   }
 
   get pagination() {
