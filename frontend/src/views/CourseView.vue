@@ -96,36 +96,11 @@ export default class CourseView extends Vue {
   }
 
   get filterLessons() {
-    // return this.lessons.filter((l: LessonModel) => {
-    //   return l.name.toLowerCase().includes(this.searchValue.toLowerCase());
-    // });
-    const filteredLessons = Array<LessonModel>();
-    for (let i = 0; i < this.sortedCourseSchedule.size; i++)
-    {
-      if (typeof this.sortedCourseSchedule.get(i) != "undefined") {
-        const name = this.sortedCourseSchedule.get(i).name;
-        this.lessons.forEach(lesson => {
-          if (lesson.name === name) {
-            filteredLessons[i] = lesson;
-          }
-        })
-      }
-    }
-    return filteredLessons
+    return this.sortedCourseSchedule.filter(lesson => typeof lesson != "undefined")
+      .map(lesson => this.lessons.find(elem => elem.name === lesson.name));
   }
 
-   courseSchedule() {
-     courseStore.fetchCourseScheduleByCourseId(this.courseId).then((value) =>
-     {this.schedule = Array(value)});
-  }
-
-
-  get sortedCourseSchedule() {
-    if (this.schedule[0].lessons === undefined)
-    {
-      return new Map<number, LessonModel>();
-    }
-    function parseDate(date: string): Date {
+  parseDate(date: string): string {
     date = date.split(', ')[1].replace(' г.', '');
     const months_ru = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа',
       'сентября', 'октября', 'ноября', 'декабря']
@@ -137,22 +112,30 @@ export default class CourseView extends Vue {
         break;
       }
     }
-    return new Date(date);
+    return date;
   }
-    function orderLessons(a: any, b: any) {
-      const dateA = parseDate(a.date);
-      const dateB = parseDate(b.date);
-      return (dateA > dateB) ? 1 : 0;
-      }
 
-      const lessons = this.schedule[0].lessons;
-      lessons.sort(orderLessons);
-      const orderedLessons = new Map<number, LessonModel>();
-      for (let i = 0; i < lessons.length; i++)
-      {
-        orderedLessons.set(i, lessons[i].lesson);
-      }
-      return orderedLessons;
+  changeLessonDateRepresentation(lesson) {
+    lesson.date = this.parseDate(lesson.date);
+    return lesson;
+  }
+
+   courseSchedule() {
+     courseStore.fetchCourseScheduleByCourseId(this.courseId).then((value) =>
+     {this.schedule = Array(value)});
+  }
+
+
+  get sortedCourseSchedule() {
+    if (this.schedule[0].lessons === undefined)
+    {
+      return new Array<LessonModel>();
+    }
+      let lessons = this.schedule[0].lessons.map(this.changeLessonDateRepresentation);
+      lessons.sort((a: any, b: any) => (new Date(a.date) > new Date(b.date)) ? 1 :
+        (new Date(a.date) < new Date(b.date)) ? -1 : 0);
+      lessons = lessons.map(elem => elem.lesson);
+      return lessons;
     }
 
 }
