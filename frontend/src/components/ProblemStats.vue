@@ -95,7 +95,7 @@ export default class ProblemStats extends Vue {
 
   get noSubmitsUsers(): Array<UserModel> {
     return Object.keys(this.students)
-      .filter(x => !(x in this.usersWithSubmits))
+      .filter(x => !(this.usersWithSubmits.includes(Number(x))))
       .map(x => this.students[x]);
   }
 }
