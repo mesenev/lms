@@ -5,105 +5,111 @@
     </div>
     <div class="bx--row header">
       <div class="items-top bx--col-lg-10">
-        <div class="items-top--element"><span>Начало занятий: {{ startDate || ":warning:" }}</span></div>
+        <div class="items-top--element">
+          <span v-if="!loading">Начало занятий: {{ startDate}}</span>
+          <span v-if="loading">Начало занятий: {{"Loading..." }}</span>
+        </div>
         <hr>
-        <div class="items-top--element"><span> {{ scheduleCurrent }}</span></div>
-        <cv-button
-          class="items-top--element"
-          v-on:click="showModal" kind="secondary" tip-position="hidden"
-          :icon="iconEdit">
-          Редактировать
-        </cv-button>
-        <cv-modal
-          close-aria-label="Закрыть"
-          :visible="modalVisible"
-          @modal-hidden="actionHidden"
-          :primaryButtonDisabled="!isScheduleChanged"
-          @primary-click="changeSchedule"
-          :auto-hide-off="false">
-          <template slot="title">Редактирование расписания</template>
-          <template slot="content">
-            <cv-grid>
-              <cv-row v-if="showNotification">
-                <cv-inline-notification
-                  :kind="notificationKind"
-                  :sub-title="notificationText"
-                  @close="hideNotification"
-                />
-              </cv-row>
-              <cv-row>
-                <cv-column :sm="1">
-                  <h4 class="">Начало занятий</h4>
-                </cv-column>
-                <cv-column :sm="1">
-                  <cv-date-picker
-                    date-label=""
-                    kind="single"
-                    :cal-options="dpOptions"
-                    date-format="d/m/Y"
-                    placeholder="dd/mm/yyyy"
-                    v-model="changedStartDate">
-                  </cv-date-picker>
-                </cv-column>
-                <cv-column :sm="5"></cv-column>
-              </cv-row>
-              <cv-row>
-                <cv-column :sm="1">
-                  <div class="daytime-container">
-                    <cv-checkbox label="Понедельник" value='123' v-model="monday"/>
-                    <cv-time-picker
-                      label=""
-                      ampm="24" :disabled="!monday" :time.sync="newSchedule[0]" :form-item="true"
-                    />
-                  </div>
-                  <div class="daytime-container">
-                    <cv-checkbox label="Вторник" value='123' v-model="tuesday"/>
-                    <cv-time-picker
-                      label="" ampm="24" :disabled="!tuesday"
-                      :time.sync="newSchedule[1]" :form-item="true"/>
-                  </div>
-                  <div class="daytime-container">
-                    <cv-checkbox label="Среда" value='123' v-model="wednesday"/>
-                    <cv-time-picker
-                      label="" ampm="24" :disabled="!wednesday"
-                      :time.sync="newSchedule[2]" :form-item="true"/>
-                  </div>
-                </cv-column>
-                <cv-column :sm="1">
-                  <div class="daytime-container">
-                    <cv-checkbox label="Четверг" value='123' v-model="thursday"/>
-                    <cv-time-picker
-                      label="" ampm="24" :disabled="!thursday"
-                      :time.sync="newSchedule[3]" :form-item="true"/>
-                  </div>
-                  <div class="daytime-container">
-                    <cv-checkbox label="Пятница" value='123' v-model="friday"/>
-                    <cv-time-picker
-                      label="" ampm="24" :disabled="!friday"
-                      :time.sync="newSchedule[4]" :form-item="true"/>
-                  </div>
-                  <div class="daytime-container">
-                    <cv-checkbox label="Суббота" value='123' v-model="saturday"/>
-                    <cv-time-picker
-                      label="" ampm="24" :disabled="!saturday"
-                      :time.sync="newSchedule[5]" :form-item="true"/>
-                  </div>
-                </cv-column>
-                <cv-column :sm="1">
-                  <div class="daytime-container">
-                    <cv-checkbox label="Воскресенье" value='123' v-model="sunday"/>
-                    <cv-time-picker
-                      label="" ampm="24" :disabled="!sunday"
-                      :time.sync="newSchedule[6]" :form-item="true"/>
-                  </div>
-                </cv-column>
-              </cv-row>
-            </cv-grid>
-          </template>
-          <template slot="secondary-button">Отмена</template>
-          <template slot="primary-button">Сохранить изменения</template>
-        </cv-modal>
-      </div>
+        <template v-if="!loading">
+          <div class="items-top--element"><span> {{ scheduleCurrent }}</span></div>
+          <cv-button
+            class="items-top--element"
+            v-on:click="showModal" kind="secondary" tip-position="hidden"
+            :icon="iconEdit">
+            Редактировать
+          </cv-button>
+          <cv-modal
+            close-aria-label="Закрыть"
+            :visible="modalVisible"
+            @modal-hidden="actionHidden"
+            :primaryButtonDisabled="!isScheduleChanged"
+            @primary-click="changeSchedule"
+            :auto-hide-off="false">
+            <template slot="title">Редактирование расписания</template>
+            <template slot="content">
+              <cv-grid>
+                <cv-row v-if="showNotification">
+                  <cv-inline-notification
+                    :kind="notificationKind"
+                    :sub-title="notificationText"
+                    @close="hideNotification"
+                  />
+                </cv-row>
+                <cv-row>
+                  <cv-column :sm="1">
+                    <h4 class="">Начало занятий</h4>
+                  </cv-column>
+                  <cv-column :sm="1">
+                    <cv-date-picker
+                      date-label=""
+                      kind="single"
+                      :cal-options="dpOptions"
+                      date-format="d/m/Y"
+                      placeholder="dd/mm/yyyy"
+                      v-model="changedStartDate">
+                    </cv-date-picker>
+                  </cv-column>
+                  <cv-column :sm="5"></cv-column>
+                </cv-row>
+                <cv-row>
+                  <cv-column :sm="1">
+                    <div class="daytime-container">
+                      <cv-checkbox label="Понедельник" value='123' v-model="monday"/>
+                      <cv-time-picker
+                        label=""
+                        ampm="24" :disabled="!monday" :time.sync="newSchedule[0]" :form-item="true"
+                      />
+                    </div>
+                    <div class="daytime-container">
+                      <cv-checkbox label="Вторник" value='123' v-model="tuesday"/>
+                      <cv-time-picker
+                        label="" ampm="24" :disabled="!tuesday"
+                        :time.sync="newSchedule[1]" :form-item="true"/>
+                    </div>
+                    <div class="daytime-container">
+                      <cv-checkbox label="Среда" value='123' v-model="wednesday"/>
+                      <cv-time-picker
+                        label="" ampm="24" :disabled="!wednesday"
+                        :time.sync="newSchedule[2]" :form-item="true"/>
+                    </div>
+                  </cv-column>
+                  <cv-column :sm="1">
+                    <div class="daytime-container">
+                      <cv-checkbox label="Четверг" value='123' v-model="thursday"/>
+                      <cv-time-picker
+                        label="" ampm="24" :disabled="!thursday"
+                        :time.sync="newSchedule[3]" :form-item="true"/>
+                    </div>
+                    <div class="daytime-container">
+                      <cv-checkbox label="Пятница" value='123' v-model="friday"/>
+                      <cv-time-picker
+                        label="" ampm="24" :disabled="!friday"
+                        :time.sync="newSchedule[4]" :form-item="true"/>
+                    </div>
+                    <div class="daytime-container">
+                      <cv-checkbox label="Суббота" value='123' v-model="saturday"/>
+                      <cv-time-picker
+                        label="" ampm="24" :disabled="!saturday"
+                        :time.sync="newSchedule[5]" :form-item="true"/>
+                    </div>
+                  </cv-column>
+                  <cv-column :sm="1">
+                    <div class="daytime-container">
+                      <cv-checkbox label="Воскресенье" value='123' v-model="sunday"/>
+                      <cv-time-picker
+                        label="" ampm="24" :disabled="!sunday"
+                        :time.sync="newSchedule[6]" :form-item="true"/>
+                    </div>
+                  </cv-column>
+                </cv-row>
+              </cv-grid>
+            </template>
+            <template slot="secondary-button">Закрыть</template>
+            <template slot="primary-button">Сохранить изменения</template>
+          </cv-modal>
+        </template>
+        <h1 v-if="loading">Loading...</h1>
+        </div>
     </div>
     <div class="bx--row">
       <div class="items bx--col-lg-10">
@@ -116,64 +122,50 @@
               v-for="(record, index) in courseSchedule.lessons"
               :key="index" :checked="record.isSelected" :value="record.lesson.id.toString()"
               name="group">
-              <cv-structured-list-data>{{ record.date }}</cv-structured-list-data>
-              <cv-structured-list-data>{{ record.lesson.name }}</cv-structured-list-data>
-              <cv-structured-list-data>
-                <cv-checkbox label="Установаить собственное время" value='123' v-model="self_time"/>
-                <!-- <cv-button
-                  class="items-top--element"
-                  kind="secondary"
-                  :disabled="!self_time" 
-                  :icon="iconEdit">
-                  Изменить
-                </cv-button> -->
-                <!-- <cv-time-picker 
-                  class="s_t_dis"
-                  label="Время" ampm="24" :disabled="!self_time"
-                  :form-item="true"/>
-                <cv-text-input
-                  class="s_t_dis"
-                  label="Дата"
-                  :value="value"
-                  :disabled="!self_time"
-                  placeholder="dd/mm/yyyy">
-                </cv-text-input> -->
-              </cv-structured-list-data>
-              <cv-structured-list-data>
+              <cv-structured-list-data>{{ record.date }}
                 <cv-icon-button
-                  :kind="secondary"
-                  :size="size"
-                  :disabled="!self_time"
+                  kind="tertiary"
+                  size="xl"
                   tip-position="hidden"
                   :icon="iconEdit"
                   v-on:click="st_showModal"/>
-
                 <cv-modal
-                close-aria-label="Закрыть"
-                :visible="st_modalVisible"
-                @modal-hidden="st_actionHidden"
-                :auto-hide-off="false">
-                <template slot="title">Редактирование расписания</template>
-                <template slot="content">
-                  <cv-date-picker
-                    dateLabel="Дата"
-                    kind="single"
-                    pattern="\d{1,2}/\d{1,2}/\d{4}"
-                    placeholder="mm/dd/yyyy"
-                    :cal-options="calOptions"
-                    @onChange="actionChange"
-                  >
-                  </cv-date-picker>
-                  <cv-time-picker 
-                  class="s_t_dis"
-                  label="Время" ampm="24"
-                  :form-item="true"/>
-                </template>
-                <template slot="secondary-button">Отмена</template>
-                <template slot="primary-button">Сохранить изменения</template>
-                
+                  close-aria-label="Закрыть"
+                  :visible="st_modalVisible"
+                  @modal-hidden="st_actionHidden"
+                  :auto-hide-off="false">
+                  <template slot="title">Установка собственного времени</template>
+                  <template slot="content">
+                    <cv-grid>
+                      <cv-row>
+                        <cv-column>
+                          <cv-date-picker
+                            dateLabel="Дата"
+                            kind="single"
+                            pattern="\d{1,2}/\d{1,2}/\d{4}"
+                            placeholder="mm/dd/yyyy"
+                            :cal-options="calOptions"
+                            @onChange="actionChange">
+                          </cv-date-picker>
+                          <hr>
+                          <cv-time-picker 
+                          class="s_t_dis"
+                          label="Время" ampm="24"
+                          :form-item="true"/>
+                          <hr>
+                          <cv-button kind="secondary" :icon="iconReset">
+                            Отменить изменения
+                          </cv-button>
+                        </cv-column>
+                      </cv-row>
+                    </cv-grid>
+                  </template>
+                  <template slot="secondary-button">Отменить</template>
+                  <template slot="primary-button">Сохранить изменения</template>
                 </cv-modal>
               </cv-structured-list-data>
+              
+              <cv-structured-list-data>{{ record.lesson.name }}</cv-structured-list-data>
             </cv-structured-list-item>
             
           </template>
@@ -227,7 +219,6 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   private friday_ = false;
   private saturday_ = false;
   private sunday_ = false;
-  private self_time_ = false;
 
   get scheduleChanged(): boolean {
     return !_.isEqual(this.courseSchedule, this.oldCourseSchedule);
@@ -263,6 +254,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   }
 
   async created() {
+    this.loading = true;
     if (this.course.schedule) {
       this.courseSchedule = await this.courseStore.fetchCourseScheduleByCourseId(this.course.id);
       this.oldCourseSchedule = { ...this.courseSchedule };
@@ -271,17 +263,8 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       this.schedule = this.courseSchedule.week_schedule;
       //TODO: correct init state for days (modal init state)
     }
+    this.generateSchedule();
     this.loading = false;
-  }
-
-  get self_time() 
-  {
-    return this.self_time_;
-  }
-
-  set self_time(value: boolean)
-  {
-    this.self_time_ = value;
   }
 
   set monday(value: boolean) {
