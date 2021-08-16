@@ -158,6 +158,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   changedStartDate: string | null = null;
   selected: string | null = null;
   loading = true;
+  course: CourseModel;
 
   private monday_ = false;
   private tuesday_ = false;
@@ -173,10 +174,6 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
 
   get isNewSchedule() {
     return !this.courseSchedule?.id;
-  }
-
-  get course(): CourseModel {
-    return this.courseStore.currentCourse as CourseModel;
   }
 
   get scheduleCurrent() {
@@ -201,8 +198,9 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   }
 
   async created() {
+    this.course = await this.courseStore.fetchCourseById(this.courseId);
     if (this.course.schedule) {
-      this.courseSchedule = await this.courseStore.fetchCourseScheduleByCourseId(this.course.id);
+      this.courseSchedule = await this.courseStore.fetchCourseScheduleByCourseId(this.courseId);
       this.oldCourseSchedule = { ...this.courseSchedule };
       //TODO: Same data in two fields. Ambigous. Normalize it.
       this.startDate = this.courseSchedule.start_date;
