@@ -20,7 +20,6 @@
           label="label"
           placeholder="search"
           size="size"/>
-        {{courseSchedule()}}
         <cv-data-table-skeleton v-if="loading" :columns="1" :rows="6"/>
         <cv-structured-list v-else>
           <template slot="items" v-if="filterLessons.length > 0">
@@ -70,11 +69,12 @@ export default class CourseView extends Vue {
   lessonStore = lessonStore;
   searchValue = "";
   loading = true;
-  schedule = Array<CourseScheduleModel>();
+  schedule: CourseScheduleModel;
   private userStore = userStore;
   private user = this.userStore.user;
 
   async created() {
+    this.schedule = await this.courseStore.fetchCourseScheduleByCourseId(this.courseId);
     await this.lessonStore.fetchLessonsByCourseId(this.courseId);
     this.loading = false;
   }
@@ -120,22 +120,16 @@ export default class CourseView extends Vue {
     return lesson;
   }
 
-   courseSchedule() {
-     courseStore.fetchCourseScheduleByCourseId(this.courseId).then((value) =>
-     {this.schedule = Array(value)});
-  }
-
-
   get sortedCourseSchedule() {
-    if (this.schedule[0].lessons === undefined)
+    if (this.schedule.lessons === undefined)
     {
       return new Array<LessonModel>();
     }
-      let lessons = this.schedule[0].lessons.map(this.changeLessonDateRepresentation);
-      lessons.sort((a: any, b: any) => (new Date(a.date) > new Date(b.date)) ? 1 :
-        (new Date(a.date) < new Date(b.date)) ? -1 : 0);
-      lessons = lessons.map(elem => elem.lesson);
-      return lessons;
+    let lessons = this.schedule.lessons.map(this.changeLessonDateRepresentation);
+    lessons.sort((a: any, b: any) => (new Date(a.date) > new Date(b.date)) ? 1 :
+      (new Date(a.date) < new Date(b.date)) ? -1 : 0);
+    lessons = lessons.map(elem => elem.lesson);
+    return lessons;
     }
 
 }
