@@ -106,12 +106,12 @@ export default class CourseEditView extends Vue {
     this.showNotification = false;
   }
 
-  created() {
+  async created() {
     if (this.courseId === null) {
       this.fetchingCourse = false;
       return;
     }
-    this.course = this.store.currentCourse as CourseModel;
+    this.course = await this.store.fetchCourseById(this.courseId);
     this.courseEdit = { ...this.course };
     this.fetchingCourse = false;
   }
