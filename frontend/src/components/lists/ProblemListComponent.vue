@@ -73,6 +73,4 @@ export default class ProblemListComponent extends Vue {
 
 .accordion /deep/ .bx--accordion__content
   padding-right 0
-
-
 </style>

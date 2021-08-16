@@ -31,6 +31,7 @@
           <submit-component
             v-if="problem"
             :is-staff="isStaff" :language-list="problem.language"
+            @submit-created="(x) => changeCurrentSubmit(x.id)"
             :submitId="submitId"
             class="solution-container--submit-component"/>
           <cv-loading v-else small/>
@@ -98,12 +99,12 @@ import SubmitModel from '@/models/SubmitModel';
 import problemStore from '@/store/modules/problem';
 import submitStore from '@/store/modules/submit';
 import userStore from '@/store/modules/user';
-import {Component, Prop, Vue} from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 
-@Component({components: {SubmitComponent, ProblemDescription, SubmitStatus, UserComponent}})
+@Component({ components: { SubmitComponent, ProblemDescription, SubmitStatus, UserComponent } })
 export default class ProblemView extends Vue {
-  @Prop({required: false, default: null}) submitIdProp!: number | null;
+  @Prop({ required: false, default: null }) submitIdProp!: number | null;
   public submitId = this.submitIdProp;
   public studentId = NaN;
 
@@ -125,10 +126,9 @@ export default class ProblemView extends Vue {
   }
 
   get submits(): SubmitModel[] {
-    if (!this.problem)
-      return [];
-    return this.problem.submits as SubmitModel[];
+    return this.submitStore.submits;
   }
+
 
   checkedSubmit(submit: SubmitModel): boolean {
     if (!this.submitIdProp)
@@ -158,7 +158,7 @@ export default class ProblemView extends Vue {
     return this.user.staff_for.includes(Number(this.courseId));
   }
 
-  created() {
+  async created() {
     if (!this.isStaff && !this.submitId && this.submits)
       this.changeCurrentSubmit(this.submits[this.submits.length - 1].id);
     if (this.submitId)
