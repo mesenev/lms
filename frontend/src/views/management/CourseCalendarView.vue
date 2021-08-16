@@ -5,7 +5,8 @@
     </div>
     <div class="bx--row header">
       <div class="items-top bx--col-lg-10">
-        <div class="items-top--element"><span>Начало занятий: {{ startDate || ":warning:" }}</span></div>
+        <div class="items-top--element" v-if="!loading"><span>Начало занятий: {{ startDate }}</span></div>
+        <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
         <hr>
         <div class="items-top--element"><span> {{ scheduleCurrent }}</span></div>
         <cv-button
