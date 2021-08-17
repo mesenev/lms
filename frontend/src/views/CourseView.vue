@@ -96,8 +96,9 @@ export default class CourseView extends Vue {
   }
 
   get filterLessons() {
-    return this.sortedCourseSchedule.filter(lesson => typeof lesson != "undefined")
-      .map(lesson => this.lessons.find(elem => elem.name === lesson.name));
+    return this.sortedCourseSchedule.map(lesson =>
+      this.lessons.find(elem => elem.name === lesson.name))
+      .filter(lesson => typeof lesson != "undefined");
   }
 
   parseDate(date: string): string {
