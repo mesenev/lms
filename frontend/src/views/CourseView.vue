@@ -69,7 +69,7 @@ export default class CourseView extends Vue {
   lessonStore = lessonStore;
   searchValue = "";
   loading = true;
-  schedule: CourseScheduleModel;
+  schedule: CourseScheduleModel | undefined;
   private userStore = userStore;
   private user = this.userStore.user;
 
@@ -87,7 +87,6 @@ export default class CourseView extends Vue {
     if (!(this.courseId in this.lessonStore.lessonsByCourse)) {
       return [];
     }
-
     return this.lessonStore.lessonsByCourse[this.courseId];
   }
 
@@ -116,13 +115,13 @@ export default class CourseView extends Vue {
     return date;
   }
 
-  changeLessonDateRepresentation(lesson) {
+  changeLessonDateRepresentation(lesson: any) {
     lesson.date = this.parseDate(lesson.date);
     return lesson;
   }
 
   get sortedCourseSchedule() {
-    if (this.schedule.lessons === undefined)
+    if (this.schedule === undefined || this.schedule.lessons === undefined)
     {
       return new Array<LessonModel>();
     }
