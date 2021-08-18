@@ -151,7 +151,7 @@ import { Component, Prop } from 'vue-property-decorator';
 export default class CourseCalendarView extends mixins(NotificationMixinComponent) {
   @Prop({ required: true }) courseId!: number;
   courseStore = courseStore;
-  course: CourseModel | null = null;
+  course: CourseModel | undefined;
   courseSchedule: CourseScheduleModel | null = null;
   oldCourseSchedule: CourseScheduleModel | null = null;
   iconEdit = Edit;
@@ -213,7 +213,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   }
 
   get isSchedule() {
-    return this.course.schedule != undefined;
+    return this.course != undefined && this.course.schedule != undefined;
   }
 
   set monday(value: boolean) {
@@ -368,7 +368,8 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   }
 
   generateSchedule(): void {
-    if (Object.keys(this.schedule).length === 0 || this.startDate === null)
+    if (Object.keys(this.schedule).length === 0 || this.startDate === null ||
+      this.course === undefined)
       return;
     const lessons = this.course.lessons;
     const parsed = this.startDate.split('/').reverse().map((x) => Number(x));
