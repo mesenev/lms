@@ -22,13 +22,16 @@
           size="size"/>
         <cv-data-table-skeleton v-if="loading" :columns="1" :rows="6"/>
         <cv-structured-list v-else>
-          <template slot="items">
+          <template slot="items" v-if="filterLessons.length > 0">
             <cv-structured-list-item
               class="item"
               v-for="lesson in filterLessons"
               :key="lesson.id">
               <lesson-list-component :lesson-prop='lesson'/>
             </cv-structured-list-item>
+          </template>
+          <template slot="items" v-else>
+              <h1 v-if="user.staff_for.includes(course.id)">Расписание для курса не составлено</h1>
           </template>
         </cv-structured-list>
       </div>
@@ -51,7 +54,8 @@ import LessonModel from "@/models/LessonModel";
 import courseStore from "@/store/modules/course";
 import lessonStore from "@/store/modules/lesson";
 import userStore from '@/store/modules/user';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
+import CourseScheduleModel from "@/models/ScheduleModel";
 
 @Component({
   components: {
@@ -65,10 +69,12 @@ export default class CourseView extends Vue {
   lessonStore = lessonStore;
   searchValue = "";
   loading = true;
+  schedule: CourseScheduleModel;
   private userStore = userStore;
   private user = this.userStore.user;
 
   async created() {
+    this.schedule = await this.courseStore.fetchCourseScheduleByCourseId(this.courseId);
     await this.lessonStore.fetchLessonsByCourseId(this.courseId);
     this.loading = false;
   }
@@ -90,10 +96,43 @@ export default class CourseView extends Vue {
   }
 
   get filterLessons() {
-    return this.lessons.filter((l: LessonModel) => {
-      return l.name.toLowerCase().includes(this.searchValue.toLowerCase());
-    });
+    return this.sortedCourseSchedule.map(lesson =>
+      this.lessons.find(elem => elem.name === lesson.name))
+      .filter(lesson => typeof lesson != "undefined");
   }
+
+  parseDate(date: string): string {
+    date = date.split(', ')[1].replace(' г.', '');
+    const months_ru = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа',
+      'сентября', 'октября', 'ноября', 'декабря']
+    const months_en = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+      'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    for (let i = 0; i < months_ru.length; i++) {
+      if (date.includes(months_ru[i])) {
+        date = date.replace(months_ru[i], months_en[i]);
+        break;
+      }
+    }
+    return date;
+  }
+
+  changeLessonDateRepresentation(lesson) {
+    lesson.date = this.parseDate(lesson.date);
+    return lesson;
+  }
+
+  get sortedCourseSchedule() {
+    if (this.schedule.lessons === undefined)
+    {
+      return new Array<LessonModel>();
+    }
+    let lessons = this.schedule.lessons.map(this.changeLessonDateRepresentation);
+    lessons.sort((a: any, b: any) => (new Date(a.date) > new Date(b.date)) ? 1 :
+      (new Date(a.date) < new Date(b.date)) ? -1 : 0);
+    lessons = lessons.map(elem => elem.lesson);
+    return lessons;
+    }
+
 }
 
 </script>
