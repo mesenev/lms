@@ -75,7 +75,8 @@ import problemStore from '@/store/modules/problem';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import axios from 'axios';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
+
 
 @Component({ components: { AddAlt20, SubtractAlt20 } })
 export default class EditLessonModal extends Vue {
@@ -93,7 +94,6 @@ export default class EditLessonModal extends Vue {
   notificationText = '';
   creationLoader = false;
   selected = [];
-
   columns = ['id', 'Название', 'Статус'];
 
   problems: ProblemModel[] = [];
@@ -153,6 +153,7 @@ export default class EditLessonModal extends Vue {
     this.selectedNew = !this.selectedNew;
   }
 
+
   async addProblem() {
     if (!this.lesson.id) {
       this.notificationKind = 'error';
@@ -172,8 +173,10 @@ export default class EditLessonModal extends Vue {
       await axios.post(`/api/add-cats-problems-to-lesson/${this.lesson.id}/`, data)
         .then(async (answer) => {
           if (answer.status == 200) {
+            this.$emit("update-problem-list", data)
             this.modalHidden();
             // await this.fetchCatsProblems();
+
           }
         }).catch(answer => {
           this.notificationKind = 'error';

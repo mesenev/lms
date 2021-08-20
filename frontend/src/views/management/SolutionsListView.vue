@@ -29,17 +29,13 @@
                 <user-component :user-id="row[2]"></user-component>
               </cv-data-table-cell>
 
-              <cv-data-table-cell v-if="row[3]==='OK'">
-                <cv-tag kind="green" :label="row[3]"/>
-              </cv-data-table-cell>
-              <cv-data-table-cell v-if="row[3]==='NP'">
-                <cv-tag kind="purple" :label="row[3]"/>
+              <cv-data-table-cell>
+                <submit-status :submit="row[5]"></submit-status>
               </cv-data-table-cell>
 
               <cv-data-table-cell>
                 <cv-tag kind="blue" :label="row[4]"/>
               </cv-data-table-cell>
-
 
             </cv-data-table-row>
 
@@ -59,9 +55,10 @@ import TrashCan16 from '@carbon/icons-vue/es/trash-can/16';
 import Save16 from '@carbon/icons-vue/es/save/16';
 import Download16 from '@carbon/icons-vue/es/download/16';
 import UserComponent from "@/components/UserComponent.vue";
+import SubmitStatus from "@/components/SubmitStatus.vue";
 
 
-@Component({ components: { UserComponent, TrashCan16, Save16, Download16 } })
+@Component({ components: { SubmitStatus, UserComponent, TrashCan16, Save16, Download16 } })
 export default class SolutionsListView extends Vue {
   @Prop() courseId!: number;
   loading = false
@@ -89,7 +86,7 @@ export default class SolutionsListView extends Vue {
       "---" + submit.created_at.slice(11, 19);
     const href_to_submit = this.linkRoute(submit)
     return [problem_data, href_to_submit as unknown as string, submit.student as unknown as string,
-      submit.status as unknown as string, created_at_data
+      submit.status as unknown as string, created_at_data, submit as unknown as string
     ]
   }
 
