@@ -57,7 +57,6 @@ import Download16 from '@carbon/icons-vue/es/download/16';
 import UserComponent from "@/components/UserComponent.vue";
 import SubmitStatus from "@/components/SubmitStatus.vue";
 
-
 @Component({ components: { SubmitStatus, UserComponent, TrashCan16, Save16, Download16 } })
 export default class SolutionsListView extends Vue {
   @Prop() courseId!: number;

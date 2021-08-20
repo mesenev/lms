@@ -1,22 +1,22 @@
-For building composition please run
+Building composition {dev/prod}
 ```shell
-docker-compose -f .docker/docker-compose.yml build
+docker-compose -f .docker/docker-compose{/.prod}.yml build
 ```
-For launching built composition please run
+Launching built composition
 ```
-docker-compose -f .docker/docker-compose.yml up
+docker-compose -f .docker/docker-compose{/.prod}.yml up
 ```
-For executing a command inside specific container please run
+Executing a command inside specific container
 ```
-docker-compose -f .docker/docker-compose.dev.yml exec backend python manage.py shell
+docker-compose -f .docker/docker-compose{/.prod}.yml exec backend python manage.py shell
 ```
-For getting inside the database shell please run
+Getting inside the database shell
 ```
-docker-compose -f .docker/docker-compose.yml exec database psql -U dbuser
+docker-compose -f .docker/docker-compose{/.prod}.yml exec database psql -U dbuser
 ```
-For stopping the composition gracefully please run
+Gracefully stop composition [or container_name]
 ```
-docker-compose -f .docker/docker-compose.yml stop
+docker-compose -f .docker/docker-compose{/.prod}.yml stop [container_name]
 ```
 
 Full composition logs or logs for the container, if specified

@@ -1,0 +1,15 @@
+[Unit]
+Description=BuildBot worker service
+After=network.target
+
+[Service]
+User=buildbot
+Group=buildbot
+WorkingDirectory=/home/buildbot/bb-lms/worker
+ExecStart=/home/buildbot/bb-lms/venv/bin/buildbot-worker start --nodaemon 
+Environment="PATH=/home/buildbot/bb-lms/venv/bin"
+
+
+[Install]
+WantedBy=buildbot-master.target
+

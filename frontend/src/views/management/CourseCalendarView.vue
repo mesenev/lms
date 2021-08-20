@@ -5,7 +5,9 @@
     </div>
     <div class="bx--row header">
       <div class="items-top bx--col-lg-10">
-        <div class="items-top--element"><span>Начало занятий: {{ startDate || ":warning:" }}</span></div>
+        <div class="items-top--element" v-if="!loading"><span v-if="isSchedule">Начало занятий: {{ startDate }}</span>
+                                                        <span v-else>Расписание для курса не составлено</span></div>
+        <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
         <hr>
         <div class="items-top--element"><span> {{ scheduleCurrent }}</span></div>
         <cv-button
@@ -149,6 +151,7 @@ import { Component, Prop } from 'vue-property-decorator';
 export default class CourseCalendarView extends mixins(NotificationMixinComponent) {
   @Prop({ required: true }) courseId!: number;
   courseStore = courseStore;
+  course: CourseModel | undefined;
   courseSchedule: CourseScheduleModel | null = null;
   oldCourseSchedule: CourseScheduleModel | null = null;
   iconEdit = Edit;
@@ -175,10 +178,6 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     return !this.courseSchedule?.id;
   }
 
-  get course(): CourseModel {
-    return this.courseStore.currentCourse as CourseModel;
-  }
-
   get scheduleCurrent() {
     let courseSchedule = '';
     Object.keys(this.workingDays).forEach(
@@ -201,8 +200,9 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   }
 
   async created() {
-    if (this.course.schedule) {
-      this.courseSchedule = await this.courseStore.fetchCourseScheduleByCourseId(this.course.id);
+    this.course = await this.courseStore.fetchCourseById(this.courseId);
+    if (this.isSchedule) {
+      this.courseSchedule = await this.courseStore.fetchCourseScheduleByCourseId(this.courseId);
       this.oldCourseSchedule = { ...this.courseSchedule };
       //TODO: Same data in two fields. Ambigous. Normalize it.
       this.startDate = this.courseSchedule.start_date;
@@ -210,6 +210,10 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       //TODO: correct init state for days (modal init state)
     }
     this.loading = false;
+  }
+
+  get isSchedule() {
+    return this.course != undefined && this.course.schedule != undefined;
   }
 
   set monday(value: boolean) {
@@ -364,7 +368,8 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   }
 
   generateSchedule(): void {
-    if (Object.keys(this.schedule).length === 0 || this.startDate === null)
+    if (Object.keys(this.schedule).length === 0 || this.startDate === null ||
+      this.course === undefined)
       return;
     const lessons = this.course.lessons;
     const parsed = this.startDate.split('/').reverse().map((x) => Number(x));

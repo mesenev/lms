@@ -1,23 +1,37 @@
 <template>
-  <cv-grid class="problem-view">
-    <cv-row>
-      <h1 class="problem-title" v-if="problem">{{ problem.name }}</h1>
-      <cv-skeleton-text v-else/>
-    </cv-row>
-    <cv-row>
-      <cv-column :lg="16">
-        <div class="item">
-          <problem-description v-if="problem" :problem="problem"/>
-          <cv-skeleton-text v-else/>
+  <div class="bx--grid">
+    <div class="bx--row header-container">
+      <div class="main-title">
+        <h1 v-if="problem" class=""> {{ problem.name }}</h1>
+        <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
+        <div class="description-container">
+          <cv-link v-if="problem"
+                   class="show-problem-link"
+                   @click="showProblem">
+            Условие задачи
+          </cv-link>
+          <cv-skeleton-text v-else class="" width="'35%'"/>
+          <cv-modal
+            :visible="displayProblem"
+            class="problem-description-modal"
+            close-aria-label="Закрыть"
+            size="large"
+            @modal-hidden="hideProblem">
+            <template slot="title">{{ problem.name }}</template>
+            <template slot="content">
+              <problem-description :problem="problem"/>
+            </template>
+          </cv-modal>
         </div>
-      </cv-column>
-    </cv-row>
+      </div>
+    </div>
     <cv-row>
       <cv-column :lg="7">
         <div class="solution-container item">
           <submit-component
             v-if="problem"
             :is-staff="isStaff" :language-list="problem.language"
+            @submit-created="(x) => changeCurrentSubmit(x.id)"
             :submitId="submitId"
             class="solution-container--submit-component"/>
           <cv-loading v-else small/>
@@ -73,7 +87,7 @@
         </div>
       </cv-column>
     </cv-row>
-  </cv-grid>
+  </div>
 </template>
 
 <script lang="ts">
@@ -100,6 +114,8 @@ export default class ProblemView extends Vue {
   private user = this.userStore.user;
   private readonly courseId = Number(this.$route.params.courseId);
 
+  private displayProblem = false;
+
   get problem() {
     return this.problemStore.currentProblem;
   }
@@ -110,8 +126,9 @@ export default class ProblemView extends Vue {
   }
 
   get submits(): SubmitModel[] {
-    return this.problem?.submits as SubmitModel[];
+    return this.submitStore.submits;
   }
+
 
   checkedSubmit(submit: SubmitModel): boolean {
     if (!this.submitIdProp)
@@ -141,15 +158,26 @@ export default class ProblemView extends Vue {
     return this.user.staff_for.includes(Number(this.courseId));
   }
 
-  created() {
+  async created() {
+    if (!this.isStaff && !this.submitId && this.submits)
+      this.changeCurrentSubmit(this.submits[this.submits.length - 1].id);
     if (this.submitId)
       this.studentId = this.submits?.find(x => x.id === this.submitId)?.student as number;
-    if (!this.isStaff)
+    if (!this.isStaff) {
       this.studentId = Number(this.userStore.user.id);
+    }
   }
 
-  checkedStudent(studentId: number): boolean {
-    return studentId === this.studentId;
+  checkedStudent(studentId: string): boolean {
+    return Number(studentId) === this.studentId;
+  }
+
+  showProblem() {
+    this.displayProblem = true;
+  }
+
+  hideProblem() {
+    this.displayProblem = false;
   }
 
   async changeStudent(id: number) {
@@ -167,12 +195,6 @@ export default class ProblemView extends Vue {
 
 <style lang="stylus" scoped>
 
-.bx--structured-list.bx--structured-list--condensed .bx--structured-list-td,
-.bx--structured-list.bx--structured-list--condensed .bx--structured-list-th {
-    padding: 0.5rem;
-    padding-left: 1rem;
-}
-
 .table-title
   margin-left 5rem
 
@@ -182,9 +204,6 @@ export default class ProblemView extends Vue {
 .item
   background-color var(--cds-ui-background)
   padding 1rem
-
-.bx--row
-  margin-bottom 1rem
 
 .solution-container
   display flex
@@ -210,7 +229,6 @@ export default class ProblemView extends Vue {
 
 .submit-btn, .handlers button
   margin-top 1rem
-
 
 .submit
   display flex
@@ -265,5 +283,9 @@ export default class ProblemView extends Vue {
   .bx--label,
   .bx--label--disabled
     display none
+
+
+.show-problem-link:hover
+  cursor pointer
 
 </style>

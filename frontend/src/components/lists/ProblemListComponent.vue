@@ -1,4 +1,4 @@
-<template xmlns:cv-tag="http://www.w3.org/1999/html">
+<template>
   <cv-accordion-item class="accordion" :class="{ doNotShowAccordionContent: !isStaff }">
     <template slot="title">
       <div class="problem-list-component--header">
@@ -36,14 +36,9 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 @Component({ components: { ProblemStats, SubmitStatus, Launch, StatsGraph } })
 export default class ProblemListComponent extends Vue {
   @Prop() problemProp!: ProblemModel;
-  @Prop() isOpen!: boolean;
-
+  public open = false;
   userStore = userStore;
   courseStore = courseStore;
-
-  get open() {
-    return this.isOpen;
-  }
 
   get lastSubmit(): SubmitModel | null {
     return null;
@@ -61,8 +56,9 @@ export default class ProblemListComponent extends Vue {
     this.$on('cv:change', this.eventHandler);
   }
 
-  eventHandler(event: object) {
-    this.isOpen = !this.isOpen;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  eventHandler(_event: object) {
+    this.open = true;
   }
 
   get isStaff(): boolean {
@@ -77,6 +73,4 @@ export default class ProblemListComponent extends Vue {
 
 .accordion /deep/ .bx--accordion__content
   padding-right 0
-
-
 </style>
