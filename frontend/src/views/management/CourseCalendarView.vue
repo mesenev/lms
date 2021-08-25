@@ -122,10 +122,12 @@
               v-for="(record, index) in courseSchedule.lessons"
               :key="index" :checked="record.isSelected" :value="record.lesson.id.toString()"
               name="group">
-              <cv-structured-list-data>{{ record.date }}
+              <cv-structured-list-data>{{ record.date }}</cv-structured-list-data>
+              <cv-structured-list-data>
                 <cv-icon-button
                   kind="tertiary"
                   size="xl"
+                  label="Установить собственную дату"
                   tip-position="hidden"
                   :icon="iconEdit"
                   v-on:click="st_showModal"/>
