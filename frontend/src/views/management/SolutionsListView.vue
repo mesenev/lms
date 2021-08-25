@@ -78,15 +78,29 @@ export default class SolutionsListView extends Vue {
   }
 
   get_data_for_table(submit: SubmitModel) {
+    const mounth_data: {[key: string]: string} = {
+      '01': 'января',
+      '02': 'февраля',
+      '03': 'марта',
+      '04': 'апреля',
+      '05': 'мая',
+      '06': 'июня',
+      '07': 'июля',
+      '08': 'августа',
+      '09': 'сентября',
+      '10': 'октября',
+      '11': 'ноября',
+      '12': 'декабря'
+    }
     const problem_data: string = submit.problem.name;
-    const created_at_data: string = submit.created_at.slice(0, 4) + "."
-      + submit.created_at.slice(5, 7) + "." +
-      submit.created_at.slice(8, 10) +
-      "---" + submit.created_at.slice(11, 19);
-    const href_to_submit = this.linkRoute(submit)
+    const created_at_data: string = submit.created_at.slice(11, 16) + " "  +
+      submit.created_at.slice(8, 10)+ " " +
+      mounth_data[submit.created_at.slice(5, 7)];
+
+    const href_to_submit = this.linkRoute(submit);
     return [problem_data, href_to_submit as unknown as string, submit.student as unknown as string,
       submit.status as unknown as string, created_at_data, submit as unknown as string
-    ]
+    ];
   }
 
   get to_display() {
