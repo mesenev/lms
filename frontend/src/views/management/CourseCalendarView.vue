@@ -166,6 +166,73 @@
         </cv-structured-list>
       </div>
     </div>
+
+    <div v-if="islessonWOt" class="bx--row header">
+      <div class="items-top bx--col-lg-10">
+        <div class="items-top--element" v-if="!loading">
+          <span> Уроки без установленного времени</span>
+        </div>
+        <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
+        <cv-structured-list>
+          <template slot="headings"></template>
+          <template v-if="!loading && courseSchedule && courseSchedule.lessons && course && course.lessons"
+                    slot="items">
+            <cv-structured-list-item
+              v-for="item in course.lessons"
+              :key="item.id">
+              <template v-if="lessonsWOt.includes(item.id)">
+                <cv-structured-list-data>
+                  Установите время для урока
+                  <cv-icon-button
+                    kind="tertiary"
+                    size="xl"
+                    label="Установить собственную дату"
+                    tip-position="hidden"
+                    :icon="iconEdit"
+                    v-on:click="st_showModal"/>
+                  <cv-modal
+                    close-aria-label="Закрыть"
+                    :visible="st_modalVisible"
+                    @modal-hidden="st_actionHidden"
+                    :auto-hide-off="false">
+                    <template slot="title">Установка собственного времени</template>
+                    <template slot="content">
+                      <cv-grid>
+                        <cv-row>
+                          <cv-column>
+                            <cv-date-picker
+                              dateLabel="Дата"
+                              kind="single"
+                              pattern="\d{1,2}/\d{1,2}/\d{4}"
+                              placeholder="mm/dd/yyyy"
+                              :cal-options="calOptions"
+                              @onChange="actionChange">
+                            </cv-date-picker>
+                            <hr>
+                            <cv-time-picker 
+                            class="s_t_dis"
+                            label="Время" ampm="24"
+                            :form-item="true"/>
+                            <hr>
+                            <cv-button kind="secondary" :icon="iconReset">
+                              Отменить изменения
+                            </cv-button>
+                          </cv-column>
+                        </cv-row>
+                      </cv-grid>
+                    </template>
+                    <template slot="secondary-button">Отменить</template>
+                    <template slot="primary-button">Сохранить изменения</template>
+                  </cv-modal>
+                </cv-structured-list-data>
+                <cv-structured-list-data>{{ item.name }}</cv-structured-list-data>
+              </template>
+            </cv-structured-list-item>
+          </template>
+        </cv-structured-list>
+      </div>
+    </div>
+
     <div class="save-button">
       <cv-button-set>
         <cv-button kind="secondary">Отменить</cv-button>
@@ -205,6 +272,8 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   changedStartDate: string | null = null;
   selected: string | null = null;
   loading = true;
+  lessonsWOt = [];
+  islessonWOt = false;
 
   private monday_ = false;
   private tuesday_ = false;
@@ -252,8 +321,33 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       this.startDate = this.courseSchedule.start_date;
       this.schedule = this.courseSchedule.week_schedule;
       //TODO: correct init state for days (modal init state)
+      this.lessonsWOtime();
     }
+    
     this.loading = false;
+    
+  }
+
+  lessonsWOtime(): void
+  {
+    // console.log(this.courseSchedule.lessons[lesson,id]);
+    const lessons = this.courseSchedule.lessons;
+    const ids = lessons.map((el: any) => el.lesson.id);
+    for(let i = 0; i < this.course.lessons.length; i++)
+    {
+      if(!ids.includes(this.course.lessons[i].id))
+      {
+        this.islessonWOt = true;
+        this.lessonsWOt.push(this.course.lessons[i].id);
+        console.log(this.lessonsWOt);
+      }
+      // console.log(this.course.lessons[i].id);
+    }
+    //}
+    console.log("111");
+    console.log(this.course.lessons);
+    console.log(this.courseSchedule);
+    console.log(ids);
   }
 
   get isSchedule() {
@@ -420,11 +514,13 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     }).finally(() => this.showNotification = true);
   }
 
-  generateSchedule(): void {
+  generateSchedule(): void 
+  {
     if (Object.keys(this.schedule).length === 0 || this.startDate === null ||
       this.course === undefined)
       return;
     const lessons = this.course.lessons;
+    
     const parsed = this.startDate.split('/').reverse().map((x) => Number(x));
     const date: Date = new Date(parsed[0], parsed[1], parsed[2]);
     const schedule: CourseScheduleModel = {
