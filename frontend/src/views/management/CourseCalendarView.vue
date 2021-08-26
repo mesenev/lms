@@ -265,7 +265,6 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       this.schedule = this.courseSchedule.week_schedule;
       //TODO: correct init state for days (modal init state)
     }
-    this.generateSchedule();
     this.loading = false;
   }
 
@@ -443,10 +442,8 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       start_date: this.startDate as string,
       week_schedule: this.schedule,
     }
-    for (let i = 0; i < lessons.length; i++) 
-    {
-      while (!Object.keys(this.workingDays).includes(((date.getDay() + 6) % 7).toString()))
-      {
+    for (let i = 0; i < lessons.length; i++) {
+      while (!Object.keys(this.workingDays).includes(((date.getDay() + 6) % 7).toString())) {
         date.setDate(date.getDate() + 1);
       }
       schedule.lessons.push({
