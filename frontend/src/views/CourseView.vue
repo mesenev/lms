@@ -30,6 +30,17 @@
               <lesson-list-component :lesson-prop='lesson'/>
             </cv-structured-list-item>
           </template>
+          <template slot="items" v-if="isStaff && lessonsNotInSchedule.length > 0">
+            <h3>
+              Следующие уроки не входят в нынешнее расписание, и ученики их не видят:
+            </h3>
+            <cv-structured-list-item
+              class="item"
+              v-for="lesson in lessonsNotInSchedule"
+              :key="lesson.id">
+              <lesson-list-component :lesson-prop='lesson'/>
+            </cv-structured-list-item>
+          </template>
           <template slot="items" v-else>
               <h1 v-if="user.staff_for.includes(course.id)">Расписание для курса не составлено</h1>
           </template>
@@ -90,14 +101,20 @@ export default class CourseView extends Vue {
     return this.lessonStore.lessonsByCourse[this.courseId];
   }
 
+  get lessonsNotInSchedule() {
+    return this.lessons.filter(lesson => !this.filterLessons.map(lesson => lesson.id)
+      .includes(lesson.id));
+  }
+
   get course(): CourseModel | null {
     return this.courseStore.currentCourse;
   }
 
   get filterLessons() {
-    return this.sortedCourseSchedule.map(lesson =>
+    this.sortedCourseSchedule.map(lesson =>
       this.lessons.find(elem => elem.name === lesson.name))
       .filter(lesson => typeof lesson != "undefined");
+    return this.sortedCourseSchedule;
   }
 
   parseDate(date: string): string {
