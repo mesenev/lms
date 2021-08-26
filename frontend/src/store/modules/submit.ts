@@ -60,7 +60,20 @@ class SubmitModule extends VuexModule {
       })
       .catch(error => {
         console.error(error);
+      });
+    return answer as SubmitModel[];
+  }
+
+  @Action
+  async fetchProblemStats(problem_id: number): Promise<SubmitModel[]> {
+    let answer = {};
+    await axios.get(`/api/submit/problem-stats/${problem_id}/`)
+      .then(response => {
+        answer = response.data;
       })
+      .catch(error => {
+        console.error(error)
+      });
     return answer as SubmitModel[];
   }
 
@@ -99,7 +112,9 @@ class SubmitModule extends VuexModule {
   @Action
   async fetchSubmitById(id: number): Promise<SubmitModel> {
     const answer = this.submits.find(x => x.id === id);
-    if (answer) { return answer; }
+    if (answer) {
+      return answer;
+    }
     let data = {};
     await axios.get(`/api/submit/${id}/`)
       .then((response: AxiosResponse<SubmitModel>) => {

@@ -56,6 +56,7 @@ import SubmitModel from '@/models/SubmitModel';
 import UserModel from '@/models/UserModel';
 import courseStore from '@/store/modules/course';
 import userStore from '@/store/modules/user';
+import submitStore from '@/store/modules/submit';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Dictionary } from 'vue-router/types/router';
 
@@ -64,34 +65,37 @@ export default class ProblemStats extends Vue {
   @Prop({ required: true }) problem!: ProblemModel;
   userStore = userStore;
   courseStore = courseStore;
+  submitStore = submitStore;
   loading = true;
+  submits: SubmitModel[] = [];
+  usersWithSubmits: number[] = [];
 
-  usersWithSubmits: Set<string> = new Set(Object.keys(this.problem.students || ''));
-  success_or_last_submits: Array<SubmitModel> = Object.values(this.problem.students || '');
+  async created() {
+//
+    this.submits = await this.submitStore.fetchProblemStats(this.problem.id);
+    this.usersWithSubmits = this.submits.map(x => x.student);
+    this.loading = false;
+  }
 
   get students(): Dictionary<UserModel> {
-    if (!(this.$route.params.courseId in this.userStore.currentCourseStudents))
-      return {};
     return this.userStore.currentCourseStudents;
   }
 
   get successful() {
-    return this.success_or_last_submits.filter(x => x.status === 'OK');
+    return this.submits.filter(x => x.status === "OK");
   }
 
   get testing() {
-    return this.success_or_last_submits.filter(x => {
-      return x.status === 'AW' || x.status === 'NP';
-    });
+    return this.submits.filter(x => x.status === 'AW' || x.status === 'NP');
   }
 
   get wrong() {
-    return this.success_or_last_submits.filter(x => x.status === 'WA');
+    return this.submits.filter(x => x.status === 'WA');
   }
 
   get noSubmitsUsers(): Array<UserModel> {
     return Object.keys(this.students)
-      .filter(x => !this.usersWithSubmits.has(x))
+      .filter(x => !(this.usersWithSubmits.includes(Number(x))))
       .map(x => this.students[x]);
   }
 }

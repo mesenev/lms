@@ -1,0 +1,16 @@
+[Unit]
+Description=BuildBot master service
+After=network.target
+
+[Service]
+User=buildbot
+Group=buildbot
+WorkingDirectory=/home/buildbot/bb-lms/master
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStart=/home/buildbot/bb-lms/venv/bin/buildbot start --nodaemon 
+Environment="PATH=/home/buildbot/bb-lms/venv/bin"
+
+
+[Install]
+WantedBy=multi-user.target
+

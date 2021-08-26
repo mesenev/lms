@@ -85,8 +85,8 @@ export default class SubmitComponent extends NotificationMixinComponent {
     this.updateSubmit();
   }
 
-  created() {
-    this.updateSubmit();
+  async created() {
+    await this.updateSubmit();
   }
 
   async updateSubmit() {
@@ -141,6 +141,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
       'problem': this.problemStore.currentProblem?.id as number,
     }).then((response: AxiosResponse<SubmitModel>) => {
       this.submitStore.addSubmitToArray(response.data);
+      this.$emit('submit-created', { id: response.data.id.toString() });
       this.submit = { ...response.data };
       this.submitEdit = { ...this.submit };
       this.notificationKind = 'success';

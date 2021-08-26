@@ -1,7 +1,9 @@
 <template>
   <div class="bx--grid">
-    <div class="bx--row">
-      <h1 class="main-title">Список курсов</h1>
+    <div class="bx--row header-container">
+      <div class="main-title">
+        <h1>Список курсов</h1>
+      </div>
     </div>
     <div class=" bx--row">
       <div class="items bx--col-lg-6">
