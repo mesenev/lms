@@ -116,7 +116,50 @@
               v-for="(record, index) in courseSchedule.lessons"
               :key="index" :checked="record.isSelected" :value="record.lesson.id.toString()"
               name="group">
-              <cv-structured-list-data>{{ record.date }}</cv-structured-list-data>
+              <cv-structured-list-data>
+                {{ record.date }}
+                <cv-icon-button
+                  kind="tertiary"
+                  size="xl"
+                  label="Установить собственную дату"
+                  tip-position="hidden"
+                  :icon="iconEdit"
+                  v-on:click="st_showModal"/>
+                <cv-modal
+                  close-aria-label="Закрыть"
+                  :visible="st_modalVisible"
+                  @modal-hidden="st_actionHidden"
+                  :auto-hide-off="false">
+                  <template slot="title">Установка собственного времени</template>
+                  <template slot="content">
+                    <cv-grid>
+                      <cv-row>
+                        <cv-column>
+                          <cv-date-picker
+                            dateLabel="Дата"
+                            kind="single"
+                            pattern="\d{1,2}/\d{1,2}/\d{4}"
+                            placeholder="mm/dd/yyyy"
+                            :cal-options="calOptions"
+                            @onChange="actionChange">
+                          </cv-date-picker>
+                          <hr>
+                          <cv-time-picker 
+                          class="s_t_dis"
+                          label="Время" ampm="24"
+                          :form-item="true"/>
+                          <hr>
+                          <cv-button kind="secondary" :icon="iconReset">
+                            Отменить изменения
+                          </cv-button>
+                        </cv-column>
+                      </cv-row>
+                    </cv-grid>
+                  </template>
+                  <template slot="secondary-button">Отменить</template>
+                  <template slot="primary-button">Сохранить изменения</template>
+                </cv-modal>
+              </cv-structured-list-data>
               <cv-structured-list-data>{{ record.lesson.name }}</cv-structured-list-data>
             </cv-structured-list-item>
           </template>
@@ -157,6 +200,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   iconEdit = Edit;
   iconBack = Back;
   modalVisible = false;
+  st_modalVisible = false;
   startDate: string | null = null;
   changedStartDate: string | null = null;
   selected: string | null = null;
@@ -299,8 +343,17 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     this.modalVisible = true;
   }
 
+  st_showModal()
+  {
+    this.st_modalVisible = true;
+  }
+
   actionHidden() {
     this.modalVisible = false;
+  }
+
+   st_actionHidden() {
+    this.st_modalVisible = false;
   }
 
   changeSchedule() {
