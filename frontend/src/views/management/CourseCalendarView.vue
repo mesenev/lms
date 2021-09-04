@@ -114,7 +114,7 @@
                     slot="items">
             <cv-structured-list-item
               v-for="(record, index) in courseSchedule.lessons"
-              :key="index" :checked="record.isSelected" :value="record.lesson.id.toString()"
+              :key="index" :cur_key="courseSchedule.lessons[index].lesson.id" :checked="record.isSelected" :value="record.lesson.id.toString()"
               name="group">
               <cv-structured-list-data>
                 {{ record.date }}
@@ -124,6 +124,7 @@
                   label="Установить собственную дату"
                   tip-position="hidden"
                   :icon="iconEdit"
+                  :cur_key="courseSchedule.lessons[index].lesson.id"
                   v-on:click="st_showModal"/>
                 <cv-modal
                   close-aria-label="Закрыть"
@@ -150,7 +151,7 @@
                           label="Время" ampm="24"
                           :form-item="true"/>
                           <hr>
-                          <cv-button kind="secondary" :icon="iconReset">
+                          <cv-button kind="secondary">
                             Отменить изменения
                           </cv-button>
                         </cv-column>
@@ -177,11 +178,12 @@
         <cv-structured-list>
           <template slot="headings"></template>
           <template v-if="!loading && courseSchedule && courseSchedule.lessons && course && course.lessons"
-                    slot="items">
+                    slot="items" >
             <cv-structured-list-item
               v-for="item in course.lessons"
               :key="item.id"
-              :item = "item">
+              :cur_key="item.id"
+              :item="item">
               <template v-if="lessonsWOt.includes(item.id)">
                 <cv-structured-list-data>
                   Установите время для урока
@@ -191,15 +193,18 @@
                     label="Установить собственную дату"
                     tip-position="hidden"
                     :icon="iconEdit"
-                    v-on:click="st_showModal"/>
+                    :cur_key="item.id"
+                    v-on:click="st_showModal"
+                    />
                   <cv-modal
+                    :cur_key="item.id"
                     close-aria-label="Закрыть"
                     :visible="st_modalVisible"
-                    @primary-click="changeLessonTime(item.id) | pass item"
+                    @primary-click="changeLessonTime"
                     @modal-hidden="st_actionHidden"
                     :auto-hide-off="false">
                     <template slot="title">Установка собственного времени</template>
-                    <template slot="content">
+                    <template  slot="content">
                       <cv-grid>
                         <cv-row>
                           <cv-column>
@@ -217,7 +222,7 @@
                             label="Время" ampm="24"
                             :form-item="true"/>
                             <hr>
-                            <cv-button kind="secondary" :icon="iconReset">
+                            <cv-button kind="secondary">
                               Отменить изменения
                             </cv-button>
                           </cv-column>
@@ -279,6 +284,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   loading = true;
   lessonsWOt = [];
   islessonWOt = false;
+  cur_les_upd_id = -1;
 
   private monday_ = false;
   private tuesday_ = false;
@@ -356,10 +362,11 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     console.log(ids);
   }
 
-  changeLessonTime(n)
+  changeLessonTime(event)
   {
     this.st_modalVisible = false;
-    console.log(n);
+    console.log(this.cur_les_upd_id);
+    alert(this.cur_les_upd_id);
   }
 
   get isSchedule() {
@@ -449,9 +456,10 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     this.modalVisible = true;
   }
 
-  st_showModal()
+  st_showModal(event)
   {
     this.st_modalVisible = true;
+    this.cur_les_upd_id = event.target.getAttribute('cur_key');
   }
 
   actionHidden() {
