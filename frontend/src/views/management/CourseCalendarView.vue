@@ -128,6 +128,7 @@
                 <cv-modal
                   close-aria-label="Закрыть"
                   :visible="st_modalVisible"
+                  @primary-click="changeLessonTime"
                   @modal-hidden="st_actionHidden"
                   :auto-hide-off="false">
                   <template slot="title">Установка собственного времени</template>
@@ -167,7 +168,7 @@
       </div>
     </div>
 
-    <div v-if="islessonWOt" class="bx--row header">
+    <div v-if="islessonWOt && lessonsWOt.length != 0" class="bx--row header">
       <div class="items-top bx--col-lg-10">
         <div class="items-top--element" v-if="!loading">
           <span> Уроки без установленного времени</span>
@@ -179,7 +180,8 @@
                     slot="items">
             <cv-structured-list-item
               v-for="item in course.lessons"
-              :key="item.id">
+              :key="item.id"
+              :item = "item">
               <template v-if="lessonsWOt.includes(item.id)">
                 <cv-structured-list-data>
                   Установите время для урока
@@ -193,6 +195,7 @@
                   <cv-modal
                     close-aria-label="Закрыть"
                     :visible="st_modalVisible"
+                    @primary-click="changeLessonTime(item.id) | pass item"
                     @modal-hidden="st_actionHidden"
                     :auto-hide-off="false">
                     <template slot="title">Установка собственного времени</template>
@@ -257,8 +260,10 @@ import { mixins } from 'vue-class-component';
 import { Component, Prop } from 'vue-property-decorator';
 
 
+
 @Component({ components: { Edit, Back } })
 export default class CourseCalendarView extends mixins(NotificationMixinComponent) {
+  
   @Prop({ required: true }) courseId!: number;
   courseStore = courseStore;
   course: CourseModel | undefined;
@@ -331,23 +336,30 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   lessonsWOtime(): void
   {
     // console.log(this.courseSchedule.lessons[lesson,id]);
-    const lessons = this.courseSchedule.lessons;
-    const ids = lessons.map((el: any) => el.lesson.id);
-    for(let i = 0; i < this.course.lessons.length; i++)
+    const Schedlessons = this.courseSchedule.lessons;
+    const allLessons = this.course.lessons;
+    const ids = Schedlessons.map((el: any) => el.lesson.id);
+    for(let i = 0; i < allLessons.length; i++)
     {
-      if(!ids.includes(this.course.lessons[i].id))
+      if(!ids.includes(allLessons[i].id))
       {
         this.islessonWOt = true;
-        this.lessonsWOt.push(this.course.lessons[i].id);
+        this.lessonsWOt.push(allLessons[i].id);
         console.log(this.lessonsWOt);
       }
       // console.log(this.course.lessons[i].id);
     }
     //}
     console.log("111");
-    console.log(this.course.lessons);
-    console.log(this.courseSchedule);
+    console.log(allLessons);
+    console.log(Schedlessons);
     console.log(ids);
+  }
+
+  changeLessonTime(n)
+  {
+    this.st_modalVisible = false;
+    console.log(n);
   }
 
   get isSchedule() {
@@ -547,6 +559,8 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       date.setDate(date.getDate() + 1);
     }
     this.courseSchedule = schedule;
+    this.lessonsWOt = [];
+    this.lessonsWOtime();
   }
 }
 
