@@ -114,7 +114,8 @@
                     slot="items">
             <cv-structured-list-item
               v-for="(record, index) in courseSchedule.lessons"
-              :key="index" :cur_key="courseSchedule.lessons[index].lesson.id" :checked="record.isSelected" :value="record.lesson.id.toString()"
+              :key="index" :cur_key="courseSchedule.lessons[index].lesson.id" :key_k="index"
+              v-on:click="dropSelect" :checked="record.isSelected" :value="record.lesson.id.toString()"
               name="group">
               <cv-structured-list-data>
                 {{ record.date }}
@@ -478,17 +479,40 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   }
 
   async actionChange(obj: string) {
+    
     const schedule = this.courseSchedule as CourseScheduleModel;
     const n = schedule.lessons.findIndex(x => x.lesson.id === Number(obj));
-    if (!this.selected) {
+    alert("1");
+    console.log(n);
+    console.log(schedule);
+    if (!this.selected || this.selected == "-1") 
+    {
+      alert("2");
       this.selected = n.toString();
       schedule.lessons[n].isSelected = true;
       return;
     }
+    alert("3");
     // TODO: Research why THF I need this async construction for this for drop selection
     this.loading = true;
     await this.updateResult(n);
     this.loading = false;
+    return;
+  }
+
+  dropSelect(event)
+  {
+    const schedule = this.courseSchedule as CourseScheduleModel;
+    alert("drop");
+    console.log(schedule.lessons);
+    const n = event.currentTarget.getAttribute('key_k');
+    if (schedule.lessons[n].isSelected) 
+    {
+      alert("drop 2");
+      this.selected = "-1";
+      schedule.lessons[n].isSelected = false;
+      return;
+    }
     return;
   }
 
@@ -566,6 +590,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       )
       date.setDate(date.getDate() + 1);
     }
+    this.selected = "-1";
     this.courseSchedule = schedule;
     this.lessonsWOt = [];
     this.lessonsWOtime();
