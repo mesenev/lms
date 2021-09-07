@@ -284,7 +284,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   loading = true;
   lessonsWOt = [];
   islessonWOt = false;
-  cur_les_upd_id = -1;
+  cur_les_upd_id = null;
 
   private monday_ = false;
   private tuesday_ = false;
@@ -362,11 +362,9 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     console.log(ids);
   }
 
-  changeLessonTime(event)
+  changeLessonTime()
   {
     this.st_modalVisible = false;
-    console.log(this.cur_les_upd_id);
-    alert(this.cur_les_upd_id);
   }
 
   get isSchedule() {
@@ -456,10 +454,12 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     this.modalVisible = true;
   }
 
-  st_showModal(event)
+  async st_showModal(event)
   {
     this.st_modalVisible = true;
-    this.cur_les_upd_id = event.target.getAttribute('cur_key');
+    this.cur_les_upd_id = event.currentTarget.getAttribute('cur_key');
+    alert(this.cur_les_upd_id);
+    
   }
 
   actionHidden() {
