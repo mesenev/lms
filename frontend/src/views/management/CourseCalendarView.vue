@@ -125,6 +125,7 @@
                   label="Установить собственную дату"
                   tip-position="hidden"
                   :icon="iconEdit"
+                  :key_k="index"
                   :cur_key="courseSchedule.lessons[index].lesson.id"
                   v-on:click="st_showModal"/>
                 <cv-modal
@@ -141,9 +142,10 @@
                           <cv-date-picker
                             dateLabel="Дата"
                             kind="single"
-                            pattern="\d{1,2}/\d{1,2}/\d{4}"
-                            placeholder="mm/dd/yyyy"
-                            :cal-options="calOptions"
+                            date-format="d/m/Y"
+                            placeholder="dd/mm/yyyy"
+                            :cal-options="dpOptions"
+                            v-model="set_custom_date"
                             @onChange="actionChange">
                           </cv-date-picker>
                           <hr>
@@ -212,10 +214,12 @@
                             <cv-date-picker
                               dateLabel="Дата"
                               kind="single"
-                              pattern="\d{1,2}/\d{1,2}/\d{4}"
-                              placeholder="mm/dd/yyyy"
-                              :cal-options="calOptions"
+                              date-format="d/m/Y"
+                              placeholder="dd/mm/yyyy"
+                              :cal-options="dpOptions"
+                              v-model="set_custom_date"
                               @onChange="actionChange">
+                              
                             </cv-date-picker>
                             <hr>
                             <cv-time-picker 
@@ -281,11 +285,13 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   st_modalVisible = false;
   startDate: string | null = null;
   changedStartDate: string | null = null;
+  set_custom_date: string | null = null;
   selected: string | null = null;
   loading = true;
   lessonsWOt = [];
   islessonWOt = false;
   cur_les_upd_id = null;
+  
 
   private monday_ = false;
   private tuesday_ = false;
@@ -342,7 +348,6 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
 
   lessonsWOtime(): void
   {
-    // console.log(this.courseSchedule.lessons[lesson,id]);
     const Schedlessons = this.courseSchedule.lessons;
     const allLessons = this.course.lessons;
     const ids = Schedlessons.map((el: any) => el.lesson.id);
@@ -352,20 +357,14 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       {
         this.islessonWOt = true;
         this.lessonsWOt.push(allLessons[i].id);
-        console.log(this.lessonsWOt);
       }
-      // console.log(this.course.lessons[i].id);
     }
-    //}
-    console.log("111");
-    console.log(allLessons);
-    console.log(Schedlessons);
-    console.log(ids);
   }
 
   changeLessonTime()
   {
     this.st_modalVisible = false;
+    alert(this.set_custom_date);
   }
 
   get isSchedule() {
@@ -458,8 +457,21 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   async st_showModal(event)
   {
     this.st_modalVisible = true;
+    let cur_les_in_list = null;
     this.cur_les_upd_id = event.currentTarget.getAttribute('cur_key');
-    alert(this.cur_les_upd_id);
+    if(event.currentTarget.getAttribute('key_k') != null)
+    {
+      cur_les_in_list = event.currentTarget.getAttribute('key_k');
+      this.set_custom_date = this.courseSchedule.lessons[cur_les_in_list].date;
+    }
+    else
+    {
+      this.set_custom_date = "dd/mm/yyyy";
+    }
+    if(this.cur_les_upd_id == null)
+    {
+      alert(this.cur_les_upd_id + " =)");
+    }
     
   }
 
@@ -482,17 +494,12 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     
     const schedule = this.courseSchedule as CourseScheduleModel;
     const n = schedule.lessons.findIndex(x => x.lesson.id === Number(obj));
-    alert("1");
-    console.log(n);
-    console.log(schedule);
     if (!this.selected || this.selected == "-1") 
     {
-      alert("2");
       this.selected = n.toString();
       schedule.lessons[n].isSelected = true;
       return;
     }
-    alert("3");
     // TODO: Research why THF I need this async construction for this for drop selection
     this.loading = true;
     await this.updateResult(n);
@@ -503,12 +510,9 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   dropSelect(event)
   {
     const schedule = this.courseSchedule as CourseScheduleModel;
-    alert("drop");
-    console.log(schedule.lessons);
     const n = event.currentTarget.getAttribute('key_k');
     if (schedule.lessons[n].isSelected) 
     {
-      alert("drop 2");
       this.selected = "-1";
       schedule.lessons[n].isSelected = false;
       return;
@@ -533,8 +537,15 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     const schedule = this.courseSchedule as CourseScheduleModel;
     const newArr = [...schedule.lessons];
     const tmp = newArr[Number(this.selected)];
+
+    const date_tmp = newArr[Number(this.selected)].date;
+
     newArr[Number(this.selected)] = newArr[n];
     newArr[n] = tmp;
+
+    newArr[n].date = newArr[Number(this.selected)].date;
+    newArr[Number(this.selected)].date = date_tmp;
+
     newArr[n].isSelected = false;
     newArr[Number(this.selected)].isSelected = false;
     this.selected = null;
