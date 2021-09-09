@@ -132,6 +132,7 @@
                   close-aria-label="Закрыть"
                   :visible="st_modalVisible"
                   @primary-click="changeLessonTime"
+                  :primaryButtonDisabled="!isSelfDateChanged"
                   @modal-hidden="st_actionHidden"
                   :auto-hide-off="false">
                   <template slot="title">Установка собственного времени</template>
@@ -148,15 +149,13 @@
                             v-model="set_custom_date"
                             @onChange="actionChange">
                           </cv-date-picker>
-                          <hr>
+                          <!-- <hr>
                           <cv-time-picker 
                           class="s_t_dis"
                           label="Время" ampm="24"
                           :form-item="true"/>
-                          <hr>
-                          <cv-button kind="secondary">
-                            Отменить изменения
-                          </cv-button>
+                          <hr> -->
+                          <!-- TODO: Time for lessons -->
                         </cv-column>
                       </cv-row>
                     </cv-grid>
@@ -204,6 +203,7 @@
                     close-aria-label="Закрыть"
                     :visible="st_modalVisible"
                     @primary-click="changeLessonTime"
+                    :primaryButtonDisabled="!isSelfDateChanged"
                     @modal-hidden="st_actionHidden"
                     :auto-hide-off="false">
                     <template slot="title">Установка собственного времени</template>
@@ -221,15 +221,13 @@
                               @onChange="actionChange">
                               
                             </cv-date-picker>
-                            <hr>
+                            <!-- <hr>
                             <cv-time-picker 
                             class="s_t_dis"
                             label="Время" ampm="24"
                             :form-item="true"/>
-                            <hr>
-                            <cv-button kind="secondary">
-                              Отменить изменения
-                            </cv-button>
+                            <hr> -->
+                            <!-- TODO: Time for lessons -->
                           </cv-column>
                         </cv-row>
                       </cv-grid>
@@ -286,11 +284,13 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   startDate: string | null = null;
   changedStartDate: string | null = null;
   set_custom_date: string | null = null;
+  cur_custom_date: string | null = null;
   selected: string | null = null;
   loading = true;
   lessonsWOt = [];
   islessonWOt = false;
   cur_les_upd_id = null;
+  k_keeper = null;
   
 
   private monday_ = false;
@@ -324,6 +324,15 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     );
   }
 
+  get isSelfDateChanged()
+  {
+    
+    // console.log(this.cur_custom_date);
+    // console.log(this.set_custom_date);
+    // console.log(this.set_custom_date == this.cur_custom_date);
+    return !(this.set_custom_date == this.cur_custom_date);
+  }
+
   get dpOptions() {
     return {
       dateFormat: "d/m/Y",
@@ -340,6 +349,10 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       this.schedule = this.courseSchedule.week_schedule;
       //TODO: correct init state for days (modal init state)
       this.lessonsWOtime();
+      for(let i = 0; i < this.courseSchedule.lessons.length; i++)
+      {
+        this.courseSchedule.lessons[i].isSelected = false;
+      }
     }
     
     this.loading = false;
@@ -359,10 +372,57 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
         this.lessonsWOt.push(allLessons[i].id);
       }
     }
+    console.log(allLessons);
+    console.log(Schedlessons);
+    console.log(ids);
   }
 
-  changeLessonTime()
+  changeLessonTime(event)
   {
+    const cur_less_id = this.cur_les_upd_id;
+    const parsed = this.set_custom_date.split('/').reverse().map((x) => Number(x));
+    const date: Date = new Date(parsed[0], parsed[1]-1, parsed[2]);
+    console.log(cur_less_id);
+    console.log(String(this.lessonsWOt));
+    console.log(String(this.lessonsWOt).indexOf(cur_less_id) !== -1);
+    if(String(this.lessonsWOt).indexOf(cur_less_id) !== -1)
+    {
+      const allLessons = this.course.lessons;
+      const lessons = this.courseSchedule.lessons;
+      const schedule: CourseScheduleModel = {
+        id: NaN,
+        name: '',
+        course: this.course.id,
+        lessons: [],
+        start_date: this.startDate as string,
+        week_schedule: this.schedule,
+      }
+      schedule.lessons = lessons;
+      for(let i = 0; i < allLessons.length; i++)
+      {
+        if(cur_less_id == allLessons[i].id)
+        {
+          schedule.lessons.push({
+          date: date.toLocaleDateString(
+            'ru-RU',
+            { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
+          ),
+          lesson: allLessons[i],
+          isSelected: false,
+          } as ScheduleElement,)
+        }
+      }
+      console.log(schedule);
+      this.courseSchedule = schedule;
+      this.lessonsWOt = [];
+      this.lessonsWOtime();
+    }
+    else
+    {
+      // console.log(this.courseSchedule.lessons[this.k_keeper].date);
+      // console.log(date.toLocaleDateString('ru-RU',{ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },));
+      this.courseSchedule.lessons[this.k_keeper].date = date.toLocaleDateString('ru-RU',{ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },);
+    }
     this.st_modalVisible = false;
     alert(this.set_custom_date);
   }
@@ -457,17 +517,21 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   async st_showModal(event)
   {
     this.st_modalVisible = true;
-    let cur_les_in_list = null;
+    // let cur_les_in_list = null;
     this.cur_les_upd_id = event.currentTarget.getAttribute('cur_key');
+    
     if(event.currentTarget.getAttribute('key_k') != null)
     {
-      cur_les_in_list = event.currentTarget.getAttribute('key_k');
-      this.set_custom_date = this.courseSchedule.lessons[cur_les_in_list].date;
+      
+       this.k_keeper = event.currentTarget.getAttribute('key_k');
+    //   this.set_custom_date = this.courseSchedule.lessons[cur_les_in_list].date;
     }
-    else
-    {
-      this.set_custom_date = "dd/mm/yyyy";
-    }
+    // else
+    // {
+    //   this.set_custom_date = "dd/mm/yyyy";
+    // }
+    this.set_custom_date = "";
+    this.cur_custom_date = "";
     if(this.cur_les_upd_id == null)
     {
       alert(this.cur_les_upd_id + " =)");
