@@ -423,6 +423,8 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       // console.log(date.toLocaleDateString('ru-RU',{ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },));
       this.courseSchedule.lessons[this.k_keeper].date = date.toLocaleDateString('ru-RU',{ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },);
     }
+    this.courseSchedule.lessons = this.courseSchedule.lessons.sort((a,b) => b.date - a.date); 
+    // ^ sort by date. btw dont work. need to fix 
     this.st_modalVisible = false;
     alert(this.set_custom_date);
   }
