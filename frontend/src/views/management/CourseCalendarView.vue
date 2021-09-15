@@ -376,28 +376,6 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     // console.log(ids);
   }
 
-  StrToDate_fromSched_Parse(date): Date
-  {
-    let new_date = date.split(', ').map(item => item.trim())[1];
-    const months = {
-    'января' : '0',
-    'февраля' : '1',
-    'марта' : '2',
-    'апреля' : '3',
-    'мая' : '4',
-    'июня' : '5',
-    'июля' : '6',
-    'августа' : '7',
-    'сентября' : '8',
-    'октября' : '9',
-    'ноября' : '10',
-    'декабря' : '11'
-    };
-    new_date = new_date.split(' ').map(item => item.trim());
-    new_date = new Date(Number(new_date[2]), Number(months[new_date[1]]), Number(new_date[0]));
-    return new_date;
-  }
-
   changeLessonTime()
   {
     const cur_less_id = this.cur_les_upd_id;
@@ -449,7 +427,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       // console.log(a.date);
       // console.log(b.date);
       let dateA = a.date.split(', ').map(item => item.trim())[1];
-      let dateB = a.date.split(', ').map(item => item.trim())[1];
+      let dateB = b.date.split(', ').map(item => item.trim())[1];
       const months = {
       'января' : '0',
       'февраля' : '1',
@@ -471,7 +449,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       return dateA.getTime() - dateB.getTime();   
       
    }); 
-    // ^ upd: try to find inbuild parser for date with local || do parser func
+    // ^ upd: try to find inbuild parser for date with local || do parser funcx 
     this.st_modalVisible = false;
     // alert(this.set_custom_date);
   }
