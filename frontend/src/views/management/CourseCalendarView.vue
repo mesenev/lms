@@ -354,7 +354,6 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
         this.courseSchedule.lessons[i].isSelected = false;
       }
     }
-    
     this.loading = false;
     
   }
@@ -372,19 +371,41 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
         this.lessonsWOt.push(allLessons[i].id);
       }
     }
-    console.log(allLessons);
-    console.log(Schedlessons);
-    console.log(ids);
+    // console.log(allLessons);
+    // console.log(Schedlessons);
+    // console.log(ids);
   }
 
-  changeLessonTime(event)
+  StrToDate_fromSched_Parse(date): Date
+  {
+    let new_date = date.split(', ').map(item => item.trim())[1];
+    const months = {
+    'января' : '0',
+    'февраля' : '1',
+    'марта' : '2',
+    'апреля' : '3',
+    'мая' : '4',
+    'июня' : '5',
+    'июля' : '6',
+    'августа' : '7',
+    'сентября' : '8',
+    'октября' : '9',
+    'ноября' : '10',
+    'декабря' : '11'
+    };
+    new_date = new_date.split(' ').map(item => item.trim());
+    new_date = new Date(Number(new_date[2]), Number(months[new_date[1]]), Number(new_date[0]));
+    return new_date;
+  }
+
+  changeLessonTime()
   {
     const cur_less_id = this.cur_les_upd_id;
     const parsed = this.set_custom_date.split('/').reverse().map((x) => Number(x));
     const date: Date = new Date(parsed[0], parsed[1]-1, parsed[2]);
-    console.log(cur_less_id);
-    console.log(String(this.lessonsWOt));
-    console.log(String(this.lessonsWOt).indexOf(cur_less_id) !== -1);
+    // console.log(cur_less_id);
+    // console.log(String(this.lessonsWOt));
+    // console.log(String(this.lessonsWOt).indexOf(cur_less_id) !== -1);
     if(String(this.lessonsWOt).indexOf(cur_less_id) !== -1)
     {
       const allLessons = this.course.lessons;
@@ -412,7 +433,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
           } as ScheduleElement,)
         }
       }
-      console.log(schedule);
+      //console.log(schedule);
       this.courseSchedule = schedule;
       this.lessonsWOt = [];
       this.lessonsWOtime();
@@ -423,11 +444,39 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       // console.log(date.toLocaleDateString('ru-RU',{ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },));
       this.courseSchedule.lessons[this.k_keeper].date = date.toLocaleDateString('ru-RU',{ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },);
     }
-    this.courseSchedule.lessons = this.courseSchedule.lessons.sort((a,b) => b.date - a.date); 
-    // ^ sort by date. btw dont work. need to fix 
+    this.courseSchedule.lessons.sort(function(a,b) 
+    {
+      // console.log(a.date);
+      // console.log(b.date);
+      let dateA = a.date.split(', ').map(item => item.trim())[1];
+      let dateB = a.date.split(', ').map(item => item.trim())[1];
+      const months = {
+      'января' : '0',
+      'февраля' : '1',
+      'марта' : '2',
+      'апреля' : '3',
+      'мая' : '4',
+      'июня' : '5',
+      'июля' : '6',
+      'августа' : '7',
+      'сентября' : '8',
+      'октября' : '9',
+      'ноября' : '10',
+      'декабря' : '11'
+      };
+      dateA = dateA.split(' ').map(item => item.trim());
+      dateB = dateB.split(' ').map(item => item.trim());
+      dateA = new Date(Number(dateA[2]), Number(months[dateA[1]]), Number(dateA[0]));
+      dateB = new Date(Number(dateB[2]), Number(months[dateB[1]]), Number(dateB[0]));
+      return dateA.getTime() - dateB.getTime();   
+      
+   }); 
+    // ^ upd: try to find inbuild parser for date with local || do parser func
     this.st_modalVisible = false;
-    alert(this.set_custom_date);
+    // alert(this.set_custom_date);
   }
+
+  
 
   get isSchedule() {
     return this.course != undefined && this.course.schedule != undefined;
