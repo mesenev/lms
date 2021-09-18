@@ -5,8 +5,10 @@
     </div>
     <div class="bx--row header">
       <div class="items-top bx--col-lg-10">
-        <div class="items-top--element" v-if="!loading"><span v-if="isSchedule">Начало занятий: {{ startDate }}</span>
-                                                        <span v-else>Расписание для курса не составлено</span></div>
+        <div class="items-top--element" v-if="!loading">
+          <span v-if="isSchedule">Начало занятий: {{ startDate }}</span>
+          <span v-else>Расписание для курса не составлено</span>
+        </div>
         <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
         <hr>
         <div class="items-top--element"><span> {{ scheduleCurrent }}</span></div>
@@ -122,6 +124,7 @@
                 <cv-icon-button
                   kind="tertiary"
                   size="xl"
+                  :disabled="!courseSchedule.lessons[index].lesson.is_hidden"
                   label="Установить собственную дату"
                   tip-position="hidden"
                   :icon="iconEdit"
@@ -314,6 +317,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     Object.keys(this.workingDays).forEach(
       value => courseSchedule += `${this.alias[parseInt(value)]}: ${this.workingDays[value]} `,
     );
+    
     return courseSchedule;
   }
 
@@ -355,6 +359,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       }
     }
     this.loading = false;
+    console.log(this.courseSchedule.lessons);
     
   }
 
@@ -587,7 +592,14 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     
     const schedule = this.courseSchedule as CourseScheduleModel;
     const n = schedule.lessons.findIndex(x => x.lesson.id === Number(obj));
-    if (!this.selected || this.selected == "-1") 
+    if(!schedule.lessons[n].lesson.is_hidden)
+    {
+      alert("Изменять время открытого урока невозможно");
+      this.selected = "-1";
+      schedule.lessons[n].isSelected = false;
+      return;
+    }
+    else if (!this.selected || this.selected == "-1") 
     {
       this.selected = n.toString();
       schedule.lessons[n].isSelected = true;
@@ -604,6 +616,12 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   {
     const schedule = this.courseSchedule as CourseScheduleModel;
     const n = event.currentTarget.getAttribute('key_k');
+    if(!schedule.lessons[n].lesson.is_hidden)
+    {
+      this.selected = "-1";
+      schedule.lessons[n].isSelected = false;
+      return;
+    }
     if (schedule.lessons[n].isSelected) 
     {
       this.selected = "-1";
@@ -670,7 +688,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     const lessons = this.course.lessons;
     
     const parsed = this.startDate.split('/').reverse().map((x) => Number(x));
-    const date: Date = new Date(parsed[0], parsed[1], parsed[2]);
+    const date: Date = new Date(parsed[0], parsed[1]-1, parsed[2]);
     const schedule: CourseScheduleModel = {
       id: NaN,
       name: '',
@@ -679,7 +697,8 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       start_date: this.startDate as string,
       week_schedule: this.schedule,
     }
-    for (let i = 0; i < lessons.length; i++) {
+    for (let i = 0; i < lessons.length; i++) 
+    {
       while (!Object.keys(this.workingDays).includes(((date.getDay() + 6) % 7).toString())) {
         date.setDate(date.getDate() + 1);
       }
