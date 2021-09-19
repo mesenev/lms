@@ -297,6 +297,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   islessonWOt = false;
   cur_les_upd_id = null;
   k_keeper = null;
+  courseListId = null;
   
 
   private monday_ = false;
@@ -312,6 +313,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   }
 
   get isNewSchedule() {
+    console.log("ss" + this.courseSchedule?.id);
     return !this.courseSchedule?.id;
   }
 
@@ -358,8 +360,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       }
     }
     this.loading = false;
-    console.log(this.courseSchedule.lessons);
-    
+    this.GetCourseID();
   }
 
   lessonsWOtime(): void
@@ -645,6 +646,29 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     this.courseSchedule = { ...schedule, lessons: newArr };
   }
 
+  async GetCourseID() {
+    console.log("///");
+    console.log(this.courseSchedule);
+    
+    await axios
+      .get('/api/course-schedule/')
+      .then((response) => {
+        console.log(response.data);
+        for(let i = 0; i < response.data.length; i++)
+        {
+          if(response.data[i].id == this.courseSchedule.id)
+          {
+            this.courseListId = i;
+          }
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    console.log("LIL: " + this.courseListId);
+    
+  }
+
   saveOrUpdateSchedule(): void {
     const request = (this.isNewSchedule) ?
       axios.post('/api/course-schedule/', this.courseSchedule) :
@@ -659,6 +683,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       this.oldCourseSchedule = { ...this.courseSchedule };
     }).catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
+      console.log(error);
       this.notificationKind = 'error';
     }).finally(() => this.showNotification = true);
   }
