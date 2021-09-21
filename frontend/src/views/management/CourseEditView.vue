@@ -2,7 +2,8 @@
   <div class="bx--grid">
     <div class="bx--row page--title">
       <div>
-        <h1 class="title">{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}</h1>
+        <h1 class="title" v-if="!fetchingCourse">{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}</h1>
+        <cv-skeleton-text v-text="'Подождите...'" v-else :heading="true" :width="'35%'" class="main-title"/>
       </div>
     </div>
     <div class="bx--row main--content">
@@ -106,12 +107,12 @@ export default class CourseEditView extends Vue {
     this.showNotification = false;
   }
 
-  created() {
+  async created() {
     if (this.courseId === null) {
       this.fetchingCourse = false;
       return;
     }
-    this.course = this.store.currentCourse as CourseModel;
+    this.course = await this.store.fetchCourseById(this.courseId);
     this.courseEdit = { ...this.course };
     this.fetchingCourse = false;
   }

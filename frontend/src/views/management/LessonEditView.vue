@@ -55,7 +55,7 @@
           </template>
         </cv-structured-list>
         <div class="lesson-buttons">
-          <EditLessonModal
+          <EditLessonModal @update-problem-list="updateClassworkList($event)"
             :lesson="lessonEdit"
             class="edit--lesson-props"/>
           <EditLessonMaterialsModal
@@ -84,9 +84,12 @@ import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
 import axios from 'axios';
 import _ from 'lodash';
 import { Component, Prop } from 'vue-property-decorator';
+import { Mutation } from "vuex-module-decorators";
+
 
 @Component({ components: { EditLessonMaterialsModal, EditLessonModal } })
 export default class LessonEditView extends NotificationMixinComponent {
+
   @Prop({ required: true }) lessonId!: number;
   TrashCan = TrashCan20;
   store = lessonStore;
@@ -121,15 +124,25 @@ export default class LessonEditView extends NotificationMixinComponent {
       this.notificationKind = 'error';
     })
     request.finally(() => this.showNotification = true);
+
   }
 
   get getClasswork(): Array<ProblemModel | CatsProblemModel> {
     return this.lessonEdit.problems.filter(x => x.type === 'CW');
   }
 
+  @Mutation
+  updateClassworkList(new_problems: Array<ProblemModel | CatsProblemModel>){
+    this.lessonEdit = { ...this.lesson }
+    new_problems.forEach(element => {
+      this.getClasswork.push(element as ProblemModel)
+    })
+  }
+
   get getHomework(): Array<ProblemModel | CatsProblemModel> {
     return this.lessonEdit.problems.filter(x => x.type === 'HW');
   }
+
 
   searchByTutorial(problems: Array<ProblemModel | CatsProblemModel>):
     Array<ProblemModel | CatsProblemModel> {
