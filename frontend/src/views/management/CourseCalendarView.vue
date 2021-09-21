@@ -361,9 +361,9 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
         this.courseSchedule.lessons[i].isSelected = false;
       }
     }
-    this.loading = false;
-    this.GetCourseID();
-  }
+    this.loading = false; 
+
+  } 
 
   lessonsWOtime(): void
   {
@@ -673,27 +673,27 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     this.courseSchedule = { ...schedule, lessons: newArr };
   }
 
-  async GetCourseID() {
-    // console.log("///");
-    // console.log(this.courseSchedule);
+  // async GetCourseID() {
+  //   // console.log("///");
+  //   // console.log(this.courseSchedule);
     
-    await axios
-      .get('/api/course-schedule/')
-      .then((response) => {
-        // console.log(response.data);
-        for(let i = 0; i < response.data.length; i++)
-        {
-          if(response.data[i].id == this.courseSchedule.id)
-          {
-            this.courseListId = i;
-          }
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    // console.log("LIL: " + this.courseListId);
-  }
+  //   await axios
+  //     .get('/api/course-schedule/')
+  //     .then((response) => {
+  //       // console.log(response.data);
+  //       for(let i = 0; i < response.data.length; i++)
+  //       {
+  //         if(response.data[i].id == this.courseSchedule.id)
+  //         {
+  //           this.courseListId = i;
+  //         }
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.error(error);
+  //     });
+  //   // console.log("LIL: " + this.courseListId);
+  // }
 
   saveOrUpdateSchedule(): void {
     const request = (this.isNewSchedule) ?
