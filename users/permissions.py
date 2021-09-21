@@ -44,6 +44,8 @@ class CourseStaffOrReadOnlyForStudents(permissions.BasePermission):
 
 class CourseStaffOrAuthorReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if obj.student == request.user:
+        if object_to_course(obj) in request.user.staff_for.all():
+            return True
+        if hasattr(obj, 'student') and obj.student == request.user:
             return request.method in permissions.SAFE_METHODS
-        return object_to_course(obj) in request.user.staff_for.all()
+        return False
