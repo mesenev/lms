@@ -186,8 +186,10 @@
         <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
         <cv-structured-list>
           <template slot="headings"></template>
-          <template v-if="!loading && courseSchedule && courseSchedule.lessons && course && course.lessons"
-                    slot="items">
+          <template
+            v-if="(!loading && courseSchedule &&
+                    courseSchedule.lessons && course && course.lessons)"
+            slot="items">
             <cv-structured-list-item
               v-for="item in course.lessons"
               :key="item.id"
@@ -349,7 +351,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     this.course = await this.courseStore.fetchCourseById(this.courseId);
     if (this.isSchedule) {
       this.courseSchedule = await this.courseStore.fetchCourseScheduleByCourseId(this.courseId);
-      this.oldCourseSchedule = { ...this.courseSchedule };
+      this.oldCourseSchedule = _.cloneDeep(this.courseSchedule);
       //TODO: Same data in two fields. Ambigous. Normalize it.
       this.startDate = this.courseSchedule.start_date;
       this.schedule = this.courseSchedule.week_schedule;
