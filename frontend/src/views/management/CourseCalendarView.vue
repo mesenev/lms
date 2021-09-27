@@ -112,26 +112,28 @@
       <div class="items bx--col-lg-10">
         <cv-structured-list selectable @change="actionChange">
           <template slot="headings"></template>
-          <template v-if="!loading && courseSchedule && courseSchedule.lessons"
-                    slot="items">
+          <template v-if="!loading && courseSchedule && courseSchedule.lessons" slot="items">
             <cv-structured-list-item
               v-for="(record, index) in courseSchedule.lessons"
-              :key="index" :cur_key="courseSchedule.lessons[index].lesson.id" :key_k="index"
-              v-on:click="dropSelect" :checked="record.isSelected" :value="record.lesson.id.toString()"
+              :key="index"
+              :checked="record.isSelected"
+              :cur_key="courseSchedule.lessons[index].lesson.id"
+              :key_k="index"
+              :value="record.lesson.id.toString()"
+              v-on:click="dropSelect"
               name="group">
               <cv-structured-list-data>
-                {{ record.date }}
-                <cv-icon-button
-                  kind="tertiary"
-                  size="xl"
-                  label="Установить собственную дату"
-                  tip-position="hidden"
-                  :disabled="!courseSchedule.lessons[index].lesson.is_hidden"
-                  :icon="iconEdit"
-                  :key_k="index"
-                  :cur_key="courseSchedule.lessons[index].lesson.id"
-                  v-on:click="st_showModal"/>
-
+                <div class="structured-list--data-wrapper"> {{ record.date }}
+                  <cv-icon-button
+                    kind="ghost"
+                    size="sm"
+                    tip-position="hidden"
+                    :disabled="!courseSchedule.lessons[index].lesson.is_hidden"
+                    :icon="iconEdit"
+                    :key_k="index"
+                    :cur_key="courseSchedule.lessons[index].lesson.id"
+                    v-on:click="st_showModal"/>
+                </div>
                 <cv-modal
                   close-aria-label="Закрыть"
                   :visible="st_modalVisible"
@@ -154,7 +156,7 @@
                             @onChange="actionChange">
                           </cv-date-picker>
                           <hr>
-                          <!-- <cv-time-picker 
+                          <!-- <cv-time-picker
                           class="s_t_dis"
                           v-model="set_custom_time"
                           label="Время" ampm="24"
@@ -185,7 +187,7 @@
         <cv-structured-list>
           <template slot="headings"></template>
           <template v-if="!loading && courseSchedule && courseSchedule.lessons && course && course.lessons"
-                    slot="items" >
+                    slot="items">
             <cv-structured-list-item
               v-for="item in course.lessons"
               :key="item.id"
@@ -202,7 +204,7 @@
                     :icon="iconEdit"
                     :cur_key="item.id"
                     v-on:click="st_showModal"
-                    />
+                  />
                   <cv-modal
                     :cur_key="item.id"
                     close-aria-label="Закрыть"
@@ -212,7 +214,7 @@
                     @modal-hidden="st_actionHidden"
                     :auto-hide-off="false">
                     <template slot="title">Установка собственного времени</template>
-                    <template  slot="content">
+                    <template slot="content">
                       <cv-grid>
                         <cv-row>
                           <cv-column>
@@ -224,10 +226,10 @@
                               :cal-options="dpOptions"
                               v-model="set_custom_date"
                               @onChange="actionChange">
-                              
+
                             </cv-date-picker>
                             <hr>
-                            <!-- <cv-time-picker 
+                            <!-- <cv-time-picker
                             class="s_t_dis"
                             v-model="set_custom_time"
                             label="Время" ampm="24"
@@ -274,10 +276,9 @@ import { mixins } from 'vue-class-component';
 import { Component, Prop } from 'vue-property-decorator';
 
 
-
 @Component({ components: { Edit, Back } })
 export default class CourseCalendarView extends mixins(NotificationMixinComponent) {
-  
+
   @Prop({ required: true }) courseId!: number;
   courseStore = courseStore;
   course: CourseModel | undefined;
@@ -299,8 +300,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   cur_les_upd_id = null;
   k_keeper = null;
   courseListId = null;
-  
-  
+
 
   private monday_ = false;
   private tuesday_ = false;
@@ -324,7 +324,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     Object.keys(this.workingDays).forEach(
       value => courseSchedule += `${this.alias[parseInt(value)]}: ${this.workingDays[value]} `,
     );
-    
+
     return courseSchedule;
   }
 
@@ -335,8 +335,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     );
   }
 
-  get isSelfDateChanged()
-  {
+  get isSelfDateChanged() {
     return !(this.set_custom_date == this.cur_custom_date);
   }
 
@@ -356,46 +355,38 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       this.schedule = this.courseSchedule.week_schedule;
       //TODO: correct init state for days (modal init state)
       this.lessonsWOtime();
-      for(let i = 0; i < this.courseSchedule.lessons.length; i++)
-      {
+      for (let i = 0; i < this.courseSchedule.lessons.length; i++) {
         this.courseSchedule.lessons[i].isSelected = false;
       }
     }
-    this.loading = false; 
+    this.loading = false;
 
-  } 
+  }
 
-  lessonsWOtime(): void
-  {
+  lessonsWOtime(): void {
     this.lessonsWOt = [];
     const Schedlessons = this.courseSchedule.lessons;
     const allLessons = this.course.lessons;
     const ids = Schedlessons.map((el: any) => el.lesson.id);
-    for(let i = 0; i < allLessons.length; i++)
-    {
-      if(!ids.includes(allLessons[i].id))
-      {
+    for (let i = 0; i < allLessons.length; i++) {
+      if (!ids.includes(allLessons[i].id)) {
         this.islessonWOt = true;
         this.lessonsWOt.push(allLessons[i].id);
       }
     }
   }
 
-  changeLessonTime()
-  {
-    
+  changeLessonTime() {
     const cur_less_id = this.cur_les_upd_id;
-    if(this.set_custom_date == "")
-    {
+    if (this.set_custom_date == "") {
       this.courseSchedule.lessons.splice(this.k_keeper, 1);
       this.lessonsWOtime();
       this.st_modalVisible = false;
       return;
     }
     const parsed = this.set_custom_date.split('/').reverse().map((x) => Number(x));
-    const date: Date = new Date(parsed[0], parsed[1]-1, parsed[2]);
-    if(String(this.lessonsWOt).indexOf(cur_less_id) !== -1)
-    {
+    const date: Date = new Date(parsed[0], parsed[1] - 1, parsed[2]);
+    if (String(this.lessonsWOt).indexOf(cur_less_id) !== -1) {
       const allLessons = this.course.lessons;
       const lessons = this.courseSchedule.lessons;
       const schedule: CourseScheduleModel = {
@@ -407,57 +398,55 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
         week_schedule: this.schedule,
       }
       schedule.lessons = lessons;
-      for(let i = 0; i < allLessons.length; i++)
-      {
-        if(cur_less_id == allLessons[i].id)
-        {
+      for (let i = 0; i < allLessons.length; i++) {
+        if (cur_less_id == allLessons[i].id) {
           schedule.lessons.push({
-          date: date.toLocaleDateString(
-            'ru-RU',
-            { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
-          ),
-          lesson: allLessons[i],
-          isSelected: false,
-          } as ScheduleElement,)
+            date: date.toLocaleDateString(
+              'ru-RU',
+              { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
+            ),
+            lesson: allLessons[i],
+            isSelected: false,
+          } as ScheduleElement)
         }
       }
       this.courseSchedule = schedule;
       this.lessonsWOtime();
+    } else {
+      this.courseSchedule.lessons[this.k_keeper].date = date.toLocaleDateString('ru-RU', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
     }
-    else
-    {
-      this.courseSchedule.lessons[this.k_keeper].date = date.toLocaleDateString('ru-RU',{ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },);
-    }
-    this.courseSchedule.lessons.sort(function(a,b) 
-    {
+    this.courseSchedule.lessons.sort(function (a, b) {
       let dateA = a.date.split(', ').map(item => item.trim())[1];
       let dateB = b.date.split(', ').map(item => item.trim())[1];
       const months = {
-      'января' : '0',
-      'февраля' : '1',
-      'марта' : '2',
-      'апреля' : '3',
-      'мая' : '4',
-      'июня' : '5',
-      'июля' : '6',
-      'августа' : '7',
-      'сентября' : '8',
-      'октября' : '9',
-      'ноября' : '10',
-      'декабря' : '11'
+        'января': '0',
+        'февраля': '1',
+        'марта': '2',
+        'апреля': '3',
+        'мая': '4',
+        'июня': '5',
+        'июля': '6',
+        'августа': '7',
+        'сентября': '8',
+        'октября': '9',
+        'ноября': '10',
+        'декабря': '11',
       };
       dateA = dateA.split(' ').map(item => item.trim());
       dateB = dateB.split(' ').map(item => item.trim());
       dateA = new Date(Number(dateA[2]), Number(months[dateA[1]]), Number(dateA[0]));
       dateB = new Date(Number(dateB[2]), Number(months[dateB[1]]), Number(dateB[0]));
-      return dateA.getTime() - dateB.getTime();   
-      
-   }); 
-    // ^ upd: try to find inbuild parser for date with local || do parser funcx 
+      return dateA.getTime() - dateB.getTime();
+    });
+    // ^ upd: try to find inbuild parser for date with local || do parser funcx
     this.st_modalVisible = false;
   }
 
-  
 
   get isSchedule() {
     return this.course != undefined && this.course.schedule != undefined;
@@ -546,29 +535,27 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     this.modalVisible = true;
   }
 
-  async st_showModal(event)
-  {
+  async st_showModal(event) {
     this.st_modalVisible = true;
     this.cur_les_upd_id = event.currentTarget.getAttribute('cur_key');
     this.set_custom_date = "";
     this.cur_custom_date = "";
     const months = {
-      'января' : '0',
-      'февраля' : '1',
-      'марта' : '2',
-      'апреля' : '3',
-      'мая' : '4',
-      'июня' : '5',
-      'июля' : '6',
-      'августа' : '7',
-      'сентября' : '8',
-      'октября' : '9',
-      'ноября' : '10',
-      'декабря' : '11'
-      };
+      'января': '0',
+      'февраля': '1',
+      'марта': '2',
+      'апреля': '3',
+      'мая': '4',
+      'июня': '5',
+      'июля': '6',
+      'августа': '7',
+      'сентября': '8',
+      'октября': '9',
+      'ноября': '10',
+      'декабря': '11',
+    };
     let curDate;
-    if(event.currentTarget.getAttribute('key_k') != null)
-    {
+    if (event.currentTarget.getAttribute('key_k') != null) {
       this.k_keeper = event.currentTarget.getAttribute('key_k');
       curDate = this.courseSchedule.lessons[this.k_keeper].date.split(', ').map(item => item.trim())[1];
       curDate = curDate.split(' ').map(item => item.trim());
@@ -576,18 +563,17 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       this.set_custom_date = curDate;
       this.cur_custom_date = this.set_custom_date;
     }
-    if(this.cur_les_upd_id == null)
-    {
+    if (this.cur_les_upd_id == null) {
       alert(this.cur_les_upd_id + " =)");
     }
-    
+
   }
 
   actionHidden() {
     this.modalVisible = false;
   }
 
-   st_actionHidden() {
+  st_actionHidden() {
     this.st_modalVisible = false;
   }
 
@@ -599,18 +585,14 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   }
 
   async actionChange(obj: string) {
-    
     const schedule = this.courseSchedule as CourseScheduleModel;
     const n = schedule.lessons.findIndex(x => x.lesson.id === Number(obj));
-    if(!schedule.lessons[n].lesson.is_hidden)
-    {
+    if (!schedule.lessons[n].lesson.is_hidden) {
       alert("Изменять время открытого урока невозможно");
       this.selected = "-1";
       schedule.lessons[n].isSelected = false;
       return;
-    }
-    else if (!this.selected || this.selected == "-1") 
-    {
+    } else if (!this.selected || this.selected == "-1") {
       this.selected = n.toString();
       schedule.lessons[n].isSelected = true;
       return;
@@ -622,18 +604,15 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     return;
   }
 
-  dropSelect(event)
-  {
+  dropSelect(event) {
     const schedule = this.courseSchedule as CourseScheduleModel;
     const n = event.currentTarget.getAttribute('key_k');
-    if(!schedule.lessons[n].lesson.is_hidden)
-    {
+    if (!schedule.lessons[n].lesson.is_hidden) {
       this.selected = "-1";
       schedule.lessons[n].isSelected = false;
       return;
     }
-    if (schedule.lessons[n].isSelected) 
-    {
+    if (schedule.lessons[n].isSelected) {
       this.selected = "-1";
       schedule.lessons[n].isSelected = false;
       return;
@@ -676,7 +655,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   // async GetCourseID() {
   //   // console.log("///");
   //   // console.log(this.courseSchedule);
-    
+
   //   await axios
   //     .get('/api/course-schedule/')
   //     .then((response) => {
@@ -699,7 +678,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     const request = (this.isNewSchedule) ?
       axios.post('/api/course-schedule/', this.courseSchedule) :
       axios.patch(`/api/course-schedule/${this.courseSchedule?.id}/`, this.courseSchedule);
-      // smth with patch need to fix
+    // smth with patch need to fix
     request.then(answer => {
       this.notificationKind = 'success';
       this.notificationText = (this.isNewSchedule)
@@ -709,18 +688,16 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       this.oldCourseSchedule = { ...this.courseSchedule };
     }).catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
-      console.log(error);
       this.notificationKind = 'error';
     }).finally(() => this.showNotification = true);
   }
 
-  generateSchedule(): void 
-  {
+  generateSchedule(): void {
     if (Object.keys(this.schedule).length === 0 || this.startDate === null ||
       this.course === undefined)
       return;
     const lessons = this.course.lessons;
-    
+
     const parsed = this.startDate.split('/').reverse().map((x) => Number(x));
     const date: Date = new Date(parsed[0], parsed[1] - 1, parsed[2]);
     const schedule: CourseScheduleModel = {
@@ -761,6 +738,10 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   padding-bottom: 1.5rem
   padding-top: 1rem
 
+
+.structured-list--data-wrapper
+  display flex
+  align-items center
 
 .items-top
   background-color var(--cds-ui-02)
