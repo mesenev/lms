@@ -268,6 +268,7 @@
 <script lang="ts">
 import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import CourseModel from '@/models/CourseModel';
+import LessonModel from '@/models/LessonModel';
 import CourseScheduleModel, { ScheduleElement } from '@/models/ScheduleModel';
 import courseStore from '@/store/modules/course';
 import Edit from '@carbon/icons-vue/es/edit/20';
@@ -283,7 +284,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
 
   @Prop({ required: true }) courseId!: number;
   courseStore = courseStore;
-  course: CourseModel | undefined;
+  course?: CourseModel;
   courseSchedule: CourseScheduleModel | null = null;
   oldCourseSchedule: CourseScheduleModel | null = null;
   iconEdit = Edit;
@@ -292,15 +293,15 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   st_modalVisible = false;
   startDate: string | null = null;
   changedStartDate: string | null = null;
-  set_custom_date: string | null = null;
+  set_custom_date = "";
   set_custom_time: string | null = null;
   cur_custom_date: string | null = null;
   selected: string | null = null;
   loading = true;
-  lessonsWOt = [];
+  lessonsWOt: number[] = [];
   islessonWOt = false;
-  cur_les_upd_id = null;
-  k_keeper = null;
+  cur_les_upd_id = "";
+  k_keeper: number | null = null;
   courseListId = null;
 
 
@@ -362,51 +363,35 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       }
     }
     this.loading = false;
-
   }
 
   lessonsWOtime(): void {
     this.lessonsWOt = [];
-    const Schedlessons = this.courseSchedule.lessons;
-    const allLessons = this.course.lessons;
-    const ids = Schedlessons.map((el: any) => el.lesson.id);
-    for (let i = 0; i < allLessons.length; i++) {
-      if (!ids.includes(allLessons[i].id)) {
-        this.islessonWOt = true;
-        this.lessonsWOt.push(allLessons[i].id);
-      }
+    const ids = (this.courseSchedule as CourseScheduleModel).lessons.map((el: any) => el.lesson.id);
+    for (let i = 0; i < (this.course as CourseModel).lessons.length; i++) {
+      if (!ids.includes(this.course?.lessons[i].id))
+        this.lessonsWOt.push((this.course as CourseModel).lessons[i].id);
     }
   }
 
   changeLessonTime() {
     const cur_less_id = this.cur_les_upd_id;
-    if (this.set_custom_date == "") {
-      this.courseSchedule.lessons.splice(this.k_keeper, 1);
+    debugger;
+    if (this.set_custom_date === "") {
+      this.courseSchedule?.lessons.splice((this.k_keeper as number), 1);
       this.lessonsWOtime();
       this.st_modalVisible = false;
       return;
     }
     const parsed = this.set_custom_date.split('/').reverse().map((x) => Number(x));
     const date: Date = new Date(parsed[0], parsed[1] - 1, parsed[2]);
-    if (String(this.lessonsWOt).indexOf(cur_less_id) !== -1) {
-      const allLessons = this.course.lessons;
-      const lessons = this.courseSchedule.lessons;
-      const schedule: CourseScheduleModel = {
-        id: NaN,
-        name: '',
-        course: this.course.id,
-        lessons: [],
-        start_date: this.startDate as string,
-        week_schedule: this.schedule,
-      }
-      schedule.lessons = lessons;
+    if (String(this.lessonsWOt).indexOf(cur_less_id) === -1) {
+      const allLessons = this.course?.lessons as LessonModel[];
+      const schedule = { ...(this.courseSchedule as CourseScheduleModel) };
       for (let i = 0; i < allLessons.length; i++) {
-        if (cur_less_id == allLessons[i].id) {
+        if (Number(cur_less_id) === Number(allLessons[i].id)) {
           schedule.lessons.push({
-            date: date.toLocaleDateString(
-              'ru-RU',
-              { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
-            ),
+            date: date.toISOString(),
             lesson: allLessons[i],
             isSelected: false,
           } as ScheduleElement)
@@ -415,37 +400,14 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       this.courseSchedule = schedule;
       this.lessonsWOtime();
     } else {
-      this.courseSchedule.lessons[this.k_keeper].date = date.toLocaleDateString('ru-RU', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
+      (this.courseSchedule as CourseScheduleModel).lessons[this.k_keeper as number].date =
+        date.toLocaleDateString('en');
     }
-    this.courseSchedule.lessons.sort(function (a, b) {
-      let dateA = a.date.split(', ').map(item => item.trim())[1];
-      let dateB = b.date.split(', ').map(item => item.trim())[1];
-      const months = {
-        'января': '0',
-        'февраля': '1',
-        'марта': '2',
-        'апреля': '3',
-        'мая': '4',
-        'июня': '5',
-        'июля': '6',
-        'августа': '7',
-        'сентября': '8',
-        'октября': '9',
-        'ноября': '10',
-        'декабря': '11',
-      };
-      dateA = dateA.split(' ').map(item => item.trim());
-      dateB = dateB.split(' ').map(item => item.trim());
-      dateA = new Date(Number(dateA[2]), Number(months[dateA[1]]), Number(dateA[0]));
-      dateB = new Date(Number(dateB[2]), Number(months[dateB[1]]), Number(dateB[0]));
+    this.courseSchedule?.lessons.sort(function (a, b) {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
       return dateA.getTime() - dateB.getTime();
     });
-    // ^ upd: try to find inbuild parser for date with local || do parser funcx
     this.st_modalVisible = false;
   }
 
@@ -537,35 +499,20 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     this.modalVisible = true;
   }
 
-  async st_showModal(event) {
+  async st_showModal(event: PointerEvent) {
     this.st_modalVisible = true;
-    this.cur_les_upd_id = event.currentTarget.getAttribute('cur_key');
+    const element = (event?.currentTarget as Element);
+    this.cur_les_upd_id = element.getAttribute('cur_key') as string;
     this.set_custom_date = "";
     this.cur_custom_date = "";
-    const months = {
-      'января': '0',
-      'февраля': '1',
-      'марта': '2',
-      'апреля': '3',
-      'мая': '4',
-      'июня': '5',
-      'июля': '6',
-      'августа': '7',
-      'сентября': '8',
-      'октября': '9',
-      'ноября': '10',
-      'декабря': '11',
-    };
-    let curDate;
-    if (event.currentTarget.getAttribute('key_k') != null) {
-      this.k_keeper = event.currentTarget.getAttribute('key_k');
-      curDate = this.courseSchedule.lessons[this.k_keeper].date.split(', ').map(item => item.trim())[1];
-      curDate = curDate.split(' ').map(item => item.trim());
-      curDate = new Date(Number(curDate[2]), Number(months[curDate[1]]), Number(curDate[0]));
-      this.set_custom_date = curDate;
+    if (element.getAttribute('key_k') !== null) {
+      this.k_keeper = Number(element.getAttribute('key_k'));
+      const currentDate = (this.courseSchedule as CourseScheduleModel).lessons[this.k_keeper].date;
+      const date = new Date(currentDate);
+      this.set_custom_date = date.toISOString()
       this.cur_custom_date = this.set_custom_date;
     }
-    if (this.cur_les_upd_id == null) {
+    if (this.cur_les_upd_id === null) {
       alert(this.cur_les_upd_id + " =)");
     }
 
@@ -606,9 +553,9 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     return;
   }
 
-  dropSelect(event) {
+  dropSelect(event: Event) {
     const schedule = this.courseSchedule as CourseScheduleModel;
-    const n = event.currentTarget.getAttribute('key_k');
+    const n = Number((event?.currentTarget as Element).getAttribute('key_k'));
     if (!schedule.lessons[n].lesson.is_hidden) {
       this.selected = "-1";
       schedule.lessons[n].isSelected = false;
@@ -654,33 +601,10 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     this.courseSchedule = { ...schedule, lessons: newArr };
   }
 
-  // async GetCourseID() {
-  //   // console.log("///");
-  //   // console.log(this.courseSchedule);
-
-  //   await axios
-  //     .get('/api/course-schedule/')
-  //     .then((response) => {
-  //       // console.log(response.data);
-  //       for(let i = 0; i < response.data.length; i++)
-  //       {
-  //         if(response.data[i].id == this.courseSchedule.id)
-  //         {
-  //           this.courseListId = i;
-  //         }
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.error(error);
-  //     });
-  //   // console.log("LIL: " + this.courseListId);
-  // }
-
   saveOrUpdateSchedule(): void {
     const request = (this.isNewSchedule) ?
       axios.post('/api/course-schedule/', this.courseSchedule) :
       axios.patch(`/api/course-schedule/${this.courseSchedule?.id}/`, this.courseSchedule);
-    // smth with patch need to fix
     request.then(answer => {
       this.notificationKind = 'success';
       this.notificationText = (this.isNewSchedule)
@@ -699,7 +623,6 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       this.course === undefined)
       return;
     const lessons = this.course.lessons;
-
     const parsed = this.startDate.split('/').reverse().map((x) => Number(x));
     const date: Date = new Date(parsed[0], parsed[1] - 1, parsed[2]);
     const schedule: CourseScheduleModel = {
@@ -715,10 +638,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
         date.setDate(date.getDate() + 1);
       }
       schedule.lessons.push({
-          date: date.toLocaleDateString(
-            'ru-RU',
-            { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
-          ),
+          date: date.toISOString(),
           lesson: lessons[i],
           isSelected: false,
         } as ScheduleElement,
