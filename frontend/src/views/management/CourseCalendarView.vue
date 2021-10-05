@@ -124,7 +124,8 @@
               v-on:click="dropSelect"
               name="group">
               <cv-structured-list-data>
-                <div class="structured-list--data-wrapper"> {{ record.date }}
+                <div class="structured-list--data-wrapper">
+                  <date-view-component :date-as-integer="record.date" :show-day-week="true"/>
                   <cv-icon-button
                     kind="ghost"
                     size="sm"
@@ -156,13 +157,6 @@
                             @onChange="actionChange">
                           </cv-date-picker>
                           <hr>
-                          <!-- <cv-time-picker
-                          class="s_t_dis"
-                          v-model="set_custom_time"
-                          label="Время" ampm="24"
-                          :form-item="true"/>
-                          <hr> -->
-                          <!-- TODO: Time for lessons -->
                         </cv-column>
                       </cv-row>
                     </cv-grid>
@@ -269,7 +263,9 @@
 </template>
 
 <script lang="ts">
+import DateViewComponent from '@/components/common/DateViewComponent.vue';
 import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
+import DateComponent from '@/components/common/DateViewComponent.vue';
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
 import CourseScheduleModel, { ScheduleElement } from '@/models/ScheduleModel';
@@ -282,7 +278,7 @@ import { mixins } from 'vue-class-component';
 import { Component, Prop } from 'vue-property-decorator';
 import { dateParse } from '@/utils/utils';
 
-@Component({ components: { Edit, Back } })
+@Component({ components: { DateViewComponent, Edit, Back } })
 export default class CourseCalendarView extends mixins(NotificationMixinComponent) {
 
   @Prop({ required: true }) courseId!: number;
