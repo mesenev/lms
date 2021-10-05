@@ -45,8 +45,8 @@
                   <cv-date-picker
                     date-label=""
                     kind="single"
-                    date-format="d/m/Y"
                     placeholder="dd/mm/yyyy"
+                    :cal-options="calOptions"
                     v-model="changedStartDate">
                   </cv-date-picker>
                 </cv-column>
@@ -151,8 +151,8 @@
                           <cv-date-picker
                             dateLabel="Дата"
                             kind="single"
-                            date-format="d.m.Y"
-                            placeholder="dd.mm.yyyy"
+                            :cal-options="calOptions"
+                            placeholder="dd/mm/yyyy"
                             v-model="set_custom_date"
                             @onChange="actionChange">
                           </cv-date-picker>
@@ -165,7 +165,9 @@
                   <template slot="primary-button">Сохранить изменения</template>
                 </cv-modal>
               </cv-structured-list-data>
-              <cv-structured-list-data>{{ record.lesson_id }}</cv-structured-list-data>
+              <cv-structured-list-data>
+                {{ lessonById(record.lesson_id).name }}
+              </cv-structured-list-data>
             </cv-structured-list-item>
           </template>
           <template v-else>
@@ -220,12 +222,10 @@
                             <cv-date-picker
                               dateLabel="Дата"
                               kind="single"
-                              date-format="d/m/Y"
                               placeholder="dd/mm/yyyy"
-                              :cal-options="dpOptions"
+                              :cal-options="calOptions"
                               v-model="set_custom_date"
                               @onChange="actionChange">
-
                             </cv-date-picker>
                             <hr>
                             <!-- <cv-time-picker
@@ -301,6 +301,9 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   k_keeper: number | null = null;
   courseListId = null;
 
+  get calOptions(): object {
+    return { dateFormat: 'd/m/Y' };
+  }
 
   private monday_ = false;
   private tuesday_ = false;
@@ -356,6 +359,10 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     if (!this.course)
       return [];
     return this.course.lessons;
+  }
+
+  lessonById(id: number): LessonModel {
+    return this.lessons.find(x => Number(x.id) === Number(id)) as LessonModel;
   }
 
   async created() {

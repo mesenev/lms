@@ -13,7 +13,7 @@ export default class DateViewComponent extends Vue {
   @Prop({ default: false }) showDayWeek!: boolean;
   src = "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
   daysOfWeek: string[] = [
-    'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье',
+    'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье',
   ]
 
   get date(): string {
@@ -24,7 +24,7 @@ export default class DateViewComponent extends Vue {
     if (month.length < 2) month = '0' + month;
     if (day.length < 2) day = '0' + day;
     let answer = `${day}/${month}/${year}`;
-    if (this.showDayWeek) answer = `${this.daysOfWeek[date.getDay()]}, ` + answer;
+    if (this.showDayWeek) answer = `${answer}, ${this.daysOfWeek[date.getDay() - 1]}`;
     return answer;
   }
 }
