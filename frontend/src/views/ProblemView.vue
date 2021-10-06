@@ -125,7 +125,7 @@ export default class ProblemView extends Vue {
   private user = this.userStore.user;
   private readonly courseId = Number(this.$route.params.courseId);
   private displayProblem = false;
-  private displayCatsPackage = true;
+  private displayCatsPackage = false;
 
   get problem() {
     return this.problemStore.currentProblem;
