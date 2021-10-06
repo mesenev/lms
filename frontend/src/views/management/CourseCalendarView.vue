@@ -245,8 +245,18 @@
     </div>
 
     <div class="save-button">
+      <cv-inline-notification
+        v-if="showNotification"
+        :kind="notificationKind"
+        :sub-title="notificationText"
+        @close="hideNotification"
+      />
       <cv-button-set>
-        <cv-button kind="secondary">Отменить</cv-button>
+        <cv-button
+          :disabled="!scheduleChangedAndNotEmpty"
+          kind="secondary"
+          v-on:click="revertChanges">Отменить
+        </cv-button>
         <cv-button
           :disabled="!scheduleChangedAndNotEmpty"
           kind="primary"
@@ -377,11 +387,14 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
 
   async created() {
     this.course = await this.courseStore.fetchCourseById(this.courseId);
+    this.courseSchedule.course = this.course.id;
+    this.oldCourseSchedule.course = this.course.id;
     if (!this.course.id || typeof (this.course.schedule) !== 'number') {
       this.loading = false;
       return;
     }
     this.courseSchedule = await this.courseStore.fetchCourseScheduleByCourseId(this.courseId);
+    this.oldCourseSchedule = _.cloneDeep(this.courseSchedule);
     this.startDate = this.courseSchedule.start_date;
     this.schedule = this.courseSchedule.week_schedule;
     if (this.courseSchedule.lessons)
@@ -528,6 +541,10 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.notificationKind = 'error';
     }).finally(() => this.showNotification = true);
+  }
+
+  revertChanges(): void {
+    this.courseSchedule = _.cloneDeep(this.oldCourseSchedule);
   }
 
   generateSchedule(): void {
