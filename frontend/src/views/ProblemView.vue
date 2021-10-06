@@ -59,9 +59,29 @@
               </template>
             </cv-structured-list>
             <cv-tile v-else class="submit-list no-submits" kind="standard">
-              <h2>Oops</h2>
-              <p>Пока ничего не отправлено :(</p>
+
+    <message-component
+    v-for="message in messages"
+    :key="message.id"
+    :message="message"
+    :displayAvatar="displayAvatar(message)"
+    >
+
+    </message-component>
+
+
             </cv-tile>
+            <cv-text-input class="searchbar"
+  :light="light"
+  :label="''"
+  :value="''"
+  :disabled="false"
+  :type="''"
+  :password-visible="false"
+  :placeholder="'Введите сообщение'"
+   v-on:keydown.enter="inputMessage"
+  v-model.trim="message">
+</cv-text-input>
           </div>
         </div>
       </cv-column>
@@ -93,16 +113,18 @@
 <script lang="ts">
 import ProblemDescription from "@/components/ProblemDescription.vue";
 import SubmitComponent from '@/components/SubmitComponent.vue';
+import MessageComponent from '@/components/MessageComponent.vue';
 import SubmitStatus from "@/components/SubmitStatus.vue";
 import UserComponent from '@/components/UserComponent.vue';
 import SubmitModel from '@/models/SubmitModel';
+import MessageModel from '@/models/MessageModel';
 import problemStore from '@/store/modules/problem';
 import submitStore from '@/store/modules/submit';
 import userStore from '@/store/modules/user';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 
-@Component({ components: { SubmitComponent, ProblemDescription, SubmitStatus, UserComponent } })
+@Component({ components: { SubmitComponent, ProblemDescription, SubmitStatus, UserComponent, MessageComponent } })
 export default class ProblemView extends Vue {
   @Prop({ required: false, default: null }) submitIdProp!: number | null;
   public submitId = this.submitIdProp;
@@ -116,6 +138,8 @@ export default class ProblemView extends Vue {
 
   private displayProblem = false;
 
+  light = false;
+
   get problem() {
     return this.problemStore.currentProblem;
   }
@@ -127,6 +151,21 @@ export default class ProblemView extends Vue {
 
   get submits(): SubmitModel[] {
     return this.submitStore.submits;
+  }
+
+  get messages() {
+    const smth = [];
+    for (let i = 0; i < 20; i++) {
+      const newMsg = {"text": "test", "sender": this.user, "isSubmit": false, "lessonId": 1,
+  "courseId": this.courseId, "id":i, "name": "sdfdsfsf"};
+      smth.push(newMsg);
+    }
+    return smth;
+  }
+
+  displayAvatar(message: MessageModel): boolean {
+    const index = this.messages.indexOf(message);
+    return index === 0 || this.messages[index - 1].sender.id != message.sender.id;
   }
 
 
@@ -168,12 +207,33 @@ export default class ProblemView extends Vue {
     }
   }
 
+  async mounted() {
+    const submits = [...document.getElementsByClassName("submit-list")];
+    submits.forEach(element => element.scrollTop = element.scrollHeight);
+    const userMessages = [...document.getElementsByClassName("studentAvatar")];
+    userMessages.forEach(element => element.src = this.user.avatar_url);
+  }
+
   checkedStudent(studentId: string): boolean {
     return Number(studentId) === this.studentId;
   }
 
   showProblem() {
     this.displayProblem = true;
+  }
+
+  messageForButton(message: string) {
+    let newMessage = "";
+    let counter = 0;
+    for (let i = 0; i < message.length; i++) {
+      if (counter == 23) {
+        newMessage += "\n";
+        counter = 0;
+      }
+      counter++;
+      newMessage += message[i];
+    }
+    return newMessage
   }
 
   hideProblem() {
@@ -223,6 +283,13 @@ export default class ProblemView extends Vue {
 .submit-list, .student-list
   margin 0
   padding 0
+  height 24.55em
+  overflow-y scroll
+  bottom 0
+  list-style-type none
+  border-radius 10px
+  border-color black
+  background-color #609ab6
 
 .student-list
   margin-left 1rem
@@ -278,7 +345,6 @@ export default class ProblemView extends Vue {
   .bx--text-area
     height 30em
 
-  //width 45rem
 
   .bx--label,
   .bx--label--disabled
@@ -287,5 +353,76 @@ export default class ProblemView extends Vue {
 
 .show-problem-link:hover
   cursor pointer
+
+.searchbar
+  position relative
+  height 2em
+  left 0
+  width 100%
+  margin-left auto
+  margin-right auto
+  text-align center
+
+.message
+  width auto
+  pagging 100px
+  margin 20%
+
+.button {
+  display: inline-block;
+  padding: 0.75em;
+  margin 0.00002em
+  color: #fff;
+  font-size: 0.8em;
+  text-decoration none
+  text-align center
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: gray;
+    z-index: -2;
+  }
+  &:hover {
+    color: #fff;
+    &:before {
+      width: 100%;
+    }
+  }
+}
+
+
+.bx--list
+  list-style-type none
+
+
+.avatar
+  width 2em
+  margin-bottom 0.3em
+
+.student
+  margin-right 1em
+
+.stuff
+  margin-left 1em
+
+
+
+
+.bx--tile.submit-list
+  border-left 1em
+  padding-left 1em
+  margin-left 1em
+  box-shadow -1em black
+
+
+.answer
+  text-align right
 
 </style>
