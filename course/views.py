@@ -49,7 +49,12 @@ class ScheduleViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, Upda
     serializer_class = ScheduleSerializer
     queryset = CourseSchedule.objects.all()
 
-    @action(detail=False, url_path='by-course/(?P<course_id>\d+)')  # hate regexes
+    def create(self, request, *args, **kwargs):
+        if not getattr(request.data, 'start_date', ''):
+            del request.data['start_date']
+        return super().create(request, *args, **kwargs)
+
+    @action(detail=False, url_path=r'by-course/(?P<course_id>\d+)')  # hate regexes
     def by_course(self, request, course_id):
         queryset = CourseSchedule.objects.all()
         instance = get_object_or_404(queryset, course__id=course_id)

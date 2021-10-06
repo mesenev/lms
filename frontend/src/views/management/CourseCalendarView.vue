@@ -5,11 +5,15 @@
     </div>
     <div class="bx--row header">
       <div class="items-top bx--col-lg-10">
-        <div class="items-top--element" v-if="!loading"><span v-if="isSchedule">Начало занятий: {{ startDate }}</span>
-                                                        <span v-else>Расписание для курса не составлено</span></div>
+        <div class="items-top--element" v-if="!loading">
+          <span v-if="startDate">Начало занятий: {{ startDate }}</span>
+          <span v-else>Расписание для курса не составлено</span>
+        </div>
         <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
         <hr>
-        <div class="items-top--element"><span> {{ scheduleCurrent }}</span></div>
+        <div v-if="!loading" class="items-top--element">
+          <span> {{ currentScheduledDays }}</span>
+        </div>
         <cv-button
           class="items-top--element"
           v-on:click="showModal" kind="secondary" tip-position="hidden"
@@ -41,9 +45,8 @@
                   <cv-date-picker
                     date-label=""
                     kind="single"
-                    :cal-options="dpOptions"
-                    date-format="d/m/Y"
                     placeholder="dd/mm/yyyy"
+                    :cal-options="calOptions"
                     v-model="changedStartDate">
                   </cv-date-picker>
                 </cv-column>
@@ -107,26 +110,157 @@
       </div>
     </div>
     <div class="bx--row">
-      <div class="items bx--col-lg-10">
+      <div class="items bx--col-lg-10 schedule-list">
         <cv-structured-list selectable @change="actionChange">
           <template slot="headings"></template>
-          <template v-if="!loading && courseSchedule && courseSchedule.lessons"
-                    slot="items">
+          <template v-if="loading" slot="items">
+            <cv-inline-loading/>
+          </template>
+          <template v-else slot="items">
             <cv-structured-list-item
-              v-for="(record, index) in courseSchedule.lessons"
-              :key="index" :checked="record.isSelected" :value="record.lesson.id.toString()"
+              v-for="(record, index) in scheduledLessons"
+              :key="index"
+              :checked="record.isSelected"
+              :cur_key="scheduledLessons[index].lesson_id"
+              :key_k="index"
+              :value="record.lesson_id.toString()"
+              v-on:click="dropSelect"
               name="group">
-              <cv-structured-list-data>{{ record.date }}</cv-structured-list-data>
-              <cv-structured-list-data>{{ record.lesson.name }}</cv-structured-list-data>
+              <cv-structured-list-data>
+                <div class="structured-list--data-wrapper">
+                  <date-view-component :date-as-integer="record.date" :show-day-week="true"/>
+                  <cv-icon-button
+                    kind="ghost"
+                    size="sm"
+                    tip-position="hidden"
+                    :cur_key="scheduledLessons[index].lesson_id"
+                    :icon="iconEdit"
+                    :key_k="index"
+                    :disabled="!lessons.find(a => a.id === record.lesson_id).is_hidden"
+                    v-on:click="st_showModal"/>
+                </div>
+                <cv-modal
+                  close-aria-label="Закрыть"
+                  :visible="st_modalVisible"
+                  @primary-click="changeLessonDate"
+                  :primaryButtonDisabled="!isSelfDateChanged"
+                  @modal-hidden="st_actionHidden"
+                  :auto-hide-off="false">
+                  <template slot="title">Установка собственного времени</template>
+                  <template slot="content">
+                    <cv-grid>
+                      <cv-row>
+                        <cv-column>
+                          <cv-date-picker
+                            dateLabel="Дата"
+                            kind="single"
+                            :cal-options="calOptions"
+                            placeholder="dd/mm/yyyy"
+                            v-model="set_custom_date"
+                            @onChange="actionChange">
+                          </cv-date-picker>
+                          <hr>
+                        </cv-column>
+                      </cv-row>
+                    </cv-grid>
+                  </template>
+                  <template slot="secondary-button">Отменить</template>
+                  <template slot="primary-button">Сохранить изменения</template>
+                </cv-modal>
+              </cv-structured-list-data>
+              <cv-structured-list-data>
+                {{ lessonById(record.lesson_id).name }}
+              </cv-structured-list-data>
             </cv-structured-list-item>
           </template>
         </cv-structured-list>
       </div>
     </div>
+
+    <div v-if="lessonsWOt.length != 0" class="bx--row header no-schedule--wrapper">
+      <div class="items-top bx--col-lg-10">
+        <div class="items-top--element" v-if="!loading">
+          <span>Уроки без установленного времени</span>
+        </div>
+        <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
+        <cv-structured-list>
+          <template slot="headings"></template>
+          <template v-if="loading" slot="items">
+            <cv-loading/>
+          </template>
+          <template v-else slot="items">
+            <cv-structured-list-item
+              v-for="item in lessonsWOt"
+              :key="item.id"
+              :cur_key="item.id"
+              :item="item">
+              <template>
+                <cv-structured-list-data>
+                  Установите время для урока
+                  <cv-icon-button
+                    kind="tertiary"
+                    size="xl"
+                    label="Установить собственную дату"
+                    tip-position="hidden"
+                    :icon="iconEdit"
+                    :cur_key="item.id"
+                    v-on:click="st_showModal"
+                  />
+                  <cv-modal
+                    :cur_key="item.id"
+                    close-aria-label="Закрыть"
+                    :visible="st_modalVisible"
+                    @primary-click="changeLessonDate"
+                    :primaryButtonDisabled="!isSelfDateChanged"
+                    @modal-hidden="st_actionHidden"
+                    :auto-hide-off="false">
+                    <template slot="title">Установка собственного времени</template>
+                    <template slot="content">
+                      <cv-grid>
+                        <cv-row>
+                          <cv-column>
+                            <cv-date-picker
+                              dateLabel="Дата"
+                              kind="single"
+                              placeholder="dd/mm/yyyy"
+                              :cal-options="calOptions"
+                              v-model="set_custom_date"
+                              @onChange="actionChange">
+                            </cv-date-picker>
+                            <hr>
+                          </cv-column>
+                        </cv-row>
+                      </cv-grid>
+                    </template>
+                    <template slot="secondary-button">Отменить</template>
+                    <template slot="primary-button">Сохранить изменения</template>
+                  </cv-modal>
+                </cv-structured-list-data>
+                <cv-structured-list-data>{{ item.name }}</cv-structured-list-data>
+              </template>
+            </cv-structured-list-item>
+          </template>
+        </cv-structured-list>
+      </div>
+    </div>
+
     <div class="save-button">
+      <cv-inline-notification
+        v-if="showNotification"
+        :kind="notificationKind"
+        :sub-title="notificationText"
+        @close="hideNotification"
+      />
       <cv-button-set>
-        <cv-button kind="secondary">Отменить</cv-button>
-        <cv-button :disabled="!scheduleChanged" kind="primary" v-on:click="saveOrUpdateSchedule">
+        <cv-button
+          :disabled="!scheduleChangedAndNotEmpty"
+          kind="secondary"
+          v-on:click="revertChanges">Отменить
+        </cv-button>
+        <cv-button
+          :disabled="!scheduleChangedAndNotEmpty"
+          kind="primary"
+          v-on:click="saveOrUpdateSchedule">
           {{ (isNewSchedule) ? "Создать расписание" : "Сохранить изменения" }}
         </cv-button>
       </cv-button-set>
@@ -135,8 +269,12 @@
 </template>
 
 <script lang="ts">
+import DateViewComponent from '@/components/common/DateViewComponent.vue';
 import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
+import WeekDaysMixin from '@/views/management/CourseCalendarView/WeekDaysMixin.vue';
+import DateComponent from '@/components/common/DateViewComponent.vue';
 import CourseModel from '@/models/CourseModel';
+import LessonModel from '@/models/LessonModel';
 import CourseScheduleModel, { ScheduleElement } from '@/models/ScheduleModel';
 import courseStore from '@/store/modules/course';
 import Edit from '@carbon/icons-vue/es/edit/20';
@@ -145,40 +283,52 @@ import axios from 'axios';
 import _ from 'lodash';
 import { mixins } from 'vue-class-component';
 import { Component, Prop } from 'vue-property-decorator';
+import { dateParse } from '@/utils/utils';
 
-
-@Component({ components: { Edit, Back } })
-export default class CourseCalendarView extends mixins(NotificationMixinComponent) {
+@Component({ components: { DateViewComponent, Edit, Back } })
+export default class CourseCalendarView extends mixins(NotificationMixinComponent, WeekDaysMixin) {
   @Prop({ required: true }) courseId!: number;
   courseStore = courseStore;
-  course: CourseModel | undefined;
-  courseSchedule: CourseScheduleModel | null = null;
-  oldCourseSchedule: CourseScheduleModel | null = null;
+  course: CourseModel = {} as CourseModel;
+  courseSchedule: CourseScheduleModel =
+    {
+      id: NaN, name: '', course: this.course.id, lessons: [], start_date: '', week_schedule: {},
+    } as CourseScheduleModel;
+  oldCourseSchedule: CourseScheduleModel = _.cloneDeep(this.courseSchedule);
   iconEdit = Edit;
   iconBack = Back;
   modalVisible = false;
+  st_modalVisible = false;
   startDate: string | null = null;
   changedStartDate: string | null = null;
+  set_custom_date = "";
+  set_custom_time: string | null = null;
+  cur_custom_date: string | null = null;
   selected: string | null = null;
   loading = true;
-
-  private monday_ = false;
-  private tuesday_ = false;
-  private wednesday_ = false;
-  private thursday_ = false;
-  private friday_ = false;
-  private saturday_ = false;
-  private sunday_ = false;
-
-  get scheduleChanged(): boolean {
-    return !_.isEqual(this.courseSchedule, this.oldCourseSchedule);
+  cur_les_upd_id = "";
+  k_keeper: number | null = null;
+  courseListId = null;
+  newSchedule: Record<string, string | null> = {};
+  private schedule: Record<string, string | null> = {
+    0: null, 1: null, 2: null, 3: null, 4: null, 5: null, 6: null,
   }
+
+  get calOptions(): object {
+    return { dateFormat: 'd/m/Y' };
+  }
+
+  get scheduleChangedAndNotEmpty(): boolean {
+    return !_.isEqual(this.courseSchedule, this.oldCourseSchedule)
+      && !!(this.courseSchedule.lessons.length > 0);
+  }
+
 
   get isNewSchedule() {
-    return !this.courseSchedule?.id;
+    return !this.courseSchedule.id;
   }
 
-  get scheduleCurrent() {
+  get currentScheduledDays() {
     let courseSchedule = '';
     Object.keys(this.workingDays).forEach(
       value => courseSchedule += `${this.alias[parseInt(value)]}: ${this.workingDays[value]} `,
@@ -187,111 +337,77 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   }
 
   get isScheduleChanged() {
-    return !!this.changedStartDate && (
-      !_.isEqual(this.schedule, this.newSchedule)
-      || !_.isEqual(this.startDate, this.changedStartDate)
-    );
+    return Object.values(this.newSchedule).filter(x => typeof (x) === 'string').length > 0
+      && !!this.changedStartDate && (
+        !_.isEqual(this.schedule, this.newSchedule)
+        || !_.isEqual(this.startDate, this.changedStartDate)
+      );
   }
 
-  get dpOptions() {
-    return {
-      dateFormat: "d/m/Y",
-    };
+  get isSelfDateChanged() {
+    return !(this.set_custom_date == this.cur_custom_date);
+  }
+
+  get lessons(): Array<LessonModel> {
+    if (this.loading || !this.course.id)
+      return [];
+    return this.course.lessons;
+  }
+
+  get scheduledLessons(): ScheduleElement[] {
+    function compare(a: ScheduleElement, b: ScheduleElement) {
+      if (a.date > b.date) return 1;
+      if (a.date < b.date) return -1;
+      return 0;
+    }
+
+    return this.courseSchedule.lessons.sort(compare);
+  }
+
+  get lessonsWOt(): LessonModel[] {
+    if (this.loading || !this.course.id)
+      return [];
+    const ids = this.scheduledLessons.map(value => Number(value.lesson_id));
+    return this.course.lessons.filter(value => ids.indexOf(Number(value.id)) === -1);
+  }
+
+  lessonById(id: number): LessonModel {
+    return this.lessons.find(x => Number(x.id) === Number(id)) as LessonModel;
+  }
+
+  get workingDays(): Record<string, string> {
+    if (!this.schedule) return {};
+    return Object.keys(this.schedule)
+      .filter(key => this.schedule[key] != null)
+      .reduce((obj: Record<string, string>, key: string) => {
+        obj[key] = this.schedule[key] as string;
+        return obj;
+      }, {});
   }
 
   async created() {
     this.course = await this.courseStore.fetchCourseById(this.courseId);
-    if (this.isSchedule) {
-      this.courseSchedule = await this.courseStore.fetchCourseScheduleByCourseId(this.courseId);
-      this.oldCourseSchedule = { ...this.courseSchedule };
-      //TODO: Same data in two fields. Ambigous. Normalize it.
-      this.startDate = this.courseSchedule.start_date;
-      this.schedule = this.courseSchedule.week_schedule;
-      //TODO: correct init state for days (modal init state)
+    this.courseSchedule.course = this.course.id;
+    this.oldCourseSchedule.course = this.course.id;
+    if (!this.course.id || typeof (this.course.schedule) !== 'number') {
+      this.loading = false;
+      return;
     }
+    this.courseSchedule = await this.courseStore.fetchCourseScheduleByCourseId(this.courseId);
+    this.oldCourseSchedule = _.cloneDeep(this.courseSchedule);
+    this.startDate = this.courseSchedule.start_date;
+    this.schedule = this.courseSchedule.week_schedule;
+    if (this.courseSchedule.lessons)
+      for (let i = 0; i < this.courseSchedule.lessons.length; i++)
+        this.courseSchedule.lessons[i].isSelected = false;
     this.loading = false;
   }
 
-  get isSchedule() {
-    return this.course != undefined && this.course.schedule != undefined;
-  }
-
-  set monday(value: boolean) {
-    this.monday_ = value;
-    this.newSchedule = { ...this.newSchedule, 0: (value) ? '00:00' : null };
-  }
-
-  get monday() {
-    return this.monday_;
-  }
-
-
-  get tuesday() {
-    return this.tuesday_;
-  }
-
-  set tuesday(value: boolean) {
-    this.tuesday_ = value;
-    this.newSchedule = { ...this.newSchedule, 1: (value) ? '00:00' : null };
-  }
-
-
-  get wednesday() {
-    return this.wednesday_;
-  }
-
-  set wednesday(value: boolean) {
-    this.wednesday_ = value;
-    this.newSchedule = { ...this.newSchedule, 2: (value) ? '00:00' : null };
-  }
-
-
-  get thursday() {
-    return this.thursday_;
-  }
-
-  set thursday(value: boolean) {
-    this.thursday_ = value;
-    this.newSchedule = { ...this.newSchedule, 3: (value) ? '00:00' : null };
-  }
-
-
-  get friday() {
-    return this.friday_;
-  }
-
-  set friday(value: boolean) {
-    this.friday_ = value;
-    this.newSchedule = { ...this.newSchedule, 4: (value) ? '00:00' : null };
-  }
-
-
-  get saturday() {
-    return this.saturday_;
-  }
-
-  set saturday(value: boolean) {
-    this.saturday_ = value;
-    this.newSchedule = { ...this.newSchedule, 5: (value) ? '00:00' : null };
-  }
 
   onUpdateTime(n: number) {
     return (value: string) => this.newSchedule = { ...this.newSchedule, [n]: value };
   }
 
-  get sunday() {
-    return this.sunday_;
-  }
-
-  set sunday(value: boolean) {
-    this.sunday_ = value;
-    this.newSchedule = { ...this.newSchedule, 6: (value) ? '00:00' : null };
-  }
-
-  private schedule: Record<string, string | null> = {
-    0: null, 1: null, 2: null, 3: null, 4: null, 5: null, 6: null,
-  }
-  private newSchedule: Record<string, string | null> = {};
 
   showModal() {
     this.newSchedule = { ...this.schedule };
@@ -299,8 +415,31 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     this.modalVisible = true;
   }
 
+  async st_showModal(event: PointerEvent) {
+    this.st_modalVisible = true;
+    const element = (event?.currentTarget as Element);
+    this.cur_les_upd_id = element.getAttribute('cur_key') as string;
+    this.set_custom_date = "";
+    this.cur_custom_date = "";
+    if (element.getAttribute('key_k') !== null) {
+      this.k_keeper = Number(element.getAttribute('key_k'));
+      const currentDate = (this.courseSchedule as CourseScheduleModel).lessons[this.k_keeper].date;
+      const date = new Date(currentDate);
+      this.set_custom_date = date.toISOString()
+      this.cur_custom_date = this.set_custom_date;
+    }
+    if (this.cur_les_upd_id === null) {
+      throw Error();
+    }
+
+  }
+
   actionHidden() {
     this.modalVisible = false;
+  }
+
+  st_actionHidden() {
+    this.st_modalVisible = false;
   }
 
   changeSchedule() {
@@ -312,8 +451,13 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
 
   async actionChange(obj: string) {
     const schedule = this.courseSchedule as CourseScheduleModel;
-    const n = schedule.lessons.findIndex(x => x.lesson.id === Number(obj));
-    if (!this.selected) {
+    const n = schedule.lessons.findIndex(x => x.lesson_id === Number(obj));
+    if (!this.course?.lessons[n].is_hidden) {
+      alert("Изменять время открытого урока невозможно");
+      this.selected = "-1";
+      schedule.lessons[n].isSelected = false;
+      return;
+    } else if (!this.selected || this.selected == "-1") {
       this.selected = n.toString();
       schedule.lessons[n].isSelected = true;
       return;
@@ -325,13 +469,38 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     return;
   }
 
-  get workingDays() {
-    return Object.keys(this.schedule)
-      .filter(key => this.schedule[key] != null)
-      .reduce((obj: Record<string, string>, key: string) => {
-        obj[key] = this.schedule[key] as string;
-        return obj;
-      }, {});
+  dropSelect(event: Event) {
+    const schedule = this.courseSchedule as CourseScheduleModel;
+    const n = Number((event?.currentTarget as Element).getAttribute('key_k'));
+    if (!this.course?.lessons[n].is_hidden) {
+      this.selected = "-1";
+      schedule.lessons[n].isSelected = false;
+      return;
+    }
+    if (schedule.lessons[n].isSelected) {
+      this.selected = "-1";
+      schedule.lessons[n].isSelected = false;
+      return;
+    }
+    return;
+  }
+
+  changeLessonDate() {
+    const cur_less_id = Number(this.cur_les_upd_id);
+    if (this.set_custom_date === "") {
+      this.courseSchedule?.lessons.splice((this.k_keeper as number), 1);
+      this.st_modalVisible = false;
+      return;
+    }
+    const schedule = _.cloneDeep(this.courseSchedule);
+    const parsed = dateParse(this.set_custom_date);
+    if (this.lessonsWOt.map(value => value.id).indexOf(cur_less_id) !== -1) {
+      schedule.lessons.push({ date: parsed, lesson_id: cur_less_id, isSelected: false })
+    } else {
+      schedule.lessons[this.k_keeper as number].date = parsed;
+    }
+    this.courseSchedule = schedule;
+    this.st_modalVisible = false;
   }
 
   private alias = [
@@ -342,8 +511,15 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     const schedule = this.courseSchedule as CourseScheduleModel;
     const newArr = [...schedule.lessons];
     const tmp = newArr[Number(this.selected)];
+
+    const date_tmp = newArr[Number(this.selected)].date;
+
     newArr[Number(this.selected)] = newArr[n];
     newArr[n] = tmp;
+
+    newArr[n].date = newArr[Number(this.selected)].date;
+    newArr[Number(this.selected)].date = date_tmp;
+
     newArr[n].isSelected = false;
     newArr[Number(this.selected)].isSelected = false;
     this.selected = null;
@@ -360,44 +536,36 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
         ? 'Расписание успешно создано'
         : 'Расписание успешно изменено';
       this.courseSchedule = answer.data as CourseScheduleModel;
-      this.oldCourseSchedule = { ...this.courseSchedule };
+      this.oldCourseSchedule = _.cloneDeep(this.courseSchedule);
     }).catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.notificationKind = 'error';
     }).finally(() => this.showNotification = true);
   }
 
+  revertChanges(): void {
+    this.courseSchedule = _.cloneDeep(this.oldCourseSchedule);
+  }
+
   generateSchedule(): void {
-    if (Object.keys(this.schedule).length === 0 || this.startDate === null ||
-      this.course === undefined)
+    if (this.course === undefined)
       return;
-    const lessons = this.course.lessons;
-    const parsed = this.startDate.split('/').reverse().map((x) => Number(x));
-    const date: Date = new Date(parsed[0], parsed[1], parsed[2]);
-    const schedule: CourseScheduleModel = {
-      id: NaN,
-      name: '',
-      course: this.course.id,
-      lessons: [],
-      start_date: this.startDate as string,
-      week_schedule: this.schedule,
-    }
-    for (let i = 0; i < lessons.length; i++) {
+    const parsed = (this.startDate || '').split('/').reverse().map((x) => Number(x));
+    const date: Date = new Date(parsed[0], parsed[1] - 1, parsed[2]);
+    const schedule = _.cloneDeep(this.courseSchedule);
+    for (let i = 0; i < this.lessonsWOt.length; i++) {
       while (!Object.keys(this.workingDays).includes(((date.getDay() + 6) % 7).toString())) {
         date.setDate(date.getDate() + 1);
       }
-      schedule.lessons.push({
-          date: date.toLocaleDateString(
-            'ru-RU',
-            { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
-          ),
-          lesson: lessons[i],
-          isSelected: false,
+      schedule.lessons.push(
+        {
+          date: date.getTime(), lesson_id: this.lessonsWOt[i].id, isSelected: false,
         } as ScheduleElement,
-      )
+      );
       date.setDate(date.getDate() + 1);
     }
-    this.courseSchedule = schedule;
+    this.selected = "-1";
+    this.courseSchedule = _.cloneDeep(schedule);
   }
 }
 
@@ -409,6 +577,10 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   padding-bottom: 1.5rem
   padding-top: 1rem
 
+
+.structured-list--data-wrapper
+  display flex
+  align-items center
 
 .items-top
   background-color var(--cds-ui-02)
