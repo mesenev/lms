@@ -11,7 +11,6 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 export default class DateViewComponent extends Vue {
   @Prop({ required: true }) dateAsInteger!: number;
   @Prop({ default: false }) showDayWeek!: boolean;
-  src = "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
   daysOfWeek: string[] = [
     'воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота',
   ]

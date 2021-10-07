@@ -6,12 +6,16 @@
     v-on:click="openLesson"
   >
     <h5 class="list-element--title">{{ lesson.name }}</h5>
-    <span class="list-element--info">Дедлайн: {{ lesson.deadline }}</span>
+    <div class="date-wrapper">
+      <div class="list-element--info">
+        <date-view-component :date-as-integer="dateProp" :show-day-week="true"/>
+      </div>
+    </div>
     <span v-if="courseStore.is_staff" class="list-element--info span--hidden">
         {{ (lessonProp.is_hidden) ? "Урок скрыт " : "Урок доступен" }}
         <view-off-icon v-if="lessonProp.is_hidden"/>
         <view-icon v-else/>
-      </span>
+    </span>
   </router-link>
 </template>
 
@@ -22,10 +26,12 @@ import userStore from '@/store/modules/user';
 import viewOffIcon from '@carbon/icons-vue/es/view--off/16';
 import viewIcon from '@carbon/icons-vue/es/view/16';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import DateViewComponent from "@/components/common/DateViewComponent.vue"
 
-@Component({ components: { viewIcon, viewOffIcon } })
+@Component({ components: { viewIcon, viewOffIcon, DateViewComponent } })
 export default class LessonListComponent extends Vue {
   @Prop({ required: true }) lessonProp!: LessonModel;
+  @Prop({ required: false, default: null }) dateProp: number | null;
 
   userStore = userStore;
   courseStore = courseStore;
