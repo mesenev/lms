@@ -253,12 +253,12 @@
       />
       <cv-button-set>
         <cv-button
-          :disabled="!scheduleChangedAndNotEmpty"
+          :disabled="!scheduleChangedAndNotEmpty || updatingInProgress"
           kind="secondary"
           v-on:click="revertChanges">Отменить
         </cv-button>
         <cv-button
-          :disabled="!scheduleChangedAndNotEmpty"
+          :disabled="!scheduleChangedAndNotEmpty || updatingInProgress"
           kind="primary"
           v-on:click="saveOrUpdateSchedule">
           {{ (isNewSchedule) ? "Создать расписание" : "Сохранить изменения" }}
@@ -309,6 +309,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   cur_les_upd_id = "";
   k_keeper: number | null = null;
   courseListId = null;
+  updatingInProgress = false;
   newSchedule: Record<string, string | null> = {};
   private schedule: Record<string, string | null> = {
     0: null, 1: null, 2: null, 3: null, 4: null, 5: null, 6: null,
@@ -527,6 +528,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   }
 
   saveOrUpdateSchedule(): void {
+    this.updatingInProgress = true;
     const request = (this.isNewSchedule) ?
       axios.post('/api/course-schedule/', this.courseSchedule) :
       axios.patch(`/api/course-schedule/${this.courseSchedule?.id}/`, this.courseSchedule);
@@ -540,7 +542,11 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     }).catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.notificationKind = 'error';
-    }).finally(() => this.showNotification = true);
+    }).finally(() => {
+      this.showNotification = true;
+      this.updatingInProgress = false;
+    });
+
   }
 
   revertChanges(): void {
