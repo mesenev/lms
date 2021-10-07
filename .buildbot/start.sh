@@ -3,5 +3,5 @@ rm worker/twistd.log
 export $(grep -v '^#' .env | xargs)
 buildbot start master
 buildbot-worker start worker
-buildbot-worker start worker_2
+buildbot-worker start worker_for_pr
 
