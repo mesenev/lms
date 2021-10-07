@@ -31,7 +31,7 @@ import DateViewComponent from "@/components/common/DateViewComponent.vue"
 @Component({ components: { viewIcon, viewOffIcon, DateViewComponent } })
 export default class LessonListComponent extends Vue {
   @Prop({ required: true }) lessonProp!: LessonModel;
-  @Prop({ required: false, default: null }) dateProp: number | null;
+  @Prop({ required: false, default: null }) dateProp!: number | null;
 
   userStore = userStore;
   courseStore = courseStore;

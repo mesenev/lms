@@ -64,7 +64,7 @@ import courseStore from "@/store/modules/course";
 import lessonStore from "@/store/modules/lesson";
 import userStore from '@/store/modules/user';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import CourseScheduleModel from "@/models/ScheduleModel";
+import CourseScheduleModel, { ScheduleElement } from "@/models/ScheduleModel";
 
 @Component({
   components: {
@@ -116,18 +116,20 @@ export default class CourseView extends Vue {
   get sortedCourseSchedule() {
     if (this.schedule === undefined || this.schedule.lessons === undefined)
       return new Array<LessonModel>();
+    const schedule = (this.schedule as CourseScheduleModel);
     const lessons = this.lessons.sort(
       (a: LessonModel, b: LessonModel) => {
-        const dateA = this.schedule?.lessons.find(x => x.lesson_id === a.id);
-        const dateB = this.schedule?.lessons.find(x => x.lesson_id === b.id);
+        const dateA = schedule.lessons.find(x => x.lesson_id === a.id)?.date as number;
+        const dateB = schedule.lessons.find(x => x.lesson_id === b.id)?.date as number;
         return (dateA < dateB) ? -1 : 1;
       },
-    )
+    );
     return lessons;
   }
 
   dateForLesson(lesson_id: number) {
-    return this.schedule?.lessons.find(x => x.lesson_id === lesson_id).date;
+    return ((this.schedule as CourseScheduleModel)
+      .lessons.find(x => x.lesson_id === lesson_id) as ScheduleElement).date;
   }
 
 }
