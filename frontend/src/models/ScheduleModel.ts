@@ -2,8 +2,8 @@ import { BaseModel } from '@/models/BaseModel';
 import LessonModel from '@/models/LessonModel';
 
 export interface ScheduleElement {
-  date: string;
-  lesson: LessonModel;
+  date: number;
+  lesson_id: number;
   isSelected: boolean;
 }
 

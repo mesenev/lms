@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from lesson.models import Lesson, LessonContent
-from problem.models import Problem
 from problem.serializers import ProblemSerializer
 from rating.serializers import LessonProgressSerializer
 from users.serializers import DefaultUserSerializer

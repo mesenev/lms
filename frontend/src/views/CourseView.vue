@@ -27,13 +27,11 @@
               class="item"
               v-for="lesson in filterLessons"
               :key="lesson.id">
-              <lesson-list-component :lesson-prop='lesson'/>
+              <lesson-list-component :date-prop="dateForLesson(lesson.id)" :lesson-prop='lesson'/>
             </cv-structured-list-item>
           </template>
           <template slot="items" v-if="isStaff && lessonsNotInSchedule.length > 0">
-            <h3>
-              Следующие уроки не входят в нынешнее расписание, и ученики их не видят:
-            </h3>
+            <h3>Следующие уроки не входят в нынешнее расписание, и ученики их не видят:</h3>
             <cv-structured-list-item
               class="item"
               v-for="lesson in lessonsNotInSchedule"
@@ -42,7 +40,7 @@
             </cv-structured-list-item>
           </template>
           <template slot="items" v-else>
-              <h1 v-if="user.staff_for.includes(course.id)">Расписание для курса не составлено</h1>
+            <h1 v-if="user.staff_for.includes(course.id)">Расписание для курса не составлено</h1>
           </template>
         </cv-structured-list>
       </div>
@@ -65,13 +63,12 @@ import LessonModel from "@/models/LessonModel";
 import courseStore from "@/store/modules/course";
 import lessonStore from "@/store/modules/lesson";
 import userStore from '@/store/modules/user';
-import {Component, Prop, Vue} from 'vue-property-decorator';
-import CourseScheduleModel from "@/models/ScheduleModel";
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import CourseScheduleModel, { ScheduleElement } from "@/models/ScheduleModel";
 
 @Component({
   components: {
-    UserProblemListComponent, LessonListComponent, UserComponent,
-    UserSubmitListComponent,
+    UserProblemListComponent, LessonListComponent, UserComponent, UserSubmitListComponent,
   },
 })
 export default class CourseView extends Vue {
@@ -95,9 +92,8 @@ export default class CourseView extends Vue {
   }
 
   get lessons(): Array<LessonModel> {
-    if (!(this.courseId in this.lessonStore.lessonsByCourse)) {
+    if (!(this.courseId in this.lessonStore.lessonsByCourse))
       return [];
-    }
     return this.lessonStore.lessonsByCourse[this.courseId];
   }
 
@@ -117,37 +113,24 @@ export default class CourseView extends Vue {
     return this.sortedCourseSchedule;
   }
 
-  parseDate(date: string): string {
-    date = date.split(', ')[1].replace(' г.', '');
-    const months_ru = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа',
-      'сентября', 'октября', 'ноября', 'декабря']
-    const months_en = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
-      'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    for (let i = 0; i < months_ru.length; i++) {
-      if (date.includes(months_ru[i])) {
-        date = date.replace(months_ru[i], months_en[i]);
-        break;
-      }
-    }
-    return date;
-  }
-
-  changeLessonDateRepresentation(lesson: any) {
-    lesson.date = this.parseDate(lesson.date);
-    return lesson;
-  }
-
   get sortedCourseSchedule() {
     if (this.schedule === undefined || this.schedule.lessons === undefined)
-    {
       return new Array<LessonModel>();
-    }
-    let lessons = this.schedule.lessons.map(this.changeLessonDateRepresentation);
-    lessons.sort((a: any, b: any) => (new Date(a.date) > new Date(b.date)) ? 1 :
-      (new Date(a.date) < new Date(b.date)) ? -1 : 0);
-    lessons = lessons.map(elem => elem.lesson);
+    const schedule = (this.schedule as CourseScheduleModel);
+    const lessons = this.lessons.sort(
+      (a: LessonModel, b: LessonModel) => {
+        const dateA = schedule.lessons.find(x => x.lesson_id === a.id)?.date as number;
+        const dateB = schedule.lessons.find(x => x.lesson_id === b.id)?.date as number;
+        return (dateA < dateB) ? -1 : 1;
+      },
+    );
     return lessons;
-    }
+  }
+
+  dateForLesson(lesson_id: number) {
+    return ((this.schedule as CourseScheduleModel)
+      .lessons.find(x => x.lesson_id === lesson_id) as ScheduleElement).date;
+  }
 
 }
 
