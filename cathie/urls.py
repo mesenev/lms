@@ -1,5 +1,6 @@
 from django.urls import path
 
+
 from cathie import views
 
 urlpatterns = [
@@ -9,4 +10,7 @@ urlpatterns = [
         views.get_cats_problem_description,
         name='cats-problem-description'
     ),
+    path('admin/show-admin-custom-page/', views.show_custom_admin_page, name='custom-page')
+
+
 ]

@@ -133,7 +133,7 @@ export default class ProblemView extends Vue {
   mounted () {
     window.addEventListener("keydown", event =>{
       if (event.key == 'Escape'){
-        this.visionCatsPackage()
+        this.visionCatsPackage();
       }
     });
   }
