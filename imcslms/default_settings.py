@@ -91,8 +91,6 @@ MEDIA_ROOT = 'media'
 WEBPACK_DEV_SERVER = 'localhost:8080'
 AUTH_USER_MODEL = 'users.User'
 CATS_URL = 'http://localhost:7999/'
-CATS_SID = ''
-CATS_TOKEN = ''
 
 # Celery Configuration Options
 CELERY_TIMEZONE = 'Asia/Vladivostok'
