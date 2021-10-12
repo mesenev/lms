@@ -18,7 +18,7 @@
           v-for="submit in successful.concat(testing).concat(wrong)" :key="submit.id">
           <div class="list-results-container">
             <cv-structured-list-data class="student">
-              <UserComponent :user="students[submit.student]"/>
+              <user-component :user="students[submit.student]"/>
             </cv-structured-list-data>
             <cv-structured-list-data class="submit">
               <submit-status :submit="submit"></submit-status>
@@ -67,12 +67,15 @@ export default class ProblemStats extends Vue {
   courseStore = courseStore;
   submitStore = submitStore;
   loading = true;
-  submits: SubmitModel[] = [];
+  _submits: SubmitModel[] = [];
   usersWithSubmits: number[] = [];
 
+  get submits(): SubmitModel[] {
+    return this._submits.filter(x => this.students[x.student] !== undefined);
+  }
+
   async created() {
-//
-    this.submits = await this.submitStore.fetchProblemStats(this.problem.id);
+    this._submits = await this.submitStore.fetchProblemStats(this.problem.id);
     this.usersWithSubmits = this.submits.map(x => x.student);
     this.loading = false;
   }
