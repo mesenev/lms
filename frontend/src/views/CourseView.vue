@@ -40,7 +40,9 @@
             </cv-structured-list-item>
           </template>
           <template slot="items" v-else>
-            <h1 v-if="user.staff_for.includes(course.id)">Расписание для курса не составлено</h1>
+            <h1 v-if="course && user.staff_for.includes(course.id)">
+              Расписание для курса не составлено
+            </h1>
           </template>
         </cv-structured-list>
       </div>
