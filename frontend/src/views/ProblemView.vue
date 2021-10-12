@@ -64,7 +64,6 @@
     v-for="message in messages"
     :key="message.id"
     :message="message"
-    :displayAvatar="displayAvatar(message)"
     >
 
     </message-component>
@@ -117,10 +116,10 @@ import MessageComponent from '@/components/MessageComponent.vue';
 import SubmitStatus from "@/components/SubmitStatus.vue";
 import UserComponent from '@/components/UserComponent.vue';
 import SubmitModel from '@/models/SubmitModel';
-import MessageModel from '@/models/MessageModel';
 import problemStore from '@/store/modules/problem';
 import submitStore from '@/store/modules/submit';
 import userStore from '@/store/modules/user';
+import urls from '@/utils/urls.json'
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 
@@ -156,18 +155,12 @@ export default class ProblemView extends Vue {
   get messages() {
     const smth = [];
     for (let i = 0; i < 20; i++) {
-      const newMsg = {"text": "test", "sender": this.user, "isSubmit": false, "lessonId": 1,
-  "courseId": this.courseId, "id":i, "name": "sdfdsfsf"};
+      const newMsg = {"type": "message", "text": "test", "sender": this.user, "lessonId": 1,
+        "courseId": this.courseId, "id":i, "name": "sdfdsfsf"};
       smth.push(newMsg);
     }
     return smth;
   }
-
-  displayAvatar(message: MessageModel): boolean {
-    const index = this.messages.indexOf(message);
-    return index === 0 || this.messages[index - 1].sender.id != message.sender.id;
-  }
-
 
   checkedSubmit(submit: SubmitModel): boolean {
     if (!this.submitIdProp)
@@ -210,8 +203,8 @@ export default class ProblemView extends Vue {
   async mounted() {
     const submits = [...document.getElementsByClassName("submit-list")];
     submits.forEach(element => element.scrollTop = element.scrollHeight);
-    const userMessages = [...document.getElementsByClassName("studentAvatar")];
-    userMessages.forEach(element => element.src = this.user.avatar_url);
+    const userMessages = [...document.getElementsByClassName("avatar", "student")];
+    userMessages.forEach(element => element.src = urls.notSelectedAvatar);
   }
 
   checkedStudent(studentId: string): boolean {
@@ -368,34 +361,31 @@ export default class ProblemView extends Vue {
   pagging 100px
   margin 20%
 
-.button {
-  display: inline-block;
-  padding: 0.75em;
+.button
+  display: inline-block
+  padding: 0.75em
   margin 0.00002em
-  color: #fff;
-  font-size: 0.8em;
+  color: #fff
+  font-size: 0.8em
   text-decoration none
   text-align center
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-  &:after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: gray;
-    z-index: -2;
-  }
-  &:hover {
-    color: #fff;
-    &:before {
-      width: 100%;
-    }
-  }
-}
+  position: relative
+  overflow: hidden
+  z-index: 1
+  &:after
+    content: ''
+    position: absolute
+    bottom: 0
+    left: 0
+    width: 100%
+    height: 100%
+    background-color: gray
+    z-index: -2
+
+  &:hover
+    color: #fff
+    &:before
+      width: 100%
 
 
 .bx--list

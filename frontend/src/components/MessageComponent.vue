@@ -1,19 +1,13 @@
 <template>
   <div v-if="this.userStore.user.id === this.message.sender.id" class="author-message">
-    <img v-if="displayAvatar" src="" alt="'avatar'" onerror="this.src = 'https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png'" class="avatar student">
+    <img src="" alt="'avatar'" class="avatar student">
     <a href="#" class="button">{{ this.message.text }}</a>
               <br>
-  </div>
-
-  <div v-else class="non-author-message">
-    <a href="#" class="button answer">всё фигня, переделывай</a>
-    <img v-if="displayAvatar" src="" alt="'avatar'" onerror="this.src = 'https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png'" class="avatar staff">
-    <br>
   </div>
 </template>
 
 <script lang="ts">
-import MessageModel from "@/models/MessageModel";
+import LogEventModel from "@/models/LogEventModel";
 import userStore from '@/store/modules/user';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import { Component, Prop } from "vue-property-decorator";
@@ -21,20 +15,15 @@ import { Component, Prop } from "vue-property-decorator";
 
 @Component({ components: {} })
 export default class MessageComponent extends NotificationMixinComponent {
-  @Prop({ required: true }) message?: MessageModel | null;
+  @Prop({ required: true }) message: LogEventModel;
   userStore = userStore;
-  displayAvatar?: boolean;
 
   get isStaff() {
-    return this.message?.sender?.staff_for.includes(this.message?.courseId);
+    return this.message.sender.staff_for.includes(this.message?.courseId);
   }
 
   get senderAvatar() {
-    return this.message?.sender?.avatar_url;
-  }
-
-  async created() {
-    console.log(this.displayAvatar);
+    return this.message.sender.avatar_url;
   }
 }
 
