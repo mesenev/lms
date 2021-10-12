@@ -7,22 +7,22 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: {} })
 export default class UserComponent extends Vue {
-  @Prop({ required: false }) user!: UserModel;
+  @Prop({ required: false }) userProp!: UserModel;
   @Prop({ required: false }) userId!: number;
   loading = true;
   userStore = userStore;
   courseStore = courseStore;
-  _user!: UserModel;
+  userModel: UserModel | null = null;
 
   get name() {
-    if (this._user && this._user.first_name && this._user.last_name)
-      return `${this._user.first_name} ${this._user.last_name}`;
+    if (this.userModel && this.userModel.first_name && this.userModel.last_name)
+      return `${this.userModel.first_name} ${this.userModel.last_name}`;
     return '';
   }
 
   get pic_url() {
-    if (this._user && this._user.avatar_url)
-      return this._user.thumbnail;
+    if (this.userModel && this.userModel.avatar_url)
+      return this.userModel.thumbnail;
     return "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
   }
 
@@ -33,14 +33,14 @@ export default class UserComponent extends Vue {
   }
 
   async created() {
-    if (!this.user && !this.userId)
+    if (!this.userProp && !this.userId)
       throw Error();
-    if (this.user)
-      this._user = this.user;
+    if (this.userProp)
+      this.userModel = this.userProp;
     if (this.userId)
-      this._user = this.userStore.currentCourseStudents[this.userId];
-    if (typeof this._user === 'undefined')
-      this._user = await this.userStore.fetchUserById(this.userId)
+      this.userModel = this.userStore.currentCourseStudents[this.userId];
+    if (typeof this.userModel === 'undefined')
+      this.userModel = await this.userStore.fetchUserById(this.userId)
     this.loading = false;
   }
 }

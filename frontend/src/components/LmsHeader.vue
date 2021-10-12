@@ -88,7 +88,7 @@
 
     <template slot="right-panels">
       <cv-header-panel class="" id="account">
-        <UserView class="user-view" :user="user"/>
+        <UserView :userProp="user" class="user-view"/>
         <cv-switcher>
           <template>
             <cv-switcher-item>

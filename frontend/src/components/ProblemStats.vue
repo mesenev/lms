@@ -18,7 +18,7 @@
           v-for="submit in successful.concat(testing).concat(wrong)" :key="submit.id">
           <div class="list-results-container">
             <cv-structured-list-data class="student">
-              <user-component :user="students[submit.student]"/>
+              <user-component :userProp="students[submit.student]"/>
             </cv-structured-list-data>
             <cv-structured-list-data class="submit">
               <submit-status :submit="submit"></submit-status>
@@ -39,7 +39,7 @@
           :key="user.id"
           class="unsent-users">
           <cv-structured-list-data>
-            <user-component :user="user" class="user"/>
+            <user-component :userProp="user" class="user"/>
           </cv-structured-list-data>
         </cv-structured-list-item>
       </template>

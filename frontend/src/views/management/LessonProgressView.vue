@@ -27,7 +27,7 @@
           <cv-data-table-cell>
             <router-link :to="{ name: 'profile-page', params: { userId: user.user.id } }"
                          class="course--title" tag="p">
-              <UserComponent :user="user.user"/>
+              <UserComponent :userProp="user.user"/>
             </router-link>
           </cv-data-table-cell>
           <cv-data-table-cell class="mark"
