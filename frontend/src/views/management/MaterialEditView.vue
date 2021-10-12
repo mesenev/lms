@@ -5,10 +5,10 @@
       <h1>Редактирование материала</h1>
       <div class="bx--col-lg-16">
         <cv-inline-notification
-        v-if="showNotification"
-        @close="hideSuccess"
-        :kind="notificationKind"
-        :sub-title="notificationText"
+          v-if="showNotification"
+          :kind="notificationKind"
+          :sub-title="notificationText"
+          @close="hideSuccess"
         />
       </div>
       <div class="bx--col-lg-10"></div>
@@ -19,7 +19,7 @@
         <cv-text-area style="height: auto;" v-model="materialEdit.content"></cv-text-area>
       </div>
       <div class="less bx--col-lg-8">
-        <markdown-it-vue class="md-body" :content="materialEdit.content"/>
+        <vue-markdown :source="materialEdit.content" class="md-body"/>
       </div>
       <cv-button class="change__btn" :disabled="canChangeMaterial" @click="ChangeMaterial">
         Изменить
@@ -34,12 +34,11 @@ import MaterialModel from '@/models/MaterialModel';
 import materialStore from '@/store/modules/material';
 import axios from 'axios';
 import _ from 'lodash';
-import MarkdownItVue from 'markdown-it-vue'
-import 'markdown-it-vue/dist/markdown-it-vue.css'
+import VueMarkdown from 'vue-markdown-render';
 import Vue, { VueConstructor } from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 
-@Component({ components: { MarkdownItVue: MarkdownItVue as VueConstructor<Vue> } })
+@Component({ components: { VueMarkdown } })
 export default class MaterialEditView extends Vue {
   @Prop() materialId!: number;
   private materialStore = materialStore;
@@ -50,7 +49,7 @@ export default class MaterialEditView extends Vue {
     content_type: '',
     content: '',
   }
-  materialEdit: MaterialModel = {...this.material}
+  materialEdit: MaterialModel = { ...this.material }
   showNotification = false;
   notificationKind = 'success';
   notificationText = '';

@@ -13,7 +13,7 @@
                  player-height="480"></youtube>
       </div>
       <div v-else class="less bx--col-lg-10">
-        <MarkdownItVue class="md-body" :content="materials.content"/>
+        <vue-markdown :source="materials.content" class="md-body"/>
       </div>
     </div>
   </div>
@@ -22,15 +22,15 @@
 <script lang="ts">
 import MaterialModel from '@/models/MaterialModel';
 import materialStore from '@/store/modules/material';
-import MarkdownItVue from 'markdown-it-vue'
-import 'markdown-it-vue/dist/markdown-it-vue.css'
-import {Component, Prop} from 'vue-property-decorator';
-import Vue, {VueConstructor} from 'vue';
-import VueYouTubeEmbed from 'vue-youtube-embed'
+import VueMarkdown from 'vue-markdown-render';
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import VueYouTubeEmbed from 'vue-youtube-embed';
+import { VueConstructor } from 'vue';
 
-Vue.use(VueYouTubeEmbed)
+//TODO: check this is ok
+Vue.use(VueYouTubeEmbed);
 
-@Component({components: {MarkdownItVue: MarkdownItVue as VueConstructor<Vue>}})
+@Component({ components: { VueMarkdown } })
 export default class MaterialView extends Vue {
   @Prop() materialId!: number;
   private materialStore = materialStore;
@@ -49,9 +49,9 @@ export default class MaterialView extends Vue {
       return this.materialStore.currentMaterialUrl;
   }
 
-  get youTubeGetID()  {
+  get youTubeGetID() {
     const VID_REGEX = (/(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
-    return(this.materialUrl!.match(VID_REGEX)![1]);
+    return (this.materialUrl!.match(VID_REGEX)![1]);
   }
 
   get isMaterialAVideo() {

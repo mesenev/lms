@@ -1,3 +1,4 @@
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 module.exports = {
   publicPath: "/static/", // Should match Django STATIC_URL
   filenameHashing: false,
@@ -10,6 +11,12 @@ module.exports = {
       "devServer": {
         // writeToDisk: true, // Write files to disk in dev mode, so Django can serve the assets
       },
+      plugins: [
+        new HardSourceWebpackPlugin(),
+      ],
+      // "optimization": {
+      // markdown-it-vue
+      //       },
     }
   }
 }
