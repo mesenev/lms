@@ -7,29 +7,53 @@ c = BuildmasterConfig = dict()
 c['buildbotNetUsageData'] = 'basic'
 repository_url = 'git://github.com/mesenev/lms.git'
 
-c['workers'] = [worker.Worker("lms-ci-worker", "pass")]
+c['workers'] = [
+    worker.Worker("lms-worker-main", "pass"),
+    worker.Worker("lms-worker-pr", "pass")
+]
 
-factory = util.BuildFactory()
-factory.addStep(steps.Git(repourl=repository_url, mode='incremental'))
-factory.addStep(steps.ShellCommand(command=['cp', '../../scripts', 'scripts']))
-factory.addStep(steps.ShellCommand(command=['cp', '../../.env', 'env.py']))
-factory.addStep(steps.ShellCommand(command=['cp', '../../main.py', 'main.py']))
-factory.addStep(steps.ShellCommand(command=['python', 'main.py'], ))
+main_factory = util.BuildFactory()
+main_factory.addStep(steps.Git(repourl=repository_url, mode='incremental'))
+main_factory.addStep(steps.ShellCommand(command=['cp', '../../scripts', 'scripts']))
+main_factory.addStep(steps.ShellCommand(command=['cp', '../../.env', 'env.py']))
+main_factory.addStep(steps.ShellCommand(command=['cp', '../../main.py', 'main.py']))
+main_factory.addStep(steps.ShellCommand(command=['python', 'main.py'], ))
+
+pr_factory = util.BuildFactory()
+main_factory.addStep(steps.Git(repourl=repository_url, mode='full'))
+main_factory.addStep(steps.ShellCommand(command=['cp', '../../worker_scripts', 'worker_scripts']))
+main_factory.addStep(steps.ShellCommand(command=['cp', '../../.env', 'env.py']))
+main_factory.addStep(steps.ShellCommand(command=['cp', '../../main.py', 'main.py']))
+main_factory.addStep(steps.ShellCommand(command=['python', 'main.py'], ))
 
 c['builders'] = [
-    util.BuilderConfig(name="lmsci", workernames=["lms-ci-worker"], factory=factory),
+    util.BuilderConfig(name="lmsci", workernames=["lms-worker-main"], factory=main_factory),
+    util.BuilderConfig(name="lmspr", workernames=["lms-worker-pr"], factory=pr_factory),
 ]
 
 c['protocols'] = {'pb': {'port': 9989}}
 c['change_source'] = [
-    changes.GitPoller(repository_url, workdir='workdir', branches=True, pollInterval=40),
+    changes.GitPoller(repository_url, workdir='workdir', branches=['main'], pollInterval=40),
+    changes.GitHubPullrequestPoller(owner='mesenev', repo='lms', pollinterval=20, name='pr_poller')
 ]
+
+# def pr_filter(changes):
+#     if hasattr(changes, 'category') and changes['category'] == 'pull':
+#         return True
+#     return False
+
+
 c['schedulers'] = [
     schedulers.SingleBranchScheduler(
-        name="frontend",
-        treeStableTimer=5*60,
+        name="main",
+        treeStableTimer=5 * 60,
         change_filter=util.ChangeFilter(branch='main'),
         builderNames=["lmsci"]),
+    schedulers.SingleBranchScheduler(
+        name="pr",
+        treeStableTimer=60,
+        change_filter=util.ChangeFilter(category='pull'),
+        builderNames=["lmspr"]),
 ]
 
 c['title'] = "lms ci system"

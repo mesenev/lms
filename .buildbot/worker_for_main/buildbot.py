@@ -27,7 +27,7 @@ application.setComponent(ILogObserver, FileLogObserver(logfile).emit)
 
 buildmaster_host = 'localhost'
 port = 9989
-name, passwd = 'lms-ci-worker', 'pass'
+name, passwd = 'lms-worker-main', 'pass'
 keepalive = 600
 umask = None
 maxdelay = 300
