@@ -1,11 +1,11 @@
 [Unit]
-Description=BuildBot main worker service
+Description=BuildBot pr worker service
 After=network.target
 
 [Service]
 User=buildbot
 Group=buildbot
-WorkingDirectory=/home/buildbot/bb-lms/worker-for_main
+WorkingDirectory=/home/buildbot/bb-lms/worker_for_pr
 ExecStart=/home/buildbot/bb-lms/venv/bin/buildbot-worker start --nodaemon
 Environment="PATH=/home/buildbot/bb-lms/venv/bin"
 
