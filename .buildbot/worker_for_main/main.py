@@ -1,9 +1,9 @@
 import os
 import sys
+import worker_scripts as ws
 
 sys.path.append('../')
 
-import worker_scripts as ws
 
 sys.dont_write_bytecode = True
 
