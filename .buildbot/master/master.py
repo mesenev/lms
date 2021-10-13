@@ -34,7 +34,7 @@ c['builders'] = [
 c['protocols'] = {'pb': {'port': 9989}}
 c['change_source'] = [
     changes.GitPoller(repository_url, workdir='workdir', branches=['main'], pollInterval=40),
-    changes.GitHubPullrequestPoller(owner='mesenev', repo='lms', pollinterval=20, name='pr_poller')
+    changes.GitHubPullrequestPoller(owner='mesenev', repo='lms', pollInterval=20, name='pr_poller')
 ]
 
 # def pr_filter(changes):
