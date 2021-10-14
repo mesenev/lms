@@ -11,6 +11,4 @@ urlpatterns = [
         name='cats-problem-description'
     ),
     path('admin/show-admin-custom-page/', views.show_custom_admin_page, name='custom-page')
-
-
 ]

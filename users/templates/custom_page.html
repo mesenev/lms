@@ -1,6 +1,13 @@
 {% extends 'admin/base_site.html' %}
 
-{% block title %}Тестовая страница в админке{% endblock %}
+{% block title %}
+    {{ title }} | {{ site_title|default:_('Cats Admin Page') }}
+{% endblock %}
+
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Cats Admin Page') }}</a></h1>
+{% endblock %}
 
 {% comment %}{% block extrastyle %}{{ block.super }}
     <link rel="stylesheet" href="{{ STATIC_URL }}path/css/style.css">
@@ -15,10 +22,14 @@
     </div>
 {% endblock %}{% endcomment %}
 
+
+
 {% block content %}
-    <div class="fieldsets">
-        <fieldset class="module">
-            <h1>Тестовая страница в админке</h1>
-        </fieldset>
+    <div>
+        <h1>Мой хендлер </h1>
+        <label>
+            <input>
+        </label>
     </div>
+
 {% endblock %}
