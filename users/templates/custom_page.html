@@ -1,0 +1,35 @@
+{% extends 'admin/base_site.html' %}
+
+{% block title %}
+    {{ title }} | {{ site_title|default:_('Cats Admin Page') }}
+{% endblock %}
+
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Cats Admin Page') }}</a></h1>
+{% endblock %}
+
+{% comment %}{% block extrastyle %}{{ block.super }}
+    <link rel="stylesheet" href="{{ STATIC_URL }}path/css/style.css">
+{% endblock %}{% endcomment %}
+
+{% comment %}{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        &rsaquo;
+        <a href="{% url 'admin:spec_my_model_changelist' %}">Пункт хлебных крошек</a>
+        &rsaquo; Тестовая страница в админке
+    </div>
+{% endblock %}{% endcomment %}
+
+
+
+{% block content %}
+    <div>
+        <h1>Мой хендлер </h1>
+        <label>
+            <input>
+        </label>
+    </div>
+
+{% endblock %}

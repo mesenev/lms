@@ -7,6 +7,8 @@ from cathie.cats_api import cats_get_problems_from_contest, cats_get_problem_des
 from course.models import Course
 from problem.models import Problem
 
+from django.shortcuts import render
+
 
 @login_required
 @api_view(['GET'])
@@ -25,3 +27,7 @@ def get_cats_problem_description(request, problem_id):
     problem.description = problem_description
     problem.save()
     return Response(problem_description)
+
+
+def show_custom_admin_page(request):
+    return render(request, 'custom_page.html')

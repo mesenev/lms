@@ -23,8 +23,6 @@
               <cv-data-table-cell>
                 <cv-link :to="row[1]">{{ row[0] }}</cv-link>
               </cv-data-table-cell>
-
-
               <cv-data-table-cell>
                 <user-component :user-id="row[2]"></user-component>
               </cv-data-table-cell>

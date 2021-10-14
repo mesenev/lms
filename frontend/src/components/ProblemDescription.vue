@@ -25,6 +25,7 @@ export default class ProblemDescription extends Vue {
   margin 0.5rem
   font-size 1.15rem
 
+
 </style>
 
 <style lang="stylus" scoped>

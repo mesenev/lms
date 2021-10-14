@@ -1,30 +1,33 @@
 <template>
   <div class="bx--grid">
     <div class="bx--row header-container">
-      <div class="main-title">
-        <h1 v-if="problem" class=""> {{ problem.name }}</h1>
-        <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
-        <div class="description-container">
-          <cv-link v-if="problem"
+        <div class="main-title">
+          <h1 v-if="problem" class=""> {{ problem.name }}</h1>
+          <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
+          <div class="description-container">
+            <cv-link v-if="problem"
                    class="show-problem-link"
-                   @click="showProblem">
-            Условие задачи
-          </cv-link>
-          <cv-skeleton-text v-else class="" width="'35%'"/>
-          <cv-modal
-            :visible="displayProblem"
-            class="problem-description-modal"
-            close-aria-label="Закрыть"
-            size="large"
-            @modal-hidden="hideProblem">
-            <template slot="title">{{ problem.name }}</template>
-            <template slot="content">
-              <problem-description :problem="problem"/>
-            </template>
-          </cv-modal>
+                   @click="showProblem"
+                   >
+              Условие задачи
+            </cv-link>
+            <cv-skeleton-text v-else class="" width="'35%'"/>
+            <cv-modal
+              :visible="displayProblem"
+              class="problem-description-modal"
+              close-aria-label="Закрыть"
+              size="large"
+              @modal-hidden="hideProblem">
+              <template slot="title">{{ problem.name }}</template>
+              <template slot="content">
+                <problem-description :problem="problem"/>
+              </template>
+            </cv-modal>
+          </div>
         </div>
-      </div>
     </div>
+
+
     <cv-row>
       <cv-column :lg="7">
         <div class="solution-container item">
@@ -65,7 +68,8 @@
           </div>
         </div>
       </cv-column>
-      <cv-column v-if="isStaff">
+
+      <cv-column v-if="isStaff && !displayCatsPackage">
         <div class="item">
           <cv-structured-list class="student-list" condensed selectable @change="changeStudent">
             <template slot="headings">
@@ -86,6 +90,11 @@
           </cv-structured-list>
         </div>
       </cv-column>
+
+      <cv-column v-if="displayCatsPackage">
+        <cats-package-window></cats-package-window>
+      </cv-column>
+
     </cv-row>
   </div>
 </template>
@@ -100,9 +109,11 @@ import problemStore from '@/store/modules/problem';
 import submitStore from '@/store/modules/submit';
 import userStore from '@/store/modules/user';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import CatsPackageWindow from "@/components/CatsPackageWindow.vue";
 
 
-@Component({ components: { SubmitComponent, ProblemDescription, SubmitStatus, UserComponent } })
+
+@Component({ components: { CatsPackageWindow, SubmitComponent, ProblemDescription, SubmitStatus, UserComponent } })
 export default class ProblemView extends Vue {
   @Prop({ required: false, default: null }) submitIdProp!: number | null;
   public submitId = this.submitIdProp;
@@ -113,11 +124,22 @@ export default class ProblemView extends Vue {
   private submitStore = submitStore;
   private user = this.userStore.user;
   private readonly courseId = Number(this.$route.params.courseId);
-
   private displayProblem = false;
+  private displayCatsPackage = false;
 
   get problem() {
     return this.problemStore.currentProblem;
+  }
+  mounted () {
+    window.addEventListener("keydown", event =>{
+      if (event.key == 'Escape'){
+        this.visionCatsPackage();
+      }
+    });
+  }
+
+  visionCatsPackage(){
+    this.displayCatsPackage = !this.displayCatsPackage;
   }
 
   get studentIds() {
@@ -194,6 +216,8 @@ export default class ProblemView extends Vue {
 </script>
 
 <style lang="stylus" scoped>
+
+
 
 .table-title
   margin-left 5rem
