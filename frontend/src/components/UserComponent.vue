@@ -20,7 +20,7 @@ export default class UserComponent extends Vue {
     return '';
   }
 
-  get pic_url() {
+  get picUrl() {
     if (this.userModel && this.userModel.avatar_url)
       return this.userModel.thumbnail;
     return "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
@@ -49,7 +49,7 @@ export default class UserComponent extends Vue {
 <template>
   <div class="user-component">
     <div class="user-component--wrapper">
-      <img alt="" class="user-component--avatar" v-bind:src="pic_url"/>
+      <img alt="" class="user-component--avatar" v-bind:src="picUrl"/>
       <div class="user-component--name">
         <cv-inline-loading v-if="loading" active/>
         <span v-else>{{ name }}</span>
