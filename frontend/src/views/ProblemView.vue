@@ -39,13 +39,13 @@
             <cv-structured-list
               v-if="submits" class="submit-list"
               condensed selectable @change="changeCurrentSubmit">
-              <message-component
+              <log-event-component
               v-for="message in messages"
               :key="message.id"
               :message="message"
               >
 
-              </message-component>
+              </log-event-component>
             </cv-structured-list>
             <cv-tile v-else class="submit-list no-submits" kind="standard">
               <h2>Oops</h2>
@@ -98,7 +98,7 @@
 <script lang="ts">
 import ProblemDescription from "@/components/ProblemDescription.vue";
 import SubmitComponent from '@/components/SubmitComponent.vue';
-import MessageComponent from '@/components/MessageComponent.vue';
+import LogEventComponent from '@/components/LogEventComponent.vue';
 import SubmitStatus from "@/components/SubmitStatus.vue";
 import UserComponent from '@/components/UserComponent.vue';
 import SubmitModel from '@/models/SubmitModel';
@@ -110,7 +110,7 @@ import LogEventModel from "@/models/LogEventModel";
 import CatsPackageWindow from "@/components/CatsPackageWindow.vue";
 
 
-@Component({ components: { CatsPackageWindow, SubmitComponent, ProblemDescription, SubmitStatus, UserComponent, MessageComponent } })
+@Component({ components: { CatsPackageWindow, SubmitComponent, ProblemDescription, SubmitStatus, UserComponent, LogEventComponent } })
 export default class ProblemView extends Vue {
   @Prop({ required: false, default: null }) submitIdProp!: number | null;
   public submitId = this.submitIdProp;
