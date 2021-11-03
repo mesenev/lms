@@ -11,5 +11,5 @@ Environment="PATH=/home/buildbot/bb-lms/venv/bin"
 
 
 [Install]
-WantedBy=buildbot-master.target
+WantedBy=buildbot-master.service
 
