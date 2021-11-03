@@ -3,7 +3,7 @@ import sys
 import random
 
 import telegram
-from env import BOT_TOKEN, CHAT_ID
+from .env import BOT_TOKEN, CHAT_ID
 sys.dont_write_bytecode = True
 
 
