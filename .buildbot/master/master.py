@@ -16,11 +16,13 @@ c['workers'] = [
 main_factory = util.BuildFactory()
 main_factory.addStep(steps.Git(repourl=repository_url, mode='incremental'))
 main_factory.addStep(steps.ShellCommand(command=['cp', '../../../worker-main/buildscript.py', '../buildscript.py']))
+main_factory.addStep(steps.ShellCommand(command=['cp', '~/settings.py', 'imcslms/settings.py']))
 main_factory.addStep(steps.ShellCommand(command=['python', '../buildscript.py']))
 
 force_factory = util.BuildFactory()
 force_factory.addStep(steps.Git(repourl=repository_url, mode='full'))
 force_factory.addStep(steps.ShellCommand(command=['cp', '../../../worker-main/buildscript.py', '../buildscript.py']))
+force_factory.addStep(steps.ShellCommand(command=['cp', '~/settings.py', 'imcslms/settings.py']))
 force_factory.addStep(steps.ShellCommand(command=['python', '../buildscript.py']))
 
 pr_factory = util.BuildFactory()
