@@ -26,10 +26,11 @@
 
 {% block content %}
     <div>
-        <h1>Мой хендлер </h1>
-        <label>
-            <input>
-        </label>
+        <form action="/your-name/" method="post">
+            <label for="your_name">Cats seed: </label>
+            <input id="your_name" type="text" name="your_name" value="{{ cats_seed }}">
+            <input type="submit" value="OK">
+        </form>
     </div>
 
 {% endblock %}

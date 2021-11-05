@@ -9,6 +9,8 @@ from problem.models import Problem
 
 from django.shortcuts import render
 
+from cathie.models import CatsUserLink
+
 
 @login_required
 @api_view(['GET'])
@@ -29,5 +31,8 @@ def get_cats_problem_description(request, problem_id):
     return Response(problem_description)
 
 
+@login_required
+@api_view(['GET'])
 def show_custom_admin_page(request):
-    return render(request, 'custom_page.html')
+    data = {"cats_seed": CatsUserLink.cats_token}
+    return render(request, 'custom_page.html', context=data, )

@@ -29,6 +29,10 @@ List of nice optional flags:
 ```
 --detach -- detaching console after command execution
 ```
+Run container commands ( migrations, etc )
+```
+docker-compose -f .docker/docker-compose.yml run [container name] ..command...
+```
 
 
 Feel free to message us if something is unclear for you.
