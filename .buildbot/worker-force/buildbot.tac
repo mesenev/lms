@@ -1,10 +1,7 @@
-
 import os
 
 from buildbot_worker.bot import Worker
 from twisted.application import service
-from twisted.python.logfile import LogFile
-from twisted.python.log import ILogObserver, FileLogObserver
 
 basedir = '.'
 rotateLength = 10000000
@@ -13,11 +10,15 @@ maxRotatedFiles = 10
 # if this is a relocatable tac file, get the directory containing the TAC
 if basedir == '.':
     import os.path
+
     basedir = os.path.abspath(os.path.dirname(__file__))
 
 # note: this line is matched against to check that this is a worker
 # directory; do not edit it.
 application = service.Application('buildbot-worker')
+
+from twisted.python.logfile import LogFile
+from twisted.python.log import ILogObserver, FileLogObserver
 
 logfile = LogFile.fromFullPath(
     os.path.join(basedir, "twistd.log"), rotateLength=rotateLength,
@@ -26,7 +27,7 @@ application.setComponent(ILogObserver, FileLogObserver(logfile).emit)
 
 buildmaster_host = 'localhost'
 port = 9989
-workername = 'lms-worker-pr'
+workername = 'lms-worker-force'
 passwd = 'pass'
 keepalive = 600
 umask = None
