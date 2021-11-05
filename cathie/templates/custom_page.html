@@ -1,5 +1,4 @@
 {% extends 'admin/base_site.html' %}
-
 {% block title %}
     {{ title }} | {{ site_title|default:_('Cats Admin Page') }}
 {% endblock %}
@@ -26,9 +25,13 @@
 
 {% block content %}
     <div>
-        <form action="/your-name/" method="post">
-            <label for="your_name">Cats seed: </label>
-            <input id="your_name" type="text" name="your_name" value="{{ cats_seed }}">
+        <form action="/admin/show-admin-custom-page/" method="post">
+            {% csrf_token %}
+            <div>
+                <strong>Current Cats Seed: {{ cats_seed }}</strong>
+            </div>
+            <label for="input_cats_seed">Change Cats Seed: </label>
+            <input id="input_cats_seed" name="input_cats_seed" type="text" value="{{ cats_seed }}">
             <input type="submit" value="OK">
         </form>
     </div>
