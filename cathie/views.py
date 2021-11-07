@@ -8,6 +8,7 @@ from course.models import Course
 from problem.models import Problem
 
 from django.shortcuts import render
+from cathie.authorization import *
 
 
 @login_required
@@ -29,5 +30,13 @@ def get_cats_problem_description(request, problem_id):
     return Response(problem_description)
 
 
+@login_required
+@api_view(['GET', 'POST'])
 def show_custom_admin_page(request):
-    return render(request, 'custom_page.html')
+    if request.method == 'POST':
+        new_cats_seed = request.POST["input_cats_seed"]
+        cats_sid_setter(new_cats_seed)
+
+    data = {"cats_seed": cats_sid()}
+    return render(request, 'custom_page.html', context=data )
+
