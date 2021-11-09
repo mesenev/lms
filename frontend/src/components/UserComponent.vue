@@ -29,7 +29,9 @@ export default class UserComponent extends Vue {
   get warning() {
     if (!this.courseStore.currentCourse)
       return false;
-    return !(this.userId in this.userStore.currentCourseStudents);
+    if (this.userId)
+      return !(this.userId in this.userStore.currentCourseStudents);
+    return !(this.userProp.id in this.userStore.currentCourseStudents);
   }
 
   async created() {
