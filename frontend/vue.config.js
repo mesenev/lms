@@ -8,6 +8,7 @@ module.exports = {
         filename: "js/[name].js",
         chunkFilename: "js/[name].js",
       },
+      devtool: 'source-map',
       "devServer": {
         // writeToDisk: true, // Write files to disk in dev mode, so Django can serve the assets
       },
@@ -19,4 +20,5 @@ module.exports = {
       //       },
     }
   }
+
 }
