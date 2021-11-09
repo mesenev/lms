@@ -182,14 +182,17 @@ class SubmitViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
         serializer = SubmitListSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    # def create_cats_submit_by_submit(self, submit: Submit):
     def perform_create(self, serializer):
         request = serializer.context["request"]
         validated_data = serializer.validated_data
+        if not validated_data['problem'].cats_id:
+            return
         cats = CatsSubmit(data=dict(
             source_text=validated_data.get('content'),
-            problem_id=validated_data.get('cats_problem_id'),
-            de_id=validated_data.get('cats_de_id'),
-            source=validated_data.get('source'),
+            problem_id=validated_data['problem'].cats_id,
+            # de_id=validated_data.get('cats_de_id'),
+            # source=validated_data.get('source'),
         ))
         model = serializer.save(student=request.user, status=Submit.DEFAULT_STATUS)
         cats.submit = model
