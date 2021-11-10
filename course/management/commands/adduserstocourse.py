@@ -1,7 +1,13 @@
+import random
+
 from django.core.management import BaseCommand, CommandError
 
 from course.models import Course
 from users.models import User, CourseAssignStudent
+
+NAMES = [
+    "Витя", "Петя", "Олег", "Света", "Маша", "Жора", "Артём", "Паша", "Андрей", "Тарас", "Таня", "Дима", "Боря", "Вова"
+]
 
 
 class Command(BaseCommand):
@@ -20,12 +26,16 @@ class Command(BaseCommand):
         count_of_exists_users = User.objects.count()
 
         for i in range(1, count_of_users + 1):
-            user = User.objects.create_user(username=f'{count_of_exists_users + i}user')
+            user = User.objects.create_user(
+                username=f'{count_of_exists_users + i}user',
+                first_name=random.choice(NAMES),
+                last_name=str(random.randint(1000000, 9999999))
+            )
             user.set_password('1234')
             user.save()
-            CourseAssignStudent.objects.create(course=course, user=user,)
+            CourseAssignStudent.objects.create(course=course, user=user, )
             self.stdout.write(self.style.SUCCESS(f'login: {user.username}, password: 1234'))
-            #course_assign.save()
+            # course_assign.save()
         self.stdout.write(self.style.SUCCESS(f'На курс {course.name} добавлено {count_of_users}'))
 
     help = 'Регистрация пользователей на курс'

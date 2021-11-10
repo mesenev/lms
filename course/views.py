@@ -1,9 +1,10 @@
+from django.db.migrations import DeleteModel
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, exceptions
 from rest_framework.decorators import api_view, action
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.mixins import (
-    CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
+    CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 )
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -44,7 +45,9 @@ class CourseViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class ScheduleViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
+class ScheduleViewSet(
+    GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, ListModelMixin
+):
     permission_classes = [CourseStaffOrAuthorReadOnly]
     serializer_class = ScheduleSerializer
     queryset = CourseSchedule.objects.all()
