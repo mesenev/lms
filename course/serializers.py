@@ -43,12 +43,13 @@ class CourseSerializer(DynamicFieldsModelSerializer):
         instance.name = validated_data.get('name', instance.name)
         instance.description = validated_data.get('description', instance.description)
         instance.author = validated_data.get('author', instance.author)
+        instance.de_options = validated_data.get('de_options', instance.de_options)
         instance.save()
         return instance
 
     class Meta:
         model = Course
-        fields = ['id', 'name', 'description', 'author', 'lessons', 'students', 'staff', 'schedule']
+        fields = ['id', 'name', 'description', 'author', 'lessons', 'students', 'staff', 'schedule', 'de_options']
 
 
 class ScheduleSerializer(serializers.ModelSerializer):

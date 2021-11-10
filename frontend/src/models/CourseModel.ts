@@ -9,4 +9,5 @@ export default interface CourseModel extends BaseModel {
   description?: string;
   students: Array<UserModel>;
   schedule: number | null;
+  de_options: string;
 }

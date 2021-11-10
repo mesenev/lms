@@ -2,8 +2,15 @@
   <div class="bx--grid">
     <div class="bx--row page--title">
       <div>
-        <h1 class="title" v-if="!fetchingCourse">{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}</h1>
-        <cv-skeleton-text v-text="'Подождите...'" v-else :heading="true" :width="'35%'" class="main-title"/>
+        <h1 v-if="!fetchingCourse"
+            class="title">{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}
+        </h1>
+        <cv-skeleton-text
+          v-else
+          :heading="true"
+          :width="'35%'"
+          class="main-title"
+          v-text="'Подождите...'"/>
       </div>
     </div>
     <div class="bx--row main--content">
@@ -18,24 +25,44 @@
           <cv-text-input
             label="Автор"
             :disabled="true"
-            :value="`${courseEdit.author.first_name} ${courseEdit.author.last_name} (${courseEdit.author.username})`.trim()"
+            :value="`${courseEdit.author.first_name}
+             ${courseEdit.author.last_name}
+              (${courseEdit.author.username})`.trim()"
           />
-          <cv-text-input class="course--name" label="Название курса" v-model.trim="courseEdit.name"/>
+          <cv-text-input
+            v-model.trim="courseEdit.name"
+            class="course--name"
+            label="Название курса"/>
 
-          <div class="description--block">
-            <cv-text-input class="course--description" label="Описание курса" v-model.trim="courseEdit.description"/>
+          <cv-text-input
+            v-model.trim="courseEdit.description"
+            class="course--description"
+            label="Описание курса"/>
+
+
+          <cv-multi-select
+            v-model="deChecks"
+            :options="deOptions"
+            class="course--de"
+            label="Выберите среды разработки"
+            title="Доступные среды для отправки решений"
+            @change="deChanged"/>
+
+          <div class="create--change--btn">
             <cv-button-skeleton v-if="fetchingCourse"/>
-            <cv-button class="create--change--btn" v-else :disabled="!isChanged" v-on:click="createOrUpdate">
+            <cv-button v-else
+                       :disabled="!isChanged"
+                       v-on:click="createOrUpdate">
               {{ isNewCourse ? 'Создать' : 'Изменить' }}
             </cv-button>
           </div>
 
           <EditCourseLessons
-            v-if="!isNewCourse"
+            v-if="!isNewCourse && !fetchingCourse"
             :course="courseEdit"
             class="edit&#45;&#45;course-props edit--course"/>
           <EditCourseModal
-            v-if="!isNewCourse"
+            v-if="!isNewCourse && !fetchingCourse"
             :course-id="courseEdit.id"
             class="edit&#45;&#45;course-props add--btn"/>
         </div>
@@ -102,9 +129,24 @@ export default class CourseEditView extends Vue {
   counter = 1;
   course: CourseModel = { ...courseStore.newCourse };
   courseEdit = { ...this.course };
+  deChecks: string[] = [];
+  deOptions = [
+    {
+      value: '101', label: 'Cross-platform C/C++ compiler',
+      name: 'Cross-platform C/C++ compiler', disabled: false,
+    },
+    {
+      value: '502', label: 'Python 3.8.1',
+      name: 'Python 3.8.1', disabled: false,
+    },
+  ];
 
   hideSuccess() {
     this.showNotification = false;
+  }
+
+  get isChanged(): boolean {
+    return !_.isEqual(this.course, this.courseEdit);
   }
 
   async created() {
@@ -114,7 +156,16 @@ export default class CourseEditView extends Vue {
     }
     this.course = await this.store.fetchCourseById(this.courseId);
     this.courseEdit = { ...this.course };
+    this.deChecks = this.courseEdit.de_options.split(',');
     this.fetchingCourse = false;
+  }
+
+  deChanged() {
+    this.courseEdit = { ...this.courseEdit, de_options: this.deChecks.sort().join(',') };
+  }
+
+  get isNewCourse(): boolean {
+    return isNaN(this.courseEdit.id);
   }
 
   createOrUpdate(): void {
@@ -130,6 +181,8 @@ export default class CourseEditView extends Vue {
           { name: 'course-edit', params: { courseId: response.data.id.toString() } },
         );
       }
+      this.course = { ...response.data };
+      this.courseEdit = { ...this.course };
     });
     request.catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
@@ -137,27 +190,14 @@ export default class CourseEditView extends Vue {
     })
     request.finally(() => this.showNotification = true);
   }
-
-  get isNewCourse(): boolean {
-    return isNaN(this.courseEdit.id);
-  }
-
-  get isChanged(): boolean {
-    return !_.isEqual(this.course, this.courseEdit);
-  }
 }
 </script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 
 .description--block
   display flex
   flex-direction row
-
-.create--change--btn
-  margin-top 3.5rem
-  margin-left 0.5rem
-  margin-bottom 0
 
 .add--btn
   float right
@@ -169,6 +209,12 @@ export default class CourseEditView extends Vue {
   margin-top 2rem
 
 .course--description
+  margin-top 2rem
+
+.course--de
+  margin-top 2rem
+
+.create--change--btn
   margin-top 2rem
 
 .first--block

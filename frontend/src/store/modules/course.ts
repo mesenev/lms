@@ -19,7 +19,7 @@ class CourseModule extends VuexModule {
   get newCourse(): CourseModel {
     return {
       id: NaN, name: '', author: userStore.user, lessons: [],
-      completed: false, description: '', students: [], schedule: null,
+      completed: false, description: '', students: [], schedule: null, de_options: "",
     };
   }
 
