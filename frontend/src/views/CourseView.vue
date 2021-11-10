@@ -39,11 +39,11 @@
               <lesson-list-component :lesson-prop='lesson'/>
             </cv-structured-list-item>
           </template>
-          <template slot="items" v-else>
-            <h1 v-if="course && user.staff_for.includes(course.id)">
-              Расписание для курса не составлено
-            </h1>
-          </template>
+          <!--          <template slot="items" v-else>-->
+          <!--            <h1 v-if="course && user.staff_for.includes(course.id)">-->
+          <!--              Расписание для курса не составлено-->
+          <!--            </h1>-->
+          <!--          </template>-->
         </cv-structured-list>
       </div>
       <div v-if='course' class="submits bx--col-lg-4">
