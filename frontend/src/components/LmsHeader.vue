@@ -1,13 +1,15 @@
 <template>
   <cv-header class="lms-header" aria-label="Carbon tutorial">
     <cv-skip-to-content href="#main-content"> Skip to content</cv-skip-to-content>
+    <cv-header-menu-button v-if="courseSelected" aria-controls="side-nav" aria-label="Header menu"/>
     <cv-header-name prefix="dvfu" to="/"><span class="lms">lms</span></cv-header-name>
     <cv-header-nav v-if="courseSelected">
       <cv-header-menu-item
         :to="{
           name: 'course-solutions-list',
           params: { courseId: this.$route.params.courseId }
-        }">
+        }"
+      >
         Решения
       </cv-header-menu-item>
     </cv-header-nav>
@@ -16,7 +18,8 @@
         :to="{
           name: 'course-progress',
           params: { courseId: this.$route.params.courseId }
-        }">
+        }"
+      >
         Успеваемость
       </cv-header-menu-item>
     </cv-header-nav>
@@ -25,56 +28,103 @@
         :to="{
           name: 'lesson-progress',
           params: { lessonId: this.$route.params.lessonId }
-        }">
+        }"
+      >
         Успеваемость урока
       </cv-header-menu-item>
     </cv-header-nav>
     <cv-header-nav v-if="courseSelected">
       <cv-header-menu-item
-        :to="{
-          name: 'course-calendar',
-          params: { courseId: this.$route.params.courseId }
-        }">
+        :to="{ name: 'course-calendar', params: { courseId: this.$route.params.courseId } }"
+      >
         Календарь
       </cv-header-menu-item>
     </cv-header-nav>
     <cv-header-nav v-if="isStaff && courseSelected && !lessonSelected && !problemSelected">
       <cv-header-menu-item
-        :to="{
-          name: 'course-edit',
-          params: { courseId: this.$route.params.courseId }
-        }">
+        :to="{ name: 'course-edit', params: { courseId: this.$route.params.courseId } }"
+      >
         Редактировать курс
       </cv-header-menu-item>
     </cv-header-nav>
     <cv-header-nav v-if="isStaff && lessonSelected && !problemSelected && !materialSelected">
       <cv-header-menu-item
-        :to="{
-          name: 'lesson-edit',
-          params: { lessonId: this.$route.params.lessonId }
-        }">
+        :to="{ name: 'lesson-edit', params: { lessonId: this.$route.params.lessonId } }"
+      >
         Редактировать урок
       </cv-header-menu-item>
     </cv-header-nav>
     <cv-header-nav v-if="isStaff && problemSelected">
       <cv-header-menu-item
-        :to="{
-          name: 'problem-edit',
-          params: { problemId: this.$route.params.problemId }
-        }">
+        :to="{ name: 'problem-edit', params: { problemId: this.$route.params.problemId } }"
+      >
         Редактировать задачу
       </cv-header-menu-item>
     </cv-header-nav>
     <cv-header-nav v-if="isStaff && materialSelected">
       <cv-header-menu-item
-        :to="{
-          name: 'material-edit',
-          params: { materialId: this.$route.params.materialId }
-        }">
+        :to="{ name: 'material-edit', params: { materialId: this.$route.params.materialId } }"
+      >
         Редактировать материалы
       </cv-header-menu-item>
     </cv-header-nav>
 
+    <template slot="left-panels">
+      <cv-side-nav id="side-nav" fixed>
+        <cv-side-nav-items>
+          <cv-header-side-nav-items>
+            <cv-header-menu-item
+              v-if="courseSelected"
+              :to=" { name: 'course-solutions-list', params: { courseId: this.$route.params.courseId } }"
+            >
+              Решения
+            </cv-header-menu-item>
+            <cv-header-menu-item
+              v-if="courseSelected"
+              :to="{ name: 'course-progress', params: { courseId: this.$route.params.courseId } }"
+            >
+              Успеваемость
+            </cv-header-menu-item>
+            <cv-header-menu-item
+              v-if="lessonSelected"
+              :to="{ name: 'lesson-progress', params: { lessonId: this.$route.params.lessonId } }"
+            >
+              Успеваемость урока
+            </cv-header-menu-item>
+            <cv-header-menu-item
+              v-if="courseSelected"
+              :to="{ name: 'course-calendar', params: { courseId: this.$route.params.courseId } }"
+            >
+              Календарь
+            </cv-header-menu-item>
+            <cv-header-menu-item
+              v-if="isStaff && courseSelected && !lessonSelected && !problemSelected"
+              :to="{ name: 'course-edit', params: { courseId: this.$route.params.courseId } }"
+            >
+              Редактировать курс
+            </cv-header-menu-item>
+            <cv-header-menu-item
+              v-if="isStaff && lessonSelected && !problemSelected && !materialSelected"
+              :to="{ name: 'lesson-edit', params: { lessonId: this.$route.params.lessonId } }"
+            >
+              Редактировать урок
+            </cv-header-menu-item>
+            <cv-header-menu-item
+              v-if="isStaff && problemSelected"
+              :to="{ name: 'problem-edit', params: { problemId: this.$route.params.problemId } }"
+            >
+              Редактировать задачу
+            </cv-header-menu-item>
+            <cv-header-menu-item
+              v-if="isStaff && materialSelected"
+              :to="{ name: 'material-edit', params: { materialId: this.$route.params.materialId } }"
+            >
+              Редактировать материалы
+            </cv-header-menu-item>
+          </cv-header-side-nav-items>
+        </cv-side-nav-items>
+      </cv-side-nav>
+    </template>
     <template slot="header-global">
       <cv-header-global-action aria-label="Notifications"
                                aria-controls="notifications">
@@ -96,7 +146,8 @@
                 :to="{
                   name: 'profile-page',
                   params:  { userId: this.user.id }
-                }">
+                }"
+              >
                 Профиль
               </cv-switcher-item-link>
             </cv-switcher-item>
@@ -109,7 +160,8 @@
               <cv-switcher-item-link :to="{
                   name: 'course-add',
                   params:  { courseId: null }
-                }">
+                }"
+              >
                 Создать курс
               </cv-switcher-item-link>
             </cv-switcher-item>
