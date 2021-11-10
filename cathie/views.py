@@ -11,6 +11,17 @@ from django.shortcuts import render
 from cathie.authorization import *
 
 
+def check_authorization_for_cats(function_to_decorate):
+    def wrapper():
+        pass #геттер логина с кетса
+        pass #геттер пароля с кетса
+        # if login_from cats and password_from_cats:
+        function_to_decorate()
+        #else
+        raise ValueError("Authorisation Error")
+    return wrapper
+
+
 @login_required
 @api_view(['GET'])
 @renderer_classes([JSONRenderer])
@@ -30,7 +41,6 @@ def get_cats_problem_description(request, problem_id):
     return Response(problem_description)
 
 
-@login_required
 @api_view(['GET', 'POST'])
 def show_custom_admin_page(request):
     if request.method == 'POST':
@@ -38,5 +48,5 @@ def show_custom_admin_page(request):
         cats_sid_setter(new_cats_seed)
 
     data = {"cats_seed": cats_sid()}
-    return render(request, 'custom_page.html', context=data )
+    return render(request, 'cats_admin_page.html', context=data )
 

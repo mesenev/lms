@@ -1,17 +1,13 @@
 <template >
   <div class="cats-package-window">
-    <cv-data-table :columns="['Тест','Результат']"
-    :data="cats_data"
-    >
-
-      <template slot="data">
-        <cv-data-table-row v-for="(row, rowIndex) in cats_data" :key="`${rowIndex}`" :value="`${rowIndex}`">
-          <cv-data-table-cell>{{ row[0] }}</cv-data-table-cell>
-          <cv-data-table-cell>{{ row[1] }}</cv-data-table-cell>
-        </cv-data-table-row>
-      </template>
-
-    </cv-data-table>
+    <div v-for="message_keys in Object.keys(getCatsData)" v-bind:key="message_keys">
+      <div class = "head_of_message">
+        {{message_keys}}
+      </div>
+      <div class = "message">
+        {{getCatsData[message_keys]}}
+      </div>
+    </div>
 
   </div>
 </template>
@@ -22,16 +18,35 @@ import { Component, Vue } from 'vue-property-decorator';
 
 @Component({ components: {} })
 export default class CatsPackageWindow extends Vue {
-  cats_data = this.getCatsData;
-
   get getCatsData(){
-    return [['Тест 1', 'ОК'], ['Тест 2', 'НЕ ОК']];
+    // const уберем когда сюда что то поедет
+    const catsData: {[key: string]: string} = {
+      'Вердикт': 'Ошибка оформления кода. Подробнее ->',
+      'Лог компиляции': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.',
+      'Время/Память': '100/100'
+    }
+    return catsData;
   }
 }
 </script>
 
 
-<style lang="stylus">
+<style lang="stylus" scoped>
+  .head_of_message
+    padding 10px
+    width 100%
+    height min-content
+    font-size 1.7em
+    font-weight bold
+
+  .message
+    background rgba(207, 204, 174, 0.3);
+    padding-left 5px
+    padding-right 5px
+    padding-bottom 10px
+    padding-top 10px
+    margin 10px
+
 
   .cats-package-window
     height 100%
