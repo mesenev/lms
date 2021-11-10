@@ -105,7 +105,7 @@ export default class EditCourseModal extends NotificationMixinComponent {
   }
 
   get course() {
-    return this.courseStore.currentCourse;
+    return this.courseStore.currentCourse || this.courseStore.newCourse;
   }
 
   get allLessons(): LessonModel[] {
