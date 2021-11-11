@@ -1,7 +1,4 @@
 <template>
-<!-- test -->
-
-
   <div class="bx--grid">
     <div class="bx--row header-container">
       <h1 v-if="!loading && lesson" class="main-title">

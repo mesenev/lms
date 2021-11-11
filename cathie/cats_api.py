@@ -47,7 +47,6 @@ def cats_check_solution_status(req_ids: int):
     if r.status_code != 200:
         raise CatsAnswerCodeException(r.reason)
     data = json.loads(r.content.decode('utf-8'))
-    # print(f'data: {data}')
     if data:
         return data[0]['verdict'], data
 
