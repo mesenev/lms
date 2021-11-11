@@ -81,10 +81,14 @@ class ProblemSerializer(serializers.ModelSerializer):
     language = serializers.CharField(required=True, allow_null=True)
     cats_material_url = serializers.CharField()
     students = serializers.SerializerMethodField()
+    de_options = serializers.SerializerMethodField()
 
     def get_students(self, instance):
         return {student.id: student.submits.values('id', 'status', 'student').all().first()
                 for student in instance.students.all()}
+
+    def get_de_options(self, instance):
+        return instance.de_options or instance.lesson.course.de_options
 
     def create(self, validated_data):
         request = self.context.get("request")
@@ -95,5 +99,6 @@ class ProblemSerializer(serializers.ModelSerializer):
         model = Problem
         fields = (
             'id', 'name', 'description', 'author', 'lesson', 'submits',
-            'manual', 'type', 'language', 'cats_material_url', 'cats_id', 'students'
+            'manual', 'type', 'language', 'cats_material_url', 'cats_id', 'students',
+            'de_options'
         )

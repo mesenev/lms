@@ -21,15 +21,16 @@
           <div>
             <br>
             <cv-multi-select
-              :options="availableLanguages"
-              aria-label="Языки"
-              label="Доступные языки"/>
-            <h5>Выбраны сейчас:</h5>
-            <cv-list>
-              <cv-list-item v-for="l in problemEdit.language" :key="l">{{ l }}</cv-list-item>
-            </cv-list>
-            <br>
-            <!--          <cv-toggle label="Ручная проверка" v-model="problemEdit.manual"/>-->
+              v-model="deChecks"
+              :options="deOptions"
+              class="course--de"
+              label="Выберите среды разработки"
+              title="Доступные среды для отправки решений"
+              @change="deChanged">
+              <template slot="helper-text">
+                <cv-tooltip tip="При пустом списке будет использованы настройки курса"/>
+              </template>
+            </cv-multi-select>
           </div>
         </div>
         <cv-button-skeleton v-if="problemUpdating"/>
@@ -68,8 +69,8 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 export default class ProblemEditView extends Vue {
   private store = problemStore;
   @Prop() problemId!: number;
-  problem!: ProblemModel;
-  problemEdit = { ...this.store.getNewProblem }
+  problem = { ...this.store.getNewProblem };
+  problemEdit = { ...this.store.getNewProblem };
   loading = true;
   catsProblemLoading = true;
   catsProblem: CatsProblemModel | null = null;
@@ -77,11 +78,21 @@ export default class ProblemEditView extends Vue {
   notificationText = '';
   showNotification = false;
   problemUpdating = false;
-
-  availableLanguages = [
-    { name: 'python', label: 'python', value: 'python' },
-    { name: 'c/c++', label: 'c/c++', value: 'c/c++' },
+  deChecks: string[] = [];
+  deOptions = [
+    {
+      value: '101', label: 'Cross-platform C/C++ compiler',
+      name: 'Cross-platform C/C++ compiler', disabled: false,
+    },
+    {
+      value: '502', label: 'Python 3.8.1',
+      name: 'Python 3.8.1', disabled: false,
+    },
   ];
+
+  deChanged() {
+    this.problemEdit = { ...this.problemEdit, de_options: this.deChecks.sort().join(',') };
+  }
 
   get isChanged(): boolean {
     return !_.isEqual(this.problem, this.problemEdit);
@@ -90,7 +101,8 @@ export default class ProblemEditView extends Vue {
   async created() {
     this.loading = true;
     this.problem = await this.store.fetchProblemById(this.problemId);
-    this.problemEdit = { ...this.problem }
+    this.problemEdit = { ...this.problem };
+    this.deChecks = this.problemEdit.de_options.split(',');
     this.loading = false;
     this.catsProblem = await this.store.fetchCatsProblemById(this.problem.cats_id)
     this.catsProblemLoading = false;

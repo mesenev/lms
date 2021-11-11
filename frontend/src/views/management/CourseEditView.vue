@@ -141,6 +141,10 @@ export default class CourseEditView extends Vue {
     },
   ];
 
+  deChanged() {
+    this.courseEdit = { ...this.courseEdit, de_options: this.deChecks.sort().join(',') };
+  }
+
   hideSuccess() {
     this.showNotification = false;
   }
@@ -160,9 +164,6 @@ export default class CourseEditView extends Vue {
     this.fetchingCourse = false;
   }
 
-  deChanged() {
-    this.courseEdit = { ...this.courseEdit, de_options: this.deChecks.sort().join(',') };
-  }
 
   get isNewCourse(): boolean {
     return isNaN(this.courseEdit.id);

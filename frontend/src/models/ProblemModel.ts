@@ -21,4 +21,5 @@ export default interface ProblemModel extends BaseModel {
   submits?: Array<SubmitModel>;
   last_submit?: SubmitModel;
   stats?: ProblemStatsModel;
+  de_options: string;
 }

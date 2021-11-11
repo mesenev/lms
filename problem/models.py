@@ -6,7 +6,7 @@ from users.models import User
 
 class ProblemManager(models.Manager):
     def get_queryset(self):
-        problems = super().get_queryset()
+        problems = super().get_queryset().select_related('lesson__course')
         submit_query = Submit.objects.annotate(
             ordering=models.Case(
                 models.When(status="OK", then=models.Value(0)),
@@ -37,6 +37,7 @@ class Problem(models.Model):
     cats_id = models.IntegerField(null=True)
     cats_material_url = models.URLField(null=False)
     students = models.ManyToManyField(through='problem.Submit', related_name='problems_with_submits', to=User)
+    de_options = models.CharField(max_length=512, blank=True, default='')
     objects = ProblemManager()
 
 
