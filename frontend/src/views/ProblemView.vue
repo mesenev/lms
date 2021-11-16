@@ -39,28 +39,30 @@
             <cv-structured-list
               v-if="submits" class="submit-list"
               condensed selectable @change="changeCurrentSubmit">
-              <log-event-component
-              v-for="message in messages"
-              :key="message.id"
-              :message="message"
-              >
+              <template slot="items">
+                <log-event-component
+                  v-for="message in messages"
+                  :key="message.id"
+                  :message="message"
+                >
 
-              </log-event-component>
+                </log-event-component>
+              </template>
             </cv-structured-list>
             <cv-tile v-else class="submit-list no-submits" kind="standard">
               <h2>Oops</h2>
               <p>Пока ничего не отправлено :(</p>
             </cv-tile>
             <cv-text-input class="searchbar"
-            :light="light"
-            :label="''"
-            :value="''"
-            :disabled="false"
-            :type="''"
-            :password-visible="false"
-            :placeholder="'Введите сообщение'"
-            v-on:keydown.enter="messageForButton"
-            v-model.trim="message">
+                           v-model.trim="commentary"
+                           :disabled="false"
+                           :label="''"
+                           :light="light"
+                           :password-visible="false"
+                           :placeholder="'Введите сообщение'"
+                           :type="''"
+                           :value="''"
+                           v-on:keydown.enter="messageForButton">
             </cv-text-input>
           </div>
         </div>
@@ -110,7 +112,16 @@ import LogEventModel from "@/models/LogEventModel";
 import CatsPackageWindow from "@/components/CatsPackageWindow.vue";
 
 
-@Component({ components: { CatsPackageWindow, SubmitComponent, ProblemDescription, SubmitStatus, UserComponent, LogEventComponent } })
+@Component({
+  components: {
+    CatsPackageWindow,
+    SubmitComponent,
+    ProblemDescription,
+    SubmitStatus,
+    UserComponent,
+    LogEventComponent,
+  },
+})
 export default class ProblemView extends Vue {
   @Prop({ required: false, default: null }) submitIdProp!: number | null;
   public submitId = this.submitIdProp;
@@ -124,7 +135,7 @@ export default class ProblemView extends Vue {
 
   private displayProblem = false;
   private displayCatsPackage = false;
-
+  commentary = '';
   light = false;
 
   get problem() {
@@ -140,16 +151,8 @@ export default class ProblemView extends Vue {
     return this.submitStore.submits;
   }
 
-  get msgs() {
-    const smth = [];
-    for (let i = 0; i < 20; i++) {
-      const newMsg = {"type": "message", "text": "test", "sender": this.user, "lessonId": 1,
-        "courseId": this.courseId, "id":i, "name": "sdfdsfsf"};
-      smth.push(newMsg);
-    }
-    return smth;
-  }
-  messages: Array<LogEventModel> = this.msgs
+
+  messages: Array<LogEventModel> = [];
 
   checkedSubmit(submit: SubmitModel): boolean {
     if (!this.submitIdProp)
@@ -180,30 +183,39 @@ export default class ProblemView extends Vue {
   }
 
   async created() {
-    if (!this.isStaff && !this.submitId && this.submits)
+    if (!this.isStaff && !this.submitId && this.submits.length)
       this.changeCurrentSubmit(this.submits[this.submits.length - 1].id);
     if (this.submitId)
       this.studentId = this.submits?.find(x => x.id === this.submitId)?.student as number;
     if (!this.isStaff) {
       this.studentId = Number(this.userStore.user.id);
     }
+    for (let i = 0; i < 20; i++) {
+      const newMsg = {
+        "type": "message", "text": "test", "sender": this.user, "lessonId": 1,
+        "courseId": this.courseId, "id": i, "name": "sdfdsfsf",
+      };
+      this.messages.push(newMsg);
+    }
+    this.messages = [...this.messages];
   }
 
   async mounted() {
     const submits = [...document.getElementsByClassName("submit-list")];
     submits.forEach(element => element.scrollTop = element.scrollHeight);
     const userMessages = [...document.getElementsByTagName("img")];
-    userMessages.forEach(element =>
-      element.classList.contains("avatar") ? element.src = this.avatarUrl : 0);
+    userMessages.forEach(
+      element => element.classList.contains("avatar") ? element.src = this.avatarUrl : 0,
+    );
 
-    window.addEventListener("keydown", event =>{
-      if (event.key == 'Escape'){
+    window.addEventListener("keydown", event => {
+      if (event.key == 'Escape') {
         this.visionCatsPackage();
       }
     });
   }
 
-  visionCatsPackage(){
+  visionCatsPackage() {
     this.displayCatsPackage = !this.displayCatsPackage;
   }
 
@@ -221,12 +233,14 @@ export default class ProblemView extends Vue {
     this.displayProblem = true;
   }
 
-  messageForButton(message: string) {
-    console.log(document.getElementsByClassName("searchbar")[0])
-    const newMessage: LogEventModel = {"name": "logEvent", "type": "message", "text": message,
-      sender: this.user, id: this.messages.length+2,
-      lessonId: this.courseId, courseId: this.courseId}
+  messageForButton() {
+    const newMessage: LogEventModel = {
+      "name": "logEvent", "type": "message", "text": this.commentary,
+      sender: this.user, id: this.messages.length + 2,
+      lessonId: this.courseId, courseId: this.courseId,
+    };
     this.messages.push(newMessage);
+    this.commentary = '';
   }
 
   hideProblem() {
@@ -372,6 +386,7 @@ export default class ProblemView extends Vue {
   position: relative
   overflow: hidden
   z-index: 1
+
   &:after
     content: ''
     position: absolute
@@ -384,6 +399,7 @@ export default class ProblemView extends Vue {
 
   &:hover
     color: #fff
+
     &:before
       width: 100%
 
@@ -401,8 +417,6 @@ export default class ProblemView extends Vue {
 
 .stuff
   margin-left 1em
-
-
 
 
 .bx--tile.submit-list

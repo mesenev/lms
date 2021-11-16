@@ -1,9 +1,9 @@
 <template>
-  <div v-if="this.userStore.user.id === this.message.sender.id" class="author-message">
+  <cv-structured-list-item class="author-message">
     <img src="" alt="'avatar'" class="avatar student">
     <a href="#" class="button">{{ this.message.text }}</a>
-              <br>
-  </div>
+    <br>
+  </cv-structured-list-item>
 </template>
 
 <script lang="ts">
@@ -41,6 +41,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
   position: relative
   overflow: hidden
   z-index: 1
+
   &:after
     content: ''
     position: absolute
@@ -50,8 +51,10 @@ export default class LogEventComponent extends NotificationMixinComponent {
     height: 100%
     background-color: gray
     z-index: -2
+
   &:hover
     color: #fff
+
     &:before
       width: 100%
 
