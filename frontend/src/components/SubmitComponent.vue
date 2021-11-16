@@ -16,9 +16,12 @@
         light>
       </cv-text-area>
       <cv-dropdown
-        v-if="!isStaff && languageList"
-        :items="languageList"
+        v-model="submitEdit.de_id"
+        :items="deOptions"
         placeholder="Выберите язык программирования">
+        <cv-dropdown-item v-for="de in deOptions" :key="de.value" :value="de.value">
+          {{ de.name }}
+        </cv-dropdown-item>
       </cv-dropdown>
       <cv-button
         v-if="!isStaff"
@@ -49,10 +52,12 @@
 <script lang="ts">
 import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import SubmitModel from '@/models/SubmitModel';
-import problemStore from '@/store/modules/problem'
-import submitStore from '@/store/modules/submit'
+import ProblemModel from '@/models/ProblemModel';
+import problemStore from '@/store/modules/problem';
+import submitStore from '@/store/modules/submit';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import _ from 'lodash';
+import { de_options } from '@/utils/consts';
 import { Component, Prop, Watch } from 'vue-property-decorator';
 
 
@@ -60,7 +65,6 @@ import { Component, Prop, Watch } from 'vue-property-decorator';
 export default class SubmitComponent extends NotificationMixinComponent {
   @Prop({ required: true }) submitId!: number;
   @Prop({ required: true }) isStaff!: boolean;
-  @Prop({ required: true }) languageList!: Array<string>;
   submit: SubmitModel | null = null;
   submitStore = submitStore;
   problemStore = problemStore;
@@ -73,7 +77,20 @@ export default class SubmitComponent extends NotificationMixinComponent {
   }
 
   get canSubmit(): boolean {
-    return this.submitEdit.content?.length !== 0 && this.isChanged;
+    return this.submitEdit.content?.length !== 0
+      && this.isChanged
+      && this.submitEdit.de_id.length !== 0;
+  }
+
+  get problem(): ProblemModel {
+    return this.problemStore.currentProblem as ProblemModel;
+  }
+
+
+  // TODO: workflow when already-made submit have de that is disabled
+  get deOptions() {
+    const options_on = this.problem.de_options.split(',')
+    return de_options.filter(option => options_on.includes(option.value));
   }
 
   get isNewSubmit(): boolean {
@@ -97,6 +114,8 @@ export default class SubmitComponent extends NotificationMixinComponent {
       this.submit = null;
     }
     this.submitEdit = (this.submit) ? { ...this.submit } : { ...this.submitStore.defaultSubmit };
+    if (this.submitEdit.de_id === '' && this.deOptions.length === 1)
+      this.submitEdit.de_id = this.deOptions[0].value;
     this.loading = false;
   }
 

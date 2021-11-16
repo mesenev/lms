@@ -78,6 +78,7 @@ class Submit(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submits', null=False)
     content = models.TextField()
     status = models.CharField(max_length=2, choices=SUBMIT_STATUS, default='NP')
+    de_id = models.CharField(max_length=5)
 
     def __str__(self):
         return self.status

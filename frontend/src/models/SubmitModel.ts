@@ -6,4 +6,5 @@ export default interface SubmitModel {
   created_at: string;
   status: string;
   content?: string;
+  de_id: string;
 }

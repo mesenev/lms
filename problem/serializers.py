@@ -23,7 +23,7 @@ class SubmitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submit
-        fields = ['id', 'problem', 'student', 'content', 'status', ]
+        fields = ['id', 'problem', 'student', 'content', 'status', 'de_id']
 
 
 class SubmitListSerializer(serializers.ModelSerializer):
