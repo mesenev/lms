@@ -1,8 +1,9 @@
 <template>
-  <cv-structured-list-item class="author-message">
-    <img src="" alt="'avatar'" class="avatar student">
-    <a href="#" class="button">{{ this.message.text }}</a>
-    <br>
+  <cv-structured-list-item style="border: none;">
+    <img src="" alt="'avatar'" class="avatar student" style="float: left">
+    <div class="one-history-point">
+       {{message.text}}
+    </div>
   </cv-structured-list-item>
 </template>
 
@@ -31,33 +32,6 @@ export default class LogEventComponent extends NotificationMixinComponent {
 
 <style scoped lang="stylus">
 
-.button
-  display: inline-block
-  padding: 0.75em
-  margin 0.00002em
-  color: #fff
-  font-size: 0.8em
-  text-decoration none
-  position: relative
-  overflow: hidden
-  z-index: 1
-
-  &:after
-    content: ''
-    position: absolute
-    bottom: 0
-    left: 0
-    width: 100%
-    height: 100%
-    background-color: gray
-    z-index: -2
-
-  &:hover
-    color: #fff
-
-    &:before
-      width: 100%
-
 
 .avatar
   width 2em
@@ -69,4 +43,18 @@ export default class LogEventComponent extends NotificationMixinComponent {
 .stuff
   margin-left 1em
 
+.avatar
+  margin 0
+.student
+  margin 0
+
+.one-history-point
+  word-break break-after
+  font-size 1em
+  padding 5px
+  margin 20px
+  background white
+  border 1px solid rgba(0, 0, 0, 0.3)
+  border-radius 5px
+  min-height 40px
 </style>

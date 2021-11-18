@@ -35,10 +35,13 @@
             :submitId="submitId"
             class="solution-container--submit-component"/>
           <cv-loading v-else small/>
+
           <div class="solution-container--submit-list">
+            <div class="scrollable_solution_list">
             <cv-structured-list
               v-if="submits" class="submit-list"
-              condensed selectable @change="changeCurrentSubmit">
+              condensed selectable @change="changeCurrentSubmit"
+              >
               <template slot="items">
                 <log-event-component
                   v-for="message in messages"
@@ -53,6 +56,7 @@
               <h2>Oops</h2>
               <p>Пока ничего не отправлено :(</p>
             </cv-tile>
+            </div>
             <cv-text-input class="searchbar"
                            v-model.trim="commentary"
                            :disabled="false"
@@ -152,7 +156,25 @@ export default class ProblemView extends Vue {
   }
 
 
-  messages: Array<LogEventModel> = [];
+  messages: Array<LogEventModel> = [
+    {
+        "type": "message", "text": "Решение отправлено на проверку", "sender": this.user, "lessonId": 1,
+        "courseId": this.courseId, "id": 0, "name": "sdfdsfsf",
+      },
+    {
+        "type": "message", "text": "Вердикт: ОК", "sender": this.user, "lessonId": 1,
+        "courseId": this.courseId, "id": 1, "name": "sdfdsfsf",
+      },
+    {
+        "type": "message", "text": "Статус изменен: Зачтено", "sender": this.user, "lessonId": 1,
+        "courseId": this.courseId, "id": 2, "name": "sdfdsfsf",
+      },
+
+      {
+        "type": "message", "text": "Выставлен балл: 33.0", "sender": this.user, "lessonId": 1,
+        "courseId": this.courseId, "id": 3, "name": "sdfdsfsf",
+      }
+  ];
 
   checkedSubmit(submit: SubmitModel): boolean {
     if (!this.submitIdProp)
@@ -189,13 +211,6 @@ export default class ProblemView extends Vue {
       this.studentId = this.submits?.find(x => x.id === this.submitId)?.student as number;
     if (!this.isStaff) {
       this.studentId = Number(this.userStore.user.id);
-    }
-    for (let i = 0; i < 20; i++) {
-      const newMsg = {
-        "type": "message", "text": "test", "sender": this.user, "lessonId": 1,
-        "courseId": this.courseId, "id": i, "name": "sdfdsfsf",
-      };
-      this.messages.push(newMsg);
     }
     this.messages = [...this.messages];
   }
@@ -296,7 +311,7 @@ export default class ProblemView extends Vue {
   list-style-type none
   border-radius 10px
   border-color black
-  background-color #609ab6
+
 
 .student-list
   margin-left 1rem
@@ -429,4 +444,7 @@ export default class ProblemView extends Vue {
 .answer
   text-align right
 
+.scrollable_solution_list
+  max-height 390px
+  overflow scroll
 </style>
