@@ -1,5 +1,6 @@
 <template>
-  <cv-structured-list-item style="border: none">
+  <cv-structured-list-item style="border: none;">
+    <img src="" alt="'avatar'" class="avatar student" style="float: left">
     <div class="one-history-point">
        {{message.text}}
     </div>
@@ -41,6 +42,11 @@ export default class LogEventComponent extends NotificationMixinComponent {
 
 .stuff
   margin-left 1em
+
+.avatar
+  margin 0
+.student
+  margin 0
 
 .one-history-point
   word-break break-after
