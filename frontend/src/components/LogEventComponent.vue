@@ -2,7 +2,7 @@
   <cv-structured-list-item style="border: none;">
     <img src="" alt="'avatar'" class="avatar student" style="float: left">
     <div class="one-history-point">
-       {{message.text}}
+      {{ message.text }}
     </div>
   </cv-structured-list-item>
 </template>

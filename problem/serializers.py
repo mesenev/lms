@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from lesson.models import Lesson
-from problem.models import Problem, Submit, ProblemStats
+from problem.models import Problem, Submit, ProblemStats, LogEvent
 from users.serializers import DefaultUserSerializer
 
 
@@ -45,6 +45,12 @@ class ProblemStatsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProblemStats
         fields = ('green', 'red', 'yellow')
+
+
+class LogEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LogEvent
+        fields = '__all__'
 
 
 class ProblemListSerializer(serializers.ModelSerializer):

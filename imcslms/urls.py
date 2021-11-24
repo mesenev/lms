@@ -7,7 +7,7 @@ from rest_framework.routers import DefaultRouter
 
 from course.views import CourseViewSet, LinkViewSet, ScheduleViewSet
 from lesson.views import LessonViewSet, MaterialViewSet
-from problem.views import ProblemViewSet, SubmitViewSet
+from problem.views import ProblemViewSet, SubmitViewSet, LogEventViewSet
 from rating.views import LessonProgressViewSet, CourseProgressViewSet, AttendanceViewSet
 from users.views import index, UsersViewSet
 
@@ -23,6 +23,7 @@ router.register('lessonprogress', LessonProgressViewSet, basename='lessonprogres
 router.register('courseprogress', CourseProgressViewSet, basename='courseprogress')
 router.register('courselink', LinkViewSet, basename='courselink')
 router.register('attendance', AttendanceViewSet, basename='attendance')
+router.register('logevents', LogEventViewSet, basename='logevent')
 
 urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

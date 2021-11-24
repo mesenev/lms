@@ -88,9 +88,7 @@ class Submit(models.Model):
 
 
 class CatsSubmit(models.Model):
-    submit = models.ForeignKey(
-        Submit, related_name='cats_submit', on_delete=models.DO_NOTHING, null=True
-    )
+    submit = models.ForeignKey(Submit, related_name='cats_submit', on_delete=models.DO_NOTHING, null=True)
     data = models.JSONField(null=False)
     id_to_check = models.IntegerField(null=True, default=None)
     is_sent = models.BooleanField(default=False, null=False)
@@ -98,6 +96,25 @@ class CatsSubmit(models.Model):
     testing_result = models.JSONField(null=True)
 
 
+class LogEvent(models.Model):
+    TYPE_MESSAGE = 'message'
+    TYPE_CATS = 'cats_answer'
+    TYPE_STATUS_CHANGE = 'status_change'
+    TYPE_SUBMIT = 'submit'
+    LOG_EVENT_TYPES = [
+        (TYPE_MESSAGE, 'Message to display'),
+        (TYPE_CATS, 'Check answer from cats'),
+        (TYPE_STATUS_CHANGE, 'Submit status changed to'),
+        (TYPE_SUBMIT, 'Submit created'),
+    ]
+    problem = models.ForeignKey(Problem, related_name='log_events', on_delete=models.CASCADE, null=False)
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='log_events', null=False)
+    data = models.JSONField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    type = models.CharField(max_length=16, choices=LOG_EVENT_TYPES)
+
+
 admin.site.register(Problem)
 admin.site.register(Submit)
 admin.site.register(CatsSubmit)
+admin.site.register(LogEvent)

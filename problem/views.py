@@ -1,6 +1,7 @@
 import django_filters
 from django.db import models
 from django.db.models import Q, Prefetch
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, exceptions
 from rest_framework.decorators import api_view, renderer_classes, action
 from rest_framework.pagination import PageNumberPagination
@@ -11,10 +12,11 @@ from rest_framework.response import Response
 from cathie.cats_api import cats_get_problem_description_by_url
 from course.models import Course
 from lesson.models import Lesson
-from problem.models import Problem, Submit, CatsSubmit, ProblemStats
-from problem.serializers import ProblemSerializer, SubmitSerializer, SubmitListSerializer, ProblemListSerializer
+from problem.models import Problem, Submit, CatsSubmit, ProblemStats, LogEvent
+from problem.serializers import ProblemSerializer, SubmitSerializer, SubmitListSerializer, ProblemListSerializer, \
+    LogEventSerializer
 from users.models import User
-from users.permissions import CourseStaffOrReadOnlyForStudents, object_to_course
+from users.permissions import CourseStaffOrReadOnlyForStudents, object_to_course, CourseStaffOrAuthorReadOnly
 
 
 class ProblemViewSet(viewsets.ModelViewSet):
@@ -93,7 +95,7 @@ class SubmitFilter(django_filters.FilterSet):
         return queryset
 
 
-class SubmitViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
+class SubmitViewSet(viewsets.ModelViewSet):
     permission_classes = [CourseStaffOrReadOnlyForStudents]
     serializer_class = SubmitSerializer
     queryset = Submit.objects.prefetch_related('cats_submit').all()
@@ -198,6 +200,31 @@ class SubmitViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
         cats.submit = model
         cats.save()
         return
+
+
+class LogEventFilter(django_filters.FilterSet):
+    problem = django_filters.ModelChoiceFilter(label='problem', queryset=Problem.objects.all())
+    student = django_filters.ModelChoiceFilter(label='student', queryset=User.objects.all())
+
+    class Meta:
+        model = LogEvent
+        fields = ['student', 'problem']
+
+    def problem_filter(self, queryset, name, value):
+        queryset = queryset.filter(problem=value)
+        return queryset
+
+    def student_filter(self, queryset, name, value):
+        queryset = queryset.filter(student=value)
+        return queryset
+
+
+class LogEventViewSet(viewsets.ModelViewSet):
+    permission_classes = [CourseStaffOrAuthorReadOnly]
+    queryset = LogEvent.objects.all()
+    serializer_class = LogEventSerializer
+    filterset_class = LogEventFilter
+    filter_backends = (DjangoFilterBackend,)
 
 
 @api_view(['POST'])

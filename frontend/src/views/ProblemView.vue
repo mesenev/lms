@@ -37,17 +37,17 @@
           <cv-loading v-else small/>
 
           <div class="solution-container--submit-list">
-            <div class="scrollable_solution_list">
-            <cv-structured-list
-              v-if="submits" class="submit-list"
-              condensed selectable @change="changeCurrentSubmit"
+            <div class="scrollable-solution-list">
+              <cv-structured-list
+                v-if="submits" class="submit-list"
+                condensed selectable @change="changeCurrentSubmit"
               >
-              <template slot="items">
-                <log-event-component
-                  v-for="message in messages"
-                  :key="message.id"
-                  :message="message"
-                >
+                <template slot="items">
+                  <log-event-component
+                    v-for="message in messages"
+                    :key="message.id"
+                    :message="message"
+                  >
 
                 </log-event-component>
               </template>
@@ -444,7 +444,8 @@ export default class ProblemView extends Vue {
 .answer
   text-align right
 
-.scrollable_solution_list
+
+.scrollable-solution-list
   max-height 390px
   overflow scroll
 </style>

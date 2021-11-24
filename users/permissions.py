@@ -21,6 +21,10 @@ def object_to_course(obj):
         course = obj.lesson.course
     if hasattr(obj, 'course'):
         course = obj.course
+    if hasattr(obj, 'lesson'):
+        course = obj.lesson.course
+    if hasattr(obj, 'problem'):
+        course = obj.problem.lesson.course
     if not course:
         raise Exception
     return course
