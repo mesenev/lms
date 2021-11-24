@@ -35,39 +35,8 @@
             :submitId="submitId"
             class="solution-container--submit-component"/>
           <cv-loading v-else small/>
-
           <div class="solution-container--submit-list">
-            <div class="scrollable-solution-list">
-              <cv-structured-list
-                v-if="submits" class="submit-list"
-                condensed selectable @change="changeCurrentSubmit"
-              >
-                <template slot="items">
-                  <log-event-component
-                    v-for="message in messages"
-                    :key="message.id"
-                    :message="message"
-                  >
-
-                </log-event-component>
-              </template>
-            </cv-structured-list>
-            <cv-tile v-else class="submit-list no-submits" kind="standard">
-              <h2>Oops</h2>
-              <p>Пока ничего не отправлено :(</p>
-            </cv-tile>
-            </div>
-            <cv-text-input class="searchbar"
-                           v-model.trim="commentary"
-                           :disabled="false"
-                           :label="''"
-                           :light="light"
-                           :password-visible="false"
-                           :placeholder="'Введите сообщение'"
-                           :type="''"
-                           :value="''"
-                           v-on:keydown.enter="messageForButton">
-            </cv-text-input>
+            <log-event-component :problemId="123" :studentId="123" class="log--event--component"/>
           </div>
         </div>
       </cv-column>
@@ -140,7 +109,6 @@ export default class ProblemView extends Vue {
   private displayProblem = false;
   private displayCatsPackage = false;
   commentary = '';
-  light = false;
 
   get problem() {
     return this.problemStore.currentProblem;
@@ -155,26 +123,6 @@ export default class ProblemView extends Vue {
     return this.submitStore.submits;
   }
 
-
-  messages: Array<LogEventModel> = [
-    {
-        "type": "message", "text": "Решение отправлено на проверку", "sender": this.user, "lessonId": 1,
-        "courseId": this.courseId, "id": 0, "name": "sdfdsfsf",
-      },
-    {
-        "type": "message", "text": "Вердикт: ОК", "sender": this.user, "lessonId": 1,
-        "courseId": this.courseId, "id": 1, "name": "sdfdsfsf",
-      },
-    {
-        "type": "message", "text": "Статус изменен: Зачтено", "sender": this.user, "lessonId": 1,
-        "courseId": this.courseId, "id": 2, "name": "sdfdsfsf",
-      },
-
-      {
-        "type": "message", "text": "Выставлен балл: 33.0", "sender": this.user, "lessonId": 1,
-        "courseId": this.courseId, "id": 3, "name": "sdfdsfsf",
-      }
-  ];
 
   checkedSubmit(submit: SubmitModel): boolean {
     if (!this.submitIdProp)
@@ -212,17 +160,9 @@ export default class ProblemView extends Vue {
     if (!this.isStaff) {
       this.studentId = Number(this.userStore.user.id);
     }
-    this.messages = [...this.messages];
   }
 
   async mounted() {
-    const submits = [...document.getElementsByClassName("submit-list")];
-    submits.forEach(element => element.scrollTop = element.scrollHeight);
-    const userMessages = [...document.getElementsByTagName("img")];
-    userMessages.forEach(
-      element => element.classList.contains("avatar") ? element.src = this.avatarUrl : 0,
-    );
-
     window.addEventListener("keydown", event => {
       if (event.key == 'Escape') {
         this.visionCatsPackage();
@@ -248,15 +188,6 @@ export default class ProblemView extends Vue {
     this.displayProblem = true;
   }
 
-  messageForButton() {
-    const newMessage: LogEventModel = {
-      "name": "logEvent", "type": "message", "text": this.commentary,
-      sender: this.user, id: this.messages.length + 2,
-      lessonId: this.courseId, courseId: this.courseId,
-    };
-    this.messages.push(newMessage);
-    this.commentary = '';
-  }
 
   hideProblem() {
     this.displayProblem = false;
@@ -327,11 +258,6 @@ export default class ProblemView extends Vue {
 .problem-solution
   height 100%
 
-.no-submits
-  width 100%
-  padding 0
-  margin 0
-  background-color inherit
 
 .accepted, .rejected
   transition ease-in-out 0.25s
@@ -376,15 +302,6 @@ export default class ProblemView extends Vue {
 .show-problem-link:hover
   cursor pointer
 
-.searchbar
-  position relative
-  height 2em
-  left 0
-  width 100%
-  margin-left auto
-  margin-right auto
-  text-align center
-
 .message
   width auto
   pagging 100px
@@ -418,11 +335,6 @@ export default class ProblemView extends Vue {
     &:before
       width: 100%
 
-
-.bx--list
-  list-style-type none
-
-
 .avatar
   width 2em
   margin-bottom 0.3em
@@ -433,19 +345,7 @@ export default class ProblemView extends Vue {
 .stuff
   margin-left 1em
 
-
-.bx--tile.submit-list
-  border-left 1em
-  padding-left 1em
-  margin-left 1em
-  box-shadow -1em black
-
-
 .answer
   text-align right
 
-
-.scrollable-solution-list
-  max-height 390px
-  overflow scroll
 </style>

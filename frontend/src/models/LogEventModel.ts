@@ -7,6 +7,4 @@ export default interface LogEventModel extends BaseModel {
   text: string;
   sender: UserModel;
   submitId?: number;
-  lessonId: number;
-  courseId: number;
 }
