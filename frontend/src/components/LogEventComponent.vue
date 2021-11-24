@@ -2,13 +2,17 @@
   <div class="scrollable-solution-list">
     <cv-structured-list
       class="submit-list"
-      condensed selectable @change="changeCurrentSubmit">
+      condensed @change="changeCurrentSubmit">
       <template slot="headings"></template>
       <template slot="items">
         <cv-structured-list-item
-          v-for="message in messages" :key="message.id"
-          style="border: none;">
-          <img alt="'avatar'" class="avatar student" src="" style="float: left">
+          v-for="message in messages" :key="message.id" class="list--item" style="border: none;"
+        >
+          <img
+            alt='1'
+            class="avatar student"
+            src="https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png"
+            style="float: left">
           <div class="one-history-point"> {{ message.text }}</div>
         </cv-structured-list-item>
       </template>
@@ -100,6 +104,11 @@ export default class LogEventComponent extends NotificationMixinComponent {
   width 2em
   margin-bottom 0.3em
 
+.list--item
+  cursor: pointer
+
+  &:hover
+    background-color: #e5e5e5;
 
 .stuff
   margin-left 1em
