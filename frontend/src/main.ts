@@ -10,7 +10,7 @@ import VueClipboard from 'vue-clipboard2';
 
 Vue.use(VueClipboard);
 Vue.use(CarbonComponentsVue);
-VueClipboard.config.autoSetContainer = true
+VueClipboard.config.autoSetContainer = true;
 
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 axios.defaults.xsrfCookieName = 'csrftoken';

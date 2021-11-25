@@ -22,6 +22,7 @@ class UserModule extends VuexModule {
 
   // storage for all fetched users associated with courseId
   currentCourseStudents: Dictionary<UserModel> = {};
+  cachedStudents: Dictionary<UserModel> = {};
 
   @Mutation fetchStudentsMutation(data: Dictionary<UserModel>) {
     this.currentCourseStudents = data;
@@ -49,18 +50,23 @@ class UserModule extends VuexModule {
     await axios.get('/api/lessonprogress/').then(response => data = response)
       .catch(error => {
         console.log(error);
-      })
+      });
     return data.data as Array<UserProgress>;
   }
 
   @Action
   async fetchUserById(userId: number): Promise<UserModel> {
     let data = {data: {}}
+    if (userId in this.currentCourseStudents)
+      return this.currentCourseStudents[userId];
+    if (userId in this.cachedStudents)
+      return this.cachedStudents[userId];
     await axios.get(`/api/users/${userId}/`).then(response => data = response)
       .catch(error => {
         console.log(error);
-      })
-    return data.data as UserModel;
+      });
+    this.cachedStudents[userId] = data.data as UserModel;
+    return this.cachedStudents[userId];
   }
 }
 
