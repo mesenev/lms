@@ -4,7 +4,7 @@ import { Action, getModule, Module, VuexModule } from 'vuex-module-decorators'
 import LogEventModel from "@/models/LogEventModel";
 import * as types from "@/models/LogEventModel";
 
-@Module({ namespaced: true, name: 'user', store, dynamic: true })
+@Module({ namespaced: true, name: 'logevent', store, dynamic: true })
 class LogEvent extends VuexModule {
 
 
