@@ -35,7 +35,6 @@
 
 <script lang="ts">
 import LogEventModel from "@/models/LogEventModel";
-import UserModel from '@/models/UserModel';
 import * as logEventTypes from '@/models/LogEventModel';
 import userStore from '@/store/modules/user';
 import logEventStore from '@/store/modules/logEvent';
@@ -54,17 +53,17 @@ export default class LogEventComponent extends NotificationMixinComponent {
   commentary = '';
   events: Array<LogEventModel> = [];
 
-
-
   async created() {
+    await this.fetchEvents();
+  }
+
+
+  async fetchEvents() {
+    this.loading = true;
     this.events = await this.logEventStore.fetchLogEventsByProblemAndStudentIds(
       this.problemId, this.studentId
     );
     this.loading = false;
-  }
-
-  get user(): UserModel {
-    return this.userStore.user;
   }
 
   async userThumbnailById(userId: number): Promise<string> {
@@ -90,10 +89,10 @@ export default class LogEventComponent extends NotificationMixinComponent {
     const newMessage: LogEventModel = {
       ...this.logEventStore.getNewLogEventMessage,
       problem: this.problemId, student: this.studentId,
-      data: {author: this.userStore.user.id, message: this.commentary }
+      data: { author: this.userStore.user.id, message: this.commentary }
     };
     const answer = await this.logEventStore.createLogEvent(newMessage);
-    if( answer !== undefined)
+    if (answer !== undefined)
       this.events.push(answer);
     this.commentary = '';
     this.messageIsSending = false;

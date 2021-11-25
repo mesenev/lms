@@ -1,6 +1,3 @@
-import { BaseModel } from '@/models/BaseModel';
-import UserModel from "@/models/UserModel";
-
 export const TYPE_CATS = 'cats';
 export const TYPE_SUBMIT = 'submit';
 export const TYPE_MESSAGE = 'message';

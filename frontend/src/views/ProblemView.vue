@@ -36,16 +36,15 @@
             class="solution-container--submit-component"/>
           <cv-loading v-else small/>
           <div class="solution-container--submit-list">
-            <log-event-component :problemId="123" :studentId="123" class="log--event--component"/>
+            <log-event-component
+              :problemId="problem.id" :studentId="studentId" class="log--event--component"/>
           </div>
         </div>
       </cv-column>
       <cv-column v-if="isStaff && !displayCatsPackage">
         <div class="item">
           <cv-structured-list class="student-list" condensed selectable @change="changeStudent">
-            <template slot="headings">
-              <cv-structured-list-heading class="table-title">Ученики</cv-structured-list-heading>
-            </template>
+            <template slot="headings"/>
             <template slot="items">
               <cv-structured-list-item
                 v-for="student in studentIds"
@@ -81,7 +80,6 @@ import problemStore from '@/store/modules/problem';
 import submitStore from '@/store/modules/submit';
 import userStore from '@/store/modules/user';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import LogEventModel from "@/models/LogEventModel";
 import CatsPackageWindow from "@/components/CatsPackageWindow.vue";
 
 
@@ -108,7 +106,6 @@ export default class ProblemView extends Vue {
 
   private displayProblem = false;
   private displayCatsPackage = false;
-  commentary = '';
 
   get problem() {
     return this.problemStore.currentProblem;
