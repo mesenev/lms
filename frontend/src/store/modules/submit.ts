@@ -31,8 +31,7 @@ class SubmitModule extends VuexModule {
   }
 
   @Action
-  async fetchSubmitsByProblemAndUser(
-    payload: { problemId: number; userId: number },
+  async fetchSubmitsByProblemAndUser( payload: { problemId: number; userId: number },
   ): Promise<Array<SubmitModel>> {
     let answer = {};
     await axios.get('/api/submit/', {

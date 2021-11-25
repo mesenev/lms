@@ -1,32 +1,34 @@
 <template>
   <div class="scrollable-solution-list">
+    <cv-loading v-if="loading"/>
     <cv-structured-list
+      v-else
       class="submit-list"
-      condensed @change="changeCurrentSubmit">
+      condensed>
       <template slot="headings"></template>
       <template slot="items">
         <cv-structured-list-item
-          v-for="message in messages" :key="message.id" class="list--item" style="border: none;"
-        >
+          v-for="event in events" :key="event.id" class="list--item"
+          v-on:click="elementClickHandler(event)">
           <img
             alt='1'
-            class="avatar student"
-            src="https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png"
-            style="float: left">
+            class="student--avatar"
+            :src="userThumbnailById(event.student)">
           <div class="one-history-point"> {{ message.text }}</div>
         </cv-structured-list-item>
       </template>
     </cv-structured-list>
-    <cv-text-input v-model.trim="commentary"
-                   :disabled="false"
-                   :label="''"
-                   :light="false"
-                   :password-visible="false"
-                   :placeholder="'Введите сообщение'"
-                   :type="''"
-                   :value="''"
-                   class="searchbar"
-                   v-on:keydown.enter="messageForButton">
+    <cv-text-input
+      v-model.trim="commentary"
+      :disabled="false"
+      :label="''"
+      :light="false"
+      :password-visible="false"
+      :placeholder="'Введите сообщение'"
+      :type="''"
+      :value="''"
+      class="searchbar"
+      v-on:keydown.enter="createMessageHandler">
     </cv-text-input>
   </div>
 </template>
@@ -34,61 +36,67 @@
 <script lang="ts">
 import LogEventModel from "@/models/LogEventModel";
 import UserModel from '@/models/UserModel';
+import * as logEventTypes from '@/models/LogEventModel';
 import userStore from '@/store/modules/user';
+import logEventStore from '@/store/modules/logEvent';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import { Component, Prop } from "vue-property-decorator";
 
 
 @Component({ components: {} })
 export default class LogEventComponent extends NotificationMixinComponent {
-  @Prop({ required: true }) studentId!: number;
   @Prop({ required: true }) problemId!: number;
+  @Prop({ required: true }) studentId!: number;
   userStore = userStore;
+  logEventStore = logEventStore;
+  loading = true;
+  messageIsSending = false;
   commentary = '';
-  messages: Array<LogEventModel> = [
-    {
-      "type": "message", "text": "Решение отправлено на проверку", "sender": this.user,
-      "id": 0, "name": "sdfdsfsf",
-    },
-    {
-      "type": "message", "text": "Вердикт: ОК", "sender": this.user,
-      "id": 1, "name": "sdfdsfsf",
-    },
-    {
-      "type": "message", "text": "Статус изменен: Зачтено", "sender": this.user,
-      "id": 2, "name": "sdfdsfsf",
-    },
-    {
-      "type": "message", "text": "Выставлен балл: 33.0", "sender": this.user,
-      "id": 3, "name": "sdfdsfsf",
-    },
-  ];
+  events: Array<LogEventModel> = [];
+
+
+
+  async created() {
+    this.events = await this.logEventStore.fetchLogEventsByProblemAndStudentIds(
+      this.problemId, this.studentId
+    );
+    this.loading = false;
+  }
 
   get user(): UserModel {
     return this.userStore.user;
   }
 
-  changeCurrentSubmit() {
-    //
+  async userThumbnailById(userId: number): Promise<string> {
+    const user = await this.userStore.fetchUserById(Number(userId));
+    return user.thumbnail;
+  }
+
+  elementClickHandler(element: LogEventModel) {
+    if (logEventTypes.TYPE_MESSAGE === element.type) {
+      console.log(element.data.message);
+    }
+    console.log('clicked on', element)
+    return 0;
   }
 
   async mounted() {
     const submits = [...document.getElementsByClassName("submit-list")];
     submits.forEach(element => element.scrollTop = element.scrollHeight);
-    const userMessages = [...document.getElementsByTagName("img")];
-    userMessages.forEach(
-      element => element.classList.contains("avatar") ? element.src = this.avatarUrl : 0,
-    );
-
   }
 
-  messageForButton() {
+  async createMessageHandler() {
+    this.messageIsSending = true;
     const newMessage: LogEventModel = {
-      "name": "logEvent", "type": "message", "text": this.commentary,
-      sender: this.user, id: this.messages.length + 2,
+      ...this.logEventStore.getNewLogEventMessage,
+      problem: this.problemId, student: this.studentId,
+      data: {author: this.userStore.user.id, message: this.commentary }
     };
-    this.messages.push(newMessage);
+    const answer = await this.logEventStore.createLogEvent(newMessage);
+    if( answer !== undefined)
+      this.events.push(answer);
     this.commentary = '';
+    this.messageIsSending = false;
   }
 }
 
@@ -105,20 +113,20 @@ export default class LogEventComponent extends NotificationMixinComponent {
   margin-bottom 0.3em
 
 .list--item
-  cursor: pointer
+  border none
+  cursor pointer
 
   &:hover
-    background-color: #e5e5e5;
+    background-color #e5e5e5
 
 .stuff
   margin-left 1em
 
-.avatar
-  margin 0
-
-.student
+.student--avatar
   margin 0
   margin-right 1em
+  float left
+
 
 .searchbar
   position relative
