@@ -157,6 +157,9 @@ export default class ProblemView extends Vue {
     if (!this.isStaff) {
       this.studentId = Number(this.userStore.user.id);
     }
+    if (isNaN(this.studentId)) {
+      this.studentId = this.userStore.user.id;
+    }
   }
 
   async mounted() {

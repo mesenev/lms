@@ -7,7 +7,7 @@ export default interface LogEventModel  {
   id: number;
   problem: number;
   student: number;
-  data: { message?: string; submitId?: number; author: number };
+  data: { message?: string; submitId?: number; author: number; thumbnail?: string };
   created_at?: string;
   type: string;
 }

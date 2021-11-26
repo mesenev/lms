@@ -28,6 +28,10 @@ class UserModule extends VuexModule {
     this.currentCourseStudents = data;
   }
 
+  @Mutation fetchCachedStudents(data: Dictionary<UserModel>) {
+    this.cachedStudents = data;
+  }
+
   @Mutation receiveUser(user: object) {
     this.user = user as UserModel;
   }
@@ -56,7 +60,7 @@ class UserModule extends VuexModule {
 
   @Action
   async fetchUserById(userId: number): Promise<UserModel> {
-    let data = {data: {}}
+    let data = { data: {} }
     if (userId in this.currentCourseStudents)
       return this.currentCourseStudents[userId];
     if (userId in this.cachedStudents)
@@ -65,8 +69,9 @@ class UserModule extends VuexModule {
       .catch(error => {
         console.log(error);
       });
-    this.cachedStudents[userId] = data.data as UserModel;
-    return this.cachedStudents[userId];
+    this.fetchCachedStudents({ ...this.cachedStudents, [userId]: data.data as UserModel });
+
+    return data.data as UserModel;
   }
 }
 

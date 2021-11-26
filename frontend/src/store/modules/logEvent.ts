@@ -15,14 +15,11 @@ class LogEvent extends VuexModule {
   }
 
   @Action
-  async fetchLogEventsByProblemAndStudentIds(problemId: number, studentId: number):
+  async fetchLogEventsByProblemAndStudentIds(data: { problem: number; student: number }):
     Promise<Array<LogEventModel>> {
     let answer = {};
-    await axios.get('/api/logevent/', {
-      params: {
-        problem: problemId,
-        student: studentId,
-      },
+    await axios.get('/api/logevents/', {
+      params: data,
     }).then(response => {
       answer = response.data;
     })
@@ -35,9 +32,9 @@ class LogEvent extends VuexModule {
   @Action
   async createLogEvent(event: LogEventModel): Promise<LogEventModel|undefined> {
     let answer: { id?: number } = {};
-    delete (event as {id?: number}).id;
-    await axios.post('/api/logevent/', event).then(
-      response => answer = response.data as LogEventModel
+    delete (event as { id?: number }).id;
+    await axios.post('/api/logevents/', event).then(
+      response => answer = response.data as LogEventModel,
     ).catch(response => console.log('error creating event', response))
     if (answer.id !== undefined)
       return answer as LogEventModel;
