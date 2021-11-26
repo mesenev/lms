@@ -54,7 +54,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
   events: Array<LogEventModel> = [];
 
   async created() {
-    this.userStore.fetchUserById(1);
+    this.userStore.fetchUserById(this.studentId);
     await this.fetchEvents();
   }
 
