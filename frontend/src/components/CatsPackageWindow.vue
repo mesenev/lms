@@ -22,7 +22,7 @@ export default class CatsPackageWindow extends Vue {
     // const уберем когда сюда что то поедет
     const catsData: {[key: string]: string} = {
       'Вердикт': 'Ошибка оформления кода. Подробнее ->',
-      'Лог компиляции': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.',
+      'Лог компиляции': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.',
       'Время/Память': '100/100'
     }
     return catsData;
@@ -49,6 +49,7 @@ export default class CatsPackageWindow extends Vue {
 
 
   .cats-package-window
+
     height 100%
     background white
 
