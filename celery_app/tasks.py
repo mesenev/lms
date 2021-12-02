@@ -30,7 +30,7 @@ def update_submit_status():
 
         cats_submit.submit.status = new_status
         cats_submit.submit.updated_by = None
-        cats_submit.submit.save()
+        cats_submit.submit.save(update_fields=['status', 'updated_by'])
         cats_submit.testing_result = data
         cats_submit.save()
 

@@ -2,7 +2,7 @@ import django_filters
 from django.db import models
 from django.db.models import Q, Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, exceptions
+from rest_framework import viewsets, exceptions, status
 from rest_framework.decorators import api_view, renderer_classes, action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.renderers import JSONRenderer
@@ -206,7 +206,7 @@ class SubmitViewSet(viewsets.ModelViewSet):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.initial_data["updated_by"] = request.user
+        serializer.initial_data["updated_by"] = request.user.id
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
@@ -241,6 +241,14 @@ class LogEventViewSet(viewsets.ModelViewSet):
     serializer_class = LogEventSerializer
     filterset_class = LogEventFilter
     filter_backends = (DjangoFilterBackend,)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.initial_data['author'] = request.user.id
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 @api_view(['POST'])

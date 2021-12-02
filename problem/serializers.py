@@ -9,13 +9,18 @@ class SubmitSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
     problem = serializers.PrimaryKeyRelatedField(queryset=Problem.objects.all())
     content = serializers.CharField()
+    updated_at = serializers.ReadOnlyField()
     status = serializers.ChoiceField(choices=Submit.SUBMIT_STATUS, default='NP', required=False)
     student = serializers.PrimaryKeyRelatedField(default=serializers.CurrentUserDefault(), read_only=True)
 
     def update(self, instance, validated_data):
-        instance.content = validated_data.get('content', instance.content)
+        update_fields = list(
+            x for x in ['status', 'updated_by'] if x in validated_data
+            and validated_data.get(x) != getattr(instance, x)
+        )
         instance.status = validated_data.get('status', instance.status)
-        instance.save()
+        instance.updated_by = validated_data.get('updated_by', instance.updated_by)
+        instance.save(update_fields=update_fields)
         return instance
 
     def create(self, validated_data):
@@ -23,7 +28,7 @@ class SubmitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submit
-        fields = ['id', 'problem', 'student', 'content', 'status', 'de_id']
+        fields = ['id', 'problem', 'student', 'content', 'status', 'de_id', 'updated_at', 'updated_by']
 
 
 class SubmitListSerializer(serializers.ModelSerializer):

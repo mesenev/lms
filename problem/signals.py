@@ -37,11 +37,12 @@ def create_log_event(sender, instance: Submit, created, **kwargs):
         log_event.data = dict(message=instance.id)
         log_event.save()
         return
-    if 'status' in kwargs['update_fields']:
+    if kwargs['update_fields'] and 'status' in kwargs['update_fields']:
         log_event.type = LogEvent.TYPE_STATUS_CHANGE
         log_event.submit = instance
         if log_event.submit.updated_by:
             log_event.author = log_event.submit.updated_by
+        log_event.data = dict(message=f'Статус изменён на {instance.status}')
         log_event.save()
         return
 
