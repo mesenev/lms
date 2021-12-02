@@ -93,7 +93,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
     await this.fetchThumbnailForEvent(this.events[0]);
     let previous = this.events[0];
     for (const event of this.events) {
-      if (previous.author !== event)
+      if (previous.author !== event.author)
         await this.fetchThumbnailForEvent(this.events[0]);
       previous = event;
     }
