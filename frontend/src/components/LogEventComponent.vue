@@ -1,23 +1,25 @@
 <template>
   <div class="scrollable-solution-list">
-    <cv-loading v-if="loading"/>
-    <cv-structured-list
-      v-else
-      class="submit-list"
-    >
-      <template slot="headings"></template>
-      <template slot="items">
-        <div
-          v-for="event in events" :key="event.id" class="list--item"
-          v-on:click="elementClickHandler(event)">
-          <img
-            :src="event.data.thumbnail"
-            class="student--avatar"
-            alt='avatar'>
-          <div class="one-history-point"> {{ event.data.message }}</div>
-        </div>
-      </template>
-    </cv-structured-list>
+    <div class="wrapper-for_controll-overflow-list">
+      <cv-loading v-if="loading"/>
+      <cv-structured-list
+        v-else
+        class="submit-list"
+      >
+        <template slot="headings"></template>
+        <template slot="items">
+          <div
+            v-for="event in events" :key="event.id" class="list--item"
+            v-on:click="elementClickHandler(event)">
+            <img
+              :src="event.data.thumbnail"
+              class="student--avatar"
+              alt='avatar'>
+            <div class="one-history-point"> {{ event.data.message }}</div>
+          </div>
+        </template>
+      </cv-structured-list>
+    </div>
     <cv-text-input
       v-model.trim="commentary"
       :disabled="false"
@@ -115,9 +117,6 @@ export default class LogEventComponent extends NotificationMixinComponent {
 
 <style scoped lang="stylus">
 
-.scrollable-solution-list
-  height 100%
-  overflow scroll
 
 .avatar
   width 2em
@@ -177,10 +176,12 @@ export default class LogEventComponent extends NotificationMixinComponent {
 .submit-list
   margin 0
   padding 0
-  height 24.55em
-  overflow-y scroll
   bottom 0
   list-style-type none
   border-radius 10px
   border-color black
+
+.wrapper-for_controll-overflow-list
+  height 24.55em
+  overflow scroll
 </style>
