@@ -72,8 +72,14 @@ export default class LogEventComponent extends NotificationMixinComponent {
     this.events = await this.logEventStore.fetchLogEventsByProblemAndStudentIds(
       { problem: this.problemId, student: this.studentId },
     );
-    for (const event of this.events) {
-      await this.fetchThumbnailForEvent(event);
+    if (this.events.length) {
+      await this.fetchThumbnailForEvent(this.events[0]);
+      let previous = this.events[0];
+      for (const event of this.events) {
+        if (previous.author !== event)
+          await this.fetchThumbnailForEvent(this.events[0]);
+        previous = event;
+      }
     }
     this.loading = false;
   }
