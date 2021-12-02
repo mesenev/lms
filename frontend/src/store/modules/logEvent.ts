@@ -30,7 +30,20 @@ class LogEvent extends VuexModule {
   }
 
   @Action
-  async createLogEvent(event: LogEventModel): Promise<LogEventModel|undefined> {
+  async deleteEvent(id: number) {
+    let answer = {};
+    await axios.delete(`/api/logevents/${id}/`).then(
+      response => {
+        answer = response.data;
+      },
+    ).catch(reason => {
+      //
+    });
+    return answer;
+  }
+
+  @Action
+  async createLogEvent(event: LogEventModel): Promise<LogEventModel | undefined> {
     let answer: { id?: number } = {};
     delete (event as { id?: number }).id;
     await axios.post('/api/logevents/', event).then(

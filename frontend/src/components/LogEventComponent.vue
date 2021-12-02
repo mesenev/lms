@@ -16,7 +16,15 @@
               :src="event.data.thumbnail"
               class="student--avatar"
               alt='avatar'>
-            <div class="one-history-point"> {{ event.data.message }}</div>
+            <div class="one-history-point">
+              <span>{{ event.data.message }}</span>
+              <component
+                :is="iconTrash"
+                v-if="logEventTypes.TYPE_MESSAGE === event.type"
+                class="event--delete"
+                @click="deleteEvent(event)"/>
+            </div>
+
           </div>
         </template>
       </cv-structured-list>
@@ -40,20 +48,23 @@
 import LogEventModel from "@/models/LogEventModel";
 import * as logEventTypes from '@/models/LogEventModel';
 import userStore from '@/store/modules/user';
+import TrashCan16 from '@carbon/icons-vue/es/trash-can/16';
 import logEventStore from '@/store/modules/logEvent';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 
 
-@Component({ components: {} })
+@Component({ components: { TrashCan16 } })
 export default class LogEventComponent extends NotificationMixinComponent {
   @Prop({ required: true }) problemId!: number;
   @Prop({ required: true }) studentId!: number;
   userStore = userStore;
   logEventStore = logEventStore;
+  logEventTypes = logEventTypes;
   loading = true;
   messageIsSending = false;
   commentary = '';
+  iconTrash = TrashCan16;
   events: Array<LogEventModel> = [];
 
   async created() {
@@ -72,16 +83,21 @@ export default class LogEventComponent extends NotificationMixinComponent {
     this.events = await this.logEventStore.fetchLogEventsByProblemAndStudentIds(
       { problem: this.problemId, student: this.studentId },
     );
-    if (this.events.length) {
-      await this.fetchThumbnailForEvent(this.events[0]);
-      let previous = this.events[0];
-      for (const event of this.events) {
-        if (previous.author !== event)
-          await this.fetchThumbnailForEvent(this.events[0]);
-        previous = event;
-      }
-    }
+    await this.thumbnailsUpdate();
     this.loading = false;
+  }
+
+  async thumbnailsUpdate() {
+    if (!this.events.length)
+      return;
+    await this.fetchThumbnailForEvent(this.events[0]);
+    let previous = this.events[0];
+    for (const event of this.events) {
+      if (previous.author !== event)
+        await this.fetchThumbnailForEvent(this.events[0]);
+      previous = event;
+    }
+
   }
 
   async fetchThumbnailForEvent(event: LogEventModel) {
@@ -102,6 +118,12 @@ export default class LogEventComponent extends NotificationMixinComponent {
   async mounted() {
     const submits = [...document.getElementsByClassName("submit-list")];
     submits.forEach(element => element.scrollTop = element.scrollHeight);
+  }
+
+  async deleteEvent(event: LogEventModel) {
+    const answer = await this.logEventStore.deleteEvent(event.id);
+    this.events = this.events.filter(value => value.id !== event.id);
+    await this.thumbnailsUpdate();
   }
 
   async createMessageHandler() {
@@ -135,21 +157,37 @@ export default class LogEventComponent extends NotificationMixinComponent {
   cursor pointer
   padding-top 0.1em
   padding-bottom 0.1em
+  position relative
+
+  .student--avatar
+    margin 0
+    margin-right 1em
+    float left
+    height 32px
+    width 32px
+    border-radius: 150%
+    position absolute
+    z-index 1
+
+  .event--delete
+    display none
+    right -1px
+    top -1px
+    background white
+    height 22px
+    width 22px
+    position absolute
 
   &:hover
     background-color #e5e5e5
 
+    .event--delete
+      display unset
+
 .stuff
   margin-left 1em
 
-.student--avatar
-  margin 0
-  margin-right 1em
-  float left
-  height 32px
-  width 32px
-  border-radius: 150%
-  padding 0
+
 
 
 .searchbar
@@ -171,6 +209,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
   border-radius 5px
   min-height 40px
   overflow-wrap anywhere
+  position relative
 
 .bx--tile.submit-list
   border-left 1em
