@@ -10,7 +10,7 @@ class LogEvent extends VuexModule {
 
   get getNewLogEventMessage(): LogEventModel {
     return {
-      id: NaN, type: types.TYPE_MESSAGE, student: NaN, problem: NaN, data: { author: NaN }
+      id: NaN, type: types.TYPE_MESSAGE, student: NaN, problem: NaN, data: {},
     };
   }
 

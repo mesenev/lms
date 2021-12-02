@@ -5,6 +5,7 @@ export default interface SubmitModel {
   student: number;
   created_at: string;
   status: string;
+  cats_submit?: number;
   content?: string;
   de_id: string;
 }

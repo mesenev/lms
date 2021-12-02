@@ -12,6 +12,7 @@
             v-for="event in events" :key="event.id" class="list--item"
             v-on:click="elementClickHandler(event)">
             <img
+              v-if="event.data.thumbnail"
               :src="event.data.thumbnail"
               class="student--avatar"
               alt='avatar'>
@@ -68,7 +69,6 @@ export default class LogEventComponent extends NotificationMixinComponent {
 
   async fetchEvents() {
     this.loading = true;
-    const studentId = this.studentId | this.userStore.user.id;
     this.events = await this.logEventStore.fetchLogEventsByProblemAndStudentIds(
       { problem: this.problemId, student: this.studentId },
     );
@@ -79,7 +79,9 @@ export default class LogEventComponent extends NotificationMixinComponent {
   }
 
   async fetchThumbnailForEvent(event: LogEventModel) {
-    const user = await this.userStore.fetchUserById(event.data.author);
+    if (!event.author)
+      return
+    const user = await this.userStore.fetchUserById(event.author);
     event.data.thumbnail = user.thumbnail;
   }
 
@@ -101,7 +103,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
     const newMessage: LogEventModel = {
       ...this.logEventStore.getNewLogEventMessage,
       problem: this.problemId, student: this.studentId,
-      data: { author: this.userStore.user.id, message: this.commentary },
+      data: { message: this.commentary },
     };
     const answer = await this.logEventStore.createLogEvent(newMessage);
     if (answer !== undefined) {
