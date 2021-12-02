@@ -9,3 +9,10 @@ export default interface SubmitModel {
   content?: string;
   de_id: string;
 }
+
+export const SUBMIT_STATUS = {
+  DEFAULT_STATUS: 'NP',
+  WRONG_ANSWER: 'WA',
+  AWAITING_MANUAL: 'AW',
+  OK: 'OK',
+}

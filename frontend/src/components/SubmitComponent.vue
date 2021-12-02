@@ -32,14 +32,14 @@
       </cv-button>
       <div v-if="isStaff" class="handlers">
         <cv-button
-          :disabled="isNewSubmit"
+          :disabled="isAcceptDisabled"
           class="submit-btn accepted"
           v-on:click="acceptSubmit">
           Принять
         </cv-button>
         <cv-button
           kind='danger'
-          :disabled="isNewSubmit"
+          :disabled="isRejectDisabled"
           class="submit-btn rejected"
           v-on:click="rejectSubmit">
           Отклонить
@@ -51,7 +51,7 @@
 
 <script lang="ts">
 import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
-import SubmitModel from '@/models/SubmitModel';
+import SubmitModel, { SUBMIT_STATUS } from '@/models/SubmitModel';
 import ProblemModel from '@/models/ProblemModel';
 import problemStore from '@/store/modules/problem';
 import submitStore from '@/store/modules/submit';
@@ -71,9 +71,16 @@ export default class SubmitComponent extends NotificationMixinComponent {
   submitEdit: SubmitModel = { ...this.submitStore.defaultSubmit };
   loading = true;
 
-
   get isChanged(): boolean {
     return !_.isEqual(this.submit, this.submitEdit);
+  }
+
+  get isRejectDisabled() {
+    return this.isNewSubmit || this.submit?.status === SUBMIT_STATUS.WRONG_ANSWER;
+  }
+
+  get isAcceptDisabled() {
+    return this.isNewSubmit || this.submit?.status === SUBMIT_STATUS.OK;
   }
 
   get canSubmit(): boolean {
@@ -130,10 +137,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
         this.submitStore.changeSubmitStatus(response.data);
         this.submit = { ...response.data };
         this.submitEdit = { ...this.submit };
-        if (this.submit.status == 'OK')
-          this.notificationKind = 'success';
-        else
-          this.notificationKind = 'error';
+        this.notificationKind = 'success';
         this.notificationText = `Работа оценена: ${status}`;
       })
       .catch((error: AxiosError) => {
