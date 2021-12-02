@@ -9,7 +9,6 @@
         <cv-data-table
           ref="table"
           :columns="columns"
-
           :data="to_display"
           :pagination="pagination"
           :zebra="true"
@@ -18,7 +17,9 @@
             <cv-data-table-skeleton/>
           </template>
           <template v-else slot="data">
-            <cv-data-table-row v-for="(row, rowIndex) in to_display" :key="`${rowIndex}`" :value="`${rowIndex}`">
+            <cv-data-table-row
+              v-for="(row, rowIndex) in to_display" :key="`${rowIndex}`" :value="`${rowIndex}`"
+            >
 
               <cv-data-table-cell>
                 <cv-link :to="row[1]">{{ row[0] }}</cv-link>
@@ -107,10 +108,8 @@ export default class SolutionsListView extends Vue {
       return []
     }
     this.submits_request.results.forEach(element => {
-
       returned.push(this.get_data_for_table(element))
     });
-
     return returned;
   }
 
@@ -118,7 +117,7 @@ export default class SolutionsListView extends Vue {
     return {
       numberOfItems: Math.max(Math.floor((this.submits_request?.count || 0) + 1
         / (this.pagination_settings?.length || 1))),
-      pageSizes: [5, 10, 25],
+      pageSizes: [25, 50, 100],
     };
   }
 
