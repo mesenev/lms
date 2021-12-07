@@ -37,7 +37,10 @@
           <cv-loading v-else small/>
           <div class="solution-container--submit-list">
             <log-event-component
-              :problemId="problem.id" :studentId="studentId" class="log--event--component"/>
+              :problemId="problem.id" :studentId="studentId"
+              class="log--event--component"
+              @submit-selected="(x) => changeCurrentSubmit(x.id)"
+            />
           </div>
         </div>
       </cv-column>
@@ -133,16 +136,16 @@ export default class ProblemView extends Vue {
 
   changeCurrentSubmit(id: number) {
     this.submitId = Number(id);
-    if (this.submitIdProp !== Number(id)) {
-      this.$router.push({
-        name: 'ProblemViewWithSubmit', params: {
-          courseId: this.$route.params.courseId,
-          lessonId: this.$route.params.lessonId,
-          problemId: this.$route.params.problemId,
-          submitId: Number(id).toString(),
-        },
-      })
-    }
+    if (this.submitIdProp === Number(id))
+      return;
+    this.$router.push({
+      name: 'ProblemViewWithSubmit', params: {
+        courseId: this.$route.params.courseId,
+        lessonId: this.$route.params.lessonId,
+        problemId: this.$route.params.problemId,
+        submitId: Number(id).toString(),
+      },
+    });
   }
 
   get isStaff(): boolean {

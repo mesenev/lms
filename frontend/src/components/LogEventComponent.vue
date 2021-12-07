@@ -108,10 +108,9 @@ export default class LogEventComponent extends NotificationMixinComponent {
   }
 
   elementClickHandler(element: LogEventModel) {
-    if (logEventTypes.TYPE_MESSAGE === element.type) {
-      console.log(element.data.message);
+    if (logEventTypes.TYPE_SUBMIT === element.type) {
+      this.$emit('submit-selected', { id: element.submit });
     }
-    console.log('clicked on', element)
     return 0;
   }
 

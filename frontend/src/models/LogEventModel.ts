@@ -11,5 +11,5 @@ export default interface LogEventModel  {
   type: string;
   author?: number;
   created_at?: string;
-  submitId?: number;
+  submit?: number;
 }
