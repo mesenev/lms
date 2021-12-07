@@ -169,7 +169,7 @@ class SubmitViewSet(viewsets.ModelViewSet):
         course = object_to_course(problem)
         if request.user.assigns.filter(course=course).exists():
             return super().create(request, *args, **kwargs)
-        if course in list(request.user.staff_for.all()) + list(request.user.author_for.all()):
+        elif course in list(request.user.staff_for.all()) + list(request.user.author_for.all()):
             return super().create(request, *args, **kwargs)
         raise exceptions.PermissionDenied
 
@@ -197,7 +197,7 @@ class SubmitViewSet(viewsets.ModelViewSet):
             de_id=validated_data.get('de_id'),
             # source=validated_data.get('source'),
         ))
-        model = serializer.save(created_by=request.user, student=request.user, status=Submit.DEFAULT_STATUS)
+        model = serializer.save(student=request.user, status=Submit.DEFAULT_STATUS)
         cats.submit = model
         cats.save()
         return
