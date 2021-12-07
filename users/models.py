@@ -57,7 +57,10 @@ class CourseAssignStudent(models.Model):
     user = models.ForeignKey(User, related_name='assigns', on_delete=models.CASCADE, null=False)
 
     def __str__(self):
-        return f"user {self.user} on course {self.course}"
+        return f"user {self.user} on course {self.course} as student"
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['course', 'user'], name='only_one_assignment_student')]
 
 
 class CourseAssignTeacher(models.Model):
@@ -65,10 +68,10 @@ class CourseAssignTeacher(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
 
     def __str__(self):
-        return f"user {self.user} on course {self.course}"
+        return f"user {self.user} on course {self.course} as teacher"
 
     class Meta:
-        unique_together = ('course', 'user',)
+        constraints = [models.UniqueConstraint(fields=['course', 'user'], name='only_one_assignment_teacher')]
 
 
 # admin.site.register(User)

@@ -53,14 +53,30 @@ def add_student_to_rating_of_lesson(sender, instance, created, **kwargs):
         return
     user = instance.user
     course = instance.course
-    for i in Lesson.objects.filter(course=course):
-        validated_data = {'course': course, 'lesson': i, 'user': user}
+    for lesson in Lesson.objects.filter(course=course):
+        validated_data = {'course': course, 'lesson': lesson, 'user': user}
         at = Attendance.objects.create(**validated_data)
-        validated_data = {'user': user, 'lesson': i, 'solved': {'CW': {}, 'HW': {}, 'EX': {}}, 'attendance': at}
+        validated_data = {
+            'user': user, 'lesson': lesson, 'solved': {'CW': {}, 'HW': {}, 'EX': {}}, 'attendance': at
+        }
         LessonProgress.objects.create(**validated_data)
 
 
 post_save.connect(add_student_to_rating_of_lesson, sender=CourseAssignStudent)
+
+
+@receiver(post_save, sender=CourseAssignStudent)
+def add_student_to_rating_course(sender, instance, created, **kwargs):
+    if not created:
+        return
+    existLessons, attendance, at = {}, {}, None
+    for i in Lesson.objects.filter(course=instance.course):
+        existLessons[i.id] = {'CW': 0, 'HW': 0, 'EX': 0}
+    validated_data = {'course': instance.course, 'user': instance.user, 'progress': existLessons}
+    course_progress = CourseProgress.objects.create(**validated_data)
+
+
+post_save.connect(add_student_to_rating_course, sender=CourseAssignStudent)
 
 
 @receiver(post_save, sender=Lesson)
@@ -75,24 +91,12 @@ def add_student_to_rating_lesson(sender, instance, created, **kwargs):
         LessonProgress.objects.create(**validated_data)
 
 
-@receiver(post_save, sender=CourseAssignStudent)
-def add_student_to_rating_course(sender, instance, created, **kwargs):
-    if not created:
-        return
-    existLessons, attendance, at = {}, {}, None
-    for i in Lesson.objects.filter(course=instance.course):
-        existLessons[i.id] = {'CW': 0, 'HW': 0, 'EX': 0}
-    validated_data = {'course': instance.course, 'user': instance.user, 'progress': existLessons}
-    i = CourseProgress.objects.create(**validated_data)
-    i.attendance.add(*(Attendance.objects.filter(user=instance.user, course=instance.course)))
-
-
 @receiver(post_save, sender=Lesson)
 def add_lessons_to_course_rating(sender, instance, created, **kwargs):
     if not created and not instance.course:
         return
     for i in CourseProgress.objects.filter(course=instance.course):
-        i.progress.update({instance.id:{'CW': 0, 'HW': 0, 'EX': 0}})
+        i.progress.update({instance.id: {'CW': 0, 'HW': 0, 'EX': 0}})
         i.attendance.add(*(Attendance.objects.filter(user=i.user, course=i.course)))
         i.save()
 

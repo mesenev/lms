@@ -19,8 +19,6 @@ class LessonProgressSerializer(serializers.ModelSerializer):
 
 
 class CourseProgressSerializer(serializers.ModelSerializer):
-    def create(self, validated_data):
-        return CourseProgress.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
         instance.lessons = validated_data.get('lessons', instance.lessons)
@@ -30,7 +28,7 @@ class CourseProgressSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CourseProgress
-        fields = '__all__'
+        fields = ('course', 'progress', 'user',)
 
 
 class AttendanceSerializer(serializers.ModelSerializer):
