@@ -38,6 +38,7 @@
           <div class="solution-container--submit-list">
             <log-event-component
               :problemId="problem.id" :studentId="studentId"
+              :selected-submit="submitId"
               class="log--event--component"
               @submit-selected="(x) => changeCurrentSubmit(x.id)"
             />

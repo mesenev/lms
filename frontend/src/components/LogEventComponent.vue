@@ -10,6 +10,7 @@
         <template slot="items">
           <div
             v-for="event in events" :key="event.id" class="list--item"
+            v-bind:class="{ 'list--item--submit': event.type === logEventTypes.TYPE_SUBMIT }"
             v-on:click="elementClickHandler(event)">
             <img
               v-if="event.data.thumbnail"
@@ -23,6 +24,12 @@
                 v-if="logEventTypes.TYPE_MESSAGE === event.type"
                 class="event--delete"
                 @click="deleteEvent(event)"/>
+              <div
+                v-if="logEventTypes.TYPE_SUBMIT === event.type"
+                class="checkbox--submit"
+                v-bind:class="{ 'hidden': event.submit !== selectedSubmit }">
+                <component :is="Checkbox"/>
+              </div>
             </div>
 
           </div>
@@ -49,6 +56,7 @@ import LogEventModel from "@/models/LogEventModel";
 import * as logEventTypes from '@/models/LogEventModel';
 import userStore from '@/store/modules/user';
 import TrashCan16 from '@carbon/icons-vue/es/trash-can/16';
+import Checkbox16 from '@carbon/icons-vue/es/checkbox--checked--filled/16';
 import logEventStore from '@/store/modules/logEvent';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
@@ -58,6 +66,7 @@ import { Component, Prop, Watch } from "vue-property-decorator";
 export default class LogEventComponent extends NotificationMixinComponent {
   @Prop({ required: true }) problemId!: number;
   @Prop({ required: true }) studentId!: number;
+  @Prop({ required: false }) selectedSubmit?: number;
   userStore = userStore;
   logEventStore = logEventStore;
   logEventTypes = logEventTypes;
@@ -65,6 +74,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
   messageIsSending = false;
   commentary = '';
   iconTrash = TrashCan16;
+  Checkbox = Checkbox16;
   events: Array<LogEventModel> = [];
 
   async created() {
@@ -151,6 +161,13 @@ export default class LogEventComponent extends NotificationMixinComponent {
   width 2em
   margin-bottom 0.3em
 
+.list--item--submit
+  span
+    font-weight bold
+
+.hidden
+  display none
+
 .list--item
   border none
   cursor pointer
@@ -186,8 +203,14 @@ export default class LogEventComponent extends NotificationMixinComponent {
 .stuff
   margin-left 1em
 
-
-
+.checkbox--submit
+  position absolute
+  height 16px
+  width 16px
+  right 3px
+  top 50%
+  transform translate(-50%, -50%)
+  vertical-align center
 
 .searchbar
   position relative
