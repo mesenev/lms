@@ -16,7 +16,8 @@ from problem.models import Problem, Submit, CatsSubmit, ProblemStats, LogEvent
 from problem.serializers import ProblemSerializer, SubmitSerializer, SubmitListSerializer, ProblemListSerializer, \
     LogEventSerializer
 from users.models import User
-from users.permissions import CourseStaffOrReadOnlyForStudents, object_to_course, CourseStaffOrAuthorReadOnly
+from users.permissions import CourseStaffOrReadOnlyForStudents, object_to_course, CourseStaffOrAuthorReadOnly, \
+    CourseStaffOrAuthor
 
 
 class ProblemViewSet(viewsets.ModelViewSet):
@@ -236,7 +237,7 @@ class LogEventFilter(django_filters.FilterSet):
 
 
 class LogEventViewSet(viewsets.ModelViewSet):
-    permission_classes = [CourseStaffOrAuthorReadOnly]
+    permission_classes = [CourseStaffOrAuthor]
     queryset = LogEvent.objects.all()
     serializer_class = LogEventSerializer
     filterset_class = LogEventFilter

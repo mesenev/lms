@@ -21,7 +21,8 @@
               <span>{{ event.data.message }}</span>
               <component
                 :is="iconTrash"
-                v-if="logEventTypes.TYPE_MESSAGE === event.type"
+                v-if="logEventTypes.TYPE_MESSAGE === event.type
+                && (event.author === userStore.user.id)"
                 class="event--delete"
                 @click="deleteEvent(event)"/>
               <div
