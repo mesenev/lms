@@ -43,13 +43,15 @@ def send_submit_to_cats():
         return
     # TODO: check correctness of the response
     ids, response = cats_submit_solution(**submit.data)
-    submit.is_sent = True
     submit.sending_result = response
     submit.id_to_check = ids
+    if ids:
+        submit.is_sent = True
+        log_event = LogEvent(
+            problem=submit.submit.problem, student=submit.submit.student, type=LogEvent.TYPE_CATS_SUBMIT,
+            data=dict(message='Отправлено на проверку в cats')
+        )
+        log_event.save()
     submit.save()
-    log_event = LogEvent(
-        problem=submit.problem, student=submit.student, type=LogEvent.TYPE_CATS_SUBMIT,
-        data=dict(message='Отправлено на проверку в cats')
-    )
-    log_event.save()
+
     return
