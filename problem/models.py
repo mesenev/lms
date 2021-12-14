@@ -87,7 +87,7 @@ class Submit(models.Model):
     de_id = models.CharField(max_length=5)
 
     def __str__(self):
-        return self.status
+        return f'ID{self.id} - {self.status}'
 
     class Meta:
         ordering = ['id']
@@ -100,6 +100,9 @@ class CatsSubmit(models.Model):
     is_sent = models.BooleanField(default=False, null=False)
     sending_result = models.JSONField(null=True)
     testing_result = models.JSONField(null=True)
+
+    def __str__(self):
+        return f'CID{self.submit.id} - ({"sent" if self.is_sent else "nsent"})'
 
 
 class LogEvent(models.Model):
