@@ -4,3 +4,7 @@ class CatsOfflineException(BaseException):
 
 class CatsAnswerCodeException(BaseException):
     pass
+
+
+class CatsAuthorizationException(BaseException):
+    pass

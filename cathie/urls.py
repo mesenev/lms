@@ -10,5 +10,5 @@ urlpatterns = [
         views.get_cats_problem_description,
         name='cats-problem-description'
     ),
-    path('admin/show-admin-custom-page/', views.show_custom_admin_page, name='custom-page')
+    path('admin/cats/', views.cats_admin, name='cats-admin')
 ]
