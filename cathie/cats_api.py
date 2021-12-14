@@ -54,8 +54,7 @@ def cats_check_solution_status(req_ids: int):
 @authorization.check_authorization_for_cats
 def cats_get_problems_from_contest(contest_id):
     url = f'{settings.CATS_URL}?f=problems;json=1;cid={contest_id};'
-    if authorization.cats_sid() and settings.CATS_TOKEN:
-        url += f'sid={authorization.cats_sid()}'
+    url += f'sid={authorization.cats_sid()}'
     answer = requests.get(url)
     if answer.status_code != 200:
         raise CatsAnswerCodeException(answer.reason)
