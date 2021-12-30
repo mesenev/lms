@@ -1,9 +1,13 @@
+import requests
+
+
 class CatsOfflineException(BaseException):
     pass
 
 
 class CatsAnswerCodeException(BaseException):
-    pass
+    def __init__(self, response: requests.Response):
+        self.response = response
 
 
 class CatsAuthorizationException(BaseException):

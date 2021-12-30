@@ -100,6 +100,7 @@ class CatsSubmit(models.Model):
     is_sent = models.BooleanField(default=False, null=False)
     sending_result = models.JSONField(null=True)
     testing_result = models.JSONField(null=True)
+    is_error = models.BooleanField(default=False, null=False)
 
     def __str__(self):
         return f'CID{self.submit.id} - ({"sent" if self.is_sent else "nsent"})'
@@ -111,12 +112,14 @@ class LogEvent(models.Model):
     TYPE_STATUS_CHANGE = 'status_change'
     TYPE_SUBMIT = 'submit'
     TYPE_CATS_SUBMIT = 'cats_submit'
+    TYPE_CATS_ERROR = 'cats_error'
     LOG_EVENT_TYPES = [
         (TYPE_SUBMIT, 'Submit created'),
         (TYPE_MESSAGE, 'Message to display'),
         (TYPE_STATUS_CHANGE, 'Submit status changed to'),
         (TYPE_CATS_ANSWER, 'Check answer from cats'),
         (TYPE_CATS_SUBMIT, 'Cats submit created'),
+        (TYPE_CATS_ERROR, 'Cats error type'),
     ]
     type = models.CharField(max_length=16, choices=LOG_EVENT_TYPES)
     problem = models.ForeignKey(Problem, related_name='log_events', on_delete=models.CASCADE, null=False)

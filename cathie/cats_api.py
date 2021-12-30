@@ -15,17 +15,16 @@ def cats_check_status():
 @authorization.check_authorization_for_cats
 def cats_submit_solution(source_text: str, problem_id: int, de_id: int, source=None):
     # ToDo обработать повторную отправку решения
-    url = f'{settings.CATS_URL}main.pl?f=api_submit_problem;'
+    url = f'{settings.CATS_URL}main.pl?f=api_submit_problem;json=1;'
     url += f'sid={authorization.cats_sid()}'
     data = {
-        'source': source,
         'de_id': de_id,
         'source_text': source_text,
         'problem_id': problem_id
     }
     r = requests.post(url, data=data)
     if r.status_code != 200:
-        raise CatsAnswerCodeException(r.reason)
+        raise CatsAnswerCodeException(r)
     r_content = json.loads(r.content.decode('utf-8'))
     req_ids = None
     if r_content.get('href_run_details'):
@@ -41,12 +40,12 @@ def cats_submit_problem():
 
 @authorization.check_authorization_for_cats
 def cats_check_solution_status(req_ids: int):
-    url = f'{settings.CATS_URL}main.pl?f=api_get_request_state;req_ids={req_ids};'
+    url = f'{settings.CATS_URL}main.pl?f=api_get_request_state;req_ids={req_ids};json=1;'
     url += f'sid={authorization.cats_sid()}'
     r = requests.get(url)
     if r.status_code != 200:
-        raise CatsAnswerCodeException(r.reason)
-    data = json.loads(r.content.decode('utf-8'))
+        raise CatsAnswerCodeException(r)
+    data = r.json()
     if data:
         return data[0]['verdict'], data
 
@@ -57,7 +56,7 @@ def cats_get_problems_from_contest(contest_id):
     url += f'sid={authorization.cats_sid()}'
     answer = requests.get(url)
     if answer.status_code != 200:
-        raise CatsAnswerCodeException(answer.reason)
+        raise CatsAnswerCodeException(answer)
     data = json.loads(answer.content.decode('utf-8'))
     # course_problems = CatsProblemSerializer(data=data.problems, many=True)
     return data['problems']
@@ -72,7 +71,7 @@ def cats_get_problem_description_by_url(description_url):
     }
     request = requests.request(method='get', url=url, headers=headers)
     if request.status_code != 200:
-        raise CatsAnswerCodeException(request.reason)
+        raise CatsAnswerCodeException(request)
     data = request.content.decode('utf-8')
     return data
 
