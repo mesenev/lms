@@ -118,11 +118,11 @@ export default class LogEventComponent extends NotificationMixinComponent {
     event.data.thumbnail = user.thumbnail;
   }
 
-  elementClickHandler(element: LogEventModel) {
-    if (logEventTypes.TYPE_SUBMIT === element.type) {
+  elementClickHandler(element: LogEventModel): void {
+    if (logEventTypes.TYPE_SUBMIT === element.type)
       this.$emit('submit-selected', { id: element.submit });
-    }
-    return 0;
+    if (logEventTypes.TYPE_CATS_ANSWER === element.type)
+      this.$emit('cats-answer', { id: element.submit });
   }
 
   async mounted() {
