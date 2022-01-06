@@ -71,6 +71,24 @@ export default class SubmitComponent extends NotificationMixinComponent {
   submitEdit: SubmitModel = { ...this.submitStore.defaultSubmit };
   loading = true;
 
+  async created() {
+    await this.updateSubmit();
+  }
+
+  async updateSubmit() {
+    this.loading = true;
+    if (this.submitId) {
+      this.submit = await this.submitStore.fetchSubmitById(this.submitId);
+    } else {
+      this.submit = null;
+    }
+    this.submitEdit = (this.submit) ? { ...this.submit } : { ...this.submitStore.defaultSubmit };
+    if (this.submitEdit.de_id === '' && this.deOptions.length === 1)
+      this.submitEdit.de_id = this.deOptions[0].value;
+    this.loading = false;
+  }
+
+
   get isChanged(): boolean {
     return !_.isEqual(this.submit, this.submitEdit);
   }
@@ -107,23 +125,6 @@ export default class SubmitComponent extends NotificationMixinComponent {
   @Watch('submitId')
   onSubmitIdChanged() {
     this.updateSubmit();
-  }
-
-  async created() {
-    await this.updateSubmit();
-  }
-
-  async updateSubmit() {
-    this.loading = true;
-    if (this.submitId) {
-      this.submit = await this.submitStore.fetchSubmitById(this.submitId);
-    } else {
-      this.submit = null;
-    }
-    this.submitEdit = (this.submit) ? { ...this.submit } : { ...this.submitStore.defaultSubmit };
-    if (this.submitEdit.de_id === '' && this.deOptions.length === 1)
-      this.submitEdit.de_id = this.deOptions[0].value;
-    this.loading = false;
   }
 
   patchSubmit(status: string) {

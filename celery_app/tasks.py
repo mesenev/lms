@@ -27,6 +27,7 @@ def update_submit_status():
 
         log_event = LogEvent(
             problem=cats_submit.submit.problem, student=cats_submit.submit.student,
+            submit=cats_submit.submit,
             type=LogEvent.TYPE_CATS_ANSWER, data=dict(message='Результат тестирования получен')
         )
         log_event.save()
@@ -34,7 +35,7 @@ def update_submit_status():
         cats_submit.submit.status = new_status
         cats_submit.submit.updated_by = None
         cats_submit.submit.save(update_fields=['status', 'updated_by'])
-        cats_submit.testing_result = data
+        cats_submit.testing_result = data[0]  # Todo: investigate why the hell its a list
         cats_submit.save()
 
 
@@ -55,6 +56,7 @@ def send_submit_to_cats():
         log_event = LogEvent(
             problem=submit.submit.problem,
             student=submit.submit.student,
+            submit=submit,
             type=LogEvent.TYPE_CATS_ERROR,
             data=dict(
                 message='Ошибка при отправке в cats',
@@ -71,6 +73,7 @@ def send_submit_to_cats():
         submit.is_sent = True
         log_event = LogEvent(
             problem=submit.submit.problem, student=submit.submit.student, type=LogEvent.TYPE_CATS_SUBMIT,
+            submit=submit,
             data=dict(message='Отправлено на проверку в cats')
         )
         log_event.save()

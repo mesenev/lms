@@ -129,6 +129,9 @@ class LogEvent(models.Model):
     data = models.JSONField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ('created_at', 'id')
+
 
 admin.site.register(Problem)
 admin.site.register(Submit)

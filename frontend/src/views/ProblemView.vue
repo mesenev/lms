@@ -67,7 +67,7 @@
       </cv-column>
 
       <cv-column v-if="displayCatsPackage">
-        <cats-package-window :cats-submit-answer-prop="catsSubmitAnswer"/>
+        <cats-package-window :submit-id-prop="catsResultSubmitId"/>
       </cv-column>
 
     </cv-row>
@@ -111,7 +111,7 @@ export default class ProblemView extends Vue {
 
   private displayProblem = false;
   private displayCatsPackage = false;
-  catsSubmitAnswer: object | null = null;
+  private catsResultSubmitId: number | null = null;
 
   get problem() {
     return this.problemStore.currentProblem;
@@ -152,7 +152,7 @@ export default class ProblemView extends Vue {
   }
 
   showCatsAnswerModal(id: number): void {
-    this.catsSubmitAnswer = { 'key': 'value' };
+    this.catsResultSubmitId = Number(id);
     this.toggleCatsModal(true);
   }
 

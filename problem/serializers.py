@@ -5,6 +5,10 @@ from problem.models import Problem, Submit, ProblemStats, LogEvent
 from users.serializers import DefaultUserSerializer
 
 
+class CatsResultField:
+    pass
+
+
 class SubmitSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
     problem = serializers.PrimaryKeyRelatedField(queryset=Problem.objects.all())
@@ -28,7 +32,9 @@ class SubmitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submit
-        fields = ['id', 'problem', 'student', 'content', 'status', 'de_id', 'updated_at', 'updated_by']
+        fields = [
+            'id', 'problem', 'student', 'content', 'status', 'de_id', 'updated_at', 'updated_by',
+        ]
 
 
 class SubmitListSerializer(serializers.ModelSerializer):
@@ -43,7 +49,7 @@ class SubmitListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submit
-        fields = ['id', 'problem', 'student', 'status', 'created_at', 'lesson']
+        fields = ['id', 'problem', 'student', 'status', 'created_at', 'lesson', ]
 
 
 class ProblemStatsSerializer(serializers.ModelSerializer):

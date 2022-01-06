@@ -133,6 +133,10 @@ class SubmitViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+    @action(detail=False, url_path='cats-result/(?P<submit_id>\d+)')
+    def cats_result(self, request, submit_id):
+        return Response(CatsSubmit.objects.get(submit__id=submit_id).testing_result)
+
     @action(detail=False, url_path='five-aw/(?P<course_id>\d+)')
     def five_aw(self, request, course_id):
         # TODO: check permissions for it
