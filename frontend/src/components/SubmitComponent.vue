@@ -8,16 +8,11 @@
       @close="hideNotification"/>
     <cv-skeleton-text v-if="loading"/>
     <div v-else>
-      <cv-text-area
-        :rows="13"
-        v-model="submitEdit.content"
-        :class="{ 'text-area-teacher': isStaff, 'text-area-student': !isStaff }"
-        :disabled="isStaff"
-        light>
-      </cv-text-area>
+      <code-editor-component v-model="submitEdit.content"/>
       <cv-dropdown
         v-model="submitEdit.de_id"
         :items="deOptions"
+        :disabled="deOptions.length === 0"
         placeholder="Выберите язык программирования">
         <cv-dropdown-item v-for="de in deOptions" :key="de.value" :value="de.value">
           {{ de.name }}
@@ -50,6 +45,7 @@
 </template>
 
 <script lang="ts">
+import CodeEditorComponent from '@/components/common/CodeEditorComponent.vue';
 import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import SubmitModel, { SUBMIT_STATUS } from '@/models/SubmitModel';
 import ProblemModel from '@/models/ProblemModel';
@@ -61,7 +57,7 @@ import { de_options } from '@/utils/consts';
 import { Component, Prop, Watch } from 'vue-property-decorator';
 
 
-@Component({ components: {} })
+@Component({ components: { CodeEditorComponent } })
 export default class SubmitComponent extends NotificationMixinComponent {
   @Prop({ required: true }) submitId!: number;
   @Prop({ required: true }) isStaff!: boolean;
