@@ -35,15 +35,6 @@ export default class CatsPackageWindow extends Vue {
   async created() {
     this.data = await this.submitStore.fetchCatsResult(this.submitIdProp);
 
-  get getCatsData(){
-    // const уберем когда сюда что то поедет
-    const catsData: {[key: string]: string} = {
-      'Вердикт': 'Ошибка оформления кода. Подробнее ->',
-      'Лог компиляции': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.',
-      'Время/Память': '100/100'
-    }
-    return catsData;
-
   }
 }
 </script>
