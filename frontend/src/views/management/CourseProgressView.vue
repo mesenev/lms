@@ -1,6 +1,6 @@
 <template>
   <div class="bx--grid">
-    <cv-data-table title="Успеваемость курса" v-if="!loading" @sort="Sort">
+    <cv-data-table v-if="!loading" title="Успеваемость курса">
       <template slot="helper-text">
         <router-link :to="{ name: 'CourseView', params: { courseId: course.id } }"
                      tag="p" class="course--title">
@@ -30,14 +30,18 @@
             </router-link>
           </cv-data-table-cell>
           <cv-data-table-cell v-for="les in lessons" :key="les.id">
-            {{sum(user_progress.progress[les.id])}}
-            <div class="mark" v-for="(value, name) in user_progress.progress[les.id]" :key="value">
+            {{ sum(user_progress.progress[les.id]) }}
+            <div v-for="(value, name) in user_progress.progress[les.id]" :key="value+name" class="mark">
               <cv-tag :label="value.toString()" :kind="color(name)"/>
             </div>
-            <cv-checkbox v-model="student_attendance[user_progress.user.id][les.id]" class="mark">3</cv-checkbox>
+            <cv-checkbox
+              :checked="student_attendance[user_progress.user.id][les.id]"
+              :value="`${user_progress.user.id}-${les.id}`"
+              class="mark"
+              @change="attendanceChange(user_progress.user.id, les.id)"/>
           </cv-data-table-cell>
           <cv-data-table-cell>
-            {{ average(user_progress.lessons)}}
+            {{ average(user_progress.lessons) }}
           </cv-data-table-cell>
         </cv-data-table-row>
       </template>
@@ -60,21 +64,21 @@ import progressStore from "@/store/modules/progress"
 import userStore from '@/store/modules/user';
 import lessonStore from '@/store/modules/lesson'
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
-import {Component, Prop, Vue} from 'vue-property-decorator';
-import {Dictionary} from "vue-router/types/router";
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Dictionary } from "vue-router/types/router";
 import CourseModel from "@/models/CourseModel";
 import LessonModel from "@/models/LessonModel";
 import axios from "axios";
 
-@Component({components: {SubmitStatus, UserComponent, UserAvatar20}})
+@Component({ components: { SubmitStatus, UserComponent, UserAvatar20 } })
 export default class CourseProgressView extends Vue {
   @Prop() courseId!: number;
 
   students_progress: Array<UserProgress> = [];
   s: Array<Attendance> = [];
   users: Dictionary<UserModel> = {};
-  student_attendance: Dictionary<any> = {}
-  student_attendance_copy: Dictionary<any> = {}
+  student_attendance: Dictionary<any> = {};
+  student_attendance_copy: Dictionary<any> = {};
   lessons: Array<LessonModel> = [];
   course: CourseModel = { ...courseStore.newCourse };
   userStore = userStore;
@@ -99,6 +103,10 @@ export default class CourseProgressView extends Vue {
     return a
   }
 
+  get attendance() {
+    return this.student_attendance;
+  }
+
   get progress() {
     if (this.dontSolved) {
       return this.students_progress.filter(x => Object.keys(x.solved["HW"]).length === 0)
@@ -106,12 +114,15 @@ export default class CourseProgressView extends Vue {
     return this.students_progress;
   }
 
-  get attendance() {
-    return this.student_attendance
+  get change() {
+    // debugger;
+    return _.isEqual(this.student_attendance, this.student_attendance_copy)
   }
 
-  get cours() {
-    return this.course;
+  attendanceChange(userId: number, lessonId: number) {
+    this.student_attendance_copy[userId][lessonId] =
+      !this.student_attendance_copy[userId][lessonId];
+    this.student_attendance_copy = _.cloneDeep(this.student_attendance_copy);
   }
 
   async created() {
@@ -120,29 +131,20 @@ export default class CourseProgressView extends Vue {
     this.users = await this.userStore.fetchStudentsByCourseId(this.courseId);
     this.lessons = await this.lessonStore.fetchLessonsByCourseId(this.courseId);
     this.students_progress = this.students_progress.map(
-      obj => Object.assign({}, obj, { user: this.users[obj.user.toLocaleString()]}));
+      obj => Object.assign({}, obj, { user: this.users[obj.user.toLocaleString()] }));
     this.s = await this.progressStore.fetchAttendance(this.courseId);
     let a = null
     for (const i in this.s) {
       a = this.s[i]
       if (this.student_attendance[a.user]) {
-         this.student_attendance[a.user][a.lesson] = a.be
-      }
-      else {
+        this.student_attendance[a.user][a.lesson] = a.be
+      } else {
         this.student_attendance[a.user] = {}
         this.student_attendance[a.user][a.lesson] = a.be
       }
     }
-    //this.student_attendance_copy = JSON.parse(JSON.stringify(this.student_attendance));
-    this.student_attendance_copy = _.cloneDeep(this.student_attendance)
+    this.student_attendance_copy = _.cloneDeep(this.student_attendance);
     this.loading = false;
-  }
-
-  openSubmitOrProblem(problem: number, submit?: number) {
-    if (submit)
-      this.$router.push(`/course/${this.$route.params['courseId']}/lesson/${this.$route.params['lessonId']}/problem/${problem}/submit/${submit}`);
-    else
-      this.$router.push(`/course/${this.$route.params['courseId']}/lesson/${this.$route.params['lessonId']}/problem/${problem}`);
   }
 
   color(type: string) {
@@ -171,9 +173,12 @@ export default class CourseProgressView extends Vue {
     return sum;
   }
 
-  get change() {
-    console.log(Object.values(this.student_attendance) === Object.values(this.student_attendance_copy))
-    return _.isEqualWith(Object.values(this.student_attendance),Object.values(this.student_attendance_copy))
+  //TODO: change it with classical link
+  openSubmitOrProblem(problem: number, submit?: number) {
+    if (submit)
+      this.$router.push(`/course/${this.$route.params['courseId']}/lesson/${this.$route.params['lessonId']}/problem/${problem}/submit/${submit}`);
+    else
+      this.$router.push(`/course/${this.$route.params['courseId']}/lesson/${this.$route.params['lessonId']}/problem/${problem}`);
   }
 
   mark(): void {

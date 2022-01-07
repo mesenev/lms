@@ -1,6 +1,6 @@
 export const de_options = [
   {
-    value: '101', label: 'Cross-platform C/C++ compiler',
+    value: '4', label: 'Cross-platform C/C++ compiler',
     name: 'Cross-platform C/C++ compiler', disabled: false,
   },
   {

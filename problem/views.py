@@ -2,7 +2,7 @@ import django_filters
 from django.db import models
 from django.db.models import Q, Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, exceptions
+from rest_framework import viewsets, exceptions, status
 from rest_framework.decorators import api_view, renderer_classes, action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.renderers import JSONRenderer
@@ -16,7 +16,8 @@ from problem.models import Problem, Submit, CatsSubmit, ProblemStats, LogEvent
 from problem.serializers import ProblemSerializer, SubmitSerializer, SubmitListSerializer, ProblemListSerializer, \
     LogEventSerializer
 from users.models import User
-from users.permissions import CourseStaffOrReadOnlyForStudents, object_to_course, CourseStaffOrAuthorReadOnly
+from users.permissions import CourseStaffOrReadOnlyForStudents, object_to_course, CourseStaffOrAuthorReadOnly, \
+    CourseStaffOrAuthor
 
 
 class ProblemViewSet(viewsets.ModelViewSet):
@@ -69,7 +70,7 @@ class ProblemViewSet(viewsets.ModelViewSet):
 
 
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 2
+    page_size = 25
     page_size_query_param = 'page_size'
     max_page_size = 1000
 
@@ -132,6 +133,10 @@ class SubmitViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+    @action(detail=False, url_path='cats-result/(?P<submit_id>\d+)')
+    def cats_result(self, request, submit_id):
+        return Response(CatsSubmit.objects.get(submit__id=submit_id).testing_result)
+
     @action(detail=False, url_path='five-aw/(?P<course_id>\d+)')
     def five_aw(self, request, course_id):
         # TODO: check permissions for it
@@ -169,7 +174,7 @@ class SubmitViewSet(viewsets.ModelViewSet):
         course = object_to_course(problem)
         if request.user.assigns.filter(course=course).exists():
             return super().create(request, *args, **kwargs)
-        if course in list(request.user.staff_for.all()) + list(request.user.author_for.all()):
+        elif course in list(request.user.staff_for.all()) + list(request.user.author_for.all()):
             return super().create(request, *args, **kwargs)
         raise exceptions.PermissionDenied
 
@@ -188,18 +193,34 @@ class SubmitViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         request = serializer.context["request"]
         validated_data = serializer.validated_data
+        # TODO: Change it according to prefs of problem
         if not validated_data['problem'].cats_id:
             return
         cats = CatsSubmit(data=dict(
             source_text=validated_data.get('content'),
             problem_id=validated_data['problem'].cats_id,
-            # de_id=validated_data.get('cats_de_id'),
+            de_id=validated_data.get('de_id'),
             # source=validated_data.get('source'),
         ))
         model = serializer.save(student=request.user, status=Submit.DEFAULT_STATUS)
         cats.submit = model
         cats.save()
         return
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.initial_data["updated_by"] = request.user.id
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
 
 
 class LogEventFilter(django_filters.FilterSet):
@@ -220,11 +241,19 @@ class LogEventFilter(django_filters.FilterSet):
 
 
 class LogEventViewSet(viewsets.ModelViewSet):
-    permission_classes = [CourseStaffOrAuthorReadOnly]
+    permission_classes = [CourseStaffOrAuthor]
     queryset = LogEvent.objects.all()
     serializer_class = LogEventSerializer
     filterset_class = LogEventFilter
     filter_backends = (DjangoFilterBackend,)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.initial_data['author'] = request.user.id
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 @api_view(['POST'])

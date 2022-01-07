@@ -1,4 +1,5 @@
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 module.exports = {
   publicPath: "/static/", // Should match Django STATIC_URL
   filenameHashing: false,
@@ -14,6 +15,7 @@ module.exports = {
       },
       plugins: [
         new HardSourceWebpackPlugin(),
+        // new BundleAnalyzerPlugin(), // uncomment to check bundle size in details
       ],
       // "optimization": {
       // markdown-it-vue

@@ -7,11 +7,10 @@ import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-dec
 @Module({ namespaced: true, name: 'submit', store, dynamic: true })
 class SubmitModule extends VuexModule {
   private _submits: SubmitModel[] = [];
-
   get defaultSubmit(): SubmitModel {
     return {
       id: NaN, problem: { id: NaN, name: '' }, student: NaN, content: '',
-      status: 'NP', created_at: '', lesson: NaN, de_id: '',
+      status: 'NP', created_at: '', lesson: NaN, de_id: '', cats_result: {},
     };
   }
 
@@ -124,6 +123,19 @@ class SubmitModule extends VuexModule {
         console.error(error);
       })
     return data as SubmitModel;
+  }
+
+  @Action
+  async fetchCatsResult(submitId: number) {
+    let data = {};
+    await axios.get(`/api/submit/cats-result/${submitId}/`)
+      .then((response: AxiosResponse<object>) => {
+        data = response.data
+      })
+      .catch(error => {
+        console.error(error);
+      })
+    return data as object;
   }
 }
 

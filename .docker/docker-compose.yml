@@ -52,7 +52,10 @@ services:
     beat:
         container_name: beat
         image: backend:latest
-        command: "sh .docker/conf/gunicorn/celery.sh"
+        command: "sh /application/.docker/conf/gunicorn/celery.sh"
+        volumes:
+            - "../.:/application"
+        working_dir: /application
         env_file:
             - "conf/common.env"
             - "conf/server.env"

@@ -36,7 +36,12 @@ class Problem(models.Model):
     language = models.CharField(max_length=100, null=True, blank=True)
     cats_id = models.IntegerField(null=True)
     cats_material_url = models.URLField(null=False)
-    students = models.ManyToManyField(through='problem.Submit', related_name='problems_with_submits', to=User)
+    students = models.ManyToManyField(
+        through='problem.Submit',
+        through_fields=('problem', 'student'),
+        related_name='problems_with_submits',
+        to=User
+    )
     de_options = models.CharField(max_length=512, blank=True, default='')
     objects = ProblemManager()
 
@@ -75,13 +80,14 @@ class Submit(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name='submits', null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(User, related_name='updated_submits', on_delete=models.SET_NULL, null=True)
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submits', null=False)
     content = models.TextField()
     status = models.CharField(max_length=2, choices=SUBMIT_STATUS, default='NP')
     de_id = models.CharField(max_length=5)
 
     def __str__(self):
-        return self.status
+        return f'ID{self.id} - {self.status}'
 
     class Meta:
         ordering = ['id']
@@ -94,24 +100,37 @@ class CatsSubmit(models.Model):
     is_sent = models.BooleanField(default=False, null=False)
     sending_result = models.JSONField(null=True)
     testing_result = models.JSONField(null=True)
+    is_error = models.BooleanField(default=False, null=False)
+
+    def __str__(self):
+        return f'CID{self.submit.id} - ({"sent" if self.is_sent else "nsent"})'
 
 
 class LogEvent(models.Model):
     TYPE_MESSAGE = 'message'
-    TYPE_CATS = 'cats_answer'
+    TYPE_CATS_ANSWER = 'cats_answer'
     TYPE_STATUS_CHANGE = 'status_change'
     TYPE_SUBMIT = 'submit'
+    TYPE_CATS_SUBMIT = 'cats_submit'
+    TYPE_CATS_ERROR = 'cats_error'
     LOG_EVENT_TYPES = [
-        (TYPE_MESSAGE, 'Message to display'),
-        (TYPE_CATS, 'Check answer from cats'),
-        (TYPE_STATUS_CHANGE, 'Submit status changed to'),
         (TYPE_SUBMIT, 'Submit created'),
+        (TYPE_MESSAGE, 'Message to display'),
+        (TYPE_STATUS_CHANGE, 'Submit status changed to'),
+        (TYPE_CATS_ANSWER, 'Check answer from cats'),
+        (TYPE_CATS_SUBMIT, 'Cats submit created'),
+        (TYPE_CATS_ERROR, 'Cats error type'),
     ]
+    type = models.CharField(max_length=16, choices=LOG_EVENT_TYPES)
     problem = models.ForeignKey(Problem, related_name='log_events', on_delete=models.CASCADE, null=False)
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='log_events', null=False)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author_log_events', null=True)
+    submit = models.ForeignKey(Submit, on_delete=models.CASCADE, related_name='log_events', null=True)
     data = models.JSONField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    type = models.CharField(max_length=16, choices=LOG_EVENT_TYPES)
+
+    class Meta:
+        ordering = ('created_at', 'id')
 
 
 admin.site.register(Problem)

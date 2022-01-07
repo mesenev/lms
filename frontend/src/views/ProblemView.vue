@@ -37,7 +37,12 @@
           <cv-loading v-else small/>
           <div class="solution-container--submit-list">
             <log-event-component
-              :problemId="problem.id" :studentId="studentId" class="log--event--component"/>
+              :problemId="problem.id" :studentId="studentId"
+              :selected-submit="submitId"
+              class="log--event--component"
+              @submit-selected="(x) => changeCurrentSubmit(x.id)"
+              @cats-answer="(x) => showCatsAnswerModal(x.id)"
+            />
           </div>
         </div>
       </cv-column>
@@ -62,7 +67,7 @@
       </cv-column>
 
       <cv-column v-if="displayCatsPackage">
-        <cats-package-window></cats-package-window>
+        <cats-package-window :submit-id-prop="catsResultSubmitId"/>
       </cv-column>
 
     </cv-row>
@@ -106,6 +111,7 @@ export default class ProblemView extends Vue {
 
   private displayProblem = false;
   private displayCatsPackage = false;
+  private catsResultSubmitId: number | null = null;
 
   get problem() {
     return this.problemStore.currentProblem;
@@ -131,18 +137,23 @@ export default class ProblemView extends Vue {
     return this.submits.filter((x: SubmitModel) => x.student === this.studentId);
   }
 
-  changeCurrentSubmit(id: number) {
+  changeCurrentSubmit(id: number): void {
     this.submitId = Number(id);
-    if (this.submitIdProp !== Number(id)) {
-      this.$router.push({
-        name: 'ProblemViewWithSubmit', params: {
-          courseId: this.$route.params.courseId,
-          lessonId: this.$route.params.lessonId,
-          problemId: this.$route.params.problemId,
-          submitId: Number(id).toString(),
-        },
-      })
-    }
+    if (this.submitIdProp === Number(id))
+      return;
+    this.$router.push({
+      name: 'ProblemViewWithSubmit', params: {
+        courseId: this.$route.params.courseId,
+        lessonId: this.$route.params.lessonId,
+        problemId: this.$route.params.problemId,
+        submitId: Number(id).toString(),
+      },
+    });
+  }
+
+  showCatsAnswerModal(id: number): void {
+    this.catsResultSubmitId = Number(id);
+    this.toggleCatsModal(true);
   }
 
   get isStaff(): boolean {
@@ -165,13 +176,16 @@ export default class ProblemView extends Vue {
   async mounted() {
     window.addEventListener("keydown", event => {
       if (event.key == 'Escape') {
-        this.visionCatsPackage();
+        this.toggleCatsModal(false);
       }
     });
   }
 
-  visionCatsPackage() {
-    this.displayCatsPackage = !this.displayCatsPackage;
+  toggleCatsModal(target: boolean | undefined = undefined) {
+    if (typeof target === undefined)
+      this.displayCatsPackage = !this.displayCatsPackage;
+    else
+      this.displayCatsPackage = target as boolean;
   }
 
   get avatarUrl() {

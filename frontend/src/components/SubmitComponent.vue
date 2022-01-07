@@ -8,16 +8,11 @@
       @close="hideNotification"/>
     <cv-skeleton-text v-if="loading"/>
     <div v-else>
-      <cv-text-area
-        :rows="13"
-        v-model="submitEdit.content"
-        :class="{ 'text-area-teacher': isStaff, 'text-area-student': !isStaff }"
-        :disabled="isStaff"
-        light>
-      </cv-text-area>
+      <code-editor-component v-model="submitEdit.content"/>
       <cv-dropdown
         v-model="submitEdit.de_id"
         :items="deOptions"
+        :disabled="deOptions.length === 0"
         placeholder="Выберите язык программирования">
         <cv-dropdown-item v-for="de in deOptions" :key="de.value" :value="de.value">
           {{ de.name }}
@@ -32,14 +27,14 @@
       </cv-button>
       <div v-if="isStaff" class="handlers">
         <cv-button
-          :disabled="isNewSubmit"
+          :disabled="isAcceptDisabled"
           class="submit-btn accepted"
           v-on:click="acceptSubmit">
           Принять
         </cv-button>
         <cv-button
           kind='danger'
-          :disabled="isNewSubmit"
+          :disabled="isRejectDisabled"
           class="submit-btn rejected"
           v-on:click="rejectSubmit">
           Отклонить
@@ -50,8 +45,9 @@
 </template>
 
 <script lang="ts">
+import CodeEditorComponent from '@/components/common/CodeEditorComponent.vue';
 import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
-import SubmitModel from '@/models/SubmitModel';
+import SubmitModel, { SUBMIT_STATUS } from '@/models/SubmitModel';
 import ProblemModel from '@/models/ProblemModel';
 import problemStore from '@/store/modules/problem';
 import submitStore from '@/store/modules/submit';
@@ -61,7 +57,7 @@ import { de_options } from '@/utils/consts';
 import { Component, Prop, Watch } from 'vue-property-decorator';
 
 
-@Component({ components: {} })
+@Component({ components: { CodeEditorComponent } })
 export default class SubmitComponent extends NotificationMixinComponent {
   @Prop({ required: true }) submitId!: number;
   @Prop({ required: true }) isStaff!: boolean;
@@ -71,9 +67,34 @@ export default class SubmitComponent extends NotificationMixinComponent {
   submitEdit: SubmitModel = { ...this.submitStore.defaultSubmit };
   loading = true;
 
+  async created() {
+    await this.updateSubmit();
+  }
+
+  async updateSubmit() {
+    this.loading = true;
+    if (this.submitId) {
+      this.submit = await this.submitStore.fetchSubmitById(this.submitId);
+    } else {
+      this.submit = null;
+    }
+    this.submitEdit = (this.submit) ? { ...this.submit } : { ...this.submitStore.defaultSubmit };
+    if (this.submitEdit.de_id === '' && this.deOptions.length === 1)
+      this.submitEdit.de_id = this.deOptions[0].value;
+    this.loading = false;
+  }
+
 
   get isChanged(): boolean {
     return !_.isEqual(this.submit, this.submitEdit);
+  }
+
+  get isRejectDisabled() {
+    return this.isNewSubmit || this.submit?.status === SUBMIT_STATUS.WRONG_ANSWER;
+  }
+
+  get isAcceptDisabled() {
+    return this.isNewSubmit || this.submit?.status === SUBMIT_STATUS.OK;
   }
 
   get canSubmit(): boolean {
@@ -102,23 +123,6 @@ export default class SubmitComponent extends NotificationMixinComponent {
     this.updateSubmit();
   }
 
-  async created() {
-    await this.updateSubmit();
-  }
-
-  async updateSubmit() {
-    this.loading = true;
-    if (this.submitId) {
-      this.submit = await this.submitStore.fetchSubmitById(this.submitId);
-    } else {
-      this.submit = null;
-    }
-    this.submitEdit = (this.submit) ? { ...this.submit } : { ...this.submitStore.defaultSubmit };
-    if (this.submitEdit.de_id === '' && this.deOptions.length === 1)
-      this.submitEdit.de_id = this.deOptions[0].value;
-    this.loading = false;
-  }
-
   patchSubmit(status: string) {
 
     this.submitEdit = (this.submit)
@@ -130,10 +134,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
         this.submitStore.changeSubmitStatus(response.data);
         this.submit = { ...response.data };
         this.submitEdit = { ...this.submit };
-        if (this.submit.status == 'OK')
-          this.notificationKind = 'success';
-        else
-          this.notificationKind = 'error';
+        this.notificationKind = 'success';
         this.notificationText = `Работа оценена: ${status}`;
       })
       .catch((error: AxiosError) => {
