@@ -10,6 +10,7 @@
         <template slot="items">
           <div
             v-for="event in events" :key="event.id" class="list--item"
+
             v-bind:class="{ 'list--item--submit': event.type === logEventTypes.TYPE_SUBMIT }"
             v-on:click="elementClickHandler(event)">
             <img
@@ -33,7 +34,15 @@
               </div>
             </div>
 
-          </div>
+
+            v-on:click="elementClickHandler(event)">
+            <img
+              :src="event.data.thumbnail"
+              class="student--avatar"
+              alt='avatar'>
+            <div class="one-history-point"> {{ event.data.message }}</div>
+
+       </div>
         </template>
       </cv-structured-list>
     </div>
@@ -255,4 +264,5 @@ export default class LogEventComponent extends NotificationMixinComponent {
   height 24.55em
   overflow scroll
   overflow-x hidden
+
 </style>

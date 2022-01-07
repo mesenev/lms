@@ -23,6 +23,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: {} })
 export default class CatsPackageWindow extends Vue {
+
   @Prop({ required: true }) submitIdProp!: number;
   private data = {};
   private submitStore = submitStore;
@@ -33,12 +34,23 @@ export default class CatsPackageWindow extends Vue {
 
   async created() {
     this.data = await this.submitStore.fetchCatsResult(this.submitIdProp);
+
+  get getCatsData(){
+    // const уберем когда сюда что то поедет
+    const catsData: {[key: string]: string} = {
+      'Вердикт': 'Ошибка оформления кода. Подробнее ->',
+      'Лог компиляции': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.\',Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tempus, tellus eu scelerisque tincidunt, tortor lectus molestie odio, in sollicitudin justo lorem a eros.',
+      'Время/Память': '100/100'
+    }
+    return catsData;
+
   }
 }
 </script>
 
 
 <style lang="stylus" scoped>
+
 .head_of_message
   padding 10px
   width 100%
@@ -58,6 +70,27 @@ export default class CatsPackageWindow extends Vue {
 .cats-package-window
   height 100%
   background white
+
+  .head_of_message
+    padding 10px
+    width 100%
+    height min-content
+    font-size 1.7em
+    font-weight bold
+
+  .message
+    background rgba(207, 204, 174, 0.3);
+    padding-left 5px
+    padding-right 5px
+    padding-bottom 10px
+    padding-top 10px
+    margin 10px
+
+
+  .cats-package-window
+
+    height 100%
+    background white
 
 
 </style>
