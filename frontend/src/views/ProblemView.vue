@@ -52,13 +52,14 @@
             <template slot="headings"/>
             <template slot="items">
               <cv-structured-list-item
+                class="student-list--item"
                 v-for="student in studentIds"
                 :key="student"
                 :checked="checkedStudent(student)"
                 :value="student.toString()"
                 name="student">
                 <cv-structured-list-data>
-                  <user-component :user-id="student"/>
+                  <user-component :user-id="student" class="student-list--item--user-component"/>
                 </cv-structured-list-data>
               </cv-structured-list-item>
             </template>
@@ -247,7 +248,7 @@ export default class ProblemView extends Vue {
   justify-content space-between
   align-items center
 
-.submit-list, .student-list
+.submit-list
   margin 0
   padding 0
   height 24.55em
@@ -257,9 +258,8 @@ export default class ProblemView extends Vue {
   border-radius 10px
   border-color black
 
-
-.student-list
-  margin-left 1rem
+.student-list--item--user-component
+  padding-left 1rem
 
 .submit-btn, .handlers button
   margin-top 1rem
@@ -362,4 +362,9 @@ export default class ProblemView extends Vue {
 .answer
   text-align right
 
+</style>
+<style lang="stylus">
+.student-list--item
+  .bx--structured-list-td
+    vertical-align middle
 </style>
