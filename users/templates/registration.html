@@ -10,7 +10,7 @@
         </div>
     {% endif %}
 
-    <h1 class="header">Авторизация</h1>
+    <h1 class="header">Регистрация</h1>
     <br>
     <form action="." method="post">
         <table class="bx--data-table  bx--data-table--tall  ">
@@ -18,7 +18,6 @@
         </table>
         {% csrf_token %}
         <div class="login-btn"><input type="submit" value="Войти"></div>
-        <a class="link_to_registration" href="/registration/">Зарегистрироваться</a>
     </form>
 </div>
 </body>
@@ -37,7 +36,7 @@
 
     .content {
         width: 250px;
-        height: 250px;
+        height: 530px;
         position: absolute;
         top: 0;
         right: 0;
@@ -45,7 +44,6 @@
         left: 0;
         margin: auto;
     }
-
 
     .alert {
         margin-left: 1.5rem;
@@ -68,10 +66,6 @@
     .close-btn:hover {
         color: black;
     }
-    .link_to_registration{
-        position: relative;
-        top: 1rem;
-        margin-left: 4.6rem;
-    }
 </style>
 </html>
+

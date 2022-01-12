@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.core import exceptions
+
 from django.forms import Form, CharField, PasswordInput
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, redirect
@@ -32,6 +33,46 @@ def index(request, *args, **kwargs):
 class LoginForm(Form):
     username = CharField()
     password = CharField(widget=PasswordInput)
+
+
+class RegistrationForm(Form):
+    email = CharField()
+    username = CharField()
+    first_name = CharField()
+    last_name = CharField()
+    password = CharField(label='Password', widget=PasswordInput)
+    repeat_password = CharField(label='Repeat password', widget=PasswordInput)
+
+    def get_password(self):
+        return self.data['password']
+
+    def get_username(self):
+        return self.data['username']
+
+    def get_email(self):
+        return self.data['email']
+
+    def get_first_name(self):
+        return self.data['first_name']
+
+    def get_last_name(self):
+        return self.data['last_name']
+
+
+def user_registration(request):
+    if request.method == 'GET':
+        return render(request, 'registration.html', {'form': RegistrationForm()})
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        ctx = dict(error=True, form=form)
+        if not form.is_valid():
+            return render(request, 'registration.html', dict(**ctx, message='Ошибка чтения формы (ง’̀-‘́)ง'))
+        new_user = User()
+        new_user.set_password(form.get_password())
+        new_user.username = form.get_username()
+        new_user.email = form.get_email()
+        new_user.save()
+        return redirect('index')
 
 
 def user_login(request):

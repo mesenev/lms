@@ -3,6 +3,7 @@ from django.urls import path
 from users import views
 
 urlpatterns = [
+    path('registration/', views.user_registration, name= 'account_registration'),
     path('login/', views.user_login, name='account_login'),
     path('logout/', views.Logout.as_view(), name='account_logout'),
     path('api/students_for_course/<int:course_id>/', views.students_for_course, name='students_for_course'),
