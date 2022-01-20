@@ -3,17 +3,11 @@
 <link rel="stylesheet" href="https://unpkg.com/carbon-components/css/carbon-components.min.css">
 <body>
 <div class="content">
-    {% if error %}
-        <div class="alert">
-            <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-            {{ error_message }}
-        </div>
-    {% endif %}
 
     <h1 class="header">Регистрация</h1>
     <br>
     <form action="." method="post">
-        <table class="bx--data-table  bx--data-table--tall  ">
+        <table class="bx--data-table  bx--data-table--tall   test_table">
             {{ form.as_table }}
         </table>
         {% csrf_token %}
@@ -22,6 +16,30 @@
 </div>
 </body>
 <style>
+    .bx--data-table > tbody > tr {
+        padding-top: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #e0e0e0;
+
+    }
+    .bx--data-table > tbody > tr > td {
+        padding-top:0;
+
+    }
+    .bx--data-table > tbody > tr > td > ul{
+        max-width: 100%;
+        color: red;
+        margin-bottom: 2px;
+
+
+    }
+    .bx--data-table > tbody > tr > th{
+        padding-top: 0;
+        border: none;
+        height: auto;
+    }
     .header {
         margin-left: 1rem;
     }

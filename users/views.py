@@ -5,7 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.core import exceptions
 
-from django.forms import Form, CharField, PasswordInput
+from django.forms import Form, CharField, PasswordInput, ValidationError
+from django.core.validators import EmailValidator
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
@@ -43,6 +44,17 @@ class RegistrationForm(Form):
     password = CharField(label='Password', widget=PasswordInput)
     repeat_password = CharField(label='Repeat password', widget=PasswordInput)
 
+    def clean_email(self):
+        validate_email = EmailValidator(message='Некорректный email')
+        validate_email(self.get_email())
+
+    def clean_username(self):
+        try:
+            User.objects.get(username=self.get_username())
+            raise ValidationError('Логин уже занят')
+        except User.DoesNotExist:
+            return
+
     def get_password(self):
         return self.data['password']
 
@@ -64,13 +76,14 @@ def user_registration(request):
         return render(request, 'registration.html', {'form': RegistrationForm()})
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
-        ctx = dict(error=True, form=form)
         if not form.is_valid():
-            return render(request, 'registration.html', dict(**ctx, message='Ошибка чтения формы (ง’̀-‘́)ง'))
+            return render(request, 'registration.html', {'form': form})
         new_user = User()
         new_user.set_password(form.get_password())
         new_user.username = form.get_username()
         new_user.email = form.get_email()
+        new_user.first_name = form.get_first_name()
+        new_user.last_name = form.get_last_name()
         new_user.save()
         return redirect('index')
 
