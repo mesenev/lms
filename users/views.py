@@ -23,6 +23,8 @@ from course.models import Course
 from users.models import User, CourseAssignTeacher
 from users.serializers import DefaultUserSerializer
 
+import re
+
 
 @login_required(login_url=reverse_lazy('account_login'))
 def index(request, *args, **kwargs):
@@ -45,15 +47,40 @@ class RegistrationForm(Form):
     repeat_password = CharField(label='Repeat password', widget=PasswordInput)
 
     def clean_email(self):
-        validate_email = EmailValidator(message='Некорректный email')
-        validate_email(self.get_email())
+        try:
+            User.objects.get(email=self.get_email())
+            raise ValidationError('Email уже используется')
+        except User.DoesNotExist:
+            validate_email = EmailValidator(message='Некорректный email')
+            validate_email(self.get_email())
 
     def clean_username(self):
         try:
             User.objects.get(username=self.get_username())
             raise ValidationError('Логин уже занят')
         except User.DoesNotExist:
+            if re.search("[^A-Za-z0-9_-]$", self.get_username()):
+                raise ValidationError('Недопустимые символы')
             return
+
+    def clean_first_name(self):
+        if re.search("[^A-Za-zА-Яа-я]$", self.get_first_name()):
+            raise ValidationError('Недопустимые символы')
+
+    def clean_last_name(self):
+        if re.search("[^A-Za-zА-Яа-я]$", self.get_last_name()):
+            raise ValidationError('Недопустимые символы')
+
+    def clean_password(self):
+        if re.search("[^A-Za-z0-9_-]$", self.get_password()):
+            raise ValidationError('Недопустимые символы')
+
+        if len(self.get_password()) < 6:
+            raise ValidationError('Недостаточная длина')
+
+    def clean_repeat_password(self):
+        if self.get_password() != self.data['repeat_password']:
+            raise ValidationError('Пароли не совпадают')
 
     def get_password(self):
         return self.data['password']
