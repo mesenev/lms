@@ -48,54 +48,39 @@ class RegistrationForm(Form):
 
     def clean_email(self):
         try:
-            User.objects.get(email=self.get_email())
+            User.objects.get(email=self.data['email'])
             raise ValidationError('Email уже используется')
         except User.DoesNotExist:
             validate_email = EmailValidator(message='Некорректный email')
-            validate_email(self.get_email())
+            validate_email(self.data['email'])
 
     def clean_username(self):
         try:
-            User.objects.get(username=self.get_username())
+            User.objects.get(username=self.data['username'])
             raise ValidationError('Логин уже занят')
         except User.DoesNotExist:
-            if re.search("[^A-Za-z0-9_-]$", self.get_username()):
+            if re.search("[^A-Za-z0-9_-]", self.data['username']):
                 raise ValidationError('Недопустимые символы')
             return
 
     def clean_first_name(self):
-        if re.search("[^A-Za-zА-Яа-я]$", self.get_first_name()):
+        if re.search("[^A-Za-zА-Яа-я]", self.data['first_name']):
             raise ValidationError('Недопустимые символы')
 
     def clean_last_name(self):
-        if re.search("[^A-Za-zА-Яа-я]$", self.get_last_name()):
+        if re.search("[^A-Za-zА-Яа-я]", self.data['last_name']):
             raise ValidationError('Недопустимые символы')
 
     def clean_password(self):
-        if re.search("[^A-Za-z0-9_-]$", self.get_password()):
+        if re.search("[^A-Za-z0-9_-]", self.data['password']):
             raise ValidationError('Недопустимые символы')
 
-        if len(self.get_password()) < 6:
+        if len(self.data['password']) < 6:
             raise ValidationError('Недостаточная длина')
 
     def clean_repeat_password(self):
-        if self.get_password() != self.data['repeat_password']:
+        if self.data['password'] != self.data['repeat_password']:
             raise ValidationError('Пароли не совпадают')
-
-    def get_password(self):
-        return self.data['password']
-
-    def get_username(self):
-        return self.data['username']
-
-    def get_email(self):
-        return self.data['email']
-
-    def get_first_name(self):
-        return self.data['first_name']
-
-    def get_last_name(self):
-        return self.data['last_name']
 
 
 def user_registration(request):
@@ -106,11 +91,11 @@ def user_registration(request):
         if not form.is_valid():
             return render(request, 'registration.html', {'form': form})
         new_user = User()
-        new_user.set_password(form.get_password())
-        new_user.username = form.get_username()
-        new_user.email = form.get_email()
-        new_user.first_name = form.get_first_name()
-        new_user.last_name = form.get_last_name()
+        new_user.set_password(form.data['password'])
+        new_user.username = form.data['username']
+        new_user.email = form.data['email']
+        new_user.first_name = form.data['first_name']
+        new_user.last_name = form.data['last_name']
         new_user.save()
         return redirect('index')
 
