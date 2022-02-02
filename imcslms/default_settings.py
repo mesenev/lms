@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'cathie',
     'celery_app',
     'rating',
+    'channels',
 ]
 
 REST_FRAMEWORK = dict(
@@ -58,6 +59,16 @@ TEMPLATES = [
     },
 ]
 WSGI_APPLICATION = 'imcslms.wsgi.application'
+ASGI_APPLICATION = 'imcslms.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379')],
+        },
+    },
+}
 DATABASES = {'default':
     {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -88,7 +99,7 @@ STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesSto
 MEDIA_URL = '/media/'
 MEDIA_ROOT = 'media'
 
-WEBPACK_DEV_SERVER = 'localhost:8080'
+WEBPACK_DEV_SERVER = 'localhost:8080/static/'
 AUTH_USER_MODEL = 'users.User'
 CATS_URL = os.getenv('CATS_URL', '')
 CATS_LOGIN = os.getenv('CATS_LOGIN', '')

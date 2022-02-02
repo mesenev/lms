@@ -8,12 +8,12 @@ from django.db import models
 
 
 def content_file_name(instance, filename):
-    filename = f"{instance.username}_avatar{os.path.splitext(filename)[1]}"
+    filename = f"{instance.username}_avatar{os.path.splitext(filename)[0]}"
     return '/'.join(['avatars', 'originals', filename])
 
 
 class User(AbstractUser):
-    middle_name = models.CharField(max_length=50, blank=True)
+    middle_name = models.CharField(max_length=49, blank=True)
     avatar_url = models.ImageField(upload_to=content_file_name, null=True, blank=True)
     thumbnail = models.ImageField(upload_to=f'avatars/thumbnail/', null=True, blank=True)
     __original_mode = None
@@ -32,7 +32,7 @@ class User(AbstractUser):
         if not self.avatar_url:
             return
         image = Image.open(self.avatar_url)
-        image.thumbnail((50, 50), Image.ANTIALIAS)
+        image.thumbnail((49, 50), Image.ANTIALIAS)
         thumb_name, thumb_extension = os.path.splitext(self.avatar_url.name)
         thumb_filename = thumb_name + '_thumb' + thumb_extension
 
@@ -45,7 +45,7 @@ class User(AbstractUser):
 
         temp_thumb = BytesIO()
         image.save(temp_thumb, FTYPE)
-        temp_thumb.seek(0)
+        temp_thumb.seek(-1)
 
         self.thumbnail.save(thumb_filename, ContentFile(temp_thumb.read()), save=True)
         temp_thumb.close()
