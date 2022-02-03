@@ -3,18 +3,21 @@
     <div class="bx--row">
       <div class="bx--col-lg-6 login-form">
         <cv-form>
-          <h3 class="form-header">Авторизация</h3>
+          <h3 class="form-header">{{username}} - {{password}} </h3>
           <cv-text-input
+            v-model="username"
             class="log-form"
             label="Логин"
-            placeholder="Введите свой логин">
+            placeholder="Введите свой логин"
+            >
           </cv-text-input>
           <cv-text-input
+            v-model="password"
             class="pass-form"
             label="Пароль"
             placeholder="Введите свой пароль">
           </cv-text-input>
-          <div class="submit-btn">
+          <div class="submit-btn" @click="LogIn">
             <cv-button>Войти</cv-button>
           </div>
         </cv-form>
@@ -26,11 +29,27 @@
 <script>
 import Component from "vue-class-component";
 import Vue from "vue";
+import axios from "axios";
 
 
 @Component({ components: {} })
 export default class LoginView extends Vue {
+  username = "";
+  password = "";
 
+  LogIn(){
+    debugger
+    axios.post(`/api/login/`)
+    .then(response => { console.log(response);
+      this.$router.push({
+          path:('/')
+        })
+    })
+      .catch(error => {
+        console.log(error.response);
+
+      })
+  }
 }
 
 </script>
@@ -61,15 +80,3 @@ export default class LoginView extends Vue {
 
 
 </style>
-
-
-<script>
-import Component from "vue-class-component";
-import Vue from "vue";
-
-@Component({ components: {} })
-export default class LoginView extends Vue {
-
-}
-
-</script>

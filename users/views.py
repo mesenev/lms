@@ -24,9 +24,10 @@ from users.models import User, CourseAssignTeacher
 from users.serializers import DefaultUserSerializer
 
 import re
+from django.views import View
 
 
-@login_required(login_url=reverse_lazy('account_login'))
+#@login_required(login_url=reverse_lazy('account_login'))
 def index(request, *args, **kwargs):
     user = User.objects.prefetch_related('staff_for', 'student_for').get(pk=request.user.id)
     user_data = json.dumps(DefaultUserSerializer(instance=user, exclude_staff=False).data)
@@ -85,11 +86,11 @@ class RegistrationForm(Form):
 
 def user_registration(request):
     if request.method == 'GET':
-        return render(request, 'registration.html', {'form': RegistrationForm()})
+        return render(request, 'index.html')
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if not form.is_valid():
-            return render(request, 'registration.html', {'form': form})
+            return render(request, 'index.html')
         new_user = User()
         new_user.set_password(form.data['password'])
         new_user.username = form.data['username']
@@ -101,26 +102,10 @@ def user_registration(request):
 
 
 def user_login(request):
-    if request.method == 'GET':
-        return render(request, 'login.html', {'form': LoginForm()})
 
-    form = LoginForm(request.POST)
-    ctx = dict(error=True, form=form)
-    if not form.is_valid():
-        return render(request, 'login.html', dict(**ctx, message='Ошибка чтения формы (ง’̀-‘́)ง'))
-    user = authenticate(**form.cleaned_data)
-    if user and user.is_active:
-        login(request, user)
-        return redirect('index')
-    if user and not user.is_active:
-        return render(request, 'login.html', dict(
-            **ctx, error_message='Аккаунт заблокирован. Обратитесь к системному администратору.'
-        ))
-    try:
-        User.objects.get(username=form.cleaned_data['username'])
-    except User.DoesNotExist:
-        return render(request, 'login.html', dict(**ctx, error_message='Указанный пользователь не существует.'))
-    return render(request, 'login.html', dict(**ctx, error_message='Логин и пароль не совпадают'))
+    if request.method == 'POST':
+        user_data = json.dumps(DefaultUserSerializer(instance=user, exclude_staff=False).data)
+        return render(request, 'index.html')
 
 
 class UsersViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):

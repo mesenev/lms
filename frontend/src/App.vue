@@ -1,5 +1,6 @@
 <template>
-  <div class="layout">
+
+  <div v-if="user_login" class="layout">
     <lms-header class="layout-header"/>
     <main class="layout-content">
       <lms-breadcrumb class="main--breadcrumb"/>
@@ -19,6 +20,8 @@
       </div>
     </footer>
   </div>
+  <LoginView v-else-if="login_selected"/>
+  <RegistrationView v-else-if="login_selected"/>
 </template>
 
 <style lang="scss">
@@ -85,7 +88,14 @@ import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue'
 import LmsHeader from '@/components/LmsHeader.vue';
 import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
 import { Component, Vue } from 'vue-property-decorator';
+import LoginView from "@/views/LoginView.vue";
+import RegistrationView from "@/views/RegistrationView.vue";
 
-@Component({ components: { LmsHeader, LmsBreadcrumb, LogoGithub } })
-export default class App extends Vue {}
+@Component({ components: { RegistrationView, LoginView, LmsHeader, LmsBreadcrumb, LogoGithub } })
+export default class App extends Vue {
+  get user_login(){
+    return 0;
+  }
+  login_selected = true;
+}
 </script>
