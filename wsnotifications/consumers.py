@@ -1,4 +1,5 @@
 import json
+from urllib.parse import parse_qs
 
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
@@ -6,10 +7,11 @@ from channels.generic.websocket import WebsocketConsumer
 
 class NotificationsConsumer(WebsocketConsumer):
     def connect(self):
-        self.name = self.scope['url_route']['kwargs']['user_id']
-        self.group_name = 'user_%s' % self.name
+        query_params = {
+            key: val[0] for key, val in parse_qs(self.scope["query_string"].decode()).items()
+        }
+        self.group_name = f'{query_params["user_id"]}-{query_params["problem_id"]}'
 
-        # Join room group
         async_to_sync(self.channel_layer.group_add)(
             self.group_name,
             self.channel_name

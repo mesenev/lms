@@ -87,5 +87,18 @@ import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
 import { Component, Vue } from 'vue-property-decorator';
 
 @Component({ components: { LmsHeader, LmsBreadcrumb, LogoGithub } })
-export default class App extends Vue {}
+export default class App extends Vue {
+  public connection?: WebSocket;
+  public signals: unknown;
+  created() {
+            this.connection = new WebSocket(
+              'ws://' + window.location.host + `/ws/notifications?user_id=${123}&problem_id=${456}`
+              );
+            this.connection.onmessage = (event) => {
+                this.signals = event.data;
+                console.log("Successfully retrieved message from websocket");
+                console.log(this.signals);
+            };
+  }
+}
 </script>
