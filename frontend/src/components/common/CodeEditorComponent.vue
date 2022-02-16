@@ -12,8 +12,8 @@ import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
 @Component({ components: { PrismEditor } })
-export default class HelloWorld extends Vue {
-  @Prop({ required: true }) value = '';
+export default class CodeEditorComponent extends Vue {
+  @Prop({ required: true }) value;
   code = 'console.log("Hello World")';
 
   @Watch('code')
