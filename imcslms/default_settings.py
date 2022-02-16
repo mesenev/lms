@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'celery_app',
     'rating',
     'channels',
+    'wsnotifications',
 ]
 
 REST_FRAMEWORK = dict(
