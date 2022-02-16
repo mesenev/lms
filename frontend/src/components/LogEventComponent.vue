@@ -49,6 +49,7 @@
       class="searchbar"
       v-on:keydown.enter="createMessageHandler">
     </cv-text-input>
+    <cv-button @click="sendMessage">click</cv-button>
   </div>
 </template>
 
@@ -77,17 +78,52 @@ export default class LogEventComponent extends NotificationMixinComponent {
   iconTrash = TrashCan16;
   Checkbox = Checkbox16;
   events: Array<LogEventModel> = [];
+  connection!: WebSocket;
 
   async created() {
-    this.userStore.fetchUserById(this.studentId);
+    await this.userStore.fetchUserById(this.studentId);
     await this.fetchEvents();
+    this.socketConnectionUpdate();
   }
 
   @Watch('studentId')
   @Watch('problemId')
   onPropChanged() {
     this.fetchEvents();
+
   }
+
+  socketMessageHandler(event: MessageEvent) {
+    console.log(event.data);
+  }
+  socketEventHandler(event: Event) {
+    console.log(event);
+  }
+  socketErrorHandler(event: Event){
+    console.log('something bad happened with sockets');
+    console.log(event);
+  }
+
+  sendMessage() {
+    this.connection.send('{"message": 123}');
+  }
+
+  socketConnectionUpdate() {
+    try {
+      this.connection.close(1000);
+    } catch {
+      //
+    }
+    this.connection = new WebSocket(
+      'ws://' + window.location.host
+      + `/ws/notifications?user_id=${this.studentId}&problem_id=${this.problemId}`
+    );
+    this.connection.onmessage = this.socketMessageHandler;
+    this.connection.onclose = this.socketEventHandler;
+    this.connection.onopen = this.socketEventHandler;
+    this.connection.onerror = this.socketErrorHandler;
+  }
+
 
   async fetchEvents() {
     this.loading = true;
