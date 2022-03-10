@@ -90,12 +90,18 @@ export default class LogEventComponent extends NotificationMixinComponent {
   @Watch('problemId')
   onPropChanged() {
     this.fetchEvents();
-
   }
 
   socketMessageHandler(event: MessageEvent) {
-    console.log(event.data);
+    debugger;
+    console.log('got message via ws');
+    console.log(event);
+
+    this.events.push(event.data as LogEventModel);
+    this.events.sort((a) => a.id);
   }
+
+
   socketEventHandler(event: Event) {
     console.log(event);
   }
@@ -104,8 +110,8 @@ export default class LogEventComponent extends NotificationMixinComponent {
     console.log(event);
   }
 
-  sendMessage() {
-    this.connection.send('{"message": 123}');
+  sendMessage(messageObject: object) {
+    this.connection.send(messageObject.toString());
   }
 
   socketConnectionUpdate() {
@@ -167,7 +173,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
   }
 
   async deleteEvent(event: LogEventModel) {
-    const answer = await this.logEventStore.deleteEvent(event.id);
+    await this.logEventStore.deleteEvent(event.id);
     this.events = this.events.filter(value => value.id !== event.id);
     await this.thumbnailsUpdate();
   }

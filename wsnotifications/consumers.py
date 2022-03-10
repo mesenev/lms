@@ -51,3 +51,7 @@ class NotificationsConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps({
             'message': message
         }))
+
+    def log_event(self, event):
+        # Send message to WebSocket
+        self.send(text_data=json.dumps(event['log_event']))

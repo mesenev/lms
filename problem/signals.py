@@ -1,7 +1,13 @@
+from channels.layers import get_channel_layer
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
+from django.core.management import BaseCommand
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 from problem.models import Submit, ProblemStats, LogEvent
+from problem.serializers import LogEventSerializer
 
 
 @receiver(post_save, sender=Submit)
@@ -47,5 +53,18 @@ def create_log_event(sender, instance: Submit, created, **kwargs):
         return
 
 
+@receiver(post_save, sender=Submit)
+def send_log_event_via_ws(sender, instance: LogEvent, created, **kwargs):
+    if not created:
+        return
+    channels = get_channel_layer()
+    async_to_sync(channels.group_send)(
+        f'{instance.student.id}-{instance.problem.id}',
+        {'type': 'log_event', 'log_event': LogEventSerializer(instance).data}
+    )
+    return
+
+
 post_save.connect(update_problem_status, weak=False, sender=Submit)
 post_save.connect(create_log_event, weak=False, sender=Submit)
+post_save.connect(send_log_event_via_ws, weak=False, sender=LogEvent)
