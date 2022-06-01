@@ -9,13 +9,27 @@ from cathie.cats_api import cats_get_problems_from_contest, cats_get_problem_des
 from course.models import Course
 from problem.models import Problem
 
+from django.shortcuts import render
+from cathie.authorization import *
+
+
+def check_authorization_for_cats(function_to_decorate):
+    def wrapper():
+        pass #геттер логина с кетса
+        pass #геттер пароля с кетса
+        # if login_from cats and password_from_cats:
+        function_to_decorate()
+        #else
+        raise ValueError("Authorisation Error")
+    return wrapper
+
 
 @login_required
 @api_view(['GET'])
 @renderer_classes([JSONRenderer])
 def get_cats_problems(request, course_id):
     course = Course.objects.get(pk=course_id)
-    cats_problems = cats_get_problems_from_contest(course.cats_id)
+    cats_problems = cats_get_problems_from_contest(course.cats_id, request.user)
     return Response(cats_problems)
 
 
@@ -30,7 +44,7 @@ def get_cats_problem_description(request, problem_id):
 
 
 @api_view(['GET', 'POST'])
-@check_authorization_for_cats
+# @check_authorization_for_cats
 def cats_admin(request):
     if request.method == 'POST':
         new_cats_seed = request.POST["input_cats_seed"]
@@ -38,3 +52,4 @@ def cats_admin(request):
 
     data = {"cats_seed": cats_sid()}
     return render(request, 'cats_admin_page.html', context=data)
+
