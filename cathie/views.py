@@ -29,7 +29,7 @@ def check_authorization_for_cats(function_to_decorate):
 @renderer_classes([JSONRenderer])
 def get_cats_problems(request, course_id):
     course = Course.objects.get(pk=course_id)
-    cats_problems = cats_get_problems_from_contest(course.cats_id, request.user)
+    cats_problems = cats_get_problems_from_contest(course.cats_id)
     return Response(cats_problems)
 
 
