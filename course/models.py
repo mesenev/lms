@@ -10,7 +10,7 @@ class Course(models.Model):
     author = models.ForeignKey(User, related_name='author_for', on_delete=models.SET_NULL, null=True)
     students = models.ManyToManyField(User, related_name='student_for', through='users.CourseAssignStudent')
     staff = models.ManyToManyField(User, related_name='staff_for', through='users.CourseAssignTeacher')
-    cats_id = models.CharField(max_length=50, blank=True, default='')
+    cats_id = models.IntegerField(null=True)
     de_options = models.CharField(max_length=512, blank=True, default='')
 
     def __str__(self):
