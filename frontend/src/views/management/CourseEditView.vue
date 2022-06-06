@@ -29,6 +29,12 @@
              ${courseEdit.author.last_name}
               (${courseEdit.author.username})`.trim()"
           />
+
+          <cv-text-input
+            v-model.trim="courseEdit.cats_id"
+            class="course--cats"
+            label="Cats id"/>
+
           <cv-text-input
             v-model.trim="courseEdit.name"
             class="course--name"
@@ -204,6 +210,9 @@ export default class CourseEditView extends Vue {
   float right
 
 .edit--course
+  margin-top 2rem
+
+.course--cats
   margin-top 2rem
 
 .course--name
