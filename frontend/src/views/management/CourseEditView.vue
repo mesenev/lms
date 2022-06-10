@@ -67,11 +67,11 @@
           <EditCourseLessons
             v-if="!isNewCourse && !fetchingCourse"
             :course="courseEdit"
-            class="edit&#45;&#45;course-props edit--course"/>
+            class="course-props edit--course"/>
           <EditCourseModal
             v-if="!isNewCourse && !fetchingCourse"
             :course-id="courseEdit.id"
-            class="edit&#45;&#45;course-props add--btn"/>
+            class="course-props add--btn"/>
         </div>
       </div>
       <div class="bx--col-lg-6 second--block">
