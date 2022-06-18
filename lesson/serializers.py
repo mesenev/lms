@@ -1,7 +1,9 @@
+from django.core.files.base import ContentFile
 from rest_framework import serializers
 
 from lesson.models import Lesson, LessonContent
 from problem.serializers import ProblemSerializer
+from problem.storages import gen_hash_name
 from rating.serializers import LessonProgressSerializer
 from users.serializers import DefaultUserSerializer
 
@@ -14,9 +16,17 @@ class MaterialSerializer(serializers.Serializer):
     content_type = serializers.CharField(allow_blank=True)
     content = serializers.CharField()
 
+    def _change_content(self, content):
+        with self.instance.content.open("w") as temp:
+            temp.write(content)
+
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
         instance.content = validated_data.get('content', instance.content)
+
+        if validated_data.get('content'):
+            self._change_content(validated_data.get('content'))
+
         instance.author = validated_data.get('author', instance.author)
         instance.save()
         return instance
@@ -24,7 +34,25 @@ class MaterialSerializer(serializers.Serializer):
     def create(self, validated_data):
         request = self.context.get("request")
         user = request.user if request and hasattr(request, 'user') else None
-        return LessonContent.objects.create(**validated_data, **{'author': user})
+        content = validated_data.get('content')
+        validated_data.pop('content')
+        lesson = LessonContent.objects.create(**validated_data, **{'author': user})
+        lesson.content.save(gen_hash_name(content) + '.txt', ContentFile(content), save=True)
+        return lesson
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        if instance is not None:
+            rep["content"] = self._get_file_content(instance)
+        return rep
+
+    @staticmethod
+    def _get_file_content(instance):
+        if not instance.content.name:
+            return ""
+
+        with instance.content.file.open() as temp:
+            return temp.read()
 
     class Meta:
         model = LessonContent

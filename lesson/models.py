@@ -3,6 +3,7 @@ from django.db import models
 
 from course.models import Course
 from users.models import User
+from problem.storages import private_storage
 
 
 class Lesson(models.Model):
@@ -29,7 +30,7 @@ class LessonContent(models.Model):
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=500)
     content_type = models.CharField(max_length=5, choices=CONTENT_TYPE, blank=True, null=True)
-    content = models.TextField()
+    content = models.FileField(storage=private_storage)
 
 
 admin.site.register(Lesson)
