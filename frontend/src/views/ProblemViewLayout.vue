@@ -1,7 +1,9 @@
 <template>
   <transition mode="out-in" name="fade">
     <router-view v-if="problem"/>
-    <cv-loading v-else/>
+    <div class="loading-out" v-else>
+      <cv-loading />
+    </div>
   </transition>
 </template>
 
@@ -30,3 +32,13 @@ export default class ProblemViewLayout extends Vue {
   }
 }
 </script>
+
+<style lang="stylus" scoped>
+.loading-out
+  display flex
+  width 100%;
+  height 100%;
+  align-items center;
+  justify-content center;
+
+</style>
