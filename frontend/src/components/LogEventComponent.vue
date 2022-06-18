@@ -75,7 +75,6 @@ import Checkbox16 from '@carbon/icons-vue/es/checkbox--checked--filled/16';
 import logEventStore from '@/store/modules/logEvent';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import Vue from "vue/types/umd";
 // import LogEvent from "@/store/modules/logEvent";
 
 
@@ -221,12 +220,17 @@ export default class LogEventComponent extends NotificationMixinComponent {
   }
   async scrollDown(): Promise<void> {
     let eventList = this.$refs.eventList;
-    if (eventList instanceof Vue) {
+
+    if (eventList instanceof Array) {
+      eventList = eventList[0];
+    }
+
+    if (eventList instanceof Element)
+      eventList.scrollTo(0, eventList.scrollHeight);
+    else if (eventList != undefined) {
       eventList = eventList.$el;
       eventList.scrollTo(0, eventList.scrollHeight);
     }
-    else if (eventList instanceof Element)
-      eventList.scrollTo(0, eventList.scrollHeight);
   }
 }
 
