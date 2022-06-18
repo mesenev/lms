@@ -51,7 +51,7 @@ def create_log_event(sender, instance: Submit, created, **kwargs):
         return
 
 
-@receiver(post_save, sender=Submit)
+@receiver(post_save, sender=LogEvent)
 def send_log_event_via_ws(sender, instance: LogEvent, created, **kwargs):
     if not created:
         return
