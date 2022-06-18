@@ -1,8 +1,8 @@
 <template>
   <div class="bx--grid">
     <div class="bx--row header-container">
-      <div class="main-title">
-        <h1 v-if="problem" class=""> {{ problem.name }}</h1>
+      <div class="main-title" :class="{'bx--offset-lg-1': isStaff, 'bx--offset-lg-2': !isStaff}">
+        <h1 v-if="problem" class="">{{ problem.name }}</h1>
         <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
         <div class="description-container">
           <cv-link v-if="problem"
@@ -22,11 +22,41 @@
               <problem-description :problem="problem"/>
             </template>
           </cv-modal>
+          <div class="problem-information">
+            <span>{{ workName }}</span>
+            <span>Дедлайн: <strong>{{ lesson.deadline }}</strong></span>
+            <span v-if="lesson.scores[problem.type]">
+              Макс. балл <strong>{{ lesson.scores[problem.type] }}</strong>
+            </span>
+          </div>
         </div>
       </div>
     </div>
-    <cv-row>
-      <cv-column :lg="7">
+    <cv-row class="main-items" justify="center">
+      <problem-navigation :lesson-id="problem.lesson" v-if="!isStaff"></problem-navigation>
+      <cv-column v-if="isStaff && !displayCatsPackage">
+        <div class="item">
+          <cv-structured-list class="student-list" condensed selectable @change="changeStudent">
+            <template slot="headings">
+              <cv-structured-list-heading class="pupil-title">Список учеников</cv-structured-list-heading>
+            </template>>
+            <template slot="items">
+              <cv-structured-list-item
+                class="student-list--item"
+                v-for="student in studentIds"
+                :key="student"
+                :checked="checkedStudent(student)"
+                :value="student.toString()"
+                name="student">
+                <cv-structured-list-data>
+                  <user-component :user-id="student" class="student-list--item--user-component"/>
+                </cv-structured-list-data>
+              </cv-structured-list-item>
+            </template>
+          </cv-structured-list>
+        </div>
+      </cv-column>
+      <cv-column :lg="{'span': 8, 'offset': isStaff ? 0 : 2}">
         <div class="solution-container item">
           <submit-component
             v-if="problem"
@@ -46,42 +76,22 @@
           </div>
         </div>
       </cv-column>
-      <cv-column v-if="isStaff && !displayCatsPackage">
-        <div class="item">
-          <cv-structured-list class="student-list" condensed selectable @change="changeStudent">
-            <template slot="headings"/>
-            <template slot="items">
-              <cv-structured-list-item
-                class="student-list--item"
-                v-for="student in studentIds"
-                :key="student"
-                :checked="checkedStudent(student)"
-                :value="student.toString()"
-                name="student">
-                <cv-structured-list-data>
-                  <user-component :user-id="student" class="student-list--item--user-component"/>
-                </cv-structured-list-data>
-              </cv-structured-list-item>
-            </template>
-          </cv-structured-list>
-        </div>
-      </cv-column>
-
       <cv-column v-if="displayCatsPackage">
         <cats-package-window :submit-id-prop="catsResultSubmitId"/>
       </cv-column>
-
     </cv-row>
   </div>
 </template>
 
 <script lang="ts">
 import ProblemDescription from "@/components/ProblemDescription.vue";
+import ProblemNavigation from "@/components/ProblemNavigation.vue";
 import SubmitComponent from '@/components/SubmitComponent.vue';
 import LogEventComponent from '@/components/LogEventComponent.vue';
 import SubmitStatus from "@/components/SubmitStatus.vue";
 import UserComponent from '@/components/UserComponent.vue';
 import SubmitModel from '@/models/SubmitModel';
+import lessonStore from '@/store/modules/lesson';
 import problemStore from '@/store/modules/problem';
 import submitStore from '@/store/modules/submit';
 import userStore from '@/store/modules/user';
@@ -97,6 +107,7 @@ import CatsPackageWindow from "@/components/CatsPackageWindow.vue";
     SubmitStatus,
     UserComponent,
     LogEventComponent,
+    ProblemNavigation
   },
 })
 export default class ProblemView extends Vue {
@@ -104,6 +115,7 @@ export default class ProblemView extends Vue {
   public submitId = this.submitIdProp;
   public studentId = NaN;
 
+  private lessonStore = lessonStore;
   private problemStore = problemStore;
   private userStore = userStore;
   private submitStore = submitStore;
@@ -113,6 +125,10 @@ export default class ProblemView extends Vue {
   private displayProblem = false;
   private displayCatsPackage = false;
   private catsResultSubmitId: number | null = null;
+
+  get lesson() {
+    return this.lessonStore.currentLesson;
+  }
 
   get problem() {
     return this.problemStore.currentProblem;
@@ -136,6 +152,15 @@ export default class ProblemView extends Vue {
 
   get userSubmits() {
     return this.submits.filter((x: SubmitModel) => x.student === this.studentId);
+  }
+
+  get workName() {
+    if (this.problem?.type === "CW")
+      return "Классная работа";
+    else if (this.problem?.type === "HW")
+      return "Домашняя работа"
+    else if (this.problem?.type === "EX")
+      return "Дополнительные задания"
   }
 
   changeCurrentSubmit(id: number): void {
@@ -222,25 +247,39 @@ export default class ProblemView extends Vue {
 </script>
 
 <style lang="stylus" scoped>
+.main-title
+  margin-top 1rem
 
-.table-title
-  margin-left 5rem
+h1
+  font-weight bold
+
+.description-container
+  display block
 
 .problem-title
   margin-left 2rem
 
+.problem-information
+  margin-top 1rem
+
+  span
+    margin 0 0.5rem
+
 .item
   background-color var(--cds-ui-background)
-  padding 1rem
+  //padding 1rem
 
 .solution-container
   display flex
 
   &--submit-component
-    flex 69%
+    flex 59%
 
   &--submit-list
-    flex 30%
+    flex 40%
+
+  @media (max-width: 767px)
+    display block
 
 .name
   display flex
@@ -260,9 +299,6 @@ export default class ProblemView extends Vue {
 
 .student-list--item--user-component
   padding-left 1rem
-
-.submit-btn, .handlers button
-  margin-top 1rem
 
 .submit
   display flex
@@ -288,16 +324,9 @@ export default class ProblemView extends Vue {
   &:hover
     background-color: var(--cds-support-01)
 
-.text-area-student
-.text-area-teacher
-  border 1px solid black
-
 .text-area-teacher textarea:disabled
   cursor pointer
   color #000
-
-.problem-view
-  margin-top: 2rem
 
 .handlers
   button:nth-child(2n)
@@ -313,8 +342,15 @@ export default class ProblemView extends Vue {
     display none
 
 
-.show-problem-link:hover
+.show-problem-link
   cursor pointer
+  border #D8D8D8 solid 1px
+  padding 0.5em
+  border-radius 5px
+  background-color white
+  color black
+  display inline-block
+  margin-top 0.5rem
 
 .message
   width auto
@@ -356,12 +392,21 @@ export default class ProblemView extends Vue {
 .student
   margin-right 1em
 
-.stuff
-  margin-left 1em
-
 .answer
   text-align right
 
+.student-list
+  margin-bottom 2rem
+  .pupil-title
+    padding-left 0.5rem
+
+
+.problem-description-modal
+  .bx--modal-container
+    border-radius 5px
+aside
+  @media (max-width: 1100px)
+    display none
 </style>
 <style lang="stylus">
 .student-list--item
