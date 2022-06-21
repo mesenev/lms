@@ -135,8 +135,9 @@ export default class LogEventComponent extends NotificationMixinComponent {
     } catch {
       //
     }
+    const protocol =  (process.env.NODE_ENV == 'development') ? 'ws://' : 'wss://';
     this.connection = new WebSocket(
-      'ws://' + window.location.host
+      protocol + window.location.host
       + `/ws/notifications?user_id=${this.studentId}&problem_id=${this.problemId}`
     );
     this.connection.onmessage = this.socketMessageHandler;
