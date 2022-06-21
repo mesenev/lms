@@ -115,10 +115,6 @@ export default class LogEventComponent extends NotificationMixinComponent {
   }
 
   socketMessageHandler(event: MessageEvent) {
-    debugger;
-    console.log('got message via ws');
-    console.log(event);
-
     this.events.push(JSON.parse(event.data) as LogEventModel);
     this.events.sort((a) => -a.id);
     this.scrollDown()
