@@ -119,7 +119,7 @@ aside
     cursor default
 </style>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 .bx--structured-list-row--header-row
   background-color #393939
   .pupil-title

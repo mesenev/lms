@@ -271,7 +271,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
 </style>
 
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 .bx--dropdown
   border-bottom 0
   .bx--list-box__field, ui
