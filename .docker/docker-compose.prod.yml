@@ -62,8 +62,8 @@ services:
             - "conf/server.env"
         environment:
             PYTHONUNBUFFERED: 1
-        expose:
-            - "8080"
+        ports:
+            - "127.0.0.1:8001:8080"
         networks:
             - db-net
             - nginx-net
