@@ -20,8 +20,8 @@
             v-on:click="elementClickHandler(event)">
 
             <img :src="picUrl(event.data.thumbnail)"
-              class="student--avatar"
-              alt='avatar'>
+                 class="student--avatar"
+                 alt='avatar'>
             <span class="event--date">{{ event.created_at | withoutSeconds }}</span>
 
             <div v-if="logEventTypes.TYPE_SUBMIT === event.type" class="one-history-point">
@@ -61,7 +61,8 @@
       </cv-text-input>
     </div>
     <div class="btn-out">
-      <cv-button kind="tertiary" @click="createMessageHandler" class="btn-send" >Отправить</cv-button>
+      <cv-button kind="tertiary" @click="createMessageHandler" class="btn-send">Отправить
+      </cv-button>
     </div>
   </div>
 </template>
@@ -78,15 +79,20 @@ import { Component, Prop, Watch } from "vue-property-decorator";
 // import LogEvent from "@/store/modules/logEvent";
 
 
-@Component({ components: { TrashCan16 },
-  filters: {withoutSeconds: function (d: string) {
-    return new Date(d).toLocaleString([], {
+@Component({
+  components: { TrashCan16 },
+  filters: {
+    withoutSeconds: function (d: string) {
+      return new Date(d).toLocaleString([], {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
         hour: "2-digit",
-        minute: "2-digit"})
-  }}})
+        minute: "2-digit"
+      })
+    }
+  }
+})
 export default class LogEventComponent extends NotificationMixinComponent {
   @Prop({ required: true }) problemId!: number;
   @Prop({ required: true }) studentId!: number;
@@ -124,18 +130,14 @@ export default class LogEventComponent extends NotificationMixinComponent {
   socketEventHandler(event: Event) {
     console.log(event);
   }
-  socketErrorHandler(event: Event){
+
+  socketErrorHandler(event: Event) {
     console.log('something bad happened with sockets');
     console.log(event);
   }
 
   socketConnectionUpdate() {
-    try {
-      this.connection.close(1000);
-    } catch {
-      //
-    }
-    const protocol =  (process.env.NODE_ENV == 'development') ? 'ws://' : 'wss://';
+    const protocol = (window.location.protocol === 'http:') ? 'ws://' : 'wss://';
     this.connection = new WebSocket(
       protocol + window.location.host
       + `/ws/notifications?user_id=${this.studentId}&problem_id=${this.problemId}`
@@ -215,6 +217,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
       return url;
     return "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
   }
+
   async scrollDown(): Promise<void> {
     let eventList = this.$refs.eventList;
 
@@ -306,6 +309,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
   &:hover
     .event--date
       display unset
+
     .event--delete
       display unset
 
@@ -340,7 +344,8 @@ export default class LogEventComponent extends NotificationMixinComponent {
   border-left 1em
   padding-left 1em
   margin-left 1em
-  //box-shadow -1em black
+
+//box-shadow -1em black
 
 .bx--list
   list-style-type none
@@ -377,6 +382,7 @@ span.event--date
     padding 0.5rem 0 0.5rem 0.5rem
     justify-content flex-end
     background-color #f4f4f4
+
   &-send
     padding 0 1rem
 
@@ -394,10 +400,12 @@ span.event--date
 .wrapper-for_controll-overflow-list
   .bx--structured-list-thead
     display none
+
 .searchbar
   input
     border-bottom 0
     border-radius 5px
+
   label
     display none
 </style>
