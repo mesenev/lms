@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib import admin
 
 from users.models import User
 
@@ -9,3 +10,14 @@ class CatsUserLink(models.Model):
     # cats_id = models.IntegerField()
     # cats_token = models.CharField(max_length=50, null=True)
 
+
+class CatsAccount(models.Model):
+    user = models.ForeignKey(User, related_name='cats_account', on_delete=models.CASCADE)
+    username = models.CharField(max_length=50, null=False)
+    last_check = models.DateTimeField(auto_created=True)
+
+    def __str__(self):
+        return f'lms: {self.user} - cats: {self.username}'
+
+
+admin.site.register(CatsAccount)

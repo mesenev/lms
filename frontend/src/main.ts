@@ -15,7 +15,6 @@ VueClipboard.config.autoSetContainer = true;
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 axios.defaults.xsrfCookieName = 'csrftoken';
 
-
 Vue.config.productionTip = false;
 Vue.config.devtools = true;
 

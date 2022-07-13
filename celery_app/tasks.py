@@ -43,12 +43,13 @@ def update_submit_status():
 def send_submit_to_cats():
     print('sending sol. tasks', end=' ')
     submit = CatsSubmit.objects.filter(is_sent=False).order_by('id').first()
+    cats_account = submit.submit.student.cats_account.username
     print(len(list(CatsSubmit.objects.filter(is_sent=False))))
     if not submit:
         return
     # TODO: check correctness of the response
     try:
-        ids, response = cats_submit_solution(**submit.data)
+        ids, response = cats_submit_solution(**submit.data, cats_account=cats_account)
     except CatsAnswerCodeException as exception:
         submit.is_error = True
         submit.is_sent = True

@@ -5,8 +5,8 @@
     </div>
     <div class="bx--row content">
       <div class="avatar-container">
-          <Avatar class="image" :avatar_url="user.avatar_url"/>
-          <EditAvatarModal class="image-edit-icon" v-if="!guestMode" :user="user"/>
+        <Avatar class="image" :avatar_url="user.avatar_url"/>
+        <EditAvatarModal class="image-edit-icon" v-if="!guestMode" :user="user"/>
       </div>
       <div class="bx--col">
         <div class="courses-block">
@@ -14,7 +14,8 @@
           <h3 v-else>Курсы пользователя</h3>
           <cv-structured-list v-if="!loading" selectable>
             <template slot="items">
-              <cv-structured-list-item class="item" v-for="course in filterCourses" :key="course.id">
+              <cv-structured-list-item class="item" v-for="course in filterCourses"
+                                       :key="course.id">
                 <Course :courseProp='course'/>
               </cv-structured-list-item>
             </template>
@@ -34,19 +35,25 @@
                 </cv-structured-list-item>
                 <cv-structured-list-item>
                   <cv-structured-list-data>Почта</cv-structured-list-data>
-                  <cv-structured-list-data>{{ user.email || 'error@mail.ru' }}</cv-structured-list-data>
+                  <cv-structured-list-data>{{
+                      user.email || 'error@mail.ru'
+                    }}
+                  </cv-structured-list-data>
                 </cv-structured-list-item>
                 <cv-structured-list-item>
                   <cv-structured-list-data>Аккаунт Cats</cv-structured-list-data>
-                  <cv-structured-list-data class="cats_status">Не привязан</cv-structured-list-data>
+                  <cv-structured-list-data class="cats_status" >
+                    <cv-inline-loading active v-if="cats_loading"/>
+                    <span v-else> {{ cats_status }}</span>
+                  </cv-structured-list-data>
                 </cv-structured-list-item>
               </template>
             </cv-structured-list>
           </div>
           <div class="info-btns">
-                  <AddCatsModal v-if="!guestMode" class="add-cats"/>
-                  <ChangePasswordModal v-if="!guestMode" class="change-pass"/>
-            </div>
+            <AddCatsModal v-if="!guestMode" class="add-cats"/>
+            <ChangePasswordModal v-if="!guestMode" class="change-pass"/>
+          </div>
         </div>
       </div>
     </div>
@@ -65,6 +72,7 @@ import userStore from '@/store/modules/user';
 import EditAvatarModal from "@/views/EditAvatarModal.vue";
 import Edit32 from '@carbon/icons-vue/es/edit/32';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import axios from "axios";
 
 @Component({
   components: {
@@ -73,9 +81,11 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
   },
 })
 export default class ProfileView extends Vue {
-  @Prop({required: true}) userId!: number;
+  @Prop({ required: true }) userId!: number;
   private store = courseStore;
   loading = true;
+  cats_loading = true;
+  cats_account = "";
   searchValue = "";
   user = userStore.user;
 
@@ -88,6 +98,20 @@ export default class ProfileView extends Vue {
       this.user = await userStore.fetchUserById(this.userId);
     }
     this.loading = false;
+    await this.fetch_cats_account();
+  }
+
+  async fetch_cats_account() {
+    await axios.get(`/api/cats_account/?user_id=${this.userId}`)
+      .then(response => {
+        if (response.data)
+          this.cats_account = response.data[0].username;
+      })
+      .catch(error => {
+        debugger;
+        console.log(error);
+      })
+    this.cats_loading = false;
   }
 
   get filterCourses() {
@@ -100,6 +124,9 @@ export default class ProfileView extends Vue {
     return this.store.courses;
   }
 
+  get cats_status() {
+    return (this.cats_account) ? this.cats_account : 'Не привязан ⚠️';
+  }
 }
 </script>
 
@@ -110,7 +137,7 @@ export default class ProfileView extends Vue {
 
 .image
   margin-top 2rem
-  border 1px solid rgba(0,0,0,0.3)
+  border 1px solid rgba(0, 0, 0, 0.3)
   border-radius 150%
 
 .image-edit-icon
