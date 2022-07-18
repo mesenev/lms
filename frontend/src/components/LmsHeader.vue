@@ -207,7 +207,6 @@ import Component from 'vue-class-component';
 export default class LmsHeader extends Vue {
 
   user = userStore.user;
-  course = courseStore;
 
   get courseSelected(): boolean {
     return this.$route.params.hasOwnProperty('courseId') && this.$route.params['courseId'] != null;
@@ -226,8 +225,9 @@ export default class LmsHeader extends Vue {
   }
 
   get isStaff(): boolean {
-    return this.user.staff_for.includes(Number(this.$route.params.courseId))
-      || this.user.id === this.course.currentCourse?.author?.id;
+    const isUserStaffFor = this.user.staff_for.includes(Number(this.$route.params.courseId));
+    const isAuthorId = this.user.id === courseStore.currentCourse?.author?.id;
+    return isUserStaffFor || isAuthorId;
   }
 }
 </script>
