@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework.routers import DefaultRouter
 
+from cathie.views import CatsAccountViewSet
 from course.views import CourseViewSet, LinkViewSet, ScheduleViewSet
 from lesson.views import LessonViewSet, MaterialViewSet
 from problem.views import ProblemViewSet, SubmitViewSet, LogEventViewSet
@@ -24,6 +25,7 @@ router.register('courseprogress', CourseProgressViewSet, basename='courseprogres
 router.register('courselink', LinkViewSet, basename='courselink')
 router.register('attendance', AttendanceViewSet, basename='attendance')
 router.register('logevents', LogEventViewSet, basename='logevent')
+router.register('cats_account', CatsAccountViewSet, basename='cats_account')
 
 urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

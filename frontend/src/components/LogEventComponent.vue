@@ -1,54 +1,69 @@
 <template>
   <div class="scrollable-solution-list">
-    <div class="wrapper-for_controll-overflow-list">
+    <div class="title-space"></div>
+    <div class="title">
+      <span>История решений:</span>
+    </div>
+    <div class="wrapper-for_controll-overflow-list" ref="eventList">
       <cv-loading v-if="loading"/>
       <cv-structured-list
         v-else
-        class="submit-list"
-      >
-        <template slot="headings"></template>
+        class="submit-list">
         <template slot="items">
           <div
             v-for="event in events" :key="event.id" class="list--item"
-            v-bind:class="{ 'list--item--submit': event.type === logEventTypes.TYPE_SUBMIT }"
+            v-bind:class="{
+              'list--item--submit': event.type === logEventTypes.TYPE_SUBMIT,
+              'right': event.author === userStore.user.id,
+              'clickable': [logEventTypes.TYPE_SUBMIT,
+                            logEventTypes.TYPE_CATS_SUBMIT].includes(event.type)}"
             v-on:click="elementClickHandler(event)">
-            <img
-              v-if="event.data.thumbnail"
-              :src="event.data.thumbnail"
-              class="student--avatar"
-              alt='avatar'>
-            <div class="one-history-point">
-              <span>{{ event.data.message }}</span>
-              <component
-                :is="iconTrash"
-                v-if="logEventTypes.TYPE_MESSAGE === event.type
-                && (event.author === userStore.user.id)"
-                class="event--delete"
-                @click="deleteEvent(event)"/>
+
+            <img :src="picUrl(event.data.thumbnail)"
+                 class="student--avatar"
+                 alt='avatar'>
+            <span class="event--date">{{ event.created_at | withoutSeconds }}</span>
+
+            <div v-if="logEventTypes.TYPE_SUBMIT === event.type" class="one-history-point">
+              <span>ID решения: {{ event.data.message }}</span>
               <div
-                v-if="logEventTypes.TYPE_SUBMIT === event.type"
                 class="checkbox--submit"
                 v-bind:class="{ 'hidden': event.submit !== selectedSubmit }">
                 <component :is="Checkbox"/>
               </div>
             </div>
-
+            <div v-else class="one-history-point">
+              <span>{{ event.data.message }}</span>
+              <component
+                :is="iconTrash"
+                v-if="event.author === userStore.user.id"
+                class="event--delete"
+                title="Удалить сообщение"
+                @click="deleteEvent(event)"/>
+            </div>
+            <div class="space" ref="eventListBottom"></div>
           </div>
         </template>
       </cv-structured-list>
     </div>
-    <cv-text-input
-      v-model.trim="commentary"
-      :disabled="false"
-      :label="''"
-      :light="false"
-      :password-visible="false"
-      :placeholder="'Введите сообщение'"
-      :type="''"
-      :value="''"
-      class="searchbar"
-      v-on:keydown.enter="createMessageHandler">
-    </cv-text-input>
+    <div class="searchbar-out">
+      <cv-text-input
+        v-model.trim="commentary"
+        :disabled="false"
+        :label="''"
+        :light="false"
+        :password-visible="false"
+        :placeholder="'Введите сообщение'"
+        :type="''"
+        :value="''"
+        class="searchbar"
+        v-on:keydown.enter="createMessageHandler">
+      </cv-text-input>
+    </div>
+    <div class="btn-out">
+      <cv-button kind="tertiary" @click="createMessageHandler" class="btn-send">Отправить
+      </cv-button>
+    </div>
   </div>
 </template>
 
@@ -61,9 +76,23 @@ import Checkbox16 from '@carbon/icons-vue/es/checkbox--checked--filled/16';
 import logEventStore from '@/store/modules/logEvent';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
+// import LogEvent from "@/store/modules/logEvent";
 
 
-@Component({ components: { TrashCan16 } })
+@Component({
+  components: { TrashCan16 },
+  filters: {
+    withoutSeconds: function (d: string) {
+      return new Date(d).toLocaleString([], {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      })
+    }
+  }
+})
 export default class LogEventComponent extends NotificationMixinComponent {
   @Prop({ required: true }) problemId!: number;
   @Prop({ required: true }) studentId!: number;
@@ -77,10 +106,12 @@ export default class LogEventComponent extends NotificationMixinComponent {
   iconTrash = TrashCan16;
   Checkbox = Checkbox16;
   events: Array<LogEventModel> = [];
+  connection!: WebSocket;
 
   async created() {
-    this.userStore.fetchUserById(this.studentId);
+    await this.userStore.fetchUserById(this.studentId);
     await this.fetchEvents();
+    this.socketConnectionUpdate();
   }
 
   @Watch('studentId')
@@ -88,6 +119,35 @@ export default class LogEventComponent extends NotificationMixinComponent {
   onPropChanged() {
     this.fetchEvents();
   }
+
+  socketMessageHandler(event: MessageEvent) {
+    this.events.push(JSON.parse(event.data) as LogEventModel);
+    this.events.sort((a) => -a.id);
+    this.scrollDown()
+  }
+
+
+  socketEventHandler(event: Event) {
+    console.log(event);
+  }
+
+  socketErrorHandler(event: Event) {
+    console.log('something bad happened with sockets');
+    console.log(event);
+  }
+
+  socketConnectionUpdate() {
+    const protocol = (window.location.protocol === 'http:') ? 'ws://' : 'wss://';
+    this.connection = new WebSocket(
+      protocol + window.location.host
+      + `/ws/notifications?user_id=${this.studentId}&problem_id=${this.problemId}`
+    );
+    this.connection.onmessage = this.socketMessageHandler;
+    this.connection.onclose = this.socketEventHandler;
+    this.connection.onopen = this.socketEventHandler;
+    this.connection.onerror = this.socketErrorHandler;
+  }
+
 
   async fetchEvents() {
     this.loading = true;
@@ -131,7 +191,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
   }
 
   async deleteEvent(event: LogEventModel) {
-    const answer = await this.logEventStore.deleteEvent(event.id);
+    await this.logEventStore.deleteEvent(event.id);
     this.events = this.events.filter(value => value.id !== event.id);
     await this.thumbnailsUpdate();
   }
@@ -146,17 +206,47 @@ export default class LogEventComponent extends NotificationMixinComponent {
     const answer = await this.logEventStore.createLogEvent(newMessage);
     if (answer !== undefined) {
       await this.fetchThumbnailForEvent(answer);
-      this.events.push(answer);
+      // this.events.push(answer);
     }
     this.commentary = '';
     this.messageIsSending = false;
+  }
+
+  picUrl(url: string): string {
+    if (url)
+      return url;
+    return "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
+  }
+
+  async scrollDown(): Promise<void> {
+    let eventList = this.$refs.eventList;
+
+    if (eventList instanceof Array) {
+      eventList = eventList[0];
+    }
+
+    if (eventList instanceof Element)
+      eventList.scrollTo(0, eventList.scrollHeight);
+    else if (eventList != undefined) {
+      eventList = eventList.$el;
+      eventList.scrollTo(0, eventList.scrollHeight);
+    }
   }
 }
 
 </script>
 
 <style scoped lang="stylus">
+.title
+  font-size 1em
+  padding 1em
+  background-color #393939
+  color white
+  border-top-right-radius 5px
 
+  &-space
+    height calc(2em + 0.5rem)
+    background-color #f4f4f4
 
 .avatar
   width 2em
@@ -166,37 +256,59 @@ export default class LogEventComponent extends NotificationMixinComponent {
   span
     font-weight bold
 
+  .one-history-point
+    padding-right 30px
+
 .hidden
   display none
 
 .list--item
   border none
-  cursor pointer
-  padding-top 0.1em
+  cursor default
+  margin-top 0.1em
+  padding-top 1em
   padding-bottom 0.1em
   position relative
 
+  &.right
+    text-align right
+
+    .student--avatar
+      right 0
+
+    .event--date
+      right 40px
+      left 0
+
+    .one-history-point
+      margin-right 35px
+      margin-left 5px
+
+  &.clickable
+    cursor pointer
+
   .student--avatar
     margin 0
-    margin-right 1em
     float left
     height 32px
     width 32px
     border-radius: 150%
     position absolute
-    z-index 1
+    top 1em
 
   .event--delete
     display none
-    right -1px
-    top -1px
+    right -5px
+    bottom -10px
     background white
-    height 22px
-    width 22px
+    height 20px
+    width 20px
     position absolute
+    cursor pointer
 
   &:hover
-    background-color #e5e5e5
+    .event--date
+      display unset
 
     .event--delete
       display unset
@@ -213,32 +325,27 @@ export default class LogEventComponent extends NotificationMixinComponent {
   transform translate(-50%, -50%)
   vertical-align center
 
-.searchbar
-  position relative
-  height 2em
-  left 0
-  width 100%
-  margin-left auto
-  margin-right auto
-  text-align center
-
 .one-history-point
-  word-break break-after
+  word-break break-word
   font-size 1em
-  padding 5px
-  margin 20px
+  padding 10px 15px
+  margin 0 35px
   background white
-  border 1px solid rgba(0, 0, 0, 0.3)
+  border 0.5px solid rgba(0, 0, 0, 0.3)
   border-radius 5px
-  min-height 40px
   overflow-wrap anywhere
   position relative
+  width fit-content
+  display inline-block
+  margin-right 5px
+
 
 .bx--tile.submit-list
   border-left 1em
   padding-left 1em
   margin-left 1em
-  box-shadow -1em black
+
+//box-shadow -1em black
 
 .bx--list
   list-style-type none
@@ -251,8 +358,54 @@ export default class LogEventComponent extends NotificationMixinComponent {
   border-radius 10px
   border-color black
 
+
 .wrapper-for_controll-overflow-list
-  height 24.55em
+  height calc(400px)
   overflow scroll
   overflow-x hidden
+  padding 0 0.5rem
+  border 0.5px #8D8D8D solid
+
+span.event--date
+  font-weight normal
+  color #808080
+  position absolute
+  left 40px
+  font-size 0.7em
+  top 0
+  display none
+
+.btn
+  &-out
+    display flex
+    flex-direction row
+    padding 0.5rem 0 0.5rem 0.5rem
+    justify-content flex-end
+    background-color #f4f4f4
+
+  &-send
+    padding 0 1rem
+
+.space
+  height 10px
+
+.searchbar-out
+  padding 0.5rem
+  border solid #8d8d8d
+  border-width 0 0.5px 0.5px 0.5px
+  border-bottom-left-radius 5px
+</style>
+
+<style lang="stylus">
+.wrapper-for_controll-overflow-list
+  .bx--structured-list-thead
+    display none
+
+.searchbar
+  input
+    border-bottom 0
+    border-radius 5px
+
+  label
+    display none
 </style>

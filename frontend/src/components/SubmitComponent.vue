@@ -1,31 +1,37 @@
 <template>
   <div class="item">
-    <h4 class="submit-title">Решение задачи</h4>
-    <cv-inline-notification
-      v-if="showNotification"
-      :kind="notificationKind"
-      :sub-title="notificationText"
-      @close="hideNotification"/>
+    <div :class="['submit-header', 'status-' + submitEdit.status.toLowerCase()]">
+      <div class="line">
+        <h4 class="submit-title">ID решения: {{ submitId }}</h4>
+        <span class="submit-status">Состояние: <span class="status">{{ submitEdit.status }}</span></span>
+      </div>
+      <span class="submit-date">{{ submitEdit.updated_at | withoutSeconds }}</span>
+    </div>
     <cv-skeleton-text v-if="loading"/>
     <div v-else>
       <code-editor-component v-model="submitEdit.content"/>
-      <cv-dropdown
-        v-model="submitEdit.de_id"
-        :items="deOptions"
-        :disabled="deOptions.length === 0"
-        placeholder="Выберите язык программирования">
-        <cv-dropdown-item v-for="de in deOptions" :key="de.value" :value="de.value">
-          {{ de.name }}
-        </cv-dropdown-item>
-      </cv-dropdown>
-      <cv-button
-        v-if="!isStaff"
-        :disabled="!canSubmit"
-        class="submit-btn"
-        v-on:click="confirmSubmit">
-        Submit!
-      </cv-button>
-      <div v-if="isStaff" class="handlers">
+      <div class="submit-lang">
+        <div>Среда разработки:</div>
+        <cv-dropdown
+          v-model="submitEdit.de_id"
+          :items="deOptions"
+          :disabled="deOptions.length === 0"
+          placeholder="Выберите язык программирования"
+          class="lang-choice">
+          <cv-dropdown-item v-for="de in deOptions" :key="de.value" :value="de.value">
+            <span>{{ de.name }}</span>
+          </cv-dropdown-item>
+        </cv-dropdown>
+      </div>
+      <div class="handlers" v-if="!isStaff">
+        <cv-button
+          :disabled="!canSubmit"
+          class="submit-btn"
+          v-on:click="confirmSubmit">
+          Отправить решение
+        </cv-button>
+      </div>
+      <div v-if="isStaff" class="handlers handlers-stuff">
         <cv-button
           :disabled="isAcceptDisabled"
           class="submit-btn accepted"
@@ -40,6 +46,12 @@
           Отклонить
         </cv-button>
       </div>
+      <cv-inline-notification
+      v-if="showNotification"
+      :kind="notificationKind"
+      :sub-title="notificationText"
+      class="notification"
+      @close="hideNotification"/>
     </div>
   </div>
 </template>
@@ -57,7 +69,15 @@ import { de_options } from '@/utils/consts';
 import { Component, Prop, Watch } from 'vue-property-decorator';
 
 
-@Component({ components: { CodeEditorComponent } })
+@Component({ components: { CodeEditorComponent },
+filters: {withoutSeconds: function (d: string) {
+    return new Date(d).toLocaleString([], {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"})
+}}})
 export default class SubmitComponent extends NotificationMixinComponent {
   @Prop({ required: true }) submitId!: number;
   @Prop({ required: true }) isStaff!: boolean;
@@ -83,7 +103,6 @@ export default class SubmitComponent extends NotificationMixinComponent {
       this.submitEdit.de_id = this.deOptions[0].value;
     this.loading = false;
   }
-
 
   get isChanged(): boolean {
     return !_.isEqual(this.submit, this.submitEdit);
@@ -176,21 +195,91 @@ export default class SubmitComponent extends NotificationMixinComponent {
 </script>
 
 <style lang="stylus" scoped>
-.submit-title
-  padding-bottom 0.5rem
+.item
+  padding 0
+  position: relative;
 
-.text-area-teacher
-  opacity 90%
-  border 0.5px solid rgba(0, 0, 0, .3)
+  .notification
+    position absolute
+    bottom 7rem
+    z-index 1
+.submit-header
+  padding 1em
+  border-radius 5px 5px 0 0
+
+  .line
+    display flex
+    justify-content space-between
+    padding-bottom 0.5rem
+
+  .submit-status
+    font-size 1.5em
+
+  .submit-date
+    font-size 1em
+
+
+.status
+    font-weight bold
+    &-ok
+      color white
+      background-color  #4EB052
+
+      .submit-data
+        color #d6d5d4
+
+    &-wa
+      color white
+      background-color #DA1E28
+
+      .submit-data
+        color #d6d5d4
+    &-np
+      color white
+      background-color  #393939
+
+      .submit-data
+        color #fafafa
+
+
+.submit-lang
+  display flex
+  align-items center
+  background #f4f4f4
+  padding 0.5rem
+
+  div
+    height 2.5rem;
+    padding 0 0.5rem;
+    display flex;
+    align-items center;
+
+  .lang-choice
+    padding 0
 
 .rejected
   margin-left 0.5rem
 
 .handlers
-  margin-top 0.5rem
   display flex
   flex-direction row
-  justify-content flex-end
+  padding 0.5rem
+  background-color #f4f4f4
+  &-staff
+    justify-content flex-end
+
+</style>
 
 
+<style lang="stylus" scoped>
+.bx--dropdown
+  border-bottom 0
+  .bx--list-box__field, ui
+    border 0.5px solid #8D8D8D
+    background-color #f4f4f4
+    border-radius 10px
+.bx--list-box__menu-icon
+  top 0.5rem
+.cv-button
+  padding 0 1rem
 </style>

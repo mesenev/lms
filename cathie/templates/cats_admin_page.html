@@ -25,7 +25,7 @@
 
 {% block content %}
     <div>
-        <form action="/admin/show-admin-custom-page/" method="post">
+        <form action="{% url 'cats-admin' %}" method="post">
             {% csrf_token %}
             <div>
                 <strong>Current Cats Seed: {{ cats_seed }}</strong>

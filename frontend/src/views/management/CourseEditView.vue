@@ -29,6 +29,13 @@
              ${courseEdit.author.last_name}
               (${courseEdit.author.username})`.trim()"
           />
+
+          <cv-text-input
+            v-model.trim.number="courseEdit.cats_id"
+            type="number"
+            class="course--cats"
+            label="Cats id"/>
+
           <cv-text-input
             v-model.trim="courseEdit.name"
             class="course--name"
@@ -60,11 +67,11 @@
           <EditCourseLessons
             v-if="!isNewCourse && !fetchingCourse"
             :course="courseEdit"
-            class="edit&#45;&#45;course-props edit--course"/>
+            class="course-props edit--course"/>
           <EditCourseModal
             v-if="!isNewCourse && !fetchingCourse"
             :course-id="courseEdit.id"
-            class="edit&#45;&#45;course-props add--btn"/>
+            class="course-props add--btn"/>
         </div>
       </div>
       <div class="bx--col-lg-6 second--block">
@@ -169,13 +176,21 @@ export default class CourseEditView extends Vue {
     return isNaN(this.courseEdit.id);
   }
 
+  catsIdCheck() {
+    if (!this.courseEdit.cats_id) {
+      this.courseEdit.cats_id = -1;
+    }
+  }
+
   createOrUpdate(): void {
+    this.catsIdCheck();
     const request = (this.isNewCourse) ?
       axios.post('/api/course/', this.courseEdit) :
       axios.patch(`/api/course/${this.courseEdit.id}/`, this.courseEdit);
     request.then(response => {
       this.notificationKind = 'success';
       this.notificationText = (this.courseId) ? 'Курс успешно изменён' : 'Курс успешно создан';
+      debugger;
       if (this.isNewCourse) {
         this.store.addCourseToArray(response.data);
         router.replace(
@@ -204,6 +219,9 @@ export default class CourseEditView extends Vue {
   float right
 
 .edit--course
+  margin-top 2rem
+
+.course--cats
   margin-top 2rem
 
 .course--name

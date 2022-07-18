@@ -34,3 +34,5 @@ class CourseLink(models.Model):
 
 
 admin.site.register(Course)
+admin.site.register(CourseSchedule)
+admin.site.register(CourseLink)

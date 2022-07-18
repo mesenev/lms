@@ -23,6 +23,7 @@ class CourseSerializer(DynamicFieldsModelSerializer):
     author = DefaultUserSerializer(required=False, read_only=True)
     lessons = LessonShortSerializer(many=True, read_only=True)
     students = DefaultUserSerializer(many=True, required=False, read_only=True)
+    cats_id = serializers.IntegerField(required=False, allow_null=True)
     schedule = serializers.PrimaryKeyRelatedField(
         read_only=True, required=False
     )
@@ -43,13 +44,15 @@ class CourseSerializer(DynamicFieldsModelSerializer):
         instance.name = validated_data.get('name', instance.name)
         instance.description = validated_data.get('description', instance.description)
         instance.author = validated_data.get('author', instance.author)
+        instance.cats_id = validated_data.get('cats_id', instance.cats_id)
         instance.de_options = validated_data.get('de_options', instance.de_options)
         instance.save()
         return instance
 
     class Meta:
         model = Course
-        fields = ['id', 'name', 'description', 'author', 'lessons', 'students', 'staff', 'schedule', 'de_options']
+        fields = ['id', 'name', 'description', 'author', 'lessons',
+                  'students', 'cats_id', 'staff', 'schedule', 'de_options']
 
 
 class ScheduleSerializer(serializers.ModelSerializer):

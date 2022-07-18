@@ -25,7 +25,7 @@ services:
         networks:
             - nginx-net
         ports:
-            - "8000:80"
+            - "127.0.0.1:8000:80"
         depends_on:
             - backend
 
@@ -56,13 +56,14 @@ services:
         working_dir: /application
         depends_on:
             - database
+            - redis
         env_file:
             - "conf/common.env"
             - "conf/server.env"
         environment:
             PYTHONUNBUFFERED: 1
         expose:
-            - "8080"
+            - '8080'
         networks:
             - db-net
             - nginx-net
