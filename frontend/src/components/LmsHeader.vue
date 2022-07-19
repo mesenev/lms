@@ -196,7 +196,6 @@
 <script lang="ts">
 import UserView from "@/components/UserComponent.vue";
 import userStore from "@/store/modules/user";
-import courseStore from "@/store/modules/course";
 import AppSwitcher20 from '@carbon/icons-vue/es/app-switcher/20';
 import Notification20 from '@carbon/icons-vue/es/notification/20';
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
@@ -225,9 +224,7 @@ export default class LmsHeader extends Vue {
   }
 
   get isStaff(): boolean {
-    const isUserStaffFor = this.user.staff_for.includes(Number(this.$route.params.courseId));
-    const isAuthorId = this.user.id === courseStore.currentCourse?.author?.id;
-    return isUserStaffFor || isAuthorId;
+    return this.user.staff_for.includes(Number(this.$route.params.courseId));
   }
 }
 </script>
