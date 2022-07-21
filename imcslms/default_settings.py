@@ -1,5 +1,15 @@
 import os
 from pathlib import Path
+from requests import utils
+
+utils.default_headers = lambda: {
+    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) '
+                  'AppleWebKit/537.36 (KHTML, like Gecko) '
+                  'Chrome/89.0.4356.6 Safari/537.36',
+    'Accept-Encoding': ', '.join(('gzip', 'deflate')),
+    'Accept': '*/*',
+    'Connection': 'keep-alive',
+}
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'helloworld'

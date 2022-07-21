@@ -65,6 +65,7 @@ def cats_get_problems_from_contest(contest_id):
 
 def cats_get_problem_description_by_url(description_url):
     url = f'{settings.CATS_URL}{description_url.lstrip("./")}'
+    # todo: remove it and use default headers instead
     headers = {
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) '
                       'AppleWebKit/537.36 (KHTML, like Gecko) '
