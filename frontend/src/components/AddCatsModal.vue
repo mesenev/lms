@@ -5,14 +5,31 @@
     </cv-button>
     <cv-modal
       :visible="modalVisible"
-      class="add_cats_modal" size="default"
+      class="add_cats_modal" size="small"
       @modal-hidden="modalHidden">
       <template slot="title">
         Добавить аккаунт
       </template>
       <template slot="content">
+        <div>
+          <cv-text-input class="input"
+                         label="Введите логин cats:"
+                         v-model.trim="catsLogin"
+          />
+          <cv-text-input class="input"
+                         type="password"
+                         label="Введите пароль cats:"
+                         v-model.trim="catsPassword"
+                         invalid-message="Пароли не сохраняются!"
+          />
+          <cv-text-input class="input"
+                         type="password"
+                         label="Повторите пароль:"
+                         v-model.trim="catsPasswordRepeat"
+                         invalid-message="Пароли не сохраняются!"
+          />
+        </div>
         <div class="btns">
-          <cv-text-input class="input" placeholder="Введите логин cats"/>
           <cv-button class="btn"> Добавить </cv-button>
         </div>
       </template>
@@ -30,6 +47,9 @@ import {Component, Vue} from 'vue-property-decorator';
 
 export default class AddCatsModal extends Vue {
   modalVisible = false;
+  catsLogin = '';
+  catsPassword = '';
+  catsPasswordRepeat = '';
 
   showModal() {
     this.modalVisible = true;
@@ -42,9 +62,12 @@ export default class AddCatsModal extends Vue {
 </script>
 
 <style scoped lang="stylus">
+.add_cats_modal /deep/ .bx--modal-container {
+  width: 25%;
+}
+
 .btns {
   float left;
-  padding: 10px 24px;
   cursor: pointer;
   clear: both;
   display flex;
@@ -52,7 +75,7 @@ export default class AddCatsModal extends Vue {
 }
 
 .input {
-  width 650px;
-  padding-right 20px;
+  width 300px;
+  padding-bottom 24px;
 }
 </style>

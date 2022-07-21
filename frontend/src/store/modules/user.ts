@@ -36,6 +36,11 @@ class UserModule extends VuexModule {
     this.user = user as UserModel;
   }
 
+  @Mutation addStaffToArray(courseId: number) {
+    this.user.staff_for.push(courseId);
+    this.user.staff_for = [...this.user.staff_for];
+  }
+
   @Action
   async fetchStudentsByCourseId(courseId: number): Promise<Dictionary<UserModel>> {
     const course: CourseModel = await courseModule.fetchCourseById(courseId);
