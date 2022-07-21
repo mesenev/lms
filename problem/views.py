@@ -212,6 +212,8 @@ class SubmitViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.initial_data["updated_by"] = request.user.id
+        if 'content' in serializer.initial_data:
+            del serializer.initial_data['content']
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 

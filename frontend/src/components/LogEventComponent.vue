@@ -11,7 +11,7 @@
         class="submit-list">
         <template slot="items">
           <div
-            v-for="event in events" :key="event.id" class="list--item"
+            v-for="event in eventsSortedList" :key="event.id" class="list--item"
             v-bind:class="{
               'list--item--submit': event.type === logEventTypes.TYPE_SUBMIT,
               'right': event.author === userStore.user.id,
@@ -36,7 +36,7 @@
               <span>{{ event.data.message }}</span>
               <component
                 :is="iconTrash"
-                v-if="event.author === userStore.user.id"
+                v-if="event.author === userStore.user.id && event.type === logEventTypes.TYPE_MESSAGE"
                 class="event--delete"
                 title="Удалить сообщение"
                 @click="deleteEvent(event)"/>
@@ -76,7 +76,6 @@ import Checkbox16 from '@carbon/icons-vue/es/checkbox--checked--filled/16';
 import logEventStore from '@/store/modules/logEvent';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
-// import LogEvent from "@/store/modules/logEvent";
 
 
 @Component({
@@ -121,11 +120,13 @@ export default class LogEventComponent extends NotificationMixinComponent {
   }
 
   socketMessageHandler(event: MessageEvent) {
-    this.events.push(JSON.parse(event.data) as LogEventModel);
-    this.events.sort((a) => -a.id);
-    this.scrollDown()
+    this.events = [(JSON.parse(event.data) as LogEventModel), ...this.events];
   }
 
+  get eventsSortedList(){
+    const events = this.events.sort(a => -a.id);
+    return events;
+  }
 
   socketEventHandler(event: Event) {
     console.log(event);
@@ -163,7 +164,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
       return;
     await this.fetchThumbnailForEvent(this.events[0]);
     let previous = this.events[0];
-    for (const event of this.events) {
+    for (const event of this.eventsSortedList) {
       if (previous.author !== event.author)
         await this.fetchThumbnailForEvent(this.events[0]);
       previous = event;
@@ -185,10 +186,11 @@ export default class LogEventComponent extends NotificationMixinComponent {
       this.$emit('cats-answer', { id: element.submit });
   }
 
-  async mounted() {
-    const submits = [...document.getElementsByClassName("submit-list")];
-    submits.forEach(element => element.scrollTop = element.scrollHeight);
-  }
+  // It should scroll to bottom, but it's not working. So I commented it out
+  // async updated() {
+  //   const submits = [...document.getElementsByClassName("submit-list")];
+  //   submits.forEach(element => element.scrollTop = element.scrollHeight);
+  // }
 
   async deleteEvent(event: LogEventModel) {
     await this.logEventStore.deleteEvent(event.id);
@@ -203,11 +205,11 @@ export default class LogEventComponent extends NotificationMixinComponent {
       problem: this.problemId, student: this.studentId,
       data: { message: this.commentary },
     };
-    const answer = await this.logEventStore.createLogEvent(newMessage);
-    if (answer !== undefined) {
-      await this.fetchThumbnailForEvent(answer);
+    await this.logEventStore.createLogEvent(newMessage);
+    // if (answer !== undefined) {
+    //   await this.fetchThumbnailForEvent(answer);
       // this.events.push(answer);
-    }
+    // }
     this.commentary = '';
     this.messageIsSending = false;
   }

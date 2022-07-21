@@ -190,9 +190,9 @@ export default class CourseEditView extends Vue {
     request.then(response => {
       this.notificationKind = 'success';
       this.notificationText = (this.courseId) ? 'Курс успешно изменён' : 'Курс успешно создан';
-      debugger;
       if (this.isNewCourse) {
         this.store.addCourseToArray(response.data);
+        this.userStore.addStaffToArray(response.data.id);
         router.replace(
           { name: 'course-edit', params: { courseId: response.data.id.toString() } },
         );

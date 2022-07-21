@@ -108,7 +108,6 @@ export default class ProfileView extends Vue {
           this.cats_account = response.data[0].username;
       })
       .catch(error => {
-        debugger;
         console.log(error);
       })
     this.cats_loading = false;
