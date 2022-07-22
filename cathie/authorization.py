@@ -18,22 +18,27 @@ def cats_sid_setter(value):
 def check_authorization_for_cats(function_to_decorate):
     def wrapper(*args, **kwargs):
         print('checking auth!', end=' ')
-        url = f'{settings.CATS_URL}?f=profile;sid={cats_sid()};json=1'
-        r = requests.get(url)
-        if r.status_code != 200:
-            raise CatsAnswerCodeException(r)
-        if 'error' in json.loads(r.content.decode('utf-8')):
+        r = None
+        if cats_sid() != '-1':
+            url = f'{settings.CATS_URL}?f=profile;sid={cats_sid()};json=1'
+            r = requests.get(url)
+            if r.status_code != 200:
+                raise CatsAnswerCodeException(r)
+        if not r or 'error' in json.loads(r.content.decode('utf-8')):
             print('authorizing...', end=' ')
-            auth = requests.post(
-                f'{settings.CATS_URL}?f=login;json=1',
-                {'login': settings.CATS_LOGIN, 'passwd': settings.CATS_PASSWD}
+            payload = {'login': 'mesenev', 'passwd': 'Pasha123lol'}
+            auth = requests.get(
+                url=f'{settings.CATS_URL}?f=login;json=1;',
+                params=payload,
+                headers={
+                    'User-Agent': 'Mozilla/5.0',
+                }
             )
             if auth.status_code != 200:
                 raise CatsAnswerCodeException(r)
-            try:
-                content = json.loads(auth.content.decode('utf-8'))
-            except:
-                raise CatsAuthorizationException('Invalid json from cats')
+            content = auth.json()
+            if content['status'] == 'error':
+                raise CatsAuthorizationException(content)
             print('new sid', content['sid'])
             cats_sid_setter(content['sid'])
         print('auth check passed.')
