@@ -55,7 +55,7 @@ def cats_check_solution_status(req_ids: int):
 def cats_get_problems_from_contest(contest_id):
     url = f'{settings.CATS_URL}?f=problems;json=1;cid={contest_id};'
     url += f'sid={authorization.cats_sid()}'
-    answer = requests.get(url)
+    answer = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
     if answer.status_code != 200:
         raise CatsAnswerCodeException(answer)
     data = json.loads(answer.content.decode('utf-8'))

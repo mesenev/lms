@@ -1,5 +1,4 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
 from requests.utils import default_headers
 from rest_framework import viewsets, status
@@ -7,7 +6,6 @@ from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from cathie.authorization import *
 from cathie.cats_api import cats_get_problems_from_contest, cats_get_problem_description_by_url
 from cathie.models import CatsAccount
 from cathie.serializers import CatsAccountSerializer
@@ -19,17 +17,6 @@ from cathie.authorization import *
 from users.permissions import CourseStaffOrAuthor
 from django.utils import timezone
 
-
-def check_authorization_for_cats(function_to_decorate):
-    def wrapper():
-        pass  # геттер логина с кетса
-        pass  # геттер пароля с кетса
-        # if login_from cats and password_from_cats:
-        function_to_decorate()
-        # else
-        raise ValueError("Authorisation Error")
-
-    return wrapper
 
 
 @login_required

@@ -30,9 +30,7 @@ def check_authorization_for_cats(function_to_decorate):
             auth = requests.get(
                 url=f'{settings.CATS_URL}?f=login;json=1;',
                 params=payload,
-                headers={
-                    'User-Agent': 'Mozilla/5.0',
-                }
+                headers={'User-Agent': 'Mozilla/5.0'}
             )
             if auth.status_code != 200:
                 raise CatsAnswerCodeException(r)

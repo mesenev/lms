@@ -13,7 +13,7 @@ class CatsUserLink(models.Model):
 
 
 class CatsAccount(models.Model):
-    user = models.ForeignKey(User, related_name='cats_account', on_delete=models.CASCADE, unique=True)
+    user = models.OneToOneField(User, related_name='cats_account', on_delete=models.CASCADE)
     username = models.CharField(max_length=50, null=False)
     last_check = models.DateTimeField(default=timezone.now)
 
