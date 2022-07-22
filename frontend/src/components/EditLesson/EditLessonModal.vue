@@ -8,13 +8,13 @@
       class="add_lesson_modal" size="default"
       @modal-hidden="modalHidden"
       @primary-click="addProblem">
-      <template slot="label">{{ lesson.name }}</template>
+      <template v-slot:label>{{ lesson.name }}</template>
       <cv-inline-notification
         v-if="showNotification"
         @close="() => showNotification=false"
         kind="error"
         :sub-title="notificationText"/>
-      <template slot="title">
+      <template v-slot:title>
         Добавить задание
         <cv-content-switcher class="switcher" @selected="actionSelected">
           <cv-content-switcher-button content-selector=".content-1" selected>
@@ -25,15 +25,20 @@
           </cv-content-switcher-button>
         </cv-content-switcher>
       </template>
-      <template slot="content">
+      <template v-slot:content>
         <section class="modal--content">
           <div class="content-1">
             <div>
+              <cv-inline-notification
+                v-if="showNotification"
+                @close="() => showNotification=false"
+                kind="error"
+                :sub-title="notificationText"/>
               <cv-data-table
                 v-if="!fetchingCatsProblems" ref="table"
                 v-model="selected" :columns="columns" :data="catsFilteredProblems"
                 class="cats-problems-table" @search="onSearch">
-                <template slot="batch-actions">
+                <template v-slot:batch-actions>
                   <div></div>
                 </template>
               </cv-data-table>
@@ -59,9 +64,7 @@
           </div>
         </section>
       </template>
-      <template slot="primary-button">
-        Добавить
-      </template>
+      <template v-slot:primary-button>Добавить</template>
     </cv-modal>
   </div>
 </template>
@@ -75,24 +78,18 @@ import problemStore from '@/store/modules/problem';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import axios from 'axios';
-import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop } from 'vue-property-decorator';
+import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 
 
 @Component({ components: { AddAlt20, SubtractAlt20 } })
-export default class EditLessonModal extends Vue {
+export default class EditLessonModal extends NotificationMixinComponent {
   @Prop({ required: true }) lesson!: LessonModel;
 
-  AddAlt32 = AddAlt20;
-  SubtractAlt32 = SubtractAlt20;
   vertical = false;
   problemStore = problemStore;
   currentProblem: ProblemModel = { ...this.problemStore.getNewProblem, lesson: this.lesson.id };
-  fetchingProblems = true;
   selectedNew = false;
-  showNotification = false;
-  notificationKind = 'success';
-  notificationText = '';
-  creationLoader = false;
   selected = [];
   columns = ['id', 'Название', 'Статус'];
 
@@ -115,11 +112,13 @@ export default class EditLessonModal extends Vue {
   async fetchCatsProblems() {
     this.fetchingCatsProblems = true;
     await axios.get(`/api/cats-problems/${this.lesson.course}/`)
-      .then(response => { this.catsProblems = response.data; })
+      .then(response => {
+        this.catsProblems = response.data;
+      })
       .catch(error => {
         console.log(error.response);
         this.notificationKind = 'error';
-        this.notificationText = `Ошибка получения списка задач: ${error.response}`;
+        this.notificationText = `Ошибка получения списка задач: ${error.message}`;
         this.showNotification = true;
       })
     this.catsProblems.map(value => {
@@ -129,10 +128,6 @@ export default class EditLessonModal extends Vue {
     });
     this.catsProblemsTruncated = [...this.catsProblemsTruncated];
     this.fetchingCatsProblems = false;
-  }
-
-  get freeProblems(): ProblemModel[] {
-    return [];
   }
 
   onSearch(value: string) {
