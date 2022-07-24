@@ -31,6 +31,13 @@
                 <cv-tooltip tip="При пустом списке будет использованы настройки курса"/>
               </template>
             </cv-multi-select>
+            <cv-dropdown label="Доступные способы тестирования"
+                         style="padding-bottom: 20px"
+                         placeholder="Выберите способ тестирования">
+              <cv-dropdown-item value="">Ручное тестирование</cv-dropdown-item>
+              <cv-dropdown-item value="">Автоматическое тестирование</cv-dropdown-item>
+              <cv-dropdown-item value="">Автоматическое и ручное тестирование</cv-dropdown-item>
+            </cv-dropdown>
           </div>
         </div>
         <cv-button-skeleton v-if="problemUpdating"/>
