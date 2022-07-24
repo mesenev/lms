@@ -31,13 +31,13 @@
                 <cv-tooltip tip="При пустом списке будет использованы настройки курса"/>
               </template>
             </cv-multi-select>
-            <cv-dropdown label="Доступные способы тестирования"
-                         style="padding-bottom: 20px"
-                         placeholder="Выберите способ тестирования">
-              <cv-dropdown-item value="">Ручное тестирование</cv-dropdown-item>
-              <cv-dropdown-item value="">Автоматическое тестирование</cv-dropdown-item>
-              <cv-dropdown-item value="">Автоматическое и ручное тестирование</cv-dropdown-item>
-            </cv-dropdown>
+            <span style="padding-top: 20px">Выберите способ тестирования</span>
+            <cv-radio-group style="margin-top: 10px; padding-bottom: 20px">
+              <cv-radio-button name="group-1" label="автоматическое" value=""
+                               :checked="checked1"/>
+              <cv-radio-button name="group-1" label="ручное" value=""/>
+              <cv-radio-button name="group-1" label="автоматическое и ручное" value=""/>
+            </cv-radio-group>
           </div>
         </div>
         <cv-button-skeleton v-if="problemUpdating"/>
