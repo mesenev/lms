@@ -55,9 +55,9 @@ class ProblemViewSet(viewsets.ModelViewSet):
             )
         ).order_by('problem', 'ordering', '-id').distinct('problem')
         queryset = self.queryset.filter(
-            lesson__course=course_id
+            lesson__course=course_id,
+            lesson__is_hidden=False,
         ).exclude(
-            lesson__is_hidden=True,
             submits__status__in=[
                 Submit.AWAITING_MANUAL,
                 Submit.OK,
