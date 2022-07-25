@@ -21,7 +21,7 @@ def check_authorization_for_cats(function_to_decorate):
         r = None
         if cats_sid() != '-1':
             url = f'{settings.CATS_URL}?f=profile;sid={cats_sid()};json=1'
-            r = requests.get(url)
+            r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
             if r.status_code != 200:
                 raise CatsAnswerCodeException(r)
         if not r or 'error' in json.loads(r.content.decode('utf-8')):
