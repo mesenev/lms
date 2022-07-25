@@ -31,11 +31,10 @@ services:
 
     database:
         container_name: database
-        image: postgres:12
+        image: postgres:14
         env_file:
             - "./conf/common.env"
         volumes:
-            - "./conf/postgres:/docker-entrypoint-initdb.d"
             - "./conf/postgres/postgresql.conf:/etc/postgresql/postgresql.conf"
             - "v-database:/var/lib/postgresql/data"
         networks:

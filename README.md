@@ -1,103 +1,56 @@
-###EngVer
+We are strongly advice you to use pycharm during development process.
 
-1)Install PyChram Proffesional + Docker
+Create a file `imcslms/settings.py` with content:
 
-2)Install kernels under docker (If system need it)
+```from imcslms.default_settings import *```
 
-3)Clone a project to a folder
-
-4)Open Project in PyCharm
-
-5)Create a file for naming Setting.py in the imcslms folder
-
-6)Add ```from imcslms.default_settings import *```to the file
-
-7)Create maindb in the Pycharm Database window (the window is located on the top right side next to the collapse map button)
-
-8)Install plugins that Pycharm offers. Source to create a DB
+You may want to define following variables as well
+```python
+CATS_URL = '<cats-url>'
+CATS_LOGIN = '<your-cats-account>'
+CATS_PASSWD = '<your-cats-password>'
 ```
-Name – maindb@localhost
-User – dbuser
-Passowrd – dbpassword
-Database -- maindb
-```
-9)In the shell
+#### database
+Create database inside the composition.
+
+Launch the database container:
 ```shell
-docker-compose -f \.docker\docker-compose.yml up -d database
-```
-10)In the shell
-```shell
-docker-compose -f \.docker\docker-compose.yml up -d backend
-```
-11)In the shell|
-```shell
-docker-compose -f \.docker\docker-compose.yml run /bin/bash
-```
->if it does not start then you need to run it with handles in the docker application, after entering the container and executing all the commands described below, the login is done through the command docker exec -it your_container bash) You can also try to run the container with handles (command docker-compose -f.\.docker\docker-compose.yml run backend /bin/bash) If something does not work at this step, then somewhere they screwed up before that.
-
-12)In the docker conteiner:
-```shell
-python manage.py migrate
-python manage.py createsuperuser ( admin , admin)
-python manage.py registergroups
-```
-13) In the folder of  frontend shell it :
-```shell
-Npm i
-Npm run serve
+docker compose -f .docker/docker-compose.yml up database
 ```
 
+Postgres should create default database during the initial launch
+with use `.docker/conf/common.env` variables.
 
-###Linux
-> Note: All the commands described below are used immediately under the admin rights (sudo), so that in the future the docker could work normally you need to see the guide how to run the non-root docker. https://docs.docker.com/engine/security/rootless/ a link to the documentation
+In case if it's not created automatically for some reason
+then read logs and create it manually
+using any approach that's suits for you (pgAdmin, pycharm, terminal).
 
-1)Install PyChram Proffesional + Docker
-
-2)Clone folder
-
-3)Open project into PyChram Prof
-
-4)Create a file for naming Setting.py in the imcslms folder
-
-5)Add a line to the file
+When it's done backend should start without errors:
 
 ```shell
-from imcslms.default_settings import *
+docker compose -f .docker/docker-compose.yml up backend
 ```
 
-6)Create maindb in the Pycharm Database window (the window is located on the top right side next to the collapse map button)
 
-7)Install all plugins that  Pycharm is needed
-
-DB settings
-```
-Name – maindb
-User – dbuser
-Passowrd – dbpassword
-Database -- maindb
-```
-
-8)In the Terminal
+#### migrations
+Apply migrations and create superuser
 ```shell
-docker-compose -f .docker/docker-compose.yml up -d database
+docker compose -f .docker/docker-compose.yml exec backend python manage.py migrate
+docker compose -f .docker/docker-compose.yml exec backend python manage.py createsuperuser
 ```
-9)In the Terminal
-```shell
-docker-compose -f .docker/docker-compose.yml up -d backend
-```
-10)In the Terminal
-```shell
-docker-compose -f .docker/docker-compose.yml run /bin/bash
-```
-11)In the docker container:
-```shell
-python manage.py migrate
-python manage.py createsuperuser ( admin , admin)
-python manage.py registergroups
-```
-12) In the folder frontend , input it In the Terminal :
-```shell
-Npm i
-Npm run serve
+Add superuser to 'teacher' group in admin-panel.
 
+You are ready to launch composition
+```shell
+docker compose -f .docker/docker-compose.yml up
+```
 
+#### frontend
+Install Node.js & install frontend dependencies via command
+```shell
+npm install
+```
+Now you should be able to run frontend application
+```shell
+npm run serve
+```
