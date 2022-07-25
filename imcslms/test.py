@@ -1,13 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.core import management
 from rest_framework.test import APITestCase
-
 
 
 class MainSetup(APITestCase):
     def test_setup(self):
-        management.call_command('registergroups', verbosity=0)
         my_group = Group.objects.get(name='teacher')
         self.user = get_user_model().objects.create_user(
             'ksarthak4eve',
