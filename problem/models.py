@@ -43,6 +43,7 @@ class Problem(models.Model):
         to=User
     )
     de_options = models.CharField(max_length=512, blank=True, default='')
+    test_mod = models.CharField(max_length=512, blank=True, default='')
     objects = ProblemManager()
 
 

@@ -22,4 +22,5 @@ export default interface ProblemModel extends BaseModel {
   last_submit?: SubmitModel;
   stats?: ProblemStatsModel;
   de_options: string;
+  test_mod: string;
 }
