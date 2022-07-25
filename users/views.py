@@ -1,5 +1,6 @@
 import json
 
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
@@ -26,7 +27,7 @@ from users.serializers import DefaultUserSerializer
 def index(request, *args, **kwargs):
     user = User.objects.prefetch_related('staff_for', 'student_for').get(pk=request.user.id)
     user_data = json.dumps(DefaultUserSerializer(instance=user, exclude_staff=False).data)
-    return render(request, 'index.html', context=dict(user_data=user_data))
+    return render(request, 'index.html', context=dict(user_data=user_data, is_debug=settings.DEBUG))
 
 
 class LoginForm(Form):

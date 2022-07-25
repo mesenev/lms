@@ -4,16 +4,12 @@ from django.conf import settings
 import django.contrib.auth.models
 import django.contrib.auth.validators
 from django.db import migrations, models
-import django.db.models.deletion
 import django.utils.timezone
 import users.models
 
 from django.contrib.auth.models import Group
 
-TEACHER = 'teacher'
-STUDENT = 'student'
-ANONYMOUS = 'anonymous'
-GROUPS = [TEACHER, STUDENT, ANONYMOUS]
+from imcslms.default_settings import GROUPS
 
 
 def register_groups(apps, schema_editor):

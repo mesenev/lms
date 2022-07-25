@@ -1,4 +1,3 @@
-from django.db.migrations import DeleteModel
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, exceptions
 from rest_framework.decorators import api_view, action
@@ -12,9 +11,11 @@ from rest_framework.viewsets import GenericViewSet
 
 from course.models import CourseSchedule, Course, CourseLink
 from course.serializers import CourseSerializer, ScheduleSerializer, LinkSerializer, CourseShortSerializer
-from users.management.commands.registergroups import TEACHER
+from imcslms.default_settings import TEACHER
 from users.models import User, CourseAssignStudent
 from users.permissions import CourseStaffOrReadOnlyForStudents, CourseStaffOrAuthorReadOnly
+
+
 
 
 class CourseViewSet(viewsets.ModelViewSet):

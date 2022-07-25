@@ -4,9 +4,9 @@ from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
+from imcslms.default_settings import TEACHER
 from lesson.models import Lesson, LessonContent
 from lesson.serializers import LessonSerializer, MaterialSerializer, LessonShortSerializer
-from users.management.commands.registergroups import TEACHER
 from users.permissions import CourseStaffOrReadOnlyForStudents
 
 
@@ -41,10 +41,10 @@ class LessonViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['DELETE'])
-def delete_lesson(request, id):
-    deletedLesson = Lesson.objects.all()
-    deletedLesson.get(id=id).delete()
-    return Response(id)
+def delete_lesson(request, _id):
+    to_delete = Lesson.objects.all()
+    to_delete.get(id=_id).delete()
+    return Response(_id)
 
 
 class MaterialViewSet(viewsets.ModelViewSet):

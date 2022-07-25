@@ -124,3 +124,9 @@ CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:63
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
+
+
+TEACHER = 'teacher'
+STUDENT = 'student'
+ANONYMOUS = 'anonymous'
+GROUPS = [TEACHER, STUDENT, ANONYMOUS]

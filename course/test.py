@@ -5,8 +5,8 @@ from rest_framework import status
 
 from course.models import Course
 from course.serializers import CourseSerializer
+from imcslms.default_settings import TEACHER
 from imcslms.test import MainSetup
-from users.management.commands.registergroups import TEACHER
 from users.models import CourseAssignTeacher
 
 
