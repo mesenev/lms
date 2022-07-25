@@ -81,6 +81,23 @@ CHANNEL_LAYERS = {
     },
 }
 
+LOGGING = dict(
+    version=1, disable_existing_loggers=False,
+    formatters=dict(
+        verbose=dict(
+            format="[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            datefmt="%d/%b/%Y %H:%M:%S"
+        ),
+        simple=dict(format='%(levelname)s %(message)s')
+    ),
+    handlers=dict(
+        file={'level': 'ERROR', 'class': 'logging.FileHandler', 'filename': 'lms-django.log', 'formatter': 'verbose'}),
+    loggers=dict(
+        django=dict(handlers=['file'], propagate=True, level='DEBUG'),
+        MYAPP=dict(handlers=['file'], level='DEBUG')
+    )
+)
+
 DATABASES = {'default':
     {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -124,7 +141,6 @@ CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:63
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
-
 
 TEACHER = 'teacher'
 STUDENT = 'student'
