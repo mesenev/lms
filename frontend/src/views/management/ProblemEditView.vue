@@ -138,8 +138,6 @@ export default class ProblemEditView extends Vue {
     this.catsProblem = await this.store.fetchCatsProblemById(this.problem.cats_id)
     this.catsProblemLoading = false;
     this.testingMod = this.problemEdit.test_mod;
-    console.log("Режим тестирования:");
-    console.log(this.problemEdit.test_mod);
   }
 
   updateProblem(): void {
