@@ -23,5 +23,6 @@ gunicorn ${DJANGO_ASGI_MODULE} \
   --max-requests-jitter 1500 \
   --bind 0.0.0.0:8080 \
   --log-level info \
-  --log-file -
+  --log-file - \
+  --pid gunicorn.pid
 
