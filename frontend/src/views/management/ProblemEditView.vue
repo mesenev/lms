@@ -17,7 +17,7 @@
           :width="'80%'"/>
         <div v-else>
           <cv-text-input v-model.trim="problemEdit.name" label="Название"/>
-          <cv-text-area v-model.trim="problemEdit.description" label="Описание"/>
+          <cv-text-area v-model.trim= "problemEdit.description" label="Описание"/>
           <div>
             <br>
             <cv-multi-select
@@ -31,13 +31,32 @@
                 <cv-tooltip tip="При пустом списке будет использованы настройки курса"/>
               </template>
             </cv-multi-select>
+
             <span style="padding-top: 20px">Выберите способ тестирования</span>
             <cv-radio-group style="margin-top: 10px; padding-bottom: 20px">
-              <cv-radio-button name="group-1" label="автоматическое" value=""
-                               :checked="checked1"/>
-              <cv-radio-button name="group-1" label="ручное" value=""/>
-              <cv-radio-button name="group-1" label="автоматическое и ручное" value=""/>
+
+              <cv-radio-button @change = modChanged
+                               name="group-1"
+                               label="автоматическое"
+                               value="auto"
+                               v-model="testingMod"
+              />
+              <cv-radio-button @change = modChanged
+                               name="group-1"
+                               label="ручное"
+                               value="manual"
+                               v-model="testingMod"
+              />
+              <cv-radio-button @change = modChanged
+                               name="group-1"
+                               label="автоматическое и ручное"
+                               value="auto_and_manual"
+                               v-model="testingMod"
+              />
+
             </cv-radio-group>
+
+
           </div>
         </div>
         <cv-button-skeleton v-if="problemUpdating"/>
@@ -96,6 +115,11 @@ export default class ProblemEditView extends Vue {
       name: 'Python 3.8.1', disabled: false,
     },
   ];
+  testingMod = '';
+
+  modChanged(){
+    this.problemEdit = { ...this.problemEdit, test_mod: this.testingMod }
+  }
 
   deChanged() {
     this.problemEdit = { ...this.problemEdit, de_options: this.deChecks.sort().join(',') };
@@ -113,6 +137,9 @@ export default class ProblemEditView extends Vue {
     this.loading = false;
     this.catsProblem = await this.store.fetchCatsProblemById(this.problem.cats_id)
     this.catsProblemLoading = false;
+    this.testingMod = this.problemEdit.test_mod;
+    console.log("Режим тестирования:");
+    console.log(this.problemEdit.test_mod);
   }
 
   updateProblem(): void {
