@@ -25,25 +25,21 @@ In case if it's not created automatically for some reason
 then read logs and create it manually
 using any approach that's suits for you (pgAdmin, pycharm, terminal).
 
-When it's done backend should start without errors:
+When it's done you should apply migrations
 
 ```shell
-docker compose -f .docker/docker-compose.yml up backend
+docker compose -f .docker/docker-compose.yml run backend python manage.py migrate
 ```
-
-
-#### migrations
-Apply migrations and create superuser
 ```shell
-docker compose -f .docker/docker-compose.yml exec backend python manage.py migrate
-docker compose -f .docker/docker-compose.yml exec backend python manage.py createsuperuser
+docker compose -f .docker/docker-compose.yml run backend python manage.py createsuperuser
 ```
-Add superuser to 'teacher' group in admin-panel.
 
 You are ready to launch composition
 ```shell
 docker compose -f .docker/docker-compose.yml up
 ```
+
+Don't forget to add superuser to 'teacher' group in admin-panel.
 
 #### frontend
 Install Node.js & install frontend dependencies via command
