@@ -30,7 +30,7 @@
             <cv-radio-button v-model="currentMaterial.content_type" label="Видео" value="video"/>
           </cv-radio-group>
           <br>
-          <cv-structured-list :condensed="condensed">
+          <cv-structured-list :condensed="true">
             <template slot="headings">
               <cv-structured-list-heading>Материалы урока</cv-structured-list-heading>
             </template>

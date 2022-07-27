@@ -23,7 +23,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Component from "vue-class-component";
 import Vue from "vue";
 
@@ -32,7 +32,6 @@ import Vue from "vue";
 export default class LoginView extends Vue {
 
 }
-
 </script>
 
 <style lang="stylus" scoped>
@@ -61,15 +60,3 @@ export default class LoginView extends Vue {
 
 
 </style>
-
-
-<script>
-import Component from "vue-class-component";
-import Vue from "vue";
-
-@Component({ components: {} })
-export default class LoginView extends Vue {
-
-}
-
-</script>

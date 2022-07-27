@@ -8,13 +8,13 @@
       class="add_lesson_modal" size="default"
       @modal-hidden="modalHidden"
       @primary-click="addProblem">
-      <template v-slot:label>{{ lesson.name }}</template>
+      <template slot="label">{{ lesson.name }}</template>
       <cv-inline-notification
         v-if="showNotification"
         @close="() => showNotification=false"
         kind="error"
         :sub-title="notificationText"/>
-      <template v-slot:title>
+      <template slot="title">
         Добавить задание
         <cv-content-switcher class="switcher" @selected="actionSelected">
           <cv-content-switcher-button content-selector=".content-1" selected>
@@ -25,7 +25,7 @@
           </cv-content-switcher-button>
         </cv-content-switcher>
       </template>
-      <template v-slot:content>
+      <template slot="content">
         <section class="modal--content">
           <div class="content-1">
             <div>
@@ -38,7 +38,7 @@
                 v-if="!fetchingCatsProblems" ref="table"
                 v-model="selected" :columns="columns" :data="catsFilteredProblems"
                 class="cats-problems-table" @search="onSearch">
-                <template v-slot:batch-actions>
+                <template slot="batch-actions">
                   <div></div>
                 </template>
               </cv-data-table>
@@ -64,7 +64,7 @@
           </div>
         </section>
       </template>
-      <template v-slot:primary-button>Добавить</template>
+      <template slot="primary-button">Добавить</template>
     </cv-modal>
   </div>
 </template>
