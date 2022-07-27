@@ -10,7 +10,7 @@ services:
         container_name: database
         image: postgres:14
         env_file:
-            - "./conf/common.env"
+            - ".docker/conf/common.env"
         volumes:
             - "./conf/postgres/postgresql.conf:/etc/postgresql/postgresql.conf"
         networks:
@@ -21,20 +21,20 @@ services:
     backend:
         container_name: backend
         build:
-            context: ../.
+            context: .
             dockerfile: ./.docker/Dockerfile
         image: backend:latest
         command: "sh /application/.docker/conf/gunicorn/django-dev.sh"
         <<: *debuggable
         volumes:
-            - "../.:/application"
+            - "./:/application"
         working_dir: /application
         depends_on:
             - database
             - redis
         env_file:
-            - "conf/common.env"
-            - "conf/server.env"
+            - ".docker/conf/common.env"
+            - ".docker/conf/server.env"
         environment:
             PYTHONUNBUFFERED: 1
         ports:
@@ -54,11 +54,11 @@ services:
         image: backend:latest
         command: "sh /application/.docker/conf/gunicorn/celery.sh"
         volumes:
-            - "../.:/application"
+            - "./:/application"
         working_dir: /application
         env_file:
-            - "conf/common.env"
-            - "conf/server.env"
+            - ".docker/conf/common.env"
+            - ".docker/conf/server.env"
         networks:
             - db-net
         ports:
