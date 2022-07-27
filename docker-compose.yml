@@ -1,9 +1,5 @@
 version: "3.3"
 
-x-debuggable: &debuggable
-    stdin_open: true
-    tty: true
-
 services:
 
     database:
@@ -25,7 +21,6 @@ services:
             dockerfile: ./.docker/Dockerfile
         image: backend:latest
         command: "sh /application/.docker/conf/gunicorn/django-dev.sh"
-        <<: *debuggable
         volumes:
             - "./:/application"
         working_dir: /application
