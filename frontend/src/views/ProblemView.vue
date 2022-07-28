@@ -67,6 +67,7 @@
           <cv-loading v-else small/>
           <div class="solution-container--submit-list">
             <log-event-component
+              :key="logEventComponentKey"
               :problemId="problem.id" :studentId="studentId"
               :selected-submit="submitId"
               class="log--event--component"
@@ -125,6 +126,8 @@ export default class ProblemView extends Vue {
   private displayProblem = false;
   private displayCatsPackage = false;
   private catsResultSubmitId: number | null = null;
+
+  private logEventComponentKey = 0;
 
   get lesson() {
     return this.lessonStore.currentLesson;
@@ -236,12 +239,17 @@ export default class ProblemView extends Vue {
   async changeStudent(id: number) {
     this.studentId = Number(id);
     this.changeCurrentSubmit(this.userSubmits[this.userSubmits.length - 1].id);
+    this.recreateLogEventComponent();
   }
 
   get isCompleted(): boolean {
     return !!this.submits.find((submit: SubmitModel) => (
       submit.status === 'OK'
     ));
+  }
+
+  recreateLogEventComponent() {
+    this.logEventComponentKey += 1;
   }
 }
 </script>

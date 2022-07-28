@@ -4,7 +4,7 @@ from django.db.models import Q, Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, exceptions, status
 from rest_framework.decorators import api_view, renderer_classes, action
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 from rest_framework.renderers import JSONRenderer
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -242,11 +242,17 @@ class LogEventFilter(django_filters.FilterSet):
         return queryset
 
 
+class LogEventsPagination(LimitOffsetPagination):
+    default_limit = 20
+    max_limit = 1000
+
+
 class LogEventViewSet(viewsets.ModelViewSet):
     permission_classes = [CourseStaffOrAuthor]
     queryset = LogEvent.objects.all()
     serializer_class = LogEventSerializer
     filterset_class = LogEventFilter
+    pagination_class = LogEventsPagination
     filter_backends = (DjangoFilterBackend,)
 
     def create(self, request, *args, **kwargs):
