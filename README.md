@@ -15,7 +15,7 @@ Create database inside the composition.
 
 Launch the database container:
 ```shell
-docker compose -f .docker/docker-compose.yml up database
+docker compose  up database
 ```
 
 Postgres should create default database during the initial launch
@@ -28,15 +28,15 @@ using any approach that's suits for you (pgAdmin, pycharm, terminal).
 When it's done you should apply migrations
 
 ```shell
-docker compose -f .docker/docker-compose.yml run backend python manage.py migrate
+docker compose  run backend python manage.py migrate
 ```
 ```shell
-docker compose -f .docker/docker-compose.yml run backend python manage.py createsuperuser
+docker compose  run backend python manage.py createsuperuser
 ```
 
 You are ready to launch composition
 ```shell
-docker compose -f .docker/docker-compose.yml up
+docker compose  up
 ```
 
 Don't forget to add superuser to 'teacher' group in admin-panel.
