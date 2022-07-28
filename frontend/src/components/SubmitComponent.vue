@@ -3,7 +3,9 @@
     <div :class="['submit-header', 'status-' + submitEdit.status.toLowerCase()]">
       <div class="line">
         <h4 class="submit-title">ID решения: {{ submitId }}</h4>
-        <span class="submit-status">Состояние: <span class="status">{{ submitEdit.status }}</span></span>
+        <span class="submit-status">Состояние: <span class="status">{{
+            submitEdit.status
+          }}</span></span>
       </div>
       <span class="submit-date">{{ submitEdit.updated_at | withoutSeconds }}</span>
     </div>
@@ -30,6 +32,12 @@
           v-on:click="confirmSubmit">
           Отправить решение
         </cv-button>
+        <cv-link :to="{
+          name: 'profile-page',
+          params: { userId: userStore.user.id }
+        }">
+          <cv-tooltip tip="Установите cats аккаунт для отправки"/>
+        </cv-link>
       </div>
       <div v-if="isStaff" class="handlers handlers-stuff">
         <cv-button
@@ -47,11 +55,11 @@
         </cv-button>
       </div>
       <cv-inline-notification
-      v-if="showNotification"
-      :kind="notificationKind"
-      :sub-title="notificationText"
-      class="notification"
-      @close="hideNotification"/>
+        v-if="showNotification"
+        :kind="notificationKind"
+        :sub-title="notificationText"
+        class="notification"
+        @close="hideNotification"/>
     </div>
   </div>
 </template>
@@ -63,27 +71,34 @@ import SubmitModel, { SUBMIT_STATUS } from '@/models/SubmitModel';
 import ProblemModel from '@/models/ProblemModel';
 import problemStore from '@/store/modules/problem';
 import submitStore from '@/store/modules/submit';
+import userStore from '@/store/modules/user';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import _ from 'lodash';
 import { de_options } from '@/utils/consts';
 import { Component, Prop, Watch } from 'vue-property-decorator';
 
 
-@Component({ components: { CodeEditorComponent },
-filters: {withoutSeconds: function (d: string) {
-    return new Date(d).toLocaleString([], {
+@Component({
+  components: { CodeEditorComponent },
+  filters: {
+    withoutSeconds: function (d: string) {
+      return new Date(d).toLocaleString([], {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
         hour: "2-digit",
-        minute: "2-digit"})
-}}})
+        minute: "2-digit"
+      })
+    }
+  }
+})
 export default class SubmitComponent extends NotificationMixinComponent {
   @Prop({ required: true }) submitId!: number;
   @Prop({ required: true }) isStaff!: boolean;
   submit: SubmitModel | null = null;
   submitStore = submitStore;
   problemStore = problemStore;
+  userStore = userStore;
   submitEdit: SubmitModel = { ...this.submitStore.defaultSubmit };
   loading = true;
 
@@ -119,7 +134,12 @@ export default class SubmitComponent extends NotificationMixinComponent {
   get canSubmit(): boolean {
     return this.submitEdit.content?.length !== 0
       && this.isChanged
-      && this.submitEdit.de_id.length !== 0;
+      && this.submitEdit.de_id.length !== 0
+      && this.cats_account;
+  }
+
+  get cats_account(): boolean {
+    return this.userStore.user.cats_account !== null;
   }
 
   get problem(): ProblemModel {
@@ -203,6 +223,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
     position absolute
     bottom 7rem
     z-index 1
+
 .submit-header
   padding 1em
   border-radius 5px 5px 0 0
@@ -220,26 +241,28 @@ export default class SubmitComponent extends NotificationMixinComponent {
 
 
 .status
-    font-weight bold
-    &-ok
-      color white
-      background-color  #4EB052
+  font-weight bold
 
-      .submit-data
-        color #d6d5d4
+  &-ok
+    color white
+    background-color #4EB052
 
-    &-wa
-      color white
-      background-color #DA1E28
+    .submit-data
+      color #d6d5d4
 
-      .submit-data
-        color #d6d5d4
-    &-np
-      color white
-      background-color  #393939
+  &-wa
+    color white
+    background-color #DA1E28
 
-      .submit-data
-        color #fafafa
+    .submit-data
+      color #d6d5d4
+
+  &-np
+    color white
+    background-color #393939
+
+    .submit-data
+      color #fafafa
 
 
 .submit-lang
@@ -265,6 +288,10 @@ export default class SubmitComponent extends NotificationMixinComponent {
   flex-direction row
   padding 0.5rem
   background-color #f4f4f4
+  align-items center
+  vertical-align center
+  //justify-content center
+
   &-staff
     justify-content flex-end
 
@@ -274,12 +301,15 @@ export default class SubmitComponent extends NotificationMixinComponent {
 <style lang="stylus" scoped>
 .bx--dropdown
   border-bottom 0
+
   .bx--list-box__field, ui
     border 0.5px solid #8D8D8D
     background-color #f4f4f4
     border-radius 10px
+
 .bx--list-box__menu-icon
   top 0.5rem
+
 .cv-button
   padding 0 1rem
 </style>

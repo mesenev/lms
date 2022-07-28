@@ -102,7 +102,7 @@ export default class ProfileView extends Vue {
   }
 
   async fetch_cats_account() {
-    await axios.get(`/api/cats_account/?user_id=${this.userId}`)
+    await axios.get(`/api/cats_account/?user=${this.userId}`)
       .then(response => {
         if (response.data)
           this.cats_account = response.data[0].username;

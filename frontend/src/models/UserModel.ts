@@ -7,6 +7,7 @@ export default interface UserModel {
   avatar_url: string;
   thumbnail: string;
   email: string;
+  cats_account: number|null;
 }
 
 export interface AuthorModel extends UserModel {

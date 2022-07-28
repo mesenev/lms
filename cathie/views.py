@@ -18,7 +18,6 @@ from users.permissions import CourseStaffOrAuthor
 from django.utils import timezone
 
 
-
 @login_required
 @api_view(['GET'])
 @renderer_classes([JSONRenderer])
@@ -54,6 +53,7 @@ class CatsAccountViewSet(viewsets.ModelViewSet):
     queryset = CatsAccount.objects.all()
     serializer_class = CatsAccountSerializer
     filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('user', 'username', 'last_check')
 
     def create(self, request, *args, **kwargs):
         auth = requests.post(

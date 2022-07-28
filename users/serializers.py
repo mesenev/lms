@@ -35,6 +35,6 @@ class DefaultUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'id', 'staff_for', 'password', 'email', 'avatar_url',
-                  'thumbnail', 'middle_name']
+                  'thumbnail', 'middle_name', 'cats_account']
         extra_kwargs = {'password': {'write_only': True}}
         read_only_fields = ['thumbnail']
