@@ -18,6 +18,7 @@ class UserModule extends VuexModule {
     avatar_url: '',
     thumbnail: '',
     email: '',
+    cats_account: null
   }
 
   // storage for all fetched users associated with courseId
