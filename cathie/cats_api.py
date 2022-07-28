@@ -18,7 +18,7 @@ def cats_submit_solution(source_text: str, problem_id: int, de_id: int, cats_acc
     url = f'{settings.CATS_URL}/?f=api_submit_problem;json=1;'
     url += f'sid={authorization.cats_sid()}'
     data = {
-        'de_id': de_id,
+        'de_code': de_id,
         'source_text': source_text,
         'problem_id': problem_id,
         'submit_as': cats_account,
