@@ -15,13 +15,15 @@ class LogEvent extends VuexModule {
   }
 
   @Action
-  async fetchLogEventsByProblemAndStudentIds(data: { problem: number; student: number }):
+  async fetchLogEventsByProblemAndStudentIds(
+    data: { problem: number; student: number; limit: number; offset: number}
+  ):
     Promise<Array<LogEventModel>> {
     let answer = {};
     await axios.get('/api/logevents/', {
       params: data,
     }).then(response => {
-      answer = response.data;
+      answer = response.data.results;
     })
       .catch(error => {
         console.error(error);

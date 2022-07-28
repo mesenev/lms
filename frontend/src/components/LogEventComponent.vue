@@ -4,14 +4,16 @@
     <div class="title">
       <span>История решений:</span>
     </div>
-    <div class="wrapper-for_controll-overflow-list" ref="eventList">
+    <div class="wrapper-for_controll-overflow-list"
+         @scroll="handleScroll"
+         id="submit-list-wrapper">
       <cv-loading v-if="loading"/>
       <cv-structured-list
         v-else
         class="submit-list">
         <template slot="items">
           <div
-            v-for="event in eventsSortedList" :key="event.id" class="list--item"
+            v-for="event in events" :key="event.id" class="list--item"
             v-bind:class="{
               'list--item--submit': event.type === logEventTypes.TYPE_SUBMIT,
               'right': event.author === userStore.user.id,
@@ -105,27 +107,34 @@ export default class LogEventComponent extends NotificationMixinComponent {
   iconTrash = TrashCan16;
   Checkbox = Checkbox16;
   events: Array<LogEventModel> = [];
+  newEvents: Array<LogEventModel> = [];
   connection!: WebSocket;
+  limit = 20;
+  offset = 0;
+  previousScrollHeightMinusScrollTop = 0;
 
   async created() {
     await this.userStore.fetchUserById(this.studentId);
+    this.loading = false;
     await this.fetchEvents();
     this.socketConnectionUpdate();
+    await this.scrollDown();
   }
 
-  @Watch('studentId')
-  @Watch('problemId')
-  onPropChanged() {
-    this.fetchEvents();
-  }
+  // @Watch('studentId')
+  // @Watch('problemId')
+  // onPropChanged() {
+  //   this.fetchEvents();
+  // }
 
   socketMessageHandler(event: MessageEvent) {
-    this.events = [(JSON.parse(event.data) as LogEventModel), ...this.events];
+    this.events.push((JSON.parse(event.data) as LogEventModel));
+    this.events = [...this.events];
   }
 
-  get eventsSortedList(){
-    const events = this.events.sort(a => -a.id);
-    return events;
+  get newEventsSortedList(){
+    const newEvents = this.newEvents.sort(a => -a.id);
+    return newEvents;
   }
 
   socketEventHandler(event: Event) {
@@ -149,14 +158,23 @@ export default class LogEventComponent extends NotificationMixinComponent {
     this.connection.onerror = this.socketErrorHandler;
   }
 
-
   async fetchEvents() {
-    this.loading = true;
-    this.events = await this.logEventStore.fetchLogEventsByProblemAndStudentIds(
-      { problem: this.problemId, student: this.studentId },
+    this.newEvents = await this.logEventStore.fetchLogEventsByProblemAndStudentIds(
+      {
+        problem: this.problemId,
+        student: this.studentId,
+        limit: this.limit,
+        offset: this.offset
+      },
     );
-    await this.thumbnailsUpdate();
-    this.loading = false;
+    if (this.newEvents.length) {
+      this.recordScrollPosition();
+      this.events.unshift(...this.newEventsSortedList);
+      await this.thumbnailsUpdate();
+      this.offset += this.limit;
+      this.loading = false;
+      this.restoreScrollPosition();
+    }
   }
 
   async thumbnailsUpdate() {
@@ -164,12 +182,11 @@ export default class LogEventComponent extends NotificationMixinComponent {
       return;
     await this.fetchThumbnailForEvent(this.events[0]);
     let previous = this.events[0];
-    for (const event of this.eventsSortedList) {
+    for (const event of this.events) {
       if (previous.author !== event.author)
         await this.fetchThumbnailForEvent(this.events[0]);
       previous = event;
     }
-
   }
 
   async fetchThumbnailForEvent(event: LogEventModel) {
@@ -186,16 +203,13 @@ export default class LogEventComponent extends NotificationMixinComponent {
       this.$emit('cats-answer', { id: element.submit });
   }
 
-  // It should scroll to bottom, but it's not working. So I commented it out
-  // async updated() {
-  //   const submits = [...document.getElementsByClassName("submit-list")];
-  //   submits.forEach(element => element.scrollTop = element.scrollHeight);
-  // }
-
   async deleteEvent(event: LogEventModel) {
     await this.logEventStore.deleteEvent(event.id);
     this.events = this.events.filter(value => value.id !== event.id);
     await this.thumbnailsUpdate();
+    if (this.offset > 0) {
+      this.offset -= 1;
+    }
   }
 
   async createMessageHandler() {
@@ -212,6 +226,8 @@ export default class LogEventComponent extends NotificationMixinComponent {
     // }
     this.commentary = '';
     this.messageIsSending = false;
+    this.offset += 1;
+    await this.scrollDown();
   }
 
   picUrl(url: string): string {
@@ -220,19 +236,28 @@ export default class LogEventComponent extends NotificationMixinComponent {
     return "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
   }
 
-  async scrollDown(): Promise<void> {
-    let eventList = this.$refs.eventList;
+  recordScrollPosition() {
+    const eventList = document.getElementById('submit-list-wrapper')!;
+    this.previousScrollHeightMinusScrollTop =
+      eventList.scrollHeight - eventList.scrollTop;
+  }
 
-    if (eventList instanceof Array) {
-      eventList = eventList[0];
-    }
+  restoreScrollPosition() {
+    const eventList = document.getElementById('submit-list-wrapper')!;
+    eventList.scrollTop =
+      eventList.scrollHeight - this.previousScrollHeightMinusScrollTop;
+  }
 
-    if (eventList instanceof Element)
-      eventList.scrollTo(0, eventList.scrollHeight);
-    else if (eventList != undefined) {
-      eventList = eventList.$el;
-      eventList.scrollTo(0, eventList.scrollHeight);
+  handleScroll() {
+    const eventList = document.getElementById('submit-list-wrapper')!;
+    if(eventList.scrollTop === 0) {
+      this.fetchEvents();
     }
+  }
+
+  async scrollDown() {
+    const eventList = document.getElementById('submit-list-wrapper')!;
+    eventList.scrollTop = eventList.scrollHeight;
   }
 }
 
