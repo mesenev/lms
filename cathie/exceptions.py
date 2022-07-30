@@ -12,3 +12,8 @@ class CatsAnswerCodeException(BaseException):
 
 class CatsAuthorizationException(BaseException):
     pass
+
+
+class CatsNormalErrorException(BaseException):
+    def __init__(self, response: requests.Response):
+        self.response = response

@@ -93,8 +93,8 @@ LOGGING = dict(
     handlers=dict(
         file={'level': 'ERROR', 'class': 'logging.FileHandler', 'filename': 'lms-django.log', 'formatter': 'verbose'}),
     loggers=dict(
-        django=dict(handlers=['file'], propagate=True, level='ERROR'),
-        MYAPP=dict(handlers=['file'], level='ERROR')
+        django=dict(handlers=['file'], propagate=True, level='INFO'),
+        MYAPP=dict(handlers=['file'], level='INFO')
     )
 )
 

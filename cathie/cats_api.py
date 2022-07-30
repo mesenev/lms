@@ -4,7 +4,7 @@ import re
 import requests
 from django.conf import settings
 
-from cathie.exceptions import CatsAnswerCodeException
+from cathie.exceptions import CatsAnswerCodeException, CatsNormalErrorException
 from cathie import authorization
 
 
@@ -15,10 +15,10 @@ def cats_check_status():
 @authorization.check_authorization_for_cats
 def cats_submit_solution(source_text: str, problem_id: int, de_id: int, cats_account: str):
     # ToDo обработать повторную отправку решения
-    url = f'{settings.CATS_URL}/?f=api_submit_problem;json=1;'
+    url = f'{settings.CATS_URL}?f=api_submit_problem;json=1;'
     url += f'sid={authorization.cats_sid()}'
     data = {
-        'de_code': de_id,
+        'de_id': de_id,
         'source_text': source_text,
         'problem_id': problem_id,
         'submit_as': cats_account,
@@ -26,7 +26,9 @@ def cats_submit_solution(source_text: str, problem_id: int, de_id: int, cats_acc
     r = requests.post(url, data=data, headers={'User-Agent': 'Mozilla/5.0'})
     if r.status_code != 200:
         raise CatsAnswerCodeException(r)
-    r_content = json.loads(r.content.decode('utf-8'))
+    r_content = r.json()
+    if r_content['status'] == 'error':
+        raise CatsNormalErrorException(r)
     req_ids = None
     if r_content.get('href_run_details'):
         req_ids = re.search(r'(?<=rid=)\d+', r_content['href_run_details']).group()

@@ -84,7 +84,7 @@ class Submit(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submits', null=False)
     content = models.TextField()
     status = models.CharField(max_length=2, choices=SUBMIT_STATUS, default='NP')
-    de_id = models.CharField(max_length=5)
+    de_id = models.CharField(max_length=12)
 
     def __str__(self):
         return f'ID{self.id} - {self.status}'
@@ -94,13 +94,22 @@ class Submit(models.Model):
 
 
 class CatsSubmit(models.Model):
-    submit = models.ForeignKey(Submit, related_name='cats_submit', on_delete=models.DO_NOTHING, null=True)
+    submit = models.ForeignKey(Submit, related_name='cats_submit', on_delete=models.CASCADE, null=True)
     data = models.JSONField(null=False)
-    id_to_check = models.IntegerField(null=True, default=None)
+    id_to_check = models.IntegerField(null=True, default=None, blank=True)
     is_sent = models.BooleanField(default=False, null=False)
-    sending_result = models.JSONField(null=True)
-    testing_result = models.JSONField(null=True)
+    sending_result = models.JSONField(null=True, blank=True)
+    testing_result = models.JSONField(null=True, blank=True)
     is_error = models.BooleanField(default=False, null=False)
+
+    def save(self, *args, **kwargs):
+        if not self.id_to_check:
+            self.id_to_check = None
+        if not self.sending_result:
+            self.sending_result = None
+        if not self.testing_result:
+            self.testing_result = None
+        super(CatsSubmit, self).save(*args, **kwargs)
 
     def __str__(self):
         return f'CID{self.submit.id} - ({"sent" if self.is_sent else "nsent"})'

@@ -32,7 +32,9 @@
           v-on:click="confirmSubmit">
           Отправить решение
         </cv-button>
-        <cv-link :to="{
+        <cv-link
+          v-if="!this.cats_account"
+          :to="{
           name: 'profile-page',
           params: { userId: userStore.user.id }
         }">

@@ -5,6 +5,9 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'imcslms.settings')
 
 app = Celery('imcslms')
 
+app.conf.CELERY_ALWAYS_EAGER = True
+app.conf.CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 app.autodiscover_tasks()
