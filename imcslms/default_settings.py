@@ -114,8 +114,8 @@ MEDIA_ROOT = 'media'
 WEBPACK_DEV_SERVER = 'localhost:8080/static/'
 AUTH_USER_MODEL = 'users.User'
 CATS_URL = os.getenv('CATS_URL', '')
-CATS_LOGIN = os.getenv('CATS_LOGIN', '')
-CATS_PASSWD = os.getenv('CATS_PASSWD', '')
+CATS_LOGIN = os.getenv('CATS_LOGIN', 'lms-test')
+CATS_PASSWD = os.getenv('CATS_PASSWD', 'Cz5hP9bp7MgA9F6')
 
 # Celery Configuration Options
 CELERY_TIMEZONE = 'Asia/Vladivostok'
