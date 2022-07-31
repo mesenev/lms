@@ -4,6 +4,7 @@ export default interface SubmitModel {
   problem: { id: number; name: string };
   student: number;
   created_at: string;
+  updated_at: string;
   status: string;
   cats_submit?: number;
   content?: string;
