@@ -130,6 +130,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
   socketMessageHandler(event: MessageEvent) {
     this.events.push((JSON.parse(event.data) as LogEventModel));
     this.events = [...this.events];
+    this.$nextTick(this.scrollDown);
   }
 
   get newEventsSortedList(){
@@ -227,7 +228,6 @@ export default class LogEventComponent extends NotificationMixinComponent {
     this.commentary = '';
     this.messageIsSending = false;
     this.offset += 1;
-    await this.scrollDown();
   }
 
   picUrl(url: string): string {
