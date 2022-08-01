@@ -12,9 +12,12 @@ utils.default_headers = lambda: {
 }
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = 'helloworld'
-DEBUG = True
-ALLOWED_HOSTS = ['*']
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+DEBUG = os.getenv('DJANGO_DEBUG')
+ALLOWED_HOSTS = [os.getenv('DJANGO_ALLOWED_HOSTS'), ]
+
+INTERNAL_IPS = ["127.0.0.1", '*']
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -98,16 +101,12 @@ LOGGING = dict(
     )
 )
 
-DATABASES = {'default':
-    {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.getenv('DATABASE_NAME'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': 'database',
-        'PORT': os.getenv('DATABASE_PORT', '5432'),
-    }
-}
+DATABASES = dict(default=dict(
+    ENGINE='django.db.backends.postgresql_psycopg2', NAME=os.getenv('DATABASE_NAME'),
+    USER=os.getenv('POSTGRES_USER'), PASSWORD=os.getenv('POSTGRES_PASSWORD'), HOST='database',
+    PORT=os.getenv('DATABASE_PORT', '5432')
+))
+
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', },
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', },
@@ -130,14 +129,14 @@ MEDIA_ROOT = 'media'
 
 WEBPACK_DEV_SERVER = 'localhost:8080/static/'
 AUTH_USER_MODEL = 'users.User'
-CATS_URL = os.getenv('CATS_URL', '')
-CATS_LOGIN = os.getenv('CATS_LOGIN', '')
-CATS_PASSWD = os.getenv('CATS_PASSWD', '')
+CATS_URL = os.getenv('DJANGO_CATS_URL')
+CATS_LOGIN = os.getenv('DJANGO_CATS_LOGIN')
+CATS_PASSWD = os.getenv('DJANGO_CATS_PASSWD')
 
 # Celery Configuration Options
 CELERY_TIMEZONE = 'Asia/Vladivostok'
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379')
-CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379')
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND')
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'

@@ -1,6 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
+process.env.VUE_APP_VERSION = require('./package.json').version
+process.env.VUE_APP_NAME = require('./package.json').name
+
 module.exports = {
   publicPath: "/static/", // Should match Django STATIC_URL
   filenameHashing: false,

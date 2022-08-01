@@ -84,6 +84,7 @@ node_modules
 # local env files
 .env.local
 .env.*.local
+.docker/conf/common.env.local
 
 # Log files
 npm-debug.log*
