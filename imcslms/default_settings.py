@@ -15,6 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 DEBUG = os.getenv('DJANGO_DEBUG')
 ALLOWED_HOSTS = [os.getenv('DJANGO_ALLOWED_HOSTS'), ]
+CSRF_TRUSTED_ORIGINS = [os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS'), ]
 
 INTERNAL_IPS = ["127.0.0.1", '*']
 
