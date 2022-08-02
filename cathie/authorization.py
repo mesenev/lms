@@ -26,7 +26,7 @@ def check_authorization_for_cats(function_to_decorate):
                 raise CatsAnswerCodeException(r)
         if not r or 'error' in json.loads(r.content.decode('utf-8')):
             print('authorizing...', end=' ')
-            payload = {'login': 'mesenev', 'passwd': 'Pasha123lol'}
+            payload = {'login': settings.CATS_LOGIN, 'passwd': settings.CATS_PASSWD}
             auth = requests.get(
                 url=f'{settings.CATS_URL}?f=login;json=1;',
                 params=payload,

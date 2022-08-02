@@ -1,27 +1,27 @@
 Building composition {dev/prod}
 ```shell
-docker-compose   build
+docker-compose build
 ```
 Launching built composition
 ```shell
-docker-compose   up
+docker-compose up
 ```
 Executing a command inside specific container
 ```shell
-docker-compose   exec backend python manage.py shell
+docker-compose exec backend python manage.py shell
 ```
 Getting inside the database shell
 ```shell
-docker-compose   exec database psql -U dbuser
+docker-compose exec database psql -U dbuser
 ```
 Gracefully stop composition [or container_name]
 ```shell
-docker-compose   stop [container_name]
+docker-compose stop [container_name]
 ```
 
 Full composition logs [or logs for the container_name]
 ```shell
-docker-compose  logs [container_name]
+docker-compose logs [container_name]
 ```
 Also worth of mentioning that "services" tab inside jetbrains ide could be a good assistant
 
@@ -31,7 +31,7 @@ List of nice optional flags:
 ```
 Run container commands ( migrations, etc )
 ```shell
-docker-compose  run [container name] ..command...
+docker-compose run [container name] ..command...
 ```
 ### Database
 Database `maindb`, user `dbuser` should be created automatically with "Initialization script" mechanic
@@ -45,22 +45,22 @@ Usage of the following commands assumes that the database, and the corresponding
 #### Database dump/restore
 Restore `maindb` from the `dump.sql` file
 ```shell
-docker-compose  exec -T database pg_restore -cC --disable-triggers -U dbuser --dbname=maindb < dump.sql
+docker-compose exec -T database pg_restore -cC --disable-triggers -U dbuser --dbname=maindb < dump.sql
 ```
 Create full dump for restoring database from scratch
 ```shell
-docker-compose  exec -T database pg_dump -Fc -cC --disable-triggers -U dbuser --dbname=maindb > dump.sql
+docker-compose exec -T database pg_dump -Fc -cC --disable-triggers -U dbuser --dbname=maindb > dump.sql
 ```
 
 #### Data only commands
 Create `data.sql` dump with data inserts only
 ```shell
-docker-compose  exec database pg_dump --user dbuser --column-inserts --data-only maindb > data.sql
+docker-compose exec database pg_dump --user dbuser --column-inserts --data-only maindb > data.sql
 ```
 Apply `data.sql` dump on existing database.
 We assume that schemas of source and target should be identical.
 ```shell
-cat data.sql | docker-compose  exec -T database psql -U dbuser --dbname=maindb
+cat data.sql | docker-compose exec -T database psql -U dbuser --dbname=maindb
 ```
 
 Feel free to message us if something is unclear for you.
