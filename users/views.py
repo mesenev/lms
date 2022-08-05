@@ -19,8 +19,8 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
 from course.models import Course
-from users.models import User, CourseAssignTeacher
-from users.serializers import DefaultUserSerializer
+from users.models import User, CourseAssignTeacher, StudyGroup
+from users.serializers import DefaultUserSerializer, StudyGroupsSerializer
 
 
 @login_required(login_url=reverse_lazy('account_login'))
@@ -61,6 +61,11 @@ def user_login(request):
 class UsersViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
     serializer_class = DefaultUserSerializer
     queryset = User.objects.all()
+
+
+class StudyGroupsViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
+    queryset = StudyGroup.objects.all()
+    serializer_class = StudyGroupsSerializer
 
 
 class Logout(APIView):
@@ -143,3 +148,29 @@ def change_avatar(request):
     user.avatar_url = new_avatar
     user.save()
     return Response({'code': 0, 'message': str(user.avatar_url.url)})
+
+
+@login_required
+@api_view(['POST'])
+@renderer_classes([JSONRenderer])
+def edit_profile(request):
+    user = request.user
+    first_name = request.data.get('first_name')
+    last_name = request.data.get('last_name')
+    study_group = request.data.get('study_group')
+    username = request.data.get('username')
+    email = request.data.get('email')
+    if first_name and first_name != user.first_name:
+        user.first_name = first_name
+    if last_name and last_name != user.last_name:
+        user.last_name = last_name
+    if username and username != user.username:
+        user.username = username
+    if study_group:
+        study_group = StudyGroup.objects.get(study_group__exact=f'{study_group}')
+        if study_group != user.study_group:
+            user.study_group = study_group
+    if email and email != user.email:
+        user.email = email
+    user.save()
+    return Response({'code': 0, 'message': 'Profile edited successfully'})
