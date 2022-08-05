@@ -3,6 +3,7 @@ export default interface UserModel {
   username: string;
   first_name: string;
   last_name: string;
+  study_group: string;
   staff_for: Array<number>;
   avatar_url: string;
   thumbnail: string;

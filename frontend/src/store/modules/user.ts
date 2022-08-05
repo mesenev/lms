@@ -14,6 +14,7 @@ class UserModule extends VuexModule {
     username: '',
     first_name: '',
     last_name: '',
+    study_group: '',
     staff_for: [],
     avatar_url: '',
     thumbnail: '',
