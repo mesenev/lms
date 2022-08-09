@@ -1,9 +1,16 @@
 from rest_framework import serializers
 
-from users.models import User
+from users.models import User, StudyGroup
+
+
+class StudyGroupsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudyGroup
+        fields = ['study_group']
 
 
 class DefaultUserSerializer(serializers.ModelSerializer):
+    study_group = serializers.CharField(max_length=20)
     staff_for = serializers.PrimaryKeyRelatedField(many=True, required=False, read_only=True)
 
     def __init__(self, *args, exclude_staff=True, **kwargs):
@@ -34,7 +41,7 @@ class DefaultUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'id', 'staff_for', 'password', 'email', 'avatar_url',
-                  'thumbnail', 'middle_name', 'cats_account']
+        fields = ['username', 'first_name', 'last_name', 'study_group', 'id', 'staff_for', 'password',
+                  'email', 'avatar_url', 'thumbnail', 'middle_name', 'cats_account']
         extra_kwargs = {'password': {'write_only': True}}
         read_only_fields = ['thumbnail']

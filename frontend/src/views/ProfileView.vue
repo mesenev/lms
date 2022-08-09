@@ -24,14 +24,26 @@
         </div>
       </div>
       <div class="bx--col">
-        <div class="info-block">
-          <h3 class="info">Информация</h3>
+        <edit-profile-component v-if="edit" :user="user" @updateUser="updateUser" @back="hideEdit"/>
+        <div v-else class="info-block">
+          <div class="info">
+            <h3>Информация</h3>
+            <cv-button
+              v-if="!guestMode"
+              :icon="edit32"
+              @click="showEdit">
+              Редактировать
+            </cv-button>
+          </div>
           <div class="list">
             <cv-structured-list>
               <template slot="items">
                 <cv-structured-list-item>
                   <cv-structured-list-data>Учебная группа</cv-structured-list-data>
-                  <cv-structured-list-data>Б8119-01.03.02</cv-structured-list-data>
+                  <cv-structured-list-data v-if="user.study_group">
+                    {{ user.study_group }}
+                  </cv-structured-list-data>
+                  <cv-structured-list-data v-else> Не выбрана</cv-structured-list-data>
                 </cv-structured-list-item>
                 <cv-structured-list-item>
                   <cv-structured-list-data>Почта</cv-structured-list-data>
@@ -73,9 +85,12 @@ import EditAvatarModal from "@/views/EditAvatarModal.vue";
 import Edit32 from '@carbon/icons-vue/es/edit/32';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import axios from "axios";
+import EditProfileComponent from "@/components/EditProfileComponent.vue";
+import UserModel from "@/models/UserModel";
 
 @Component({
   components: {
+    EditProfileComponent,
     Avatar, Course, AddCatsModal, UserView,
     Edit32, EditAvatarModal, ChangePasswordModal,
   },
@@ -85,9 +100,12 @@ export default class ProfileView extends Vue {
   private store = courseStore;
   loading = true;
   cats_loading = true;
+  edit = false;
   cats_account = "";
   searchValue = "";
   user = userStore.user;
+
+  edit32 = Edit32;
 
   guestMode = false;
 
@@ -111,6 +129,18 @@ export default class ProfileView extends Vue {
         console.log(error);
       })
     this.cats_loading = false;
+  }
+
+  showEdit() {
+    this.edit = true;
+  }
+
+  hideEdit() {
+    this.edit = false;
+  }
+
+  updateUser(user: UserModel) {
+    this.user = user;
   }
 
   get filterCourses() {
@@ -171,6 +201,9 @@ export default class ProfileView extends Vue {
 
 .info
   margin-bottom 20px
+  display flex
+  flex-direction row
+  justify-content space-between
 
 .list
   margin-top 2rem
