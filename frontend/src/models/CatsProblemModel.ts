@@ -13,4 +13,5 @@ export default interface CatsProblemModel {
     time: number;
     memory: number;
   };
+  test_mode: string;
 }

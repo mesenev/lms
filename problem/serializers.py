@@ -99,6 +99,7 @@ class ProblemSerializer(serializers.ModelSerializer):
     cats_material_url = serializers.CharField()
     students = serializers.SerializerMethodField()
     de_options = serializers.SerializerMethodField()
+    test_mode = serializers.CharField()
 
     def get_students(self, instance):
         return {student.id: student.submits.values('id', 'status', 'student').all().first()
@@ -117,5 +118,5 @@ class ProblemSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'description', 'author', 'lesson', 'submits',
             'manual', 'type', 'language', 'cats_material_url', 'cats_id', 'students',
-            'de_options'
+            'de_options', 'test_mode'
         )

@@ -165,6 +165,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
       const data = this.catsProblems.filter(element => {
         return selected_ids.find(e => e === element.id);
       });
+      data.forEach(element => element.test_mode = 'manual')
       await axios.post(`/api/add-cats-problems-to-lesson/${this.lesson.id}/`, data)
         .then(async (answer) => {
           if (answer.status == 200) {

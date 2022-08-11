@@ -277,7 +277,7 @@ def add_cats_problems(request, lesson_id):
         problem = Problem.objects.create(
             lesson=lesson, author=request.user, name=cats_problem['name'],
             cats_id=cats_problem['id'], cats_material_url=cats_problem["text_url"],
-            description=materials,
+            description=materials, test_mode=cats_problem['test_mode']
         )
         answer.append(ProblemSerializer(problem).data)
     return Response(answer)
