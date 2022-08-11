@@ -44,6 +44,7 @@ class Problem(models.Model):
     )
     de_options = models.CharField(max_length=512, blank=True, default='')
     objects = ProblemManager()
+    test_mode = models.CharField(max_length=30, blank=True, default='')
 
 
 class ProblemStats(models.Model):

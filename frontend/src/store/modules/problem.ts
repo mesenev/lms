@@ -16,7 +16,7 @@ class ProblemModule extends VuexModule {
     return {
       id: NaN, lesson: NaN, type: 'CW', name: '', description: '',
       completed: false, manual: false, language: null, cats_material_url: '', cats_id: NaN,
-      de_options: '',
+      de_options: '', test_mode: ''
     };
   }
 
