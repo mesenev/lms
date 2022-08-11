@@ -79,16 +79,16 @@ export default class ProblemEditView extends Vue {
   showNotification = false;
   problemUpdating = false;
   deChecks: string[] = [];
-  deOptions = [
-    {
-      value: '101', label: 'Cross-platform C/C++ compiler',
-      name: 'Cross-platform C/C++ compiler', disabled: false,
-    },
-    {
-      value: '502', label: 'Python 3.8.1',
-      name: 'Python 3.8.1', disabled: false,
-    },
-  ];
+  deOptions =  [
+  {
+    value: '3', label: 'Cross-platform C/C++ compiler',
+    name: 'Cross-platform C/C++ compiler', disabled: false,
+  },
+  {
+    value: '681949', label: 'Python 3.8.1',
+    name: 'Python 3.8.1', disabled: false,
+  },
+];
 
   deChanged() {
     this.problemEdit = { ...this.problemEdit, de_options: this.deChecks.sort().join(',') };

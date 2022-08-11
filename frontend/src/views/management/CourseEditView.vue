@@ -138,15 +138,15 @@ export default class CourseEditView extends Vue {
   courseEdit = { ...this.course };
   deChecks: string[] = [];
   deOptions = [
-    {
-      value: '101', label: 'Cross-platform C/C++ compiler',
-      name: 'Cross-platform C/C++ compiler', disabled: false,
-    },
-    {
-      value: '502', label: 'Python 3.8.1',
-      name: 'Python 3.8.1', disabled: false,
-    },
-  ];
+  {
+    value: '3', label: 'Cross-platform C/C++ compiler',
+    name: 'Cross-platform C/C++ compiler', disabled: false,
+  },
+  {
+    value: '681949', label: 'Python 3.8.1',
+    name: 'Python 3.8.1', disabled: false,
+  },
+];
 
   deChanged() {
     this.courseEdit = { ...this.courseEdit, de_options: this.deChecks.sort().join(',') };
@@ -205,6 +205,7 @@ export default class CourseEditView extends Vue {
       this.notificationKind = 'error';
     })
     request.finally(() => this.showNotification = true);
+    console.log(this.course.de_options, 'wtf')
   }
 }
 </script>
