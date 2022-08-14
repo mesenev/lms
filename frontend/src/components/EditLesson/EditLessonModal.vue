@@ -99,6 +99,8 @@ export default class EditLessonModal extends NotificationMixinComponent {
   fetchingCatsProblems = true;
   modalVisible = false;
   searchQueryForAllProblems = '';
+  //ToDo add radio button for test modes to modal
+  testingMode = '';
 
   get catsFilteredProblems() {
     return searchByProblems(this.searchQueryForAllProblems, this.catsProblemsTruncated);

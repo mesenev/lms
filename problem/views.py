@@ -196,6 +196,17 @@ class SubmitViewSet(viewsets.ModelViewSet):
         # TODO: Change it according to prefs of problem
         if not validated_data['problem'].cats_id:
             return
+
+        if validated_data['problem'].test_mode == 'manual':
+            model = serializer.save(student=request.user, status=Submit.DEFAULT_STATUS)
+            log_event = LogEvent(
+                    problem=validated_data['problem'], student=request.user, type=LogEvent.TYPE_AWAITING_MANUAL,
+                    submit=model,
+                    data=dict(message='Решение ожидает ручной проверки')
+                )
+            log_event.save()
+            return
+
         cats = CatsSubmit(data=dict(
             source_text=validated_data.get('content'),
             problem_id=validated_data['problem'].cats_id,
