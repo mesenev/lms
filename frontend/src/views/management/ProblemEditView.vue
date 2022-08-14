@@ -40,19 +40,19 @@
                                name="group-1"
                                label="автоматическое"
                                value="auto"
-                               v-model="testingMod"
+                               v-model="testingMode"
               />
               <cv-radio-button @change = modChanged
                                name="group-1"
                                label="ручное"
                                value="manual"
-                               v-model="testingMod"
+                               v-model="testingMode"
               />
               <cv-radio-button @change = modChanged
                                name="group-1"
                                label="автоматическое и ручное"
                                value="auto_and_manual"
-                               v-model="testingMod"
+                               v-model="testingMode"
               />
 
             </cv-radio-group>
@@ -101,7 +101,7 @@ export default class ProblemEditView extends Vue {
   notificationText = '';
   showNotification = false;
   problemUpdating = false;
-  testingMod = '';
+  testingMode = '';
   deChecks: string[] = [];
   deOptions =  [
   {
@@ -119,7 +119,7 @@ export default class ProblemEditView extends Vue {
     this.problemEdit = { ...this.problemEdit, de_options: this.deChecks.sort().join(',') };
   }
   modChanged(){
-    this.problemEdit = { ...this.problemEdit, test_mode: this.testingMod }
+    this.problemEdit = { ...this.problemEdit, test_mode: this.testingMode }
   }
 
   get isChanged(): boolean {
@@ -133,8 +133,7 @@ export default class ProblemEditView extends Vue {
     this.deChecks = this.problemEdit.de_options.split(',');
     this.loading = false;
     this.catsProblem = await this.store.fetchCatsProblemById(this.problem.cats_id)
-    this.testingMod = this.problemEdit.test_mode;
-    console.log(this.problemEdit.test_mode)
+    this.testingMode = this.problemEdit.test_mode;
     this.catsProblemLoading = false;
   }
 

@@ -205,7 +205,6 @@ export default class CourseEditView extends Vue {
       this.notificationKind = 'error';
     })
     request.finally(() => this.showNotification = true);
-    console.log(this.course.de_options, 'wtf')
   }
 }
 </script>
