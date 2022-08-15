@@ -87,7 +87,8 @@ def students_for_course(request: HttpRequest, course_id):
 @api_view(['GET'])
 @renderer_classes([JSONRenderer])
 def find_teacher_by_email(request: HttpRequest, course_id, email):
-    queryset = User.objects.filter(email__icontains=email).exclude(staff_for__id=course_id).all()
+    queryset = Group.objects.get(name='teacher').user_set.filter(email__icontains=email) \
+        .exclude(staff_for__id=course_id).all()
     serializer = DefaultUserSerializer(queryset, many=True)
     if len(serializer.data) != 0:
         return Response(serializer.data)

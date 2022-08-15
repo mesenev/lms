@@ -12,32 +12,44 @@
         <h3>Выбор преподавателей</h3>
       </template>
       <template slot="content">
+        <cv-inline-notification
+          v-if="showNotification"
+          :kind="notificationKind"
+          :sub-title="notificationText"
+          @close="hideNotification"
+        />
         <cv-structured-list>
           <template slot="headings">
-            <cv-search
-              label="label"
-              placeholder="search"
-              v-model.trim="searchValue"/>
+            <cv-structured-list-heading>
+              <cv-search
+                label="label"
+                placeholder="Введите почту прeподавателя"
+                v-model.trim="searchValue"/>
+            </cv-structured-list-heading>
+            <cv-structured-list-heading>
+              <div class="list-headings">
+                <cv-button
+                  class="heading-btn"
+                  :disabled="teacherNotPicked"
+                  @click="addStuff()">
+                  Добавить
+                </cv-button>
+              </div>
+            </cv-structured-list-heading>
           </template>
           <template slot="items">
             <cv-structured-list-item v-for="k in teachersArray" :key="k.id" checked>
               <cv-structured-list-data>
+                {{k.first_name + " " + k.last_name}}
+              </cv-structured-list-data>
+              <cv-structured-list-data>
                 <cv-checkbox
-                  value="selectedNew"
-                  v-on:click="actionSelected(k)">
+                  class="list-checkbox"
+                  value="value"
+                  @click="actionSelected(k)">
                 </cv-checkbox>
               </cv-structured-list-data>
-              <cv-structured-list-data>{{k.username}} </cv-structured-list-data>
             </cv-structured-list-item>
-            <cv-button
-              disabled="True"
-              v-if="pickedTeachers.length === 0">
-                Введите почту сотрудника
-            </cv-button>
-            <cv-button v-else
-            v-on:click="addStuff()">
-              Подтвердить выбор
-            </cv-button>
           </template>
         </cv-structured-list>
       </template>
@@ -60,27 +72,33 @@ export default class AddTeacherModal extends NotificationMixinComponent {
   searchValue = "";
   @Watch('searchValue')
   async onSearchBarChange(val: string) {
-    console.log(this.courseId)
     if (val.length >= 4) {
       await axios.get(
         `/api/teachersbymail/${this.courseId}/${this.searchValue}/`
       ).then(response => {
         if (response.data == "No match found :("){
+          this.teachersArray = [];
         } else {
           this.teachersArray = response.data;
         }
+        this.pickedTeachers.clear();
+        this.teacherNotPicked = true;
         },
       ).catch(error => {
         console.log(error);
       })
     }
+    else if (val.length === 0) {
+      this.teachersArray = [];
+      this.pickedTeachers.clear();
+      this.teacherNotPicked = true;
+    }
   };
-  selectedNew = false;
   userStore = userStore;
   teachersArray: UserModel[] = [];
-  pickedTeachers: UserModel[] = [];
+  pickedTeachers: Set<UserModel> = new Set<UserModel>();
   modalVisible = false;
-
+  teacherNotPicked = true;
 
   showModal() {
     this.modalVisible = true;
@@ -90,25 +108,72 @@ export default class AddTeacherModal extends NotificationMixinComponent {
     this.modalVisible = false;
   }
 
+  isAnyTeacherPicked() {
+    this.teacherNotPicked = this.pickedTeachers.size <= 0;
+  }
+
+  setNotificationText() {
+    if (this.pickedTeachers.size > 1) {
+      this.notificationText = "Преподаватели успешно добавлены"
+    }
+    else {
+      this.notificationText = "Преподаватель успешно добавлен"
+    }
+  }
+
+  getPickedTeachers(): Array<UserModel> {
+    const curPickedTeachers: Array<UserModel> = []
+    for (const elem of this.pickedTeachers) {
+      curPickedTeachers.push(elem);
+    }
+    return curPickedTeachers;
+  }
+
   addStuff() {
-    axios.post(`/api/assignteacher/${this.courseId}/`, this.pickedTeachers);
-    this.modalHidden();
-    this.searchValue = "";
-    this.teachersArray = [];
+    axios.post(`/api/assignteacher/${this.courseId}/`, this.getPickedTeachers())
+      .then(response => {
+        this.notificationKind = 'success';
+        this.setNotificationText();
+        this.showNotification = true;
+        this.onSearchBarChange(this.searchValue);
+        this.pickedTeachers.clear();
+        this.isAnyTeacherPicked();
+      })
+      .catch(error => {
+        this.notificationKind = 'error';
+        this.notificationText = `Что-то пошло не так: ${error.message}`;
+        this.showNotification = true;
+      });
   }
 
   actionSelected(user: UserModel) {
-    this.selectedNew = !this.selectedNew;
-    if (this.selectedNew) {
-      this.pickedTeachers.push(user);
-    } else {
-      this.pickedTeachers = this.pickedTeachers.filter((x: UserModel) => x.id != user.id)
+    if (this.pickedTeachers.has(user)) {
+      this.pickedTeachers.delete(user);
     }
+    else {
+      this.pickedTeachers.add(user);
+    }
+    this.isAnyTeacherPicked();
   }
 }
 </script>
 
 <style lang="stylus" scoped>
+.list-headings
+  display flex
+  flex-direction column
+  align-items stretch
+
+.list-checkbox
+  display flex
+  flex-direction row
+  justify-content center
+
+.heading-btn
+  padding 5px
+  display flex
+  justify-content center
+
 .bx--modal-content:focus
   outline none
 
