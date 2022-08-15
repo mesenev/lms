@@ -1,7 +1,7 @@
 <template>
   <div class="bx--grid">
     <div class="bx--row">
-      <div class="bx--col-lg-16 links">
+      <div class="bx--col links">
         <div>
           <cv-skeleton-text v-if="loading"/>
           <div v-else>
@@ -15,7 +15,7 @@
             :sub-title="notificationText"
             @close="hideNotification"/>
           <div v-if="is_possible">
-            <h3>Нажав кнопку вы будете зарегистрируетесь на данный курс.</h3>
+            <h3>Нажав кнопку вы будете зарегистрированы на данный курс.</h3>
             <div class="buttons">
               <cv-button-skeleton v-if="registrationProcess"/>
               <cv-button v-else
