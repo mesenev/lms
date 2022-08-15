@@ -33,6 +33,29 @@
             </cv-multi-select>
           </div>
         </div>
+        <span style="padding-top: 20px">Выберите способ тестирования</span>
+            <cv-radio-group style="margin-top: 10px; padding-bottom: 20px">
+
+              <cv-radio-button @change = modChanged
+                               name="group-1"
+                               label="автоматическое"
+                               value="auto"
+                               v-model="testingMode"
+              />
+              <cv-radio-button @change = modChanged
+                               name="group-1"
+                               label="ручное"
+                               value="manual"
+                               v-model="testingMode"
+              />
+              <cv-radio-button @change = modChanged
+                               name="group-1"
+                               label="автоматическое и ручное"
+                               value="auto_and_manual"
+                               v-model="testingMode"
+              />
+
+            </cv-radio-group>
         <cv-button-skeleton v-if="problemUpdating"/>
         <cv-button
           v-else :disabled="!isChanged || loading"
@@ -78,20 +101,25 @@ export default class ProblemEditView extends Vue {
   notificationText = '';
   showNotification = false;
   problemUpdating = false;
+  testingMode = '';
   deChecks: string[] = [];
-  deOptions = [
-    {
-      value: '101', label: 'Cross-platform C/C++ compiler',
-      name: 'Cross-platform C/C++ compiler', disabled: false,
-    },
-    {
-      value: '502', label: 'Python 3.8.1',
-      name: 'Python 3.8.1', disabled: false,
-    },
-  ];
+  deOptions =  [
+  {
+    value: '3', label: 'Cross-platform C/C++ compiler',
+    name: 'Cross-platform C/C++ compiler', disabled: false,
+  },
+  {
+    value: '681949', label: 'Python 3.8.1',
+    name: 'Python 3.8.1', disabled: false,
+  },
+];
+
 
   deChanged() {
     this.problemEdit = { ...this.problemEdit, de_options: this.deChecks.sort().join(',') };
+  }
+  modChanged(){
+    this.problemEdit = { ...this.problemEdit, test_mode: this.testingMode }
   }
 
   get isChanged(): boolean {
@@ -105,6 +133,7 @@ export default class ProblemEditView extends Vue {
     this.deChecks = this.problemEdit.de_options.split(',');
     this.loading = false;
     this.catsProblem = await this.store.fetchCatsProblemById(this.problem.cats_id)
+    this.testingMode = this.problemEdit.test_mode;
     this.catsProblemLoading = false;
   }
 

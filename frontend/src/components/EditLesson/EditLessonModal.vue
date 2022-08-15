@@ -99,6 +99,8 @@ export default class EditLessonModal extends NotificationMixinComponent {
   fetchingCatsProblems = true;
   modalVisible = false;
   searchQueryForAllProblems = '';
+  //ToDo add radio button for test modes to modal
+  testingMode = '';
 
   get catsFilteredProblems() {
     return searchByProblems(this.searchQueryForAllProblems, this.catsProblemsTruncated);
@@ -165,6 +167,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
       const data = this.catsProblems.filter(element => {
         return selected_ids.find(e => e === element.id);
       });
+      data.forEach(element => element.test_mode = 'manual')
       await axios.post(`/api/add-cats-problems-to-lesson/${this.lesson.id}/`, data)
         .then(async (answer) => {
           if (answer.status == 200) {

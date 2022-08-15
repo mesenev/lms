@@ -44,6 +44,7 @@ class Problem(models.Model):
     )
     de_options = models.CharField(max_length=512, blank=True, default='')
     objects = ProblemManager()
+    test_mode = models.CharField(max_length=30, blank=True, default='')
 
 
 class ProblemStats(models.Model):
@@ -122,6 +123,7 @@ class LogEvent(models.Model):
     TYPE_SUBMIT = 'submit'
     TYPE_CATS_SUBMIT = 'cats_submit'
     TYPE_CATS_ERROR = 'cats_error'
+    TYPE_AWAITING_MANUAL = 'awaiting_manual'
     LOG_EVENT_TYPES = [
         (TYPE_SUBMIT, 'Submit created'),
         (TYPE_MESSAGE, 'Message to display'),
@@ -129,6 +131,7 @@ class LogEvent(models.Model):
         (TYPE_CATS_ANSWER, 'Check answer from cats'),
         (TYPE_CATS_SUBMIT, 'Cats submit created'),
         (TYPE_CATS_ERROR, 'Cats error type'),
+        (TYPE_AWAITING_MANUAL, 'Awaiting manual verification')
     ]
     type = models.CharField(max_length=16, choices=LOG_EVENT_TYPES)
     problem = models.ForeignKey(Problem, related_name='log_events', on_delete=models.CASCADE, null=False)
