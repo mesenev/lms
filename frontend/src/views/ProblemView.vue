@@ -28,6 +28,7 @@
             <span v-if="lesson.scores[problem.type]">
               Макс. балл <strong>{{ lesson.scores[problem.type] }}</strong>
             </span>
+            <span>Режим тестирования: <strong>{{this.problem.test_mode}}</strong> </span>
           </div>
         </div>
       </div>
