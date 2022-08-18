@@ -74,7 +74,7 @@
             class="course-props add--btn"/>
         </div>
       </div>
-      <div class="bx--col-lg-6 second--block">
+      <div class="bx--col-lg-6 second--block" v-if="!isNewCourse">
         <div class="link">
           <h4 class="add-teacher">
             Добавить преподавателя
@@ -82,6 +82,7 @@
           <AddTeacherModal class="choose--teacher"
                            :courseId="courseId"/>
         </div>
+        <br>
         <div class="link">
           <h4 class="create-link">Создать ссылку-приглашение</h4>
           <cv-number-input

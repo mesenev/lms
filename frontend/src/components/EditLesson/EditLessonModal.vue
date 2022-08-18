@@ -24,6 +24,23 @@
             Создать новую задачу
           </cv-content-switcher-button>
         </cv-content-switcher>
+        <span style="padding-top: 20px">Выберите способ тестирования</span>
+            <cv-radio-group style="margin-top: 10px; padding-bottom: 20px">
+
+              <cv-radio-button label="автоматическое"
+                               value="auto"
+                               v-model="testingMode"
+              />
+              <cv-radio-button label="ручное"
+                               value="manual"
+                               v-model="testingMode"
+              />
+              <cv-radio-button label="автоматическое и ручное"
+                               value="auto_and_manual"
+                               v-model="testingMode"
+              />
+
+            </cv-radio-group>
       </template>
       <template slot="content">
         <section class="modal--content">
@@ -160,6 +177,11 @@ export default class EditLessonModal extends NotificationMixinComponent {
     }
     if (this.selectedNew)
       return
+    if ( this.testingMode === '' ){
+      this.notificationText = 'Выберите режим тестирования';
+      this.showNotification = true;
+      return
+    }
     if (!this.selectedNew) {
       const selected_ids = this.selected.map(e => {
         return (this.catsFilteredProblems[e as number] as unknown as { id: number })['id'];
@@ -167,7 +189,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
       const data = this.catsProblems.filter(element => {
         return selected_ids.find(e => e === element.id);
       });
-      data.forEach(element => element.test_mode = 'manual')
+      data.forEach(element => element.test_mode = this.testingMode)
       await axios.post(`/api/add-cats-problems-to-lesson/${this.lesson.id}/`, data)
         .then(async (answer) => {
           if (answer.status == 200) {
