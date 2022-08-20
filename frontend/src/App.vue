@@ -21,6 +21,30 @@
   </div>
 </template>
 
+<script lang="ts">
+import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue'
+import LmsHeader from '@/components/LmsHeader.vue';
+import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
+import { Component, Vue } from 'vue-property-decorator';
+import axios from "axios";
+
+@Component({ components: { LmsHeader, LmsBreadcrumb, LogoGithub } })
+export default class App extends Vue {
+  beforeCreate(){
+    this.$store.commit('initializeStore')
+    const access = this.$store.state.access
+    if ( access ){
+      axios.defaults.headers.common['Authorization'] = 'JWT ' + access;
+    }
+    else{
+      axios.defaults.headers.common['Authorization'] = '';
+      this.$router.push({name: 'LoginView'});
+    }
+
+  }
+}
+</script>
+
 <style lang="scss">
 @import "styles/base";
 @import "styles/carbon";
@@ -37,6 +61,7 @@
 
 <style scoped lang="stylus">
 @import 'styles/list-elements.styl';
+
 
 .main--breadcrumb
   margin-top var(--cds-spacing-06);
@@ -80,12 +105,3 @@
 @import "styles/list-elements";
 </style>
 
-<script lang="ts">
-import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue'
-import LmsHeader from '@/components/LmsHeader.vue';
-import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
-import { Component, Vue } from 'vue-property-decorator';
-
-@Component({ components: { LmsHeader, LmsBreadcrumb, LogoGithub } })
-export default class App extends Vue {}
-</script>

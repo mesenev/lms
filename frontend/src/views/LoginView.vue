@@ -7,15 +7,17 @@
           <cv-text-input
             class="log-form"
             label="Логин"
-            placeholder="Введите свой логин">
+            placeholder="Введите свой логин"
+            v-model="login">
           </cv-text-input>
           <cv-text-input
             class="pass-form"
             label="Пароль"
-            placeholder="Введите свой пароль">
+            placeholder="Введите свой пароль"
+            v-model="password">
           </cv-text-input>
           <div class="submit-btn">
-            <cv-button>Войти</cv-button>
+            <cv-button @click="authorization">Войти</cv-button>
           </div>
         </cv-form>
       </div>
@@ -26,11 +28,24 @@
 <script lang="ts">
 import Component from "vue-class-component";
 import Vue from "vue";
+import axios from "axios";
 
 
 @Component({ components: {} })
 export default class LoginView extends Vue {
-
+  login = '';
+  password = '';
+  
+  authorization(){
+    axios.post('api/v1/token/login/', {username: this.login, password: this.password}).
+    then(response => {
+      const access = response.data.access;
+      this.$store.commit('setAccess', access);
+      axios.defaults.headers.common['Authorization'] = 'JWT ' + access;
+      localStorage.setItem('access', access);
+      this.$router.push({name: 'Home'});
+      })
+  }
 }
 </script>
 
@@ -51,7 +66,7 @@ export default class LoginView extends Vue {
   padding-bottom 2rem
 
 .main
-  margin-left 5rem
+  text-align center
   padding 5rem
 
 .login-form

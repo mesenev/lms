@@ -34,8 +34,10 @@ class UserModule extends VuexModule {
     this.cachedStudents = data;
   }
 
-  @Mutation receiveUser(user: object) {
-    this.user = user as UserModel;
+  @Mutation receiveUser() {
+    axios.post('api/v1/users/me/').then( response => this.user = response as unknown as UserModel )
+      .catch( error => console.log(error)
+    )
   }
 
   @Mutation addStaffToArray(courseId: number) {

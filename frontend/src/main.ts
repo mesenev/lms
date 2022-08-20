@@ -49,7 +49,7 @@ interface UserDataWrapper {
   userData: object;
 }
 
-userStore.receiveUser((window as unknown as UserDataWrapper).userData);
+userStore.receiveUser();
 
 new Vue({
   router,

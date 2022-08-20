@@ -23,39 +23,19 @@ from users.models import User, CourseAssignTeacher, StudyGroup
 from users.serializers import DefaultUserSerializer, StudyGroupsSerializer
 
 
-@login_required(login_url=reverse_lazy('account_login'))
 def index(request, *args, **kwargs):
+    return render(request, 'index.html')
+
+
+def data_user(request, *args, **kwargs):
     user = User.objects.prefetch_related('staff_for', 'student_for').get(pk=request.user.id)
     user_data = json.dumps(DefaultUserSerializer(instance=user, exclude_staff=False).data)
-    return render(request, 'index.html', context=dict(user_data=user_data, is_debug=settings.DEBUG))
+    return Response(user_data)
 
 
 class LoginForm(Form):
     username = CharField()
     password = CharField(widget=PasswordInput)
-
-
-def user_login(request):
-    if request.method == 'GET':
-        return render(request, 'login.html', {'form': LoginForm()})
-
-    form = LoginForm(request.POST)
-    ctx = dict(error=True, form=form)
-    if not form.is_valid():
-        return render(request, 'login.html', dict(**ctx, message='Ошибка чтения формы (ง’̀-‘́)ง'))
-    user = authenticate(**form.cleaned_data)
-    if user and user.is_active:
-        login(request, user)
-        return redirect('index')
-    if user and not user.is_active:
-        return render(request, 'login.html', dict(
-            **ctx, error_message='Аккаунт заблокирован. Обратитесь к системному администратору.'
-        ))
-    try:
-        User.objects.get(username=form.cleaned_data['username'])
-    except User.DoesNotExist:
-        return render(request, 'login.html', dict(**ctx, error_message='Указанный пользователь не существует.'))
-    return render(request, 'login.html', dict(**ctx, error_message='Логин и пароль не совпадают'))
 
 
 class UsersViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):
