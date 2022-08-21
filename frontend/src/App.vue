@@ -27,16 +27,21 @@ import LmsHeader from '@/components/LmsHeader.vue';
 import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
 import { Component, Vue } from 'vue-property-decorator';
 import axios from "axios";
+import userStore from "@/store/modules/user";
 
 @Component({ components: { LmsHeader, LmsBreadcrumb, LogoGithub } })
 export default class App extends Vue {
   beforeCreate(){
     this.$store.commit('initializeStore')
     const access = this.$store.state.access
+    console.log('beforeCreate', access);
     if ( access ){
       axios.defaults.headers.common['Authorization'] = 'JWT ' + access;
+      console.log('axiosHEADER: ', axios.defaults.headers.common['Authorization']);
+      userStore.receiveUser()
     }
     else{
+      console.log('ok2');
       axios.defaults.headers.common['Authorization'] = '';
       this.$router.push({name: 'LoginView'});
     }

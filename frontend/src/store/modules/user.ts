@@ -35,8 +35,11 @@ class UserModule extends VuexModule {
   }
 
   @Mutation receiveUser() {
-    axios.post('api/v1/users/me/').then( response => this.user = response as unknown as UserModel )
-      .catch( error => console.log(error)
+    axios.get('/api/v1/users/me/').then( response => {
+      this.user = response as unknown as UserModel
+      console.log('RESPONSE: ', response)
+    })
+      .catch( error => console.log('ERROR: ',error)
     )
   }
 

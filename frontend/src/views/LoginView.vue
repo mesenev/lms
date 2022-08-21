@@ -29,21 +29,22 @@
 import Component from "vue-class-component";
 import Vue from "vue";
 import axios from "axios";
-
+import userStore from '@/store/modules/user';
 
 @Component({ components: {} })
 export default class LoginView extends Vue {
   login = '';
   password = '';
-  
+
   authorization(){
-    axios.post('api/v1/token/login/', {username: this.login, password: this.password}).
+    axios.post('/api/v1/jwt/create/ ', {username: this.login, password: this.password}).
     then(response => {
       const access = response.data.access;
       this.$store.commit('setAccess', access);
       axios.defaults.headers.common['Authorization'] = 'JWT ' + access;
       localStorage.setItem('access', access);
-      this.$router.push({name: 'Home'});
+      userStore.receiveUser();
+      this.$router.push('/');
       })
   }
 }

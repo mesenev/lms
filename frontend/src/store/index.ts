@@ -14,6 +14,7 @@ export default new Vuex.Store({
   mutations:{
     initializeStore(state){
       if ( localStorage.getItem('access') ){
+        console.log('LOCALSTORAGE:', localStorage.getItem('access'));
         state.access = String(localStorage.getItem('access'));
       }
       else{
@@ -21,6 +22,8 @@ export default new Vuex.Store({
       }
     },
     setAccess(state, access){
+      debugger
+      console.log('ACCESS', access)
       state.access = access;
     }
   },

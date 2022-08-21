@@ -18,6 +18,6 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/v1/', include('djoser.urls')),
-    path('api/v1/', include('djoser.urls.authtoken')),
+    path('api/v1/', include('djoser.urls.jwt')),
     path('api/data_of_user/', views.data_user, name='data_user'),
 ]
