@@ -27,12 +27,12 @@
 <script lang="ts">
 import searchByLessons from '@/common/searchByTutorial';
 import LessonCard from '@/components/EditCourse/LessonCard.vue';
+import lessonStore from '@/store/modules/lesson';
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
 import Settings20 from '@carbon/icons-vue/es/settings/20';
 import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import axios from "axios";
 
 @Component({
   components: {
@@ -44,6 +44,8 @@ import axios from "axios";
 export default class EditCourseLessons extends Vue {
   @Prop({ required: true }) course!: CourseModel;
 
+  lessonStore = lessonStore;
+
   TrashCan = TrashCan20;
 
   Settings = Settings20;
@@ -54,10 +56,9 @@ export default class EditCourseLessons extends Vue {
     return searchByLessons(this.searchQueryForCourseLessons, this.course.lessons);
   }
 
-  deleteLesson(lesson: LessonModel) {
-    axios.delete(`/api/delete-lesson/${lesson.id}/`).then(response => {
-      console.log(response)
-      });
+  async deleteLesson(lesson: LessonModel) {
+    this.course.lessons = this.course.lessons.filter((x: LessonModel) => x.id != lesson.id);
+    await this.lessonStore.deleteLesson(lesson.id);
   }
 }
 </script>

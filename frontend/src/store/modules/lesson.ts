@@ -25,6 +25,16 @@ class LessonModule extends VuexModule {
     this.currentLesson = payload;
   }
 
+  @Action
+  async deleteLesson(id: number) {
+    let answer = {};
+    axios.delete(`/api/delete-lesson/${id}/`).then(
+      response => {
+        answer = response.data;
+      }
+    );
+    return answer;
+  }
 
   @Action
   async fetchLessonById(id: number): Promise<LessonModel> {
