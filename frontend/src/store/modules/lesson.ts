@@ -25,6 +25,14 @@ class LessonModule extends VuexModule {
     this.currentLesson = payload;
   }
 
+  @Mutation
+  changeLessonVisibility(lesson: LessonModel) {
+    const curLesson = this.lessonsByCourse[lesson.course].find(el => el.id === lesson.id);
+    if (curLesson != undefined) {
+      curLesson.is_hidden = lesson.is_hidden;
+    }
+  }
+
   @Action
   async deleteLesson(id: number) {
     let answer = {};
@@ -74,6 +82,7 @@ class LessonModule extends VuexModule {
         console.log(error);
       })
     const result = answer.data as Array<LessonModel>;
+    console.log(result);
     this.setLessons({ [id]: result })
     return result;
   }
@@ -88,6 +97,7 @@ class LessonModule extends VuexModule {
       })
     const result = answer.data as LessonModel;
     this.changeCurrentLesson(result);
+    this.changeLessonVisibility(result);
     return result;
   }
 }
