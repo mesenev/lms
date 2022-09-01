@@ -59,6 +59,7 @@ export default class EditCourseLessons extends Vue {
   async deleteLesson(lesson: LessonModel) {
     this.course.lessons = this.course.lessons.filter((x: LessonModel) => x.id != lesson.id);
     await this.lessonStore.deleteLesson(lesson.id);
+    this.lessonStore.setLessons({[this.course.id]: this.course.lessons});
   }
 }
 </script>
