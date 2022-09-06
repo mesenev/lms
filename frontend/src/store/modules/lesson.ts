@@ -82,7 +82,6 @@ class LessonModule extends VuexModule {
         console.log(error);
       })
     const result = answer.data as Array<LessonModel>;
-    console.log(result);
     this.setLessons({ [id]: result })
     return result;
   }
