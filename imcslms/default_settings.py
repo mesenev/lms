@@ -52,10 +52,15 @@ REST_FRAMEWORK = dict(
 )
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'AUTH_HEADER_TYPES': ('JWT',),
-
+}
+DJOSER = {
+    'SERIALIZERS': {
+        'user': 'users.serializers.DefaultUserSerializer',
+        'current_user': 'users.serializers.DefaultUserSerializer'
+    },
 }
 
 MIDDLEWARE = [

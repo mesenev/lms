@@ -14,10 +14,8 @@ urlpatterns = [
     path('api/edit-profile/', views.edit_profile, name='edit_profile'),
     path('api/teachersbymail/<int:course_id>/<str:email>/', views.find_teacher_by_email, name='find_teacher'),
     path('api/assignteacher/<int:course_id>/', views.assign_teacher, name='assign_teacher'),
-
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/v1/', include('djoser.urls')),
-    path('api/v1/', include('djoser.urls.jwt')),
-    path('api/data_of_user/', views.data_user, name='data_user'),
+    path('api/auth/', include('djoser.urls')),
+    path('api/auth/', include('djoser.urls.jwt')),
 ]

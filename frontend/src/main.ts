@@ -9,6 +9,7 @@ import userStore from '@/store/modules/user';
 import CarbonComponentsVue from '@carbon/vue/src/index';
 import axios from 'axios';
 import VueClipboard from 'vue-clipboard2';
+import UserModel from "@/models/UserModel";
 
 if (process.env.VUE_APP_ENVIRONMENT !== 'development') {
     Sentry.init({
@@ -38,18 +39,21 @@ Vue.use(VueClipboard);
 Vue.use(CarbonComponentsVue);
 VueClipboard.config.autoSetContainer = true;
 
+Vue.config.productionTip = false;
+Vue.config.devtools = true;
+
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 axios.defaults.xsrfCookieName = 'csrftoken';
 
-Vue.config.productionTip = false;
-Vue.config.devtools = true;
+store.commit('initializeStore');
+
+
+
 
 
 interface UserDataWrapper {
   userData: object;
 }
-
-userStore.receiveUser();
 
 new Vue({
   router,

@@ -30,6 +30,8 @@ import Component from "vue-class-component";
 import Vue from "vue";
 import axios from "axios";
 import userStore from '@/store/modules/user';
+import HomeView from "@/views/HomeView.vue";
+import UserModel from "@/models/UserModel";
 
 @Component({ components: {} })
 export default class LoginView extends Vue {
@@ -37,15 +39,20 @@ export default class LoginView extends Vue {
   password = '';
 
   authorization(){
-    axios.post('/api/v1/jwt/create/ ', {username: this.login, password: this.password}).
+    axios.post(this.$store.state.obtain_token_url, {username: this.login, password: this.password}).
     then(response => {
       const access = response.data.access;
       this.$store.commit('setAccess', access);
-      axios.defaults.headers.common['Authorization'] = 'JWT ' + access;
+      axios.defaults.headers.common['Authorization'] = 'Bearer ' + access;
       localStorage.setItem('access', access);
-      userStore.receiveUser();
+      axios.get(this.$store.state.protected_user_data_url).then(response => {
+          userStore.receiveUser(response as unknown as UserModel);
+        }
+      ).catch(error => console.log('ERROR!!!!', error))
       this.$router.push('/');
-      })
+      }).catch(error=>{
+        console.log(error)
+    })
   }
 }
 </script>

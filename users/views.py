@@ -27,12 +27,6 @@ def index(request, *args, **kwargs):
     return render(request, 'index.html')
 
 
-def data_user(request, *args, **kwargs):
-    user = User.objects.prefetch_related('staff_for', 'student_for').get(pk=request.user.id)
-    user_data = json.dumps(DefaultUserSerializer(instance=user, exclude_staff=False).data)
-    return Response(user_data)
-
-
 class LoginForm(Form):
     username = CharField()
     password = CharField(widget=PasswordInput)

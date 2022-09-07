@@ -1,4 +1,6 @@
 <template>
+  <div>
+  <div class="condition" v-if="this.user">
   <div class="layout">
     <lms-header class="layout-header"/>
     <main class="layout-content">
@@ -19,6 +21,11 @@
       </div>
     </footer>
   </div>
+  </div>
+  <div v-else>
+    <login-view/>
+  </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -28,24 +35,14 @@ import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
 import { Component, Vue } from 'vue-property-decorator';
 import axios from "axios";
 import userStore from "@/store/modules/user";
+import UserModel from "@/models/UserModel"
+import LoginView from "@/views/LoginView.vue";
 
-@Component({ components: { LmsHeader, LmsBreadcrumb, LogoGithub } })
+@Component({ components: { LoginView, LmsHeader, LmsBreadcrumb, LogoGithub } })
 export default class App extends Vue {
+  user = userStore.user;
   beforeCreate(){
-    this.$store.commit('initializeStore')
-    const access = this.$store.state.access
-    console.log('beforeCreate', access);
-    if ( access ){
-      axios.defaults.headers.common['Authorization'] = 'JWT ' + access;
-      console.log('axiosHEADER: ', axios.defaults.headers.common['Authorization']);
-      userStore.receiveUser()
-    }
-    else{
-      console.log('ok2');
-      axios.defaults.headers.common['Authorization'] = '';
-      this.$router.push({name: 'LoginView'});
-    }
-
+    //.......
   }
 }
 </script>
