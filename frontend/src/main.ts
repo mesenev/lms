@@ -5,11 +5,10 @@ import App from '@/App.vue';
 
 import router from '@/router';
 import store from '@/store';
-import userStore from '@/store/modules/user';
+import TokenModule from '@/store/modules/token'
 import CarbonComponentsVue from '@carbon/vue/src/index';
 import axios from 'axios';
 import VueClipboard from 'vue-clipboard2';
-import UserModel from "@/models/UserModel";
 
 if (process.env.VUE_APP_ENVIRONMENT !== 'development') {
     Sentry.init({
@@ -45,11 +44,7 @@ Vue.config.devtools = true;
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 axios.defaults.xsrfCookieName = 'csrftoken';
 
-store.commit('initializeStore');
-
-
-
-
+TokenModule.initializeStore();
 
 interface UserDataWrapper {
   userData: object;

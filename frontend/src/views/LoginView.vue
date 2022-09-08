@@ -32,26 +32,31 @@ import axios from "axios";
 import userStore from '@/store/modules/user';
 import HomeView from "@/views/HomeView.vue";
 import UserModel from "@/models/UserModel";
+import tokenStore from "@/store/modules/token";
 
 @Component({ components: {} })
 export default class LoginView extends Vue {
   login = '';
   password = '';
 
-  authorization(){
-    axios.post(this.$store.state.obtain_token_url, {username: this.login, password: this.password}).
+  async authorization(){
+    await axios.post(tokenStore.obtain_token_url, {username: this.login, password: this.password}).
     then(response => {
       const access = response.data.access;
-      this.$store.commit('setAccess', access);
+      const refresh = response.data.refresh;
+      tokenStore.setAccess(access);
+      tokenStore.setRefresh(refresh);
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + access;
       localStorage.setItem('access', access);
-      axios.get(this.$store.state.protected_user_data_url).then(response => {
-          userStore.receiveUser(response as unknown as UserModel);
-        }
-      ).catch(error => console.log('ERROR!!!!', error))
-      this.$router.push('/');
+      localStorage.setItem('refresh', refresh);
       }).catch(error=>{
-        console.log(error)
+        console.log('ERROR IN POST USRNAME AND PASSWRD:' ,error);
+    });
+    await axios.get(tokenStore.protected_user_data_url).then( response =>{
+        userStore.receiveUser(response as unknown as UserModel);
+        this.$router.push('/');
+    }).catch(error =>{
+      console.log('ERROR IN GET DATA: ', error);
     })
   }
 }

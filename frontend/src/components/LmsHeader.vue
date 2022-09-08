@@ -201,6 +201,7 @@ import Notification20 from '@carbon/icons-vue/es/notification/20';
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
 import Vue from 'vue';
 import Component from 'vue-class-component';
+import courseStore from '@/store/modules/course'
 
 @Component({ components: { UserView, Notification20, UserAvatar20, AppSwitcher20 } })
 export default class LmsHeader extends Vue {

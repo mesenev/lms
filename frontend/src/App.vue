@@ -1,6 +1,6 @@
 <template>
   <div>
-  <div class="condition" v-if="this.user">
+  <div class="condition" v-if="isAuthenticated">
   <div class="layout">
     <lms-header class="layout-header"/>
     <main class="layout-content">
@@ -37,12 +37,32 @@ import axios from "axios";
 import userStore from "@/store/modules/user";
 import UserModel from "@/models/UserModel"
 import LoginView from "@/views/LoginView.vue";
+import tokenStore from "@/store/modules/token"
 
 @Component({ components: { LoginView, LmsHeader, LmsBreadcrumb, LogoGithub } })
 export default class App extends Vue {
-  user = userStore.user;
-  beforeCreate(){
-    //.......
+  isAuthenticated = false;
+  async created(){
+      await axios.get(tokenStore.protected_user_data_url).then(response =>{
+        userStore.receiveUser(response as unknown as UserModel);
+        this.isAuthenticated = true;
+      }).catch(error => {
+        console.log(error);
+        tokenStore.deleteAccess();
+      });
+      if ( tokenStore.access == ''){
+        await this.refreshToken();
+      }
+  }
+  async refreshToken(){
+    await axios.post(tokenStore.refresh_token_url, tokenStore.refresh).then( response =>{
+      const access = response.data.access;
+      tokenStore.setAccess(access);
+      this.isAuthenticated = true;
+    }).catch(error =>{
+      console.log(error);
+      tokenStore.deleteRefresh();
+    });
   }
 }
 </script>
