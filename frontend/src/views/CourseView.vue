@@ -101,7 +101,9 @@ export default class CourseView extends Vue {
 
   get lessonsNotInSchedule() {
     return this.lessons.filter(lesson => !this.filterLessons.map(lesson => lesson.id)
-      .includes(lesson.id));
+      .includes(lesson.id)).sort((a: LessonModel, b: LessonModel) => {
+        return a.id - b.id;
+    });
   }
 
   get course(): CourseModel | null {
@@ -119,14 +121,15 @@ export default class CourseView extends Vue {
     if (this.schedule === undefined || this.schedule.lessons === undefined)
       return new Array<LessonModel>();
     const schedule = (this.schedule as CourseScheduleModel);
-    const lessons = this.lessons.sort(
+    const schedule_lessons = this.lessons.filter(
+      lesson => schedule.lessons.find(elem => elem.lesson_id === lesson.id)?.lesson_id)
+    return schedule_lessons.sort(
       (a: LessonModel, b: LessonModel) => {
         const dateA = schedule.lessons.find(x => x.lesson_id === a.id)?.date as number;
         const dateB = schedule.lessons.find(x => x.lesson_id === b.id)?.date as number;
         return (dateA < dateB) ? -1 : 1;
       },
     );
-    return lessons;
   }
 
   dateForLesson(lesson_id: number) {
