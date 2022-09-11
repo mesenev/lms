@@ -53,7 +53,10 @@ export default class EditCourseLessons extends Vue {
   searchQueryForCourseLessons = '';
 
   get courseLessons(): LessonModel[] {
-    return searchByLessons(this.searchQueryForCourseLessons, this.course.lessons);
+    return searchByLessons(this.searchQueryForCourseLessons, this.course.lessons)
+      .sort((a, b) => {
+        return a.id - b.id
+      });
   }
 
   async deleteLesson(lesson: LessonModel) {
