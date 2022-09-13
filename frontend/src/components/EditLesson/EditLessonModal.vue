@@ -193,7 +193,9 @@ export default class EditLessonModal extends NotificationMixinComponent {
       await axios.post(`/api/add-cats-problems-to-lesson/${this.lesson.id}/`, data)
         .then(async (answer) => {
           if (answer.status == 200) {
-            this.$emit("update-problem-list", data)
+            this.$emit("update-problem-list", data);
+            const currentProblems = [...this.lesson.problems,...answer.data as ProblemModel[]]
+            this.problemStore.setProblems({[this.lesson.id]: currentProblems});
             this.modalHidden();
             // await this.fetchCatsProblems();
 
