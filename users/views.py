@@ -9,10 +9,11 @@ from django.forms import Form, CharField, PasswordInput
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.decorators import api_view, renderer_classes, permission_classes
 from rest_framework.mixins import (
     CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 )
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -48,7 +49,7 @@ class Logout(APIView):
         return redirect('index')
 
 
-@login_required
+@permission_classes(IsAuthenticated)
 @api_view(['GET'])
 @renderer_classes([JSONRenderer])
 def students_for_course(request: HttpRequest, course_id):

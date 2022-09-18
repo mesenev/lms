@@ -38,6 +38,7 @@ class CourseModule extends VuexModule {
     await axios.get('/api/course/user_courses/')
       .then(response => {
         this.setCourses(response.data);
+        console.log(response.data);
       })
       .catch(error => {
         console.log(error);

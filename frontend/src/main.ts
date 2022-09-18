@@ -5,7 +5,6 @@ import App from '@/App.vue';
 
 import router from '@/router';
 import store from '@/store';
-import TokenModule from '@/store/modules/token'
 import CarbonComponentsVue from '@carbon/vue/src/index';
 import axios from 'axios';
 import VueClipboard from 'vue-clipboard2';
@@ -33,7 +32,6 @@ if (process.env.VUE_APP_ENVIRONMENT !== 'development') {
 	});
 }
 
-
 Vue.use(VueClipboard);
 Vue.use(CarbonComponentsVue);
 VueClipboard.config.autoSetContainer = true;
@@ -43,8 +41,6 @@ Vue.config.devtools = true;
 
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 axios.defaults.xsrfCookieName = 'csrftoken';
-
-TokenModule.initializeStore();
 
 interface UserDataWrapper {
   userData: object;

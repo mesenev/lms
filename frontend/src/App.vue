@@ -1,6 +1,6 @@
 <template>
   <div>
-  <div class="condition" v-if="isAuthenticated">
+  <div class="condition" v-if="isLogin">
   <div class="layout">
     <lms-header class="layout-header"/>
     <main class="layout-content">
@@ -41,24 +41,20 @@ import tokenStore from "@/store/modules/token"
 
 @Component({ components: { LoginView, LmsHeader, LmsBreadcrumb, LogoGithub } })
 export default class App extends Vue {
-  isAuthenticated = false;
-  async created(){
-      await axios.get(tokenStore.protected_user_data_url).then(response =>{
-        userStore.receiveUser(response as unknown as UserModel);
-        this.isAuthenticated = true;
-      }).catch(error => {
-        console.log(error);
-        tokenStore.deleteAccess();
-      });
-      if ( tokenStore.access == ''){
-        await this.refreshToken();
-      }
+
+  get isLogin(){
+    return tokenStore.isAuthenticated;
   }
+
+  async created(){
+    await tokenStore.setupTokenStore();
+  }
+
   async refreshToken(){
-    await axios.post(tokenStore.refresh_token_url, tokenStore.refresh).then( response =>{
+    await axios.post(tokenStore.REFRESH_TOKEN_URL, tokenStore.refresh).then(response =>{
       const access = response.data.access;
       tokenStore.setAccess(access);
-      this.isAuthenticated = true;
+      tokenStore.acceptAuthentication();
     }).catch(error =>{
       console.log(error);
       tokenStore.deleteRefresh();

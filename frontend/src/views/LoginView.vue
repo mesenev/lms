@@ -40,24 +40,11 @@ export default class LoginView extends Vue {
   password = '';
 
   async authorization(){
-    await axios.post(tokenStore.obtain_token_url, {username: this.login, password: this.password}).
-    then(response => {
-      const access = response.data.access;
-      const refresh = response.data.refresh;
-      tokenStore.setAccess(access);
-      tokenStore.setRefresh(refresh);
-      axios.defaults.headers.common['Authorization'] = 'Bearer ' + access;
-      localStorage.setItem('access', access);
-      localStorage.setItem('refresh', refresh);
-      }).catch(error=>{
-        console.log('ERROR IN POST USRNAME AND PASSWRD:' ,error);
-    });
-    await axios.get(tokenStore.protected_user_data_url).then( response =>{
-        userStore.receiveUser(response as unknown as UserModel);
-        this.$router.push('/');
-    }).catch(error =>{
-      console.log('ERROR IN GET DATA: ', error);
-    })
+    const payload = {
+      username: this.login,
+      password: this.password
+    }
+    await tokenStore.login(payload);
   }
 }
 </script>

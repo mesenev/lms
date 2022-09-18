@@ -48,12 +48,14 @@ REST_FRAMEWORK = dict(
     DATE_INPUT_FORMATS=["%d/%m/%Y", "%Y-%m-%d"],
     DATE_FORMAT="%d/%m/%Y",
     DEFAULT_PERMISSION_CLASSES=['rest_framework.permissions.IsAuthenticated'],
-    DEFAULT_AUTHENTICATION_CLASSES=['rest_framework_simplejwt.authentication.JWTAuthentication'],
+    DEFAULT_AUTHENTICATION_CLASSES=[
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
 )
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=2),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 DJOSER = {

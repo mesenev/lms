@@ -1,18 +1,11 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import axios from "axios";
-import UserModel from "@/models/UserModel";
+import setupInterseptors from '@/store/services/interceptors'
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-  state: {
-    obtain_token_url: '/api/auth/jwt/create/',
-    refresh_token_url: '/api/auth/jwt/refresh/',
-    protected_user_data_url: '/api/auth/users/me/',
-    access: '',
-    refresh: '',
-  },
+  state: {},
   getters: {},
   mutations:{},
   actions: {},
