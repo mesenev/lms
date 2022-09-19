@@ -114,19 +114,17 @@ export default class LessonView extends Vue {
   problemStore = problemStore;
   userStore = userStore;
   materialStore = materialStore;
-  problems: Array<ProblemModel> = [];
-  material: Array<MaterialModel> = [];
   loading = true;
   changingVisibility = false;
 
   get isProblemsEmpty() {
-    if (this.problems.length === 0) {
+    if (this.problemStore.problemsByLesson[this.lessonId].length === 0) {
       return true;
     }
   }
 
   get isMaterialsEmpty() {
-    return !this.material.length
+    return !this.materialStore._materials[this.lessonId].length;
   }
 
   get isStaff(): boolean {
@@ -140,7 +138,7 @@ export default class LessonView extends Vue {
   //TODO: move materials in separate component
   get materials(): Array<MaterialModel> {
     if (this.lesson)
-      return this.material;
+      return this.materialStore._materials[this.lessonId];
     return [];
   }
 
@@ -149,20 +147,20 @@ export default class LessonView extends Vue {
   }
 
   get classwork(): Array<ProblemModel> {
-    return this.problems.filter(x => x.type === 'CW');
+    return this.problemStore.problemsByLesson[this.lessonId].filter(x => x.type === 'CW');
   }
 
   get homework(): Array<ProblemModel> {
-    return this.problems.filter(x => x.type === 'HW');
+    return this.problemStore.problemsByLesson[this.lessonId].filter(x => x.type === 'HW');
   }
 
   get extrawork(): Array<ProblemModel> {
-    return this.problems.filter(x => x.type === 'EX');
+    return this.problemStore.problemsByLesson[this.lessonId].filter(x => x.type === 'EX');
   }
 
   async created() {
-    this.problems = await this.problemStore.fetchProblemsByLessonId(this.lessonId);
-    this.material = await this.materialStore.fetchMaterialsByLessonId(this.lessonId);
+    await this.problemStore.fetchProblemsByLessonId(this.lessonId);
+    await this.materialStore.fetchMaterialsByLessonId(this.lessonId);
     this.loading = false;
   }
 

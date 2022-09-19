@@ -161,6 +161,7 @@ export default class EditCourseModal extends NotificationMixinComponent {
     request.then(response => {
       const course = this.courseStore.currentCourse as CourseModel;
       course.lessons.push(response.data as LessonModel);
+      this.lessonStore.setLessons({[course.id]: course.lessons});
     });
     request.catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;

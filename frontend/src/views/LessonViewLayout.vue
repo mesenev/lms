@@ -21,6 +21,7 @@ export default class LessonViewLayout extends Vue {
     this.lessonStore.changeCurrentLesson(null);
     this.lesson = await this.lessonStore.fetchLessonById(this.lessonId);
     this.lessonStore.changeCurrentLesson(this.lesson);
+    await this.lessonStore.fetchLessonsByCourseId(this.lesson.course);
   }
 
 }
