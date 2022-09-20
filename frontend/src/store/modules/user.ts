@@ -3,7 +3,7 @@ import UserModel from '@/models/UserModel';
 import UserProgress from '@/models/UserProgress';
 import store from '@/store';
 import courseModule from '@/store/modules/course';
-import axios from 'axios';
+import api from '@/store/services/axiosInstance'
 import { Dictionary } from 'vue-router/types/router';
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators'
 
@@ -58,7 +58,7 @@ class UserModule extends VuexModule {
   @Action
   async fetchStudentsProgressByLessonId(): Promise<Array<UserProgress>> {
     let data = {data: {}}
-    await axios.get('/api/lessonprogress/').then(response => data = response)
+    await api.get('/api/lessonprogress/').then(response => data = response)
       .catch(error => {
         console.log(error);
       });
@@ -72,7 +72,7 @@ class UserModule extends VuexModule {
       return this.currentCourseStudents[userId];
     if (userId in this.cachedStudents)
       return this.cachedStudents[userId];
-    await axios.get(`/api/users/${userId}/`).then(response => data = response)
+    await api.get(`/api/users/${userId}/`).then(response => data = response)
       .catch(error => {
         console.log(error);
       });

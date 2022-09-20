@@ -1,7 +1,8 @@
 import store from '@/store';
-import axios from 'axios';
 import userStore from '@/store/modules/user'
 import {Action, getModule, Module, Mutation, VuexModule,} from 'vuex-module-decorators';
+import api from '@/store/services/axiosInstance'
+import setupInterseptor from '@/store/services/interceptors'
 
 @Module({ namespaced: true, name: 'token', store, dynamic: true })
 class TokenModule extends VuexModule{
@@ -15,7 +16,7 @@ class TokenModule extends VuexModule{
   isAuthenticated = false;
 
   @Action async login(payload: {username: string; password: string}){
-    await axios.post(this.OBTAIN_TOKEN_URL, {username: payload.username, password: payload.password}).then(
+    await api.post(this.OBTAIN_TOKEN_URL, {username: payload.username, password: payload.password}).then(
       response => {
         if ( response.data.access && response.data.refresh ){
           this.context.commit("setAccess",  response.data.access);
@@ -24,12 +25,15 @@ class TokenModule extends VuexModule{
       }
     );
     if ( this.access ){
-      await axios.get(this.PROTECTED_USER_DATA_URL).then(
+      await api.get(this.PROTECTED_USER_DATA_URL).then(
         response => {
+          console.log(response.data);
           userStore.context.commit('receiveUser', response.data);
           this.context.commit('acceptAuthentication');
         }
-      )
+      ).catch(error => {
+        console.log(error);
+      })
     }
   }
 
@@ -37,15 +41,17 @@ class TokenModule extends VuexModule{
     if ( localStorage.getItem('access') && localStorage.getItem('refresh') ){
       this.context.commit('getAccessFromLocalStorage');
       this.context.commit('getRefreshFromLocalStorage');
-      await axios.get(this.PROTECTED_USER_DATA_URL).then(response =>{
+      await api.get(this.PROTECTED_USER_DATA_URL).then(response =>{
         userStore.receiveUser(response.data);
         this.context.commit('acceptAuthentication');
+      }).catch(error =>{
+        console.log(error);
       });
     }
   }
 
   @Action async logout(){
-    await axios.post(this.KILL_TOKEN_URL).then(response =>
+    await api.post(this.KILL_TOKEN_URL).then(response =>
       this.context.commit('rejectAuthentication'));
   }
 
@@ -57,7 +63,7 @@ class TokenModule extends VuexModule{
 
     localStorage.setItem('access', '');
     this.access = '';
-    axios.defaults.headers.common['Authorization'] = '';
+    api.defaults.headers.common['Authorization'] = '';
 
     localStorage.setItem('refresh', '');
     this.refresh = '';
@@ -66,7 +72,7 @@ class TokenModule extends VuexModule{
 
   @Mutation getAccessFromLocalStorage(){
     this.access = String(localStorage.getItem('access'));
-    axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.access;
+    api.defaults.headers.common['Authorization'] = 'Bearer ' + this.access;
   }
 
   @Mutation getRefreshFromLocalStorage(){
@@ -76,13 +82,13 @@ class TokenModule extends VuexModule{
   @Mutation setAccess(access: string){
       this.access = access;
       localStorage.setItem('access', access);
-      axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.access;
+      api.defaults.headers.common['Authorization'] = 'Bearer ' + this.access;
   }
 
   @Mutation deleteAccess(){
       localStorage.setItem('access', '');
       this.access = '';
-      axios.defaults.headers.common['Authorization'] = '';
+      api.defaults.headers.common['Authorization'] = '';
   }
 
   @Mutation setRefresh(refresh: string){

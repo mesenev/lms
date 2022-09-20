@@ -1,5 +1,5 @@
 import store from '@/store';
-import axios from 'axios';
+import api from '@/store/services/axiosInstance'
 import { Action, getModule, Module, VuexModule } from 'vuex-module-decorators'
 import LogEventModel from "@/models/LogEventModel";
 import * as types from "@/models/LogEventModel";
@@ -20,7 +20,7 @@ class LogEvent extends VuexModule {
   ):
     Promise<Array<LogEventModel>> {
     let answer = {};
-    await axios.get('/api/logevents/', {
+    await api.get('/api/logevents/', {
       params: data,
     }).then(response => {
       answer = response.data.results;
@@ -34,7 +34,7 @@ class LogEvent extends VuexModule {
   @Action
   async deleteEvent(id: number) {
     let answer = {};
-    await axios.delete(`/api/logevents/${id}/`).then(
+    await api.delete(`/api/logevents/${id}/`).then(
       response => {
         answer = response.data;
       },
@@ -48,7 +48,7 @@ class LogEvent extends VuexModule {
   async createLogEvent(event: LogEventModel): Promise<LogEventModel | undefined> {
     let answer: { id?: number } = {};
     delete (event as { id?: number }).id;
-    await axios.post('/api/logevents/', event).then(
+    await api.post('/api/logevents/', event).then(
       response => answer = response.data as LogEventModel,
     ).catch(response => console.log('error creating event', response))
     if (answer.id !== undefined)

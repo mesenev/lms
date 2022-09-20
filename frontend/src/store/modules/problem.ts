@@ -1,7 +1,7 @@
 import CatsProblemModel from '@/models/CatsProblemModel';
 import ProblemModel from '@/models/ProblemModel';
 import store from '@/store';
-import axios from 'axios';
+import api from '@/store/services/axiosInstance'
 import { Dictionary } from 'vue-router/types/router';
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
@@ -33,7 +33,7 @@ class ProblemModule extends VuexModule {
   @Action
   async fetchProblems(data: object) {
     //TODO: remove or fix (data here is set of fields to filter)
-    await axios.get('/api/problem/', { params: data })
+    await api.get('/api/problem/', { params: data })
       .then(response => {
         this.setProblems(response.data);
       })
@@ -45,7 +45,7 @@ class ProblemModule extends VuexModule {
   @Action
   async fetchProblemById(problemId: number): Promise<ProblemModel> {
     let answer = { data: {} };
-    await axios.get(`/api/problem/${problemId}/`)
+    await api.get(`/api/problem/${problemId}/`)
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
@@ -56,7 +56,7 @@ class ProblemModule extends VuexModule {
   @Action
   async fetchCatsProblemById(catsId: number): Promise<CatsProblemModel> {
     let answer = { data: {} };
-    await axios.get(`/api/cats-problem/${catsId}/`)
+    await api.get(`/api/cats-problem/${catsId}/`)
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
@@ -67,7 +67,7 @@ class ProblemModule extends VuexModule {
 
   @Action
   async patchProblem(problem: ProblemModel) {
-    return await axios.patch(`/api/problem/${problem.id}/`, problem);
+    return await api.patch(`/api/problem/${problem.id}/`, problem);
   }
 
   @Action
@@ -76,7 +76,7 @@ class ProblemModule extends VuexModule {
       return this.problemsByLesson[id];
     }
     let answer = { data: {} };
-    await axios.get('/api/problem/', { params: { lesson_id: id } })
+    await api.get('/api/problem/', { params: { lesson_id: id } })
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
@@ -89,7 +89,7 @@ class ProblemModule extends VuexModule {
   @Action
   async fetchProblemsForCourse(course_id: number): Promise<ProblemModel[]> {
     let answer = { data: {} };
-    await axios.get(`/api/problem/by-course/${course_id}/`)
+    await api.get(`/api/problem/by-course/${course_id}/`)
       .then(response => answer = response)
       .catch(error => {
         console.log(error);

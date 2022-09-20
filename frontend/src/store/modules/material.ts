@@ -1,6 +1,6 @@
 import MaterialModel from '@/models/MaterialModel';
 import store from '@/store';
-import axios from 'axios';
+import api from '@/store/services/axiosInstance'
 import { Dictionary } from "vue-router/types/router";
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
@@ -13,7 +13,7 @@ class MaterialModule extends VuexModule {
 
   @Action
   async fetchMaterials() {
-    await axios.get('/api/material/')
+    await api.get('/api/material/')
       .then(response => {
         this.setMaterials(response.data);
       })
@@ -60,7 +60,7 @@ class MaterialModule extends VuexModule {
   @Action
   async fetchMaterialById(id: number): Promise<MaterialModel> {
     let answer = { data: {} };
-    await axios.get(`/api/material/${id}/`)
+    await api.get(`/api/material/${id}/`)
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
@@ -75,7 +75,7 @@ class MaterialModule extends VuexModule {
     }
 
     let answer = { data: {} };
-    await axios.get('/api/material/', { params: { lesson_id: id } })
+    await api.get('/api/material/', { params: { lesson_id: id } })
       .then(response => answer = response)
       .catch(error => {
         console.log(error);

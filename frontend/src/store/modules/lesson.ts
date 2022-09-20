@@ -1,6 +1,6 @@
 import LessonModel from '@/models/LessonModel';
 import store from '@/store';
-import axios from 'axios';
+import api from '@/store/services/axiosInstance'
 import {Dictionary} from 'vue-router/types/router';
 import {Action, getModule, Module, Mutation, VuexModule} from 'vuex-module-decorators';
 
@@ -29,7 +29,7 @@ class LessonModule extends VuexModule {
   @Action
   async fetchLessonById(id: number): Promise<LessonModel> {
     let answer = { data: {} };
-    await axios.get(`/api/lesson/${id}/`)
+    await api.get(`/api/lesson/${id}/`)
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
@@ -58,7 +58,7 @@ class LessonModule extends VuexModule {
     if (id in this.lessonsByCourse) { return this.lessonsByCourse[id]; }
 
     let answer = { data: {} };
-    await axios.get('/api/lesson/', { params: { course_id: id } })
+    await api.get('/api/lesson/', { params: { course_id: id } })
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
@@ -71,7 +71,7 @@ class LessonModule extends VuexModule {
   @Action
   async patchLesson(params: { is_hidden: boolean; id: number }) {
     let answer = { data: {} };
-    await axios.patch(`/api/lesson/${params.id}/`, { ...params })
+    await api.patch(`/api/lesson/${params.id}/`, { ...params })
       .then(response => answer = response)
       .catch(error => {
         console.log(error);

@@ -33,11 +33,9 @@ import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue'
 import LmsHeader from '@/components/LmsHeader.vue';
 import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
 import { Component, Vue } from 'vue-property-decorator';
-import axios from "axios";
-import userStore from "@/store/modules/user";
-import UserModel from "@/models/UserModel"
 import LoginView from "@/views/LoginView.vue";
 import tokenStore from "@/store/modules/token"
+import api from "@/store/services/axiosInstance"
 
 @Component({ components: { LoginView, LmsHeader, LmsBreadcrumb, LogoGithub } })
 export default class App extends Vue {
@@ -51,7 +49,7 @@ export default class App extends Vue {
   }
 
   async refreshToken(){
-    await axios.post(tokenStore.REFRESH_TOKEN_URL, tokenStore.refresh).then(response =>{
+    await api.post(tokenStore.REFRESH_TOKEN_URL, tokenStore.refresh).then(response =>{
       const access = response.data.access;
       tokenStore.setAccess(access);
       tokenStore.acceptAuthentication();

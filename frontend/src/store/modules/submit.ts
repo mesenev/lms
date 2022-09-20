@@ -1,7 +1,9 @@
 import PaginatedList from '@/models/PaginatedList';
 import SubmitModel from '@/models/SubmitModel';
 import store from '@/store';
-import axios, { AxiosResponse } from 'axios';
+import api from '@/store/services/axiosInstance'
+import { AxiosResponse } from "axios";
+
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
 @Module({ namespaced: true, name: 'submit', store, dynamic: true })
@@ -33,7 +35,7 @@ class SubmitModule extends VuexModule {
   async fetchSubmitsByProblemAndUser( payload: { problemId: number; userId: number },
   ): Promise<Array<SubmitModel>> {
     let answer = {};
-    await axios.get('/api/submit/', {
+    await api.get('/api/submit/', {
       params: {
         problem: payload.problemId,
         user: payload.userId,
@@ -52,7 +54,7 @@ class SubmitModule extends VuexModule {
   @Action
   async fetchFirstFiveAW(course_id: number): Promise<SubmitModel[]> {
     let answer = {};
-    await axios.get(`/api/submit/five-aw/${course_id}/`)
+    await api.get(`/api/submit/five-aw/${course_id}/`)
       .then(response => {
         answer = response.data;
       })
@@ -65,7 +67,7 @@ class SubmitModule extends VuexModule {
   @Action
   async fetchProblemStats(problem_id: number): Promise<SubmitModel[]> {
     let answer = {};
-    await axios.get(`/api/submit/problem-stats/${problem_id}/`)
+    await api.get(`/api/submit/problem-stats/${problem_id}/`)
       .then(response => {
         answer = response.data;
       })
@@ -85,7 +87,7 @@ class SubmitModule extends VuexModule {
     },
   ): Promise<PaginatedList<SubmitModel>> {
     let answer = {};
-    await axios.get('/api/submit/', {
+    await api.get('/api/submit/', {
       params: payload,
     })
       .then(response => {
@@ -114,7 +116,7 @@ class SubmitModule extends VuexModule {
       return answer;
     }
     let data = {};
-    await axios.get(`/api/submit/${id}/`)
+    await api.get(`/api/submit/${id}/`)
       .then((response: AxiosResponse<SubmitModel>) => {
         this.addSubmitToArray(response.data);
         data = response.data
@@ -128,7 +130,7 @@ class SubmitModule extends VuexModule {
   @Action
   async fetchCatsResult(submitId: number) {
     let data = {};
-    await axios.get(`/api/submit/cats-result/${submitId}/`)
+    await api.get(`/api/submit/cats-result/${submitId}/`)
       .then((response: AxiosResponse<object>) => {
         data = response.data
       })
