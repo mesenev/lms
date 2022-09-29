@@ -8,7 +8,6 @@ import store from '@/store';
 import CarbonComponentsVue from '@carbon/vue/src/index';
 import axios from 'axios';
 import VueClipboard from 'vue-clipboard2';
-import setupInterseptors from '@/store/services/interceptors'
 
 if (process.env.VUE_APP_ENVIRONMENT !== 'development') {
     Sentry.init({

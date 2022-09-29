@@ -35,7 +35,6 @@ import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
 import { Component, Vue } from 'vue-property-decorator';
 import LoginView from "@/views/LoginView.vue";
 import tokenStore from "@/store/modules/token"
-import api from "@/store/services/axiosInstance"
 
 @Component({ components: { LoginView, LmsHeader, LmsBreadcrumb, LogoGithub } })
 export default class App extends Vue {
@@ -46,17 +45,6 @@ export default class App extends Vue {
 
   async created(){
     await tokenStore.setupTokenStore();
-  }
-
-  async refreshToken(){
-    await api.post(tokenStore.REFRESH_TOKEN_URL, tokenStore.refresh).then(response =>{
-      const access = response.data.access;
-      tokenStore.setAccess(access);
-      tokenStore.acceptAuthentication();
-    }).catch(error =>{
-      console.log(error);
-      tokenStore.deleteRefresh();
-    });
   }
 }
 </script>

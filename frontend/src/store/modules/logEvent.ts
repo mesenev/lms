@@ -1,5 +1,5 @@
 import store from '@/store';
-import api from '@/store/services/axiosInstance'
+import api from '@/store/services/api'
 import { Action, getModule, Module, VuexModule } from 'vuex-module-decorators'
 import LogEventModel from "@/models/LogEventModel";
 import * as types from "@/models/LogEventModel";

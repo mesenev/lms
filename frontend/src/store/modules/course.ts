@@ -2,7 +2,7 @@ import CourseModel from '@/models/CourseModel';
 import CourseScheduleModel from '@/models/ScheduleModel';
 import store from '@/store';
 import userStore from '@/store/modules/user';
-import api from '@/store/services/axiosInstance'
+import api from '@/store/services/api'
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
 @Module({ namespaced: true, name: 'course', store, dynamic: true })

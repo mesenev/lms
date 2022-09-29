@@ -1,7 +1,7 @@
 import PaginatedList from '@/models/PaginatedList';
 import SubmitModel from '@/models/SubmitModel';
 import store from '@/store';
-import api from '@/store/services/axiosInstance'
+import api from '@/store/services/api'
 import { AxiosResponse } from "axios";
 
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';

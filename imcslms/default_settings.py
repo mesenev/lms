@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'wsnotifications',
     'djoser',
     'rest_framework_simplejwt',
-    'corsheaders'
+    'corsheaders',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 REST_FRAMEWORK = dict(
@@ -56,7 +57,8 @@ REST_FRAMEWORK = dict(
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=2),
+    'BLACKLIST_AFTER_ROTATION': True,
 }
 DJOSER = {
     'SERIALIZERS': {

@@ -1,6 +1,6 @@
 import LessonModel from '@/models/LessonModel';
 import store from '@/store';
-import api from '@/store/services/axiosInstance'
+import api from '@/store/services/api'
 import {Dictionary} from 'vue-router/types/router';
 import {Action, getModule, Module, Mutation, VuexModule} from 'vuex-module-decorators';
 
