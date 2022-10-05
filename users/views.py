@@ -1,14 +1,11 @@
-import json
 
-from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.core import exceptions
 from django.forms import Form, CharField, PasswordInput
 from django.http import HttpResponse, HttpRequest
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
+from django.shortcuts import render
+from rest_framework import status
 from rest_framework.decorators import api_view, renderer_classes, permission_classes
 from rest_framework.mixins import (
     CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
@@ -18,6 +15,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from course.models import Course
 from users.models import User, CourseAssignTeacher, StudyGroup
@@ -44,9 +42,17 @@ class StudyGroupsViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, U
 
 
 class Logout(APIView):
-    def get(self, request):
-        logout(request)
-        return redirect('index')
+
+    def post(self, request):
+        try:
+            refresh = request.data["refresh"]
+            refresh_token = RefreshToken(refresh)
+            refresh_token.blacklist()
+
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @permission_classes(IsAuthenticated)

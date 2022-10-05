@@ -51,6 +51,8 @@ REST_FRAMEWORK = dict(
     DEFAULT_PERMISSION_CLASSES=['rest_framework.permissions.IsAuthenticated'],
     DEFAULT_AUTHENTICATION_CLASSES=[
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ],
 )
 
@@ -59,6 +61,7 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(minutes=2),
     'BLACKLIST_AFTER_ROTATION': True,
+    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule'
 }
 DJOSER = {
     'SERIALIZERS': {

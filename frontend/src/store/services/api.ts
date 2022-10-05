@@ -25,6 +25,7 @@ api.interceptors.request.use(async config=>{
         }
       ).catch(error=>{
         localStorage.setItem('refresh', '');
+        tokenStore.context.commit('rejectAuthentication');
       })
     }
   }
