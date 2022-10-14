@@ -165,6 +165,7 @@
                 Создать курс
               </cv-switcher-item-link>
             </cv-switcher-item>
+            <LoginAsUserModal/>
             <cv-switcher-item>
               <a class="cv-switcher-item-link bx--switcher__item-link" href="/logout/">Выйти</a>
             </cv-switcher-item>
@@ -195,6 +196,7 @@
 
 <script lang="ts">
 import UserView from "@/components/UserComponent.vue";
+import LoginAsUserModal from "@/components/LoginAsUserModal.vue";
 import userStore from "@/store/modules/user";
 import AppSwitcher20 from '@carbon/icons-vue/es/app-switcher/20';
 import Notification20 from '@carbon/icons-vue/es/notification/20';
@@ -202,7 +204,7 @@ import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
 import Vue from 'vue';
 import Component from 'vue-class-component';
 
-@Component({ components: { UserView, Notification20, UserAvatar20, AppSwitcher20 } })
+@Component({ components: { UserView, LoginAsUserModal, Notification20, UserAvatar20, AppSwitcher20 } })
 export default class LmsHeader extends Vue {
 
   user = userStore.user;

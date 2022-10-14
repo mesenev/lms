@@ -80,6 +80,16 @@ class UserModule extends VuexModule {
 
     return data.data as UserModel;
   }
+
+  @Action
+  async fetchUserFromSession(): Promise<UserModel> {
+    let data = { data: {}}
+    await axios.get('api/sessionuser').then(response => data = response)
+      .catch(error => {
+        console.log(error);
+      });
+    return data.data as UserModel;
+  }
 }
 
 export default getModule(UserModule);
