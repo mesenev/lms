@@ -27,6 +27,11 @@ class ProblemManager(models.Manager):
 
 class Problem(models.Model):
     PROBLEM_TYPES = [('CW', 'classwork'), ('HW', 'homework'), ('EX', 'extratasks')]
+    TEST_MODE_TYPES = [
+        ('auto', 'Automated only problem testing'),
+        ('manual', 'Manual only problem testing'),
+        ('auto_and_manual', 'Manual then automated problem testing')
+    ]
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, related_name='problems', null=True)
     author = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='authored_problems', null=True)
     name = models.CharField(max_length=500)
@@ -44,7 +49,7 @@ class Problem(models.Model):
     )
     de_options = models.CharField(max_length=512, blank=True, default='')
     objects = ProblemManager()
-    test_mode = models.CharField(max_length=30, blank=True, default='')
+    test_mode = models.CharField(max_length=30, choices=TEST_MODE_TYPES, default=TEST_MODE_TYPES[0][0])
 
 
 class ProblemStats(models.Model):
