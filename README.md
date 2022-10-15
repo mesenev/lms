@@ -50,3 +50,4 @@ Now you should be able to run frontend application
 ```shell
 npm run serve
 ```
+good luck
