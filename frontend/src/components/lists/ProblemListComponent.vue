@@ -28,11 +28,15 @@
       <cv-accordion-item class="accordion" :class="{ doNotShowAccordionContent: !isStaff }">
         <template slot="title">
           <div class="problem-list-component--header">
-            <cv-link :to="target(problem)">
+            <cv-link :to="target">
               <Launch/>
             </cv-link>
             {{ problem.name }}
-            <div>
+            <div class="tags" v-if="!isStaff">
+              <submit-status v-if="!!lastSubmit" :submit="lastSubmit"/>
+              <cv-tag v-else kind="red" label="Не сдано"/>
+            </div>
+            <div v-else>
               <stats-graph v-if="problem.stats" :stats="problem.stats"/>
             </div>
           </div>
@@ -60,9 +64,13 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 @Component({ components: { ProblemStats, SubmitStatus, Launch, StatsGraph } })
 export default class ProblemListComponent extends Vue {
   @Prop({required: true}) taskList!: Array<ProblemModel>;
-  public open = true; /*false?*/
+  public open = false;
   userStore = userStore;
   courseStore = courseStore;
+
+  get lastSubmit(): SubmitModel | null {
+    return null;
+  }
 
   target(problem: ProblemModel) {
     return { name: 'ProblemView', params: { problemId: problem.id.toString() } };
@@ -76,10 +84,6 @@ export default class ProblemListComponent extends Vue {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   eventHandler(_event: object) {
     this.open = true;
-  }
-
-  get lastSubmit(): SubmitModel | null {
-    return null;
   }
 
   get isStaff(): boolean {
