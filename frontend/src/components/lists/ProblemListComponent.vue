@@ -1,24 +1,52 @@
 <template>
-  <cv-accordion-item class="accordion" :class="{ doNotShowAccordionContent: !isStaff }">
-    <template slot="title">
-      <div class="problem-list-component--header">
-        <cv-link :to="target">
-          <Launch/>
-        </cv-link>
-        {{ problem.name }}
-        <div class="tags" v-if="!isStaff">
-          <submit-status v-if="!!lastSubmit" :submit="lastSubmit"/>
-          <cv-tag v-else kind="red" label="Не сдано"/>
-        </div>
-        <div v-else>
-          <stats-graph v-if="problem.stats" :stats="problem.stats"/>
-        </div>
-      </div>
-    </template>
-    <template slot="content">
-      <problem-stats v-if="isStaff && open" :problem="problem"/>
-    </template>
-  </cv-accordion-item>
+  <div v-if="!isStaff"> <!--Разные отображения списка задач, для стафа и студентов-->
+    <cv-structured-list>
+      <template slot="items">
+        <cv-structured-list-item
+          v-for="problem in taskList"
+          :key="problem.id">
+          <div class="problem-list-item">
+            <router-link class="list-element" :to="target(problem)">
+              <div class="problem-list-component--header">
+                <h5 class="problem--title">{{ problem.name }}</h5>
+                <div class="tags">
+                  <submit-status v-if="!!lastSubmit" :submit="lastSubmit"/>
+                  <cv-tag v-else kind="red" label="Не сдано"/>
+                </div>
+              </div>
+            </router-link>
+          </div>
+        </cv-structured-list-item>
+      </template>
+    </cv-structured-list>
+  </div>
+  <div v-else>
+    <cv-accordion
+      v-for="problem in taskList"
+      :key="problem.id"
+      align="end">
+      <cv-accordion-item class="accordion" :class="{ doNotShowAccordionContent: !isStaff }">
+        <template slot="title">
+          <div class="problem-list-component--header">
+            <cv-link :to="target">
+              <Launch/>
+            </cv-link>
+            {{ problem.name }}
+            <div class="tags" v-if="!isStaff">
+              <submit-status v-if="!!lastSubmit" :submit="lastSubmit"/>
+              <cv-tag v-else kind="red" label="Не сдано"/>
+            </div>
+            <div v-else>
+              <stats-graph v-if="problem.stats" :stats="problem.stats"/>
+            </div>
+          </div>
+        </template>
+        <template slot="content">
+          <problem-stats v-if="isStaff && open" :problem="problem"/>
+        </template>
+      </cv-accordion-item>
+    </cv-accordion>
+  </div>
 </template>
 
 <script lang="ts">
@@ -35,7 +63,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: { ProblemStats, SubmitStatus, Launch, StatsGraph } })
 export default class ProblemListComponent extends Vue {
-  @Prop() problemProp!: ProblemModel;
+  @Prop({required: true}) taskList!: Array<ProblemModel>;
   public open = false;
   userStore = userStore;
   courseStore = courseStore;
@@ -44,13 +72,10 @@ export default class ProblemListComponent extends Vue {
     return null;
   }
 
-  get target() {
-    return { name: 'ProblemView', params: { problemId: this.problem.id.toString() } };
+  target(problem: ProblemModel) {
+    return { name: 'ProblemView', params: { problemId: problem.id.toString() } };
   }
 
-  get problem() {
-    return this.problemProp;
-  }
 
   created() {
     this.$on('cv:change', this.eventHandler);
