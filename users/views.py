@@ -66,10 +66,10 @@ def user_login(request):
 @renderer_classes([JSONRenderer])
 def another_user_login(request):
     username = request.data.get('username')
-    user = User.objects.get(username=username)
-
-    if not user:
-        return Response("Юзер не найден", status=404)
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return Response("Юзер не существует", status=404)
     if not request.user.is_superuser:
         return Response("Недостаточно прав", status=406)
     if user.is_superuser:
@@ -106,11 +106,12 @@ def session_user(request):
     original_session = request.session.get(loc_settings.USER_SESSION_FLAG)
     if original_session:
         original_user_pk = signer.unsign(original_session)
-        user = User.objects.get(pk=original_user_pk)
-        if user:
+        try:
+            user = User.objects.get(pk=original_user_pk)
             serialized_user = DefaultUserSerializer(user).data
             return Response(serialized_user)
-        return Response("Юзер не найден", status=404)
+        except User.DoesNotExist:
+            return Response("Юзер не найден", status=404)
     else:
         return Response("Вы на основном аккаунте")
 

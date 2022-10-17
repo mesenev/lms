@@ -46,6 +46,12 @@ def restore_original_login(request):
     try:
         original_user_pk = signer.unsign(original_session)
         user = User.objects.get(pk=original_user_pk)
+    except User.DoesNotExist:
+        return
+
+    try:
+        original_user_pk = signer.unsign(original_session)
+        user = User.objects.get(pk=original_user_pk)
         login_as_user(user, request, store_original_user=False)
         if loc_settings.USER_SESSION_FLAG in request.session:
             del request.session[loc_settings.USER_SESSION_FLAG]

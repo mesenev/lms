@@ -29,13 +29,14 @@
           :sub-title="notificationText"
           @close="hideNotification"
         />
-        <div>
+        <div class="content_container">
           <cv-text-input
             placeholder="Введите username"
             v-model.trim="username"
             data-modal-primary-focus
               />
           <cv-button
+            class="content_btn"
             :disabled="emptyUsername"
             @click="loginAsUser"
           >
@@ -73,7 +74,6 @@ export default class LoginAsUserModal extends NotificationMixinComponent {
     this.sessionUser = await this.store.fetchUserFromSession();
     await this.checkUserStatus();
     if (typeof this.sessionUser === 'object') {
-      console.log(this.sessionUser);
       this.isSessionUser = true;
     }
   }
@@ -91,7 +91,7 @@ export default class LoginAsUserModal extends NotificationMixinComponent {
   }
 
   async checkUserStatus() {
-    await axios.get('api/issuperuser')
+    await axios.get('/api/issuperuser')
       .then(response => {
         this.isSuperUser = response.data
       })
@@ -113,14 +113,9 @@ export default class LoginAsUserModal extends NotificationMixinComponent {
   }
 
   async logoutFromUser() {
-    await axios.get('api/anotheruserlogout')
+    await axios.get('/api/anotheruserlogout')
       .then(response => {
         location.replace('/');
-      })
-      .catch(error => {
-        this.notificationKind = 'error';
-        this.notificationText = `Что-то пошло не так: ${error.message}`;
-        this.showNotification = true;
       })
   }
 }
@@ -128,5 +123,10 @@ export default class LoginAsUserModal extends NotificationMixinComponent {
 
 <style scoped lang="stylus">
 
+.content_container
+  display inline-flex
+
+.content_btn
+  margin-left 10px
 
 </style>
