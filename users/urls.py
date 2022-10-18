@@ -5,6 +5,10 @@ from users import views
 urlpatterns = [
     path('login/', views.user_login, name='account_login'),
     path('logout/', views.Logout.as_view(), name='account_logout'),
+    path('api/anotheruserlogin', views.another_user_login, name='another_user_login'),
+    path('api/anotheruserlogout', views.another_user_logout, name='another_user_logout'),
+    path('api/sessionuser', views.session_user, name='session_user'),
+    path('api/issuperuser', views.is_super_user, name='is_super_user'),
     path('api/students_for_course/<int:course_id>/', views.students_for_course, name='students_for_course'),
     path('api/staff_for_course/<int:course_id>/', views.staff_for_course, name='staff_for_course'),
     path('api/change-password/', views.change_password, name='change_password'),
