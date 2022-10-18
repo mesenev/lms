@@ -134,7 +134,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
   }
 
   get newEventsSortedList(){
-    const newEvents = this.newEvents.sort(a => -a.id);
+    const newEvents = this.newEvents.sort(a => a.id);
     return newEvents;
   }
 
