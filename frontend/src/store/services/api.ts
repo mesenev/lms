@@ -10,8 +10,6 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(async config=>{
-  console.log('access: ', String(localStorage.getItem('access')))
-  console.log('refresh: ', localStorage.getItem('refresh'))
   if ( config.url != tokenStore.OBTAIN_TOKEN_URL && String(localStorage.getItem('access')) ) {
     await axios.post(tokenStore.VERIFY_TOKEN_URL, { token: String(localStorage.getItem('access')) }).then(
       response => {
