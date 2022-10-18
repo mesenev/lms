@@ -10,6 +10,8 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(async config=>{
+  console.log('access: ', String(localStorage.getItem('access')))
+  console.log('refresh: ', localStorage.getItem('refresh'))
   if ( config.url != tokenStore.OBTAIN_TOKEN_URL && String(localStorage.getItem('access')) ) {
     await axios.post(tokenStore.VERIFY_TOKEN_URL, { token: String(localStorage.getItem('access')) }).then(
       response => {
@@ -18,6 +20,7 @@ api.interceptors.request.use(async config=>{
         localStorage.setItem('access', '');
     });
     if ( !localStorage.getItem('access') && localStorage.getItem('refresh') ){
+      const refresh = String(localStorage.getItem('refresh'));
       await axios.post(tokenStore.REFRESH_TOKEN_URL, {refresh: localStorage.getItem('refresh') }).then(
         response =>{
           localStorage.setItem('access', response.data.access);
@@ -27,6 +30,10 @@ api.interceptors.request.use(async config=>{
         localStorage.setItem('refresh', '');
         tokenStore.context.commit('rejectAuthentication');
       })
+
+      if ( !localStorage.getItem('refresh') ) {
+        await axios.post(tokenStore.BLACKLIST_TOKEN_URL, { refresh: refresh })
+      }
     }
   }
   return config;

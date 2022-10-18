@@ -5,6 +5,9 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView
 )
+#toDo docker interpretator cant found tokenBlacklistView,
+# thats why we use custom view Logout for blacklisted tokens
+#from rest_framework_simplejwt.views import TokenBlacklistView
 
 urlpatterns = [
     path('api/students_for_course/<int:course_id>/', views.students_for_course, name='students_for_course'),
