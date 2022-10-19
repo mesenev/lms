@@ -66,18 +66,25 @@
             <cv-text-input v-model.trim="lesson.name" disabled label="Название урока"/>
             <cv-text-input v-model.trim="currentProblem.name" label="Название задания"/>
             <cv-text-input v-model.trim="currentProblem.description" label="Описание задания"/>
+          </div>
+          <div class="problem-type-selection">
             <h5>Тип задачи</h5>
-            <cv-radio-group
-              :vertical="vertical">
-              <cv-radio-button
-                v-model="currentProblem.type"
-                label="Классная работа"
-                name="group-1" value="CW"/>
-              <cv-radio-button
-                v-model="currentProblem.type"
-                label="Домашнаяя работа"
-                name="group-1" value="HW"/>
-            </cv-radio-group>
+              <cv-radio-group
+                @change="(newType) => this.problemType = newType"
+                :vertical="vertical">
+                <cv-radio-button
+                  v-model="currentProblem.type"
+                  label="Классная работа"
+                  name="group-1" value="CW"/>
+                <cv-radio-button
+                  v-model="currentProblem.type"
+                  label="Домашнаяя работа"
+                  name="group-1" value="HW"/>
+                <cv-radio-button
+                  v-model="problemType"
+                  label="Дополнительные задания"
+                  name="group-1" value="EX"/>
+              </cv-radio-group>
           </div>
         </section>
       </template>
@@ -94,9 +101,12 @@ import ProblemModel from '@/models/ProblemModel';
 import problemStore from '@/store/modules/problem';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
+import axios from 'axios';
 import { Component, Prop } from 'vue-property-decorator';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
-import api from '@/store/services/api'
+import {forEach, map} from "lodash";
+import logEvent from "@/store/modules/logEvent";
+import {Dictionary} from "vue-router/types/router";
 
 
 @Component({ components: { AddAlt20, SubtractAlt20 } })
@@ -118,6 +128,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
   searchQueryForAllProblems = '';
   //ToDo add radio button for test modes to modal
   testingMode = '';
+  problemType = '';
 
   get catsFilteredProblems() {
     return searchByProblems(this.searchQueryForAllProblems, this.catsProblemsTruncated);
@@ -130,7 +141,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
   async fetchCatsProblems() {
     this.fetchingCatsProblems = true;
-    await api.get(`/api/cats-problems/${this.lesson.course}/`)
+    await axios.get(`/api/cats-problems/${this.lesson.course}/`)
       .then(response => {
         this.catsProblems = response.data;
       })
@@ -167,6 +178,17 @@ export default class EditLessonModal extends NotificationMixinComponent {
     this.selectedNew = !this.selectedNew;
   }
 
+  get selectedIds() {
+    return this.selected.map(e => {
+      return (this.catsFilteredProblems[e as number] as unknown as { id: number })['id'];
+    })
+  }
+
+  get selectedCatsProblems() {
+    return this.catsProblems.filter(element => {
+      return this.selectedIds.find(e => e === element.id);
+    });
+  }
 
   async addProblem() {
     if (!this.lesson.id) {
@@ -183,18 +205,18 @@ export default class EditLessonModal extends NotificationMixinComponent {
       return
     }
     if (!this.selectedNew) {
-      const selected_ids = this.selected.map(e => {
-        return (this.catsFilteredProblems[e as number] as unknown as { id: number })['id'];
-      })
-      const data = this.catsProblems.filter(element => {
-        return selected_ids.find(e => e === element.id);
-      });
-      data.forEach(element => element.test_mode = this.testingMode)
-      await api.post(`/api/add-cats-problems-to-lesson/${this.lesson.id}/`, data)
+      const data = this.selectedCatsProblems;
+      const problemTypes = new Map<string, number>([['CW', 0], ['HW', 1], ['EX', 2]]);
+      data.forEach(element => element.test_mode = this.testingMode);
+      await axios.post(`/api/add-cats-problems-to-lesson/${this.lesson.id}/`, {problem_data: data, problem_type: problemTypes.get(this.problemType)})
         .then(async (answer) => {
           if (answer.status == 200) {
-            this.$emit("update-problem-list", data);
-            const currentProblems = [...this.lesson.problems,...answer.data as ProblemModel[]]
+            const newProblems = (answer.data as ProblemModel[]).map(element => {
+              element.type = this.problemType;
+              return element;
+            });
+            this.$emit("update-problem-list", newProblems as ProblemModel[]);
+            const currentProblems = [...this.lesson.problems,...newProblems]
             this.problemStore.setProblems({[this.lesson.id]: currentProblems});
             this.modalHidden();
             // await this.fetchCatsProblems();
@@ -251,4 +273,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
 .modal--content
   height 400px
+
+.problem-type-selection
+  margin-top 2rem
 </style>

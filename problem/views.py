@@ -281,14 +281,16 @@ def add_cats_problems(request, lesson_id):
     lesson = Lesson.objects.get(pk=lesson_id)
     if lesson.course not in list(request.user.staff_for.all()) + list(request.user.author_for.all()):
         raise exceptions.PermissionDenied
-    data = request.data
+    problem_data = request.data['problem_data']
+    problem_type = request.data['problem_type']
+    print(type(problem_type))
     answer = list()
-    for cats_problem in data:
+    for cats_problem in problem_data:
         materials = cats_get_problem_description_by_url(cats_problem["text_url"])
         problem = Problem.objects.create(
             lesson=lesson, author=request.user, name=cats_problem['name'],
             cats_id=cats_problem['id'], cats_material_url=cats_problem["text_url"],
-            description=materials, test_mode=cats_problem['test_mode']
+            description=materials, test_mode=cats_problem['test_mode'], type=Problem.PROBLEM_TYPES[problem_type][0]
         )
         answer.append(ProblemSerializer(problem).data)
     return Response(answer)
