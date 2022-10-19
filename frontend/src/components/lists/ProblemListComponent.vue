@@ -56,10 +56,11 @@ import Launch from '@carbon/icons-vue/es/launch/16';
 import userStore from '@/store/modules/user';
 import courseStore from '@/store/modules/course';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import CatsProblemModel from "@/models/CatsProblemModel";
 
 @Component({ components: { ProblemStats, SubmitStatus, Launch, StatsGraph } })
 export default class ProblemListComponent extends Vue {
-  @Prop({required: true}) taskList!: Array<ProblemModel>;
+  @Prop({required: true}) taskList!: Array<ProblemModel | CatsProblemModel>;
   public open = true; /*false?*/
   userStore = userStore;
   courseStore = courseStore;

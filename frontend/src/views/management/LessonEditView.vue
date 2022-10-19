@@ -30,32 +30,37 @@
       </div>
 
       <div class="bx--col-lg-8 bx--col-md-4 bx--col-sm-2">
-        <cv-structured-list class="classwork">
-          <template slot="headings">
-            <cv-structured-list-heading> Классная работа</cv-structured-list-heading>
-          </template>
-          <template slot="items">
-            <cv-structured-list-item
-              class="work" v-for="classwork in getClasswork" :key="classwork.id">
-              <div><h4>{{ classwork.name }}</h4></div>
-            </cv-structured-list-item>
-          </template>
-        </cv-structured-list>
-        <cv-structured-list class="homework">
-          <template slot="headings">
-            <cv-structured-list-heading> Домашняя работа</cv-structured-list-heading>
-          </template>
-          <template slot="items">
-            <cv-structured-list-item
-              v-for="homework in getHomework"
-              :key="homework.id"
-              class="work">
-              <div><h4>{{ homework.name }}</h4></div>
-            </cv-structured-list-item>
-          </template>
-        </cv-structured-list>
+        <div class="content-task-list">
+          <div v-if="getClasswork.length > 0" class="classwork">
+            <h4 class="classwork-title">Классная работа</h4>
+            <div v-if="!fetchingLesson">
+              <problem-list-component :task-list="getClasswork"></problem-list-component>
+            </div>
+            <div v-else>
+              <cv-accordion-skeleton/>
+            </div>
+          </div>
+          <div v-if="getHomework.length > 0" class="homework">
+            <h4 class="homework-title">Домашняя работа</h4>
+            <div v-if="!fetchingLesson">
+              <problem-list-component :task-list="getHomework"></problem-list-component>
+            </div>
+            <div v-else>
+              <cv-accordion-skeleton/>
+            </div>
+          </div>
+          <div v-if="getExtrawork.length > 0" class="homework">
+            <h4 class="extrawork-title">Дополнительные задания</h4>
+            <div v-if="!fetchingLesson">
+              <problem-list-component :task-list="getExtrawork"></problem-list-component>
+            </div>
+            <div v-else>
+              <cv-accordion-skeleton/>
+            </div>
+          </div>
+        </div>
         <div class="lesson-buttons">
-          <EditLessonModal @update-problem-list="updateClassworkList($event)"
+          <EditLessonModal @update-problem-list="updateTaskList($event)"
             :lesson="lessonEdit"
             class="edit--lesson-props"/>
           <EditLessonMaterialsModal
@@ -75,6 +80,7 @@ import searchByProblems from '@/common/searchByTutorial'
 import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import EditLessonMaterialsModal from '@/components/EditLesson/EditLessonMaterialsModal.vue';
 import EditLessonModal from '@/components/EditLesson/EditLessonModal.vue';
+import ProblemListComponent from "@/components/lists/ProblemListComponent.vue";
 import CatsProblemModel from '@/models/CatsProblemModel';
 import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
@@ -88,7 +94,7 @@ import { Component, Prop } from 'vue-property-decorator';
 import { Mutation } from "vuex-module-decorators";
 
 
-@Component({ components: { EditLessonMaterialsModal, EditLessonModal } })
+@Component({ components: { EditLessonMaterialsModal, EditLessonModal, ProblemListComponent} })
 export default class LessonEditView extends NotificationMixinComponent {
 
   @Prop({ required: true }) lessonId!: number;
@@ -136,15 +142,18 @@ export default class LessonEditView extends NotificationMixinComponent {
   }
 
   @Mutation
-  updateClassworkList(new_problems: Array<ProblemModel | CatsProblemModel>){
+  updateTaskList(new_problems: Array<ProblemModel | CatsProblemModel>){
     this.lessonEdit = { ...this.lesson }
     new_problems.forEach(element => {
-      this.getClasswork.push(element as ProblemModel)
+      this.lessonEdit.problems.push(element as ProblemModel)
     })
   }
 
   get getHomework(): Array<ProblemModel | CatsProblemModel> {
     return this.lessonEdit.problems.filter(x => x.type === 'HW');
+  }
+  get getExtrawork(): Array<ProblemModel | CatsProblemModel> {
+    return this.lessonEdit.problems.filter(x => x.type === 'EX');
   }
 
 
@@ -197,7 +206,7 @@ export default class LessonEditView extends NotificationMixinComponent {
 .work div
   padding 1rem 1rem 0.5rem 1rem
 
-.classwork, .homework
+.classwork, .homework, .extrawork
   margin: 20px 0
 
 
@@ -234,4 +243,7 @@ export default class LessonEditView extends NotificationMixinComponent {
 
   &:hover
     background-color: var(--cds-ui-04)
+
+.accordion /deep/ .bx--accordion__content
+  padding-right 0
 </style>
