@@ -3,7 +3,7 @@ import tokenStore from '@/store/modules/token'
 
 
 const api = axios.create({
-  baseURL: "http://localhost:8000",
+  baseURL: (process.env.NODE_ENV === "production") ? process.env.APPLICATION_URL : "http://localhost:8000",
   headers: {
     "Content-Type": "application/json",
   },
