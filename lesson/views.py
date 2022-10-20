@@ -41,10 +41,10 @@ class LessonViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['DELETE'])
-def delete_lesson(request, _id):
-    to_delete = Lesson.objects.all()
-    to_delete.get(id=_id).delete()
-    return Response(_id)
+def delete_lesson(request, id):
+    to_delete = Lesson.objects.get(id=id)
+    to_delete.delete()
+    return Response(id)
 
 
 class MaterialViewSet(viewsets.ModelViewSet):

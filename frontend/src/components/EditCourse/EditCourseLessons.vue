@@ -27,6 +27,7 @@
 <script lang="ts">
 import searchByLessons from '@/common/searchByTutorial';
 import LessonCard from '@/components/EditCourse/LessonCard.vue';
+import lessonStore from '@/store/modules/lesson';
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
 import Settings20 from '@carbon/icons-vue/es/settings/20';
@@ -44,6 +45,8 @@ import api from '@/store/services/api'
 export default class EditCourseLessons extends Vue {
   @Prop({ required: true }) course!: CourseModel;
 
+  lessonStore = lessonStore;
+
   TrashCan = TrashCan20;
 
   Settings = Settings20;
@@ -51,13 +54,16 @@ export default class EditCourseLessons extends Vue {
   searchQueryForCourseLessons = '';
 
   get courseLessons(): LessonModel[] {
-    return searchByLessons(this.searchQueryForCourseLessons, this.course.lessons);
+    return searchByLessons(this.searchQueryForCourseLessons, this.course.lessons)
+      .sort((a, b) => {
+        return a.id - b.id
+      });
   }
 
-  deleteLesson(lesson: LessonModel) {
-    api.delete(`/api/delete-lesson/${lesson.id}/`).then(response => {
-      console.log(response)
-      });
+  async deleteLesson(lesson: LessonModel) {
+    this.course.lessons = this.course.lessons.filter((x: LessonModel) => x.id != lesson.id);
+    await this.lessonStore.deleteLesson(lesson.id);
+    this.lessonStore.setLessons({[this.course.id]: this.course.lessons});
   }
 }
 </script>

@@ -66,11 +66,11 @@
 
           <EditCourseLessons
             v-if="!isNewCourse && !fetchingCourse"
-            :course="courseEdit"
+            :course="store.currentCourse"
             class="course-props edit--course"/>
           <EditCourseModal
             v-if="!isNewCourse && !fetchingCourse"
-            :course-id="courseEdit.id"
+            :course-id="store.currentCourse.id"
             class="course-props add--btn"/>
         </div>
       </div>

@@ -80,6 +80,7 @@ import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
 import router from '@/router';
 import lessonStore from '@/store/modules/lesson';
+import materialStore from '@/store/modules/material';
 import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
 import api from '@/store/services/api'
 import _ from 'lodash';
@@ -93,6 +94,7 @@ export default class LessonEditView extends NotificationMixinComponent {
   @Prop({ required: true }) lessonId!: number;
   TrashCan = TrashCan20;
   store = lessonStore;
+  materialStore = materialStore;
   fetchingLesson = true;
   lesson: LessonModel = this.store.getNewLesson;
   lessonEdit: LessonModel = { ...this.lesson }
@@ -100,8 +102,10 @@ export default class LessonEditView extends NotificationMixinComponent {
   query = '';
 
   async created() {
-    if (this.lessonId)
+    if (this.lessonId) {
       this.lesson = this.store.currentLesson as LessonModel;
+      await this.materialStore.fetchMaterialsByLessonId(this.lesson.id)
+    }
     this.lessonEdit = { ...this.lesson };
     this.fetchingLesson = false;
   }

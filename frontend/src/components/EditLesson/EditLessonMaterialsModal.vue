@@ -77,10 +77,6 @@ export default class EditLessonMaterialsModal extends Vue {
   modalVisible = false;
   searchQueryForAllMaterials = '';
 
-  async created() {
-    this.material = await this.materialStore.fetchMaterialsByLessonId(this.lesson.id);
-  }
-
   showModal() {
     this.modalVisible = true;
     this.showNotification = false;
@@ -109,7 +105,8 @@ export default class EditLessonMaterialsModal extends Vue {
     const request = api.post('/api/material/', this.currentMaterial);
     request.then(response => {
       this.lesson.materials.push(response.data as MaterialModel);
-      this.modalHidden();
+      this.materialStore.setMaterials({[this.lesson.id]: this.lesson.materials});
+      //this.modalHidden();
     });
     request.catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
@@ -119,7 +116,7 @@ export default class EditLessonMaterialsModal extends Vue {
 
   get materials(): Array<MaterialModel> {
     if (this.lesson)
-      return this.material;
+      return this.materialStore._materials[this.lesson.id];
     return [];
   }
 }

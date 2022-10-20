@@ -51,7 +51,7 @@ export default class LessonCard extends Vue {
   get getLessonProblems() {
     const problems: string[] = [];
     for (const [key, value] of Object.entries(this.lesson)) {
-      if (_.isArrayLike(value) && _.isEmpty(value)) {
+      if (_.isArrayLike(value) && _.isEmpty(value) && key === 'problems') {
         problems.push(`Empty ${key}`);
       }
     }
