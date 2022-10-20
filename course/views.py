@@ -45,7 +45,8 @@ class CourseViewSet(viewsets.ModelViewSet):
 
 
 class ScheduleViewSet(
-    GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, ListModelMixin
+    GenericViewSet, CreateModelMixin, RetrieveModelMixin,
+    UpdateModelMixin, DestroyModelMixin, ListModelMixin
 ):
     permission_classes = [CourseStaffOrAuthorReadOnly]
     serializer_class = ScheduleSerializer

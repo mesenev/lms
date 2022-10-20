@@ -1,7 +1,6 @@
 export default interface Attendance {
   id: number;
-  be: boolean;
-  course: number;
+  attendance: boolean;
   lesson: number;
-  user: any;
+  user: number;
 }

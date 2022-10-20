@@ -2,8 +2,9 @@
   <div class="bx--grid">
     <cv-data-table v-if="!loading" title="Успеваемость курса">
       <template slot="helper-text">
-        <router-link :to="{ name: 'CourseView', params: { courseId: course.id } }"
-                     tag="p" class="course--title">
+        <router-link
+          :to="{ name: 'CourseView', params: { courseId: course.id } }"
+          tag="p" class="course--title">
           {{ course.name }}
         </router-link>
       </template>
@@ -22,26 +23,28 @@
         </cv-data-table-heading>
       </template>
       <template slot="data">
-        <cv-data-table-row v-for="user_progress in progress" :key="user_progress.id">
+        <cv-data-table-row v-for="row in progress" :key="row.id">
           <cv-data-table-cell>
-            <router-link :to="{ name: 'profile-page', params: { userId: user_progress.user.id } }"
-                         class="course--title" tag="p">
-              <UserComponent :userProp="user_progress.user"/>
+            <router-link
+              :to="{ name: 'profile-page', params: { userId: users[row.user]} }"
+              class="course--title" tag="p">
+              <UserComponent :userProp="users[row.user]"/>
             </router-link>
           </cv-data-table-cell>
           <cv-data-table-cell v-for="les in lessons" :key="les.id">
-            {{ sum(user_progress.progress[les.id]) }}
-            <div v-for="(value, name) in user_progress.progress[les.id]" :key="value+name" class="mark">
+            {{ sum(row.progress[les.id]) }}
+            <div v-for="(value, name) in row.progress[les.id]" :key="value+name"
+                 class="mark">
               <cv-tag :label="value.toString()" :kind="color(name)"/>
             </div>
             <cv-checkbox
-              :checked="student_attendance[user_progress.user.id][les.id]"
-              :value="`${user_progress.user.id}-${les.id}`"
+              :checked="student_attendance[`${row.user}-${les.id}`].attendance"
+              :value="`${row.user}-${les.id}`"
               class="mark"
-              @change="attendanceChange(user_progress.user.id, les.id)"/>
+              @change="attendanceChange(row.user, les.id)"/>
           </cv-data-table-cell>
           <cv-data-table-cell>
-            {{ average(user_progress.lessons) }}
+            {{ average(row.lessons) }}
           </cv-data-table-cell>
         </cv-data-table-row>
       </template>
@@ -56,8 +59,8 @@ import SubmitStatus from "@/components/SubmitStatus.vue";
 import UserComponent from "@/components/UserComponent.vue";
 import _ from 'lodash';
 import UserModel from "@/models/UserModel";
+import Attendance from "@/models/Attendance";
 import UserProgress from '@/models/UserProgress';
-import Attendance from '@/models/Attendance'
 import courseStore from '@/store/modules/course'
 import problemStore from "@/store/modules/problem"
 import progressStore from "@/store/modules/progress"
@@ -74,9 +77,9 @@ export default class CourseProgressView extends Vue {
   @Prop() courseId!: number;
 
   students_progress: Array<UserProgress> = [];
-  s: Array<Attendance> = [];
+  s: Dictionary<Array<Attendance>> = {};
   users: Dictionary<UserModel> = {};
-  student_attendance: Dictionary<any> = {};
+  student_attendance: Dictionary<Attendance> = {};
   student_attendance_copy: Dictionary<any> = {};
   lessons: Array<LessonModel> = [];
   course: CourseModel = { ...courseStore.newCourse };
@@ -107,21 +110,19 @@ export default class CourseProgressView extends Vue {
   }
 
   get progress() {
-    if (this.dontSolved) {
-      return this.students_progress.filter(x => Object.keys(x.solved["HW"]).length === 0)
-    }
+    // if (this.dontSolved) {
+    //   return this.students_progress.filter(x => Object.keys(x.solved["HW"]).length === 0)
+    // }
     return this.students_progress;
   }
 
   get change() {
-    // debugger;
     return _.isEqual(this.student_attendance, this.student_attendance_copy)
   }
 
   attendanceChange(userId: number, lessonId: number) {
-    this.student_attendance_copy[userId][lessonId] =
-      !this.student_attendance_copy[userId][lessonId];
-    this.student_attendance_copy = _.cloneDeep(this.student_attendance_copy);
+    const key = `${userId}-${lessonId}`;
+    this.student_attendance_copy[key].attendance = !this.student_attendance_copy[key].attendance;
   }
 
   async created() {
@@ -129,19 +130,12 @@ export default class CourseProgressView extends Vue {
     this.students_progress = await this.progressStore.fetchCourseProgressById(this.courseId);
     this.users = await this.userStore.fetchStudentsByCourseId(this.courseId);
     this.lessons = await this.lessonStore.fetchLessonsByCourseId(this.courseId);
-    this.students_progress = this.students_progress.map(
-      obj => Object.assign({}, obj, { user: this.users[obj.user.toLocaleString()] }));
     this.s = await this.progressStore.fetchAttendance(this.courseId);
-    let a = null
-    for (const i in this.s) {
-      a = this.s[i]
-      if (this.student_attendance[a.user]) {
-        this.student_attendance[a.user][a.lesson] = a.be
-      } else {
-        this.student_attendance[a.user] = {}
-        this.student_attendance[a.user][a.lesson] = a.be
-      }
-    }
+
+    for (const [key, val] of Object.entries(this.s))
+      for (const at of val)
+        this.student_attendance[`${key}-${at.lesson}`] = at;
+
     this.student_attendance_copy = _.cloneDeep(this.student_attendance);
     this.loading = false;
   }
@@ -180,26 +174,20 @@ export default class CourseProgressView extends Vue {
       this.$router.push(`/course/${this.$route.params['courseId']}/lesson/${this.$route.params['lessonId']}/problem/${problem}`);
   }
 
-  mark(): void {
-    /*let progress: UserProgress = {
-      id: NaN,
-      user: NaN,
-      solved: {},
+  async mark(): Promise<void> {
+    let success = true;
+    //TODO: remove unchanged instances
+    for (const val of Object.values(this.student_attendance_copy)) {
+      debugger;
+      const request = axios.patch(`/api/lessonprogress/${val.id}/`, val);
+      request.then((response: any) => {
+        //
+      });
+      request.catch((error: any) => {
+        success = false;
+      })
     }
-    let request: any;
-    for (const i in this.students_progress) {
-      progress = JSON.parse(JSON.stringify(this.students_progress[i]));
-      progress.user = progress.user.id;
-      request = axios.patch(`/api/courseprogress/${this.students_progress[i].id}/`, progress);
-    }
-    request.then((response: any) => {
-      console.log("Успех")
-    });
-    request.catch((error: any) => {
-      console.log("Не успех")
-    })
-    request.finally(() => this.students_progress_copy = this.students_progress);*/
-
+    this.student_attendance = _.cloneDeep(this.student_attendance_copy);
   }
 }
 </script>
