@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from requests import utils
 from datetime import timedelta
+from django.conf import settings
 
 utils.default_headers = lambda: {
     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) '
@@ -175,3 +176,5 @@ TEACHER = 'teacher'
 STUDENT = 'student'
 ANONYMOUS = 'anonymous'
 GROUPS = [TEACHER, STUDENT, ANONYMOUS]
+
+USER_SESSION_FLAG = getattr(settings, "SESSION_FROM_USER", "SESSION")

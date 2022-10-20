@@ -11,12 +11,6 @@
               @primary-click="addLesson"
               @secondary-click="() => {}">
       <template slot="label">{{ course.name }}</template>
-      <cv-inline-notification
-        v-if="showNotification"
-        :kind="notificationKind"
-        @close="hideNotification"
-        :sub-title="notificationText"
-      />
       <template slot="title">
         Добавить урок
         <cv-content-switcher class="switcher" @selected="actionSelected">
@@ -29,6 +23,12 @@
         </cv-content-switcher>
       </template>
       <template slot="content">
+        <cv-inline-notification
+          v-if="showNotification"
+          :kind="notificationKind"
+          @close="hideNotification"
+          :sub-title="notificationText"
+        />
         <section class="modal--content">
           <div class="content-1">
             <cv-text-input label="Название курса" v-model.trim="course.name" disabled/>
@@ -150,21 +150,22 @@ export default class EditCourseModal extends NotificationMixinComponent {
     if (this.selectedNew) {
       this.creationLoader = true;
       await this.createNewLesson();
-      this.modalHidden();
     }
   }
 
 
   async createNewLesson() {
-    const request = api.post('/api/lesson/', this.currentLesson);
-    request.then(response => {
-      const course = this.courseStore.currentCourse as CourseModel;
-      course.lessons.push(response.data as LessonModel);
-      this.lessonStore.setLessons({[course.id]: course.lessons});
-    });
-    request.catch(error => {
-      this.notificationText = `Что-то пошло не так: ${error.message}`;
-      this.showNotification = true;
+    api.post('/api/lesson/', this.currentLesson)
+      .then(response => {
+        const course = this.courseStore.currentCourse as CourseModel;
+        course.lessons.push(response.data as LessonModel);
+        this.lessonStore.setLessons({[course.id]: course.lessons});
+        this.modalHidden();
+    })
+      .catch(error => {
+        this.notificationKind = 'error';
+        this.notificationText = `Что-то пошло не так: ${error.message}`;
+        this.showNotification = true;
     });
   }
 }
