@@ -5,12 +5,13 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView
 )
-#toDo docker interpretator cant found tokenBlacklistView,
+
+# toDo docker interpretator cant found tokenBlacklistView,
 # thats why we use custom view Logout for blacklisted tokens
-#from rest_framework_simplejwt.views import TokenBlacklistView
+# from rest_framework_simplejwt.views import TokenBlacklistView
 
 urlpatterns = [
-    path('login/', views.user_login, name='account_login'),
+    # path('login/', views.user_login, name='account_login'),
     path('logout/', views.Logout.as_view(), name='account_logout'),
     path('api/anotheruserlogin', views.another_user_login, name='another_user_login'),
     path('api/anotheruserlogout', views.another_user_logout, name='another_user_logout'),
