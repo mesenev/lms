@@ -22,7 +22,7 @@ from course.models import Course
 from users.models import User, CourseAssignTeacher, StudyGroup
 from users.serializers import DefaultUserSerializer, StudyGroupsSerializer
 from users.utils import *
-from imcslms import settings as loc_settings
+from imcslms import default_settings as loc_settings
 from django.core.signing import Signer
 
 

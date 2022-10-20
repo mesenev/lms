@@ -2,7 +2,7 @@ from django.conf import settings as django_settings
 from django.contrib.auth import load_backend
 from django.contrib.auth import login
 from django.contrib.auth import logout
-from imcslms import settings as loc_settings
+from imcslms import default_settings as loc_settings
 from django.core.exceptions import ImproperlyConfigured
 from users.models import User
 from django.core.signing import SignatureExpired
