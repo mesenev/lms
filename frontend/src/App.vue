@@ -1,31 +1,27 @@
 <template>
-  <div>
-  <div class="condition" v-if="isLogin">
-  <div class="layout">
-    <lms-header class="layout-header"/>
-    <main class="layout-content">
-      <lms-breadcrumb class="main--breadcrumb"/>
-      <transition name="fade" mode="out-in">
-        <router-view/>
-      </transition>
-    </main>
-    <footer class="layout-footer">
-      <div class="layout-footer-label">
-        <span>dvfu/imcs/staff & Daria-squad</span><br>
-        <span>
+    <div class="layout" v-if="isLogin">
+      <lms-header class="layout-header"/>
+      <main class="layout-content">
+        <lms-breadcrumb class="main--breadcrumb"/>
+        <transition name="fade" mode="out-in">
+          <router-view/>
+        </transition>
+      </main>
+      <footer class="layout-footer">
+        <div class="layout-footer-label">
+          <span>dvfu/imcs/staff & Daria-squad</span><br>
+          <span>
           feel free to contribute
           <cv-link href="https://github.com/mesenev/lms">
             <logo-github/>
           </cv-link>
         </span>
-      </div>
-    </footer>
-  </div>
-  </div>
-  <div v-else>
-    <login-view/>
-  </div>
-  </div>
+        </div>
+      </footer>
+    </div>
+    <div v-else>
+      <login-view/>
+    </div>
 </template>
 
 <script lang="ts">
@@ -39,11 +35,11 @@ import tokenStore from "@/store/modules/token"
 @Component({ components: { LoginView, LmsHeader, LmsBreadcrumb, LogoGithub } })
 export default class App extends Vue {
 
-  get isLogin(){
+  get isLogin() {
     return tokenStore.isAuthenticated;
   }
 
-  async created(){
+  async created() {
     await tokenStore.setupTokenStore();
   }
 }
