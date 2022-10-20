@@ -23,7 +23,7 @@
         </div>
       </div>
     </div>
-    <div class="bx--row">
+    <div class="bx--row lesson-content">
       <div class="items bx--col-lg-6">
         <div v-if="isProblemsEmpty">
           <h4 class="no-problems">В уроке пока нет задач</h4>
@@ -32,12 +32,7 @@
           <div v-if="classwork.length > 0" class="classwork">
             <h4 class="classwork-title">Классная работа</h4>
             <div v-if="!loading">
-              <cv-accordion
-                v-for="problem in classwork"
-                :key="problem.id"
-                align="end">
-                <problem-list-component :problem-prop="problem"/>
-              </cv-accordion>
+              <problem-list-component :task-list="classwork"></problem-list-component>
             </div>
             <div v-else>
               <cv-accordion-skeleton/>
@@ -46,13 +41,8 @@
           <div v-if="homework.length > 0" class="homework">
             <h4 class="homework-title">Домашняя работа</h4>
             <div v-if="!loading">
-              <cv-accordion
-                align="end"
-                v-for="problem in homework"
-                :key="problem.id"
-                class="accordion">
-                <problem-list-component :problem-prop="problem"/>
-              </cv-accordion>
+
+                <problem-list-component :task-list="homework"/>
             </div>
             <div v-else>
               <cv-accordion-skeleton/>
@@ -61,11 +51,7 @@
           <div v-if="extrawork.length > 0" class="extrawork">
             <h4 class="classwork-title">Дополнительные задания</h4>
             <div v-if="!loading">
-              <cv-accordion v-for="problem in extrawork"
-                            :key="problem.id"
-                            align="end">
-                <problem-list-component :problem-prop="problem"/>
-              </cv-accordion>
+                <problem-list-component :task-list="extrawork"/>
             </div>
             <div v-else>
               <cv-accordion-skeleton/>
@@ -233,5 +219,14 @@ export default class LessonView extends Vue {
     &-title
       padding-left 1rem
       margin 1rem 0
+.lesson-content
+  margin-top 2rem
+
+.items
+  background-color: var(--cds-ui-02)
+  margin-bottom 1rem
+  padding: 1rem
+
+
 
 </style>

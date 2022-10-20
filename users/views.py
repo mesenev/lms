@@ -21,6 +21,9 @@ from rest_framework.viewsets import GenericViewSet
 from course.models import Course
 from users.models import User, CourseAssignTeacher, StudyGroup
 from users.serializers import DefaultUserSerializer, StudyGroupsSerializer
+from users.utils import *
+from imcslms import default_settings as loc_settings
+from django.core.signing import Signer
 
 
 @login_required(login_url=reverse_lazy('account_login'))
@@ -56,6 +59,61 @@ def user_login(request):
     except User.DoesNotExist:
         return render(request, 'login.html', dict(**ctx, error_message='Указанный пользователь не существует.'))
     return render(request, 'login.html', dict(**ctx, error_message='Логин и пароль не совпадают'))
+
+
+@login_required
+@api_view(['POST'])
+@renderer_classes([JSONRenderer])
+def another_user_login(request):
+    username = request.data.get('username')
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return Response("Юзер не существует", status=404)
+    if not request.user.is_superuser:
+        return Response("Недостаточно прав", status=406)
+    if user.is_superuser:
+        return Response("Нельзя зайти за администратора", status=406)
+
+    try:
+        login_as_user(user, request)
+    except exceptions.ImproperlyConfigured:
+        return redirect(request.META.get("HTTP_REFER", "/"))
+    return redirect('index')
+
+
+@login_required
+@api_view(['GET'])
+def another_user_logout(request):
+    restore_original_login(request)
+    return redirect('index')
+
+
+@login_required
+@api_view(['GET'])
+def is_super_user(request):
+    user = request.user
+    if not user:
+        return Response(status=404)
+    return Response(user.is_superuser)
+
+
+@login_required
+@api_view(['GET'])
+@renderer_classes([JSONRenderer])
+def session_user(request):
+    signer = Signer()
+    original_session = request.session.get(loc_settings.USER_SESSION_FLAG)
+    if original_session:
+        original_user_pk = signer.unsign(original_session)
+        try:
+            user = User.objects.get(pk=original_user_pk)
+            serialized_user = DefaultUserSerializer(user).data
+            return Response(serialized_user)
+        except User.DoesNotExist:
+            return Response("Юзер не найден", status=404)
+    else:
+        return Response("Вы на основном аккаунте")
 
 
 class UsersViewSet(GenericViewSet, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin):

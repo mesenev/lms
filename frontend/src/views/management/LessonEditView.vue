@@ -98,7 +98,7 @@ export default class LessonEditView extends NotificationMixinComponent {
   fetchingLesson = true;
   lesson: LessonModel = this.store.getNewLesson;
   lessonEdit: LessonModel = { ...this.lesson }
-  calOptions = { dateFormat: 'd/m/Y ' }
+  calOptions = { dateFormat: 'Y-m-d' }
   query = '';
 
   async created() {
