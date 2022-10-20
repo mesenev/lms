@@ -16,8 +16,6 @@ from users.models import User, CourseAssignStudent
 from users.permissions import CourseStaffOrReadOnlyForStudents, CourseStaffOrAuthorReadOnly
 
 
-
-
 class CourseViewSet(viewsets.ModelViewSet):
     permission_classes = [CourseStaffOrReadOnlyForStudents]
     serializer_class = CourseSerializer

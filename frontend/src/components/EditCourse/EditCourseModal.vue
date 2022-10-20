@@ -79,8 +79,7 @@ import courseStore from '@/store/modules/course';
 import lessonStore from '@/store/modules/lesson';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
-import axios from 'axios';
-
+import api from '@/store/services/api'
 import { Component, Prop } from 'vue-property-decorator';
 
 @Component({ components: { LessonCard, AddAlt20, SubtractAlt20 } })
@@ -156,7 +155,7 @@ export default class EditCourseModal extends NotificationMixinComponent {
 
 
   async createNewLesson() {
-    axios.post('/api/lesson/', this.currentLesson)
+    api.post('/api/lesson/', this.currentLesson)
       .then(response => {
         const course = this.courseStore.currentCourse as CourseModel;
         course.lessons.push(response.data as LessonModel);

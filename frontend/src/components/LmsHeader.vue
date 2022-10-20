@@ -167,7 +167,7 @@
             </cv-switcher-item>
             <LoginAsUserModal/>
             <cv-switcher-item>
-              <a class="cv-switcher-item-link bx--switcher__item-link" href="/logout/">Выйти</a>
+              <cv-switcher-item-link @click="logout" > Выйти </cv-switcher-item-link>
             </cv-switcher-item>
           </template>
         </cv-switcher>
@@ -203,11 +203,16 @@ import Notification20 from '@carbon/icons-vue/es/notification/20';
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
 import Vue from 'vue';
 import Component from 'vue-class-component';
+import tokenStore from '@/store/modules/token'
 
 @Component({ components: { UserView, LoginAsUserModal, Notification20, UserAvatar20, AppSwitcher20 } })
 export default class LmsHeader extends Vue {
 
   user = userStore.user;
+
+  logout(){
+    tokenStore.logout();
+  }
 
   get courseSelected(): boolean {
     return this.$route.params.hasOwnProperty('courseId') && this.$route.params['courseId'] != null;
@@ -228,6 +233,7 @@ export default class LmsHeader extends Vue {
   get isStaff(): boolean {
     return this.user.staff_for.includes(Number(this.$route.params.courseId));
   }
+
 }
 </script>
 

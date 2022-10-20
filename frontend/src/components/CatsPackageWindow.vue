@@ -18,7 +18,7 @@
 <script lang="ts">
 import SubmitModel from '@/models/SubmitModel';
 import submitStore from '@/store/modules/submit';
-import axios, { AxiosResponse } from 'axios';
+import api from '@/store/services/api'
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component({ components: {} })

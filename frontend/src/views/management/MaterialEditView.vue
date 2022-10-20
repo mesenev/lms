@@ -32,7 +32,7 @@
 <script lang="ts">
 import MaterialModel from '@/models/MaterialModel';
 import materialStore from '@/store/modules/material';
-import axios from 'axios';
+import api from '@/store/services/api'
 import _ from 'lodash';
 import VueMarkdown from 'vue-markdown-render';
 import Vue, { VueConstructor } from 'vue';
@@ -80,7 +80,7 @@ export default class MaterialEditView extends Vue {
   }
 
   ChangeMaterial() {
-    const request = axios.patch(`/api/material/${this.materialEdit.id}/`, this.materialEdit);
+    const request = api.patch(`/api/material/${this.materialEdit.id}/`, this.materialEdit);
     request.then(() => {
       this.notificationKind = 'success';
       this.notificationText = 'Материалы успешно изменены';

@@ -34,8 +34,8 @@
 <script lang="ts">
 import LinkModel from "@/models/LinkModel";
 import CopyLink16 from '@carbon/icons-vue/lib/copy--link/16';
-import TrashCan16 from '@carbon/icons-vue/lib/trash-can/16'
-import axios from 'axios';
+import TrashCan16 from '@carbon/icons-vue/lib/trash-can/16';
+import api from '@/store/services/api';
 import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component({})
@@ -48,7 +48,7 @@ export default class LinksManagerComponent extends Vue {
   CopyLink16 = CopyLink16
 
   async created() {
-    await axios.get(
+    await api.get(
       '/api/courselink/', { params: { course: this.courseId } },
     ).then(response => {
         this.Links = response.data.filter((x: LinkModel) => x.usages > 0);
@@ -60,7 +60,7 @@ export default class LinksManagerComponent extends Vue {
   }
 
   async createNewLink() {
-    axios.post('/api/courselink/',
+    api.post('/api/courselink/',
       { course: this.courseId, usages: this.counter })
       .then(response => {
         this.Links.push(response.data);
@@ -73,11 +73,11 @@ export default class LinksManagerComponent extends Vue {
 
   deleteLink(link: string) {
     this.Links = this.Links.filter((x: LinkModel) => x.link != link);
-    axios.delete(`/api/delete-link/${link}/`);
+    api.delete(`/api/delete-link/${link}/`);
   }
 
   copyLink(link: string) {
-    this.$copyText(axios.defaults.baseURL + '/course-registration/' + link);
+    this.$copyText(api.defaults.baseURL + '/course-registration/' + link);
   }
 
 }

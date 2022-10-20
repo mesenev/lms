@@ -8,7 +8,7 @@ Group=buildbot
 WorkingDirectory=/home/buildbot/bb-lms/master
 ExecReload=/bin/kill -HUP $MAINPID
 ExecStart=/home/buildbot/bb-lms/venv/bin/buildbot start --nodaemon 
-Environment="PATH=/home/buildbot/bb-lms/venv/bin"
+Environment="PATH=/home/buildbot/bb-lms/venv/bin:/usr/bin"
 
 
 [Install]

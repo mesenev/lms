@@ -279,7 +279,7 @@ import CourseScheduleModel, { ScheduleElement } from '@/models/ScheduleModel';
 import courseStore from '@/store/modules/course';
 import Edit from '@carbon/icons-vue/es/edit/20';
 import Back from '@carbon/icons-vue/es/skip--back/20';
-import axios from 'axios';
+import api from '@/store/services/api'
 import _ from 'lodash';
 import { mixins } from 'vue-class-component';
 import { Component, Prop } from 'vue-property-decorator';
@@ -530,8 +530,8 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   saveOrUpdateSchedule(): void {
     this.updatingInProgress = true;
     const request = (this.isNewSchedule) ?
-      axios.post('/api/course-schedule/', this.courseSchedule) :
-      axios.patch(`/api/course-schedule/${this.courseSchedule?.id}/`, this.courseSchedule);
+      api.post('/api/course-schedule/', this.courseSchedule) :
+      api.patch(`/api/course-schedule/${this.courseSchedule?.id}/`, this.courseSchedule);
     request.then(answer => {
       this.notificationKind = 'success';
       this.notificationText = (this.isNewSchedule)

@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from requests import utils
+from datetime import timedelta
 from django.conf import settings
 
 utils.default_headers = lambda: {
@@ -38,14 +39,37 @@ INSTALLED_APPS = [
     'rating',
     'channels',
     'wsnotifications',
+    'djoser',
+    'rest_framework_simplejwt',
+    'corsheaders',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 REST_FRAMEWORK = dict(
     DEFAULT_FILTER_BACKENDS=['django_filters.rest_framework.DjangoFilterBackend'],
     DATE_INPUT_FORMATS=["%d/%m/%Y", "%Y-%m-%d"],
     DATE_FORMAT="%d/%m/%Y",
-    DEFAULT_PERMISSION_CLASSES=['rest_framework.permissions.IsAuthenticated']
+    DEFAULT_PERMISSION_CLASSES=['rest_framework.permissions.IsAuthenticated'],
+    DEFAULT_AUTHENTICATION_CLASSES=[
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
 )
+
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(weeks=26),
+    'BLACKLIST_AFTER_ROTATION': False,
+    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule'
+}
+DJOSER = {
+    'SERIALIZERS': {
+        'user': 'users.serializers.DefaultUserSerializer',
+        'current_user': 'users.serializers.DefaultUserSerializer'
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -55,6 +79,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
+    "http://0.0.0.0:8000",
 ]
 
 ROOT_URLCONF = 'imcslms.urls'

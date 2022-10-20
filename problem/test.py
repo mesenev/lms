@@ -56,7 +56,6 @@ class ProblemTests(MainSetup):
         response = self.client.patch(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-
     def test_read_course(self):
         pass
 

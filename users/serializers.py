@@ -13,7 +13,7 @@ class DefaultUserSerializer(serializers.ModelSerializer):
     study_group = serializers.CharField(max_length=20)
     staff_for = serializers.PrimaryKeyRelatedField(many=True, required=False, read_only=True)
 
-    def __init__(self, *args, exclude_staff=True, **kwargs):
+    def __init__(self, *args, exclude_staff=False, **kwargs):
         # Instantiate the superclass normally
         super().__init__(*args, **kwargs)
         if exclude_staff:

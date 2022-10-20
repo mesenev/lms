@@ -2,7 +2,7 @@ import CourseModel from '@/models/CourseModel';
 import CourseScheduleModel from '@/models/ScheduleModel';
 import store from '@/store';
 import userStore from '@/store/modules/user';
-import axios from 'axios';
+import api from '@/store/services/api'
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
 @Module({ namespaced: true, name: 'course', store, dynamic: true })
@@ -35,7 +35,7 @@ class CourseModule extends VuexModule {
 
   @Action
   async fetchUserCourses() {
-    await axios.get('/api/course/user_courses/')
+    await api.get('/api/course/user_courses/')
       .then(response => {
         this.setCourses(response.data);
       })
@@ -47,7 +47,7 @@ class CourseModule extends VuexModule {
   @Action
   async fetchCourseById(id: number): Promise<CourseModel> {
     let answer = { data: {} };
-    await axios.get(`/api/course/${id}/`)
+    await api.get(`/api/course/${id}/`)
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
@@ -64,7 +64,7 @@ class CourseModule extends VuexModule {
   @Action
   async fetchCourseScheduleByCourseId(id: number): Promise<CourseScheduleModel> {
     let answer = { data: {} };
-    await axios.get(`/api/course-schedule/by-course/${id}/`)
+    await api.get(`/api/course-schedule/by-course/${id}/`)
       .then(response => answer = response)
       .catch(error => {
         console.log(error);

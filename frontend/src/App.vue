@@ -1,4 +1,6 @@
 <template>
+  <div>
+  <div class="condition" v-if="isLogin">
   <div class="layout">
     <lms-header class="layout-header"/>
     <main class="layout-content">
@@ -19,7 +21,33 @@
       </div>
     </footer>
   </div>
+  </div>
+  <div v-else>
+    <login-view/>
+  </div>
+  </div>
 </template>
+
+<script lang="ts">
+import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue'
+import LmsHeader from '@/components/LmsHeader.vue';
+import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
+import { Component, Vue } from 'vue-property-decorator';
+import LoginView from "@/views/LoginView.vue";
+import tokenStore from "@/store/modules/token"
+
+@Component({ components: { LoginView, LmsHeader, LmsBreadcrumb, LogoGithub } })
+export default class App extends Vue {
+
+  get isLogin(){
+    return tokenStore.isAuthenticated;
+  }
+
+  async created(){
+    await tokenStore.setupTokenStore();
+  }
+}
+</script>
 
 <style lang="scss">
 @import "styles/base";
@@ -37,6 +65,7 @@
 
 <style scoped lang="stylus">
 @import 'styles/list-elements.styl';
+
 
 .main--breadcrumb
   margin-top var(--cds-spacing-06);
@@ -80,12 +109,3 @@
 @import "styles/list-elements";
 </style>
 
-<script lang="ts">
-import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue'
-import LmsHeader from '@/components/LmsHeader.vue';
-import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
-import { Component, Vue } from 'vue-property-decorator';
-
-@Component({ components: { LmsHeader, LmsBreadcrumb, LogoGithub } })
-export default class App extends Vue {}
-</script>

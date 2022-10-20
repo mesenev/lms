@@ -70,7 +70,7 @@
 <script lang="ts">
 
 import UserModel from "@/models/UserModel";
-import axios from "axios";
+import api from '@/store/services/api'
 import {Component, Prop} from 'vue-property-decorator';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 
@@ -97,7 +97,7 @@ export default class EditProfileComponent extends NotificationMixinComponent {
   }
 
   async fetch_study_groups() {
-    await axios.get(`/api/studygroups/`)
+    await api.get(`/api/studygroups/`)
       .then(response => {
         if (response.data)
           this.studyGroups = response.data;
@@ -140,7 +140,7 @@ export default class EditProfileComponent extends NotificationMixinComponent {
   }
 
   async editButtonHandler() {
-    await axios.post('/api/edit-profile/', {
+    await api.post('/api/edit-profile/', {
         first_name: this.curUser.first_name,
         last_name: this.curUser.last_name,
         study_group: this.curUser.study_group,

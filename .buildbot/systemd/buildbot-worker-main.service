@@ -7,7 +7,7 @@ User=buildbot
 Group=buildbot
 WorkingDirectory=/home/buildbot/bb-lms/worker-main
 ExecStart=/home/buildbot/bb-lms/venv/bin/buildbot-worker start --nodaemon
-Environment="PATH=/home/buildbot/bb-lms/venv/bin"
+Environment="PATH=/home/buildbot/bb-lms/venv/bin:/usr/bin"
 
 
 [Install]

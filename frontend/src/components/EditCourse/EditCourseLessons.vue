@@ -33,6 +33,7 @@ import LessonModel from '@/models/LessonModel';
 import Settings20 from '@carbon/icons-vue/es/settings/20';
 import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import api from '@/store/services/api'
 
 @Component({
   components: {
