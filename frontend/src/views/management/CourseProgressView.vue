@@ -71,6 +71,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Dictionary } from "vue-router/types/router";
 import CourseModel from "@/models/CourseModel";
 import LessonModel from "@/models/LessonModel";
+import api from "@/store/services/api";
 
 @Component({ components: { SubmitStatus, UserComponent, UserAvatar20 } })
 export default class CourseProgressView extends Vue {
@@ -179,11 +180,11 @@ export default class CourseProgressView extends Vue {
     //TODO: remove unchanged instances
     for (const val of Object.values(this.student_attendance_copy)) {
       debugger;
-      const request = axios.patch(`/api/lessonprogress/${val.id}/`, val);
-      request.then((response: any) => {
+      const request = api.patch(`/api/lessonprogress/${val.id}/`, val);
+      request.then((response) => {
         //
       });
-      request.catch((error: any) => {
+      request.catch((error) => {
         success = false;
       })
     }

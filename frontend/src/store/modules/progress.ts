@@ -1,9 +1,9 @@
 import UserProgress from '@/models/UserProgress';
 import store from '@/store';
-import axios from 'axios';
 import { Dictionary } from "vue-router/types/router";
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import Attendance from "@/models/Attendance";
+import api from "@/store/services/api";
 
 @Module({ namespaced: true, name: 'progress', store, dynamic: true })
 class ProgressModule extends VuexModule {
@@ -28,7 +28,7 @@ class ProgressModule extends VuexModule {
     }
 
     let answer = { data: {} };
-    await axios.get('/api/lessonprogress/', { params: { lesson_id: id } })
+    await api.get('/api/lessonprogress/', { params: { lesson_id: id } })
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
@@ -44,7 +44,7 @@ class ProgressModule extends VuexModule {
       return this.courseProgress[id];
     }
     let answer = { data: {} };
-    await axios.get('/api/courseprogress/', { params: { course_id: id } })
+    await api.get('/api/courseprogress/', { params: { course_id: id } })
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
@@ -58,7 +58,7 @@ class ProgressModule extends VuexModule {
   @Action
   async fetchAttendance(id: number): Promise<Dictionary<Attendance[]>>{
     let answer = { data: {} };
-    await axios.get(`/api/lessonprogress/attendance-by-course/${id}/`)
+    await api.get(`/api/lessonprogress/attendance-by-course/${id}/`)
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
