@@ -10,14 +10,14 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(async config=>{
-  if ( config.url != tokenStore.OBTAIN_TOKEN_URL && String(localStorage.getItem('access')) ) {
+  if ( config.url != tokenStore.OBTAIN_TOKEN_URL) {
     await axios.post(tokenStore.VERIFY_TOKEN_URL, { token: String(localStorage.getItem('access')) }).then(
       response => {
         config.headers['Authorization'] = 'Bearer ' + String(localStorage.getItem('access'));
       }).catch(error =>{
         localStorage.setItem('access', '');
     });
-    if ( !localStorage.getItem('access') && localStorage.getItem('refresh') ){
+    if ( !localStorage.getItem('access')){
       const refresh = String(localStorage.getItem('refresh'));
       await axios.post(tokenStore.REFRESH_TOKEN_URL, {refresh: localStorage.getItem('refresh') }).then(
         response =>{

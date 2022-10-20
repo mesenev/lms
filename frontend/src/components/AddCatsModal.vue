@@ -58,7 +58,7 @@
 
 
 import { Component, Vue } from 'vue-property-decorator';
-import axios from "axios";
+import api from '@/store/services/api'
 import SubmitModel from "@/models/SubmitModel";
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 
@@ -86,7 +86,7 @@ export default class AddCatsModal extends NotificationMixinComponent {
 
   async buttonHandler() {
     this.transmittingData = true;
-    await axios.post('/api/cats_account/', {
+    await api.post('/api/cats_account/', {
         login: this.catsLogin,
         passwd: this.catsPassword
     })

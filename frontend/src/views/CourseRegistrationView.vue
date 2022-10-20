@@ -52,7 +52,7 @@
 import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import CourseModel from '@/models/CourseModel';
 import UserModel from "@/models/UserModel";
-import axios from 'axios';
+import api from '@/store/services/api'
 import {Component, Prop} from 'vue-property-decorator';
 import Home16 from '@carbon/icons-vue/lib/home/16'
 import Education16 from '@carbon/icons-vue/lib/education/16'
@@ -77,7 +77,7 @@ export default class CourseRegistrationView extends NotificationMixinComponent {
   }
 
   async statusSetup() {
-    const answer = await axios.get<{
+    const answer = await api.get<{
       is_possible: boolean; usages_available: boolean; student_registered: boolean;
       teacher_registered: boolean; course: CourseModel; user: UserModel;
     }>(`/api/check-link/${this.linkProp}/`)
@@ -98,7 +98,7 @@ export default class CourseRegistrationView extends NotificationMixinComponent {
 
   async registration() {
     this.registrationProcess = true;
-    await axios.get(`/api/course-registration/${this.linkProp}/`)
+    await api.get(`/api/course-registration/${this.linkProp}/`)
       .then(result => {
         this.$router.push({
           name: 'CourseView',

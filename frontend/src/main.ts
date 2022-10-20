@@ -6,7 +6,7 @@ import App from '@/App.vue';
 import router from '@/router';
 import store from '@/store';
 import CarbonComponentsVue from '@carbon/vue/src/index';
-import axios from 'axios';
+import api from '@/store/services/api';
 import VueClipboard from 'vue-clipboard2';
 
 if (process.env.VUE_APP_ENVIRONMENT !== 'development') {
@@ -39,8 +39,8 @@ VueClipboard.config.autoSetContainer = true;
 Vue.config.productionTip = false;
 Vue.config.devtools = true;
 
-axios.defaults.xsrfHeaderName = 'X-CSRFToken';
-axios.defaults.xsrfCookieName = 'csrftoken';
+api.defaults.xsrfHeaderName = 'X-CSRFToken';
+api.defaults.xsrfCookieName = 'csrftoken';
 
 interface UserDataWrapper {
   userData: object;

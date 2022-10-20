@@ -68,7 +68,6 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Dictionary } from "vue-router/types/router";
 import CourseModel from "@/models/CourseModel";
 import LessonModel from "@/models/LessonModel";
-import axios from "axios";
 
 @Component({ components: { SubmitStatus, UserComponent, UserAvatar20 } })
 export default class CourseProgressView extends Vue {

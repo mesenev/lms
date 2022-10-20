@@ -64,7 +64,7 @@
 <!-- TODO: password work w/ backend -->
 
 <script lang="ts">
-import axios from "axios";
+import api from '@/store/services/api'
 import Vue from 'vue';
 import Component from 'vue-class-component';
 
@@ -182,7 +182,7 @@ export default class RegistrationView extends Vue {
     fd.append('password', this.password);
     fd.append('username', this.login);
     //const r = axios.post( '/api/users/', fd)
-    const request = axios.post('/api/users/', fd);
+    const request = api.post('/api/users/', fd);
     request.then(() => {
       this.notificationKind = 'success';
       this.notificationText = "Пользователь успешно создан";

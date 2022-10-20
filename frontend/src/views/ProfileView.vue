@@ -84,7 +84,7 @@ import userStore from '@/store/modules/user';
 import EditAvatarModal from "@/views/EditAvatarModal.vue";
 import Edit32 from '@carbon/icons-vue/es/edit/32';
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import axios from "axios";
+import api from '@/store/services/api'
 import EditProfileComponent from "@/components/EditProfileComponent.vue";
 import UserModel from "@/models/UserModel";
 
@@ -120,7 +120,7 @@ export default class ProfileView extends Vue {
   }
 
   async fetch_cats_account() {
-    await axios.get(`/api/cats_account/?user=${this.userId}`)
+    await api.get(`/api/cats_account/?user=${this.userId}`)
       .then(response => {
         if (response.data)
           this.cats_account = response.data[0].username;

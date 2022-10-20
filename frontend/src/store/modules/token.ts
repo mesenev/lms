@@ -6,11 +6,11 @@ import axios from "axios";
 
 @Module({ namespaced: true, name: 'token', store, dynamic: true })
 class TokenModule extends VuexModule{
-  OBTAIN_TOKEN_URL = 'api/auth/jwt/create/';
-  REFRESH_TOKEN_URL = 'api/auth/jwt/refresh/';
-  PROTECTED_USER_DATA_URL = 'api/auth/users/me/';
-  VERIFY_TOKEN_URL = 'api/auth/jwt/verify/';
-  BLACKLIST_TOKEN_URL = 'api/logout/';
+  OBTAIN_TOKEN_URL = '/api/auth/jwt/create/';
+  REFRESH_TOKEN_URL = '/api/auth/jwt/refresh/';
+  PROTECTED_USER_DATA_URL = '/api/auth/users/me/';
+  VERIFY_TOKEN_URL = '/api/auth/jwt/verify/';
+  BLACKLIST_TOKEN_URL = '/api/logout/';
   isAuthenticated = false;
 
   @Action async login(payload: {username: string; password: string}){

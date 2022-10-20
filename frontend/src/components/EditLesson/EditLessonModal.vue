@@ -94,9 +94,9 @@ import ProblemModel from '@/models/ProblemModel';
 import problemStore from '@/store/modules/problem';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
-import axios from 'axios';
 import { Component, Prop } from 'vue-property-decorator';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
+import api from '@/store/services/api'
 
 
 @Component({ components: { AddAlt20, SubtractAlt20 } })
@@ -130,7 +130,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
   async fetchCatsProblems() {
     this.fetchingCatsProblems = true;
-    await axios.get(`/api/cats-problems/${this.lesson.course}/`)
+    await api.get(`/api/cats-problems/${this.lesson.course}/`)
       .then(response => {
         this.catsProblems = response.data;
       })
@@ -190,7 +190,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
         return selected_ids.find(e => e === element.id);
       });
       data.forEach(element => element.test_mode = this.testingMode)
-      await axios.post(`/api/add-cats-problems-to-lesson/${this.lesson.id}/`, data)
+      await api.post(`/api/add-cats-problems-to-lesson/${this.lesson.id}/`, data)
         .then(async (answer) => {
           if (answer.status == 200) {
             this.$emit("update-problem-list", data)

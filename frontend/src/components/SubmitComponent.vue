@@ -74,7 +74,8 @@ import ProblemModel from '@/models/ProblemModel';
 import problemStore from '@/store/modules/problem';
 import submitStore from '@/store/modules/submit';
 import userStore from '@/store/modules/user';
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import { AxiosError, AxiosResponse } from 'axios';
+import api from '@/store/services/api'
 import _ from 'lodash';
 import { de_options } from '@/utils/consts';
 import { Component, Prop, Watch } from 'vue-property-decorator';
@@ -170,7 +171,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
       ? { ...this.submit, status: status }
       : { ...this.submitStore.defaultSubmit };
 
-    axios.patch(`/api/submit/${this.submitEdit.id}/`, this.submitEdit)
+    api.patch(`/api/submit/${this.submitEdit.id}/`, this.submitEdit)
       .then((response: AxiosResponse<SubmitModel>) => {
         this.submitStore.changeSubmitStatus(response.data);
         this.submit = { ...response.data };
@@ -197,7 +198,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
     this.submitEdit = {
       ...this.submitEdit,
     };
-    axios.post('/api/submit/', {
+    api.post('/api/submit/', {
       ...this.submitEdit,
       'problem': this.problemStore.currentProblem?.id as number,
     }).then((response: AxiosResponse<SubmitModel>) => {

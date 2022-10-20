@@ -116,7 +116,7 @@ import CourseModel from '@/models/CourseModel';
 import router from '@/router';
 import courseStore from "@/store/modules/course";
 import userStore from '@/store/modules/user';
-import axios from 'axios';
+import api from '@/store/services/api';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
@@ -186,8 +186,8 @@ export default class CourseEditView extends Vue {
   createOrUpdate(): void {
     this.catsIdCheck();
     const request = (this.isNewCourse) ?
-      axios.post('/api/course/', this.courseEdit) :
-      axios.patch(`/api/course/${this.courseEdit.id}/`, this.courseEdit);
+      api.post('/api/course/', this.courseEdit) :
+      api.patch(`/api/course/${this.courseEdit.id}/`, this.courseEdit);
     request.then(response => {
       this.notificationKind = 'success';
       this.notificationText = (this.courseId) ? 'Курс успешно изменён' : 'Курс успешно создан';

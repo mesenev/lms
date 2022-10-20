@@ -58,7 +58,7 @@ import LessonModel from '@/models/LessonModel';
 import MaterialModel from '@/models/MaterialModel';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
-import axios from 'axios';
+import api from '@/store/services/api'
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import materialStore from '@/store/modules/material';
 
@@ -106,7 +106,7 @@ export default class EditLessonMaterialsModal extends Vue {
 
   async createNewMaterial() {
     this.currentMaterial.content = "### материал"
-    const request = axios.post('/api/material/', this.currentMaterial);
+    const request = api.post('/api/material/', this.currentMaterial);
     request.then(response => {
       this.lesson.materials.push(response.data as MaterialModel);
       this.modalHidden();
