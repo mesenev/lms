@@ -35,6 +35,12 @@ class Problem(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, related_name='problems', null=True)
     author = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='authored_problems', null=True)
     name = models.CharField(max_length=500)
+
+    @property
+    def last_submit(self):
+        submits = list(list(self.submits.all()))
+        return submits[-1] if len(submits) > 0 else None
+
     description = models.TextField()
     manual = models.BooleanField(default=False)
     type = models.CharField(max_length=2, choices=PROBLEM_TYPES, default=PROBLEM_TYPES[0][0])
