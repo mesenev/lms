@@ -1,5 +1,6 @@
 import axios from "axios";
-import tokenStore from '@/store/modules/token';
+import store from '@/store';
+import * as urls from '@/store/services/urls';
 
 const BASE_URL = (process.env.NODE_ENV === "production")
   ? process.env.APPLICATION_URL : "http://localhost:8000";
@@ -13,9 +14,9 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(async config => {
-  if (config.url != tokenStore.OBTAIN_TOKEN_URL) {
+  if (config.url != urls.OBTAIN_TOKEN_URL) {
     await axios.post(
-      tokenStore.VERIFY_TOKEN_URL,
+      urls.VERIFY_TOKEN_URL,
       { token: String(localStorage.getItem('access')) }
     ).then(response => {
       config.headers['Authorization'] = 'Bearer ' + String(localStorage.getItem('access'));
@@ -25,7 +26,7 @@ api.interceptors.request.use(async config => {
     if (!localStorage.getItem('access')) {
       const refresh = String(localStorage.getItem('refresh'));
       await axios.post(
-        tokenStore.REFRESH_TOKEN_URL,
+        urls.REFRESH_TOKEN_URL,
         { refresh: localStorage.getItem('refresh') }
       ).then(response => {
           localStorage.setItem('access', response.data.access);
@@ -33,11 +34,11 @@ api.interceptors.request.use(async config => {
         }
       ).catch(error => {
         localStorage.setItem('refresh', '');
-        tokenStore.context.commit('rejectAuthentication');
+        store.commit('token/rejectAuthentication');
       });
 
       if (!localStorage.getItem('refresh'))
-        await axios.post(tokenStore.BLACKLIST_TOKEN_URL, { refresh: refresh });
+        await axios.post(urls.BLACKLIST_TOKEN_URL, { refresh: refresh });
     }
   }
   return config;
