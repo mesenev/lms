@@ -2,7 +2,7 @@
   <div class="bx--grid main">
     <div class="bx--row">
       <div class="bx--col-lg-6 login-form">
-        <cv-form>
+        <div>
           <h3 class="form-header">Авторизация</h3>
           <cv-text-input
             class="log-form"
@@ -19,32 +19,24 @@
           <div class="submit-btn">
             <cv-button @click="authorization">Войти</cv-button>
           </div>
-        </cv-form>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import Component from "vue-class-component";
-import Vue from "vue";
-import axios from "axios";
-import userStore from '@/store/modules/user';
-import HomeView from "@/views/HomeView.vue";
-import UserModel from "@/models/UserModel";
+import { Component, Vue } from 'vue-property-decorator';
 import tokenStore from "@/store/modules/token";
 
 @Component({ components: {} })
 export default class LoginView extends Vue {
   login = '';
   password = '';
+  tokenStore = tokenStore;
 
   async authorization(){
-    const payload = {
-      username: this.login,
-      password: this.password
-    }
-    await tokenStore.login(payload);
+    await this.tokenStore.login({ username: this.login, password: this.password });
   }
 }
 </script>
