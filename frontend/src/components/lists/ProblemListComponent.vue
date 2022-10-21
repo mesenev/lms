@@ -66,7 +66,17 @@ export default class ProblemListComponent extends Vue {
   courseStore = courseStore;
 
   target(problem: ProblemModel) {
-    return { name: 'ProblemView', params: { problemId: problem.id.toString() } };
+    if (!!problem.last_submit)
+      return {
+        name: 'ProblemViewWithSubmit', params: {
+          courseId: this.$route.params.courseId,
+          lessonId: this.$route.params.lessonId,
+          problemId: problem.id.toString(),
+          submitId: problem.last_submit.id.toString(),
+        }
+      };
+    else
+      return { name: 'ProblemView', params: { problemId: problem.id.toString() } };
   }
 
 
