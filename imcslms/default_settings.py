@@ -30,6 +30,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_filters',
     'rest_framework',
+    'corsheaders',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
+    'djoser',
     'users',
     'course',
     'lesson',
@@ -39,10 +43,6 @@ INSTALLED_APPS = [
     'rating',
     'channels',
     'wsnotifications',
-    'djoser',
-    'rest_framework_simplejwt',
-    'corsheaders',
-    'rest_framework_simplejwt.token_blacklist',
 ]
 
 REST_FRAMEWORK = dict(
