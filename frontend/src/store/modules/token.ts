@@ -22,8 +22,8 @@ class TokenModule extends VuexModule {
     if (String(localStorage.getItem('access'))) {
       await api.get(urls.PROTECTED_USER_DATA_URL).then(
         response => {
-          userStore.context.commit('receiveUser', response.data);
-          this.context.commit('acceptAuthentication');
+          userStore.receiveUser(response.data);
+          this.acceptAuthentication();
         }
       ).catch(error => {
         console.log(error);
@@ -35,7 +35,7 @@ class TokenModule extends VuexModule {
   async setupTokenStore() {
     await api.get(urls.PROTECTED_USER_DATA_URL).then(response => {
       userStore.receiveUser(response.data);
-      this.context.commit('acceptAuthentication');
+      this.acceptAuthentication();
     }).catch(error => {
       console.log(error);
     });
