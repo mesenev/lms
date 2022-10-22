@@ -33,12 +33,14 @@ class TokenModule extends VuexModule {
 
   @Action
   async setupTokenStore() {
-    await api.get(urls.PROTECTED_USER_DATA_URL).then(response => {
-      userStore.receiveUser(response.data);
-      this.acceptAuthentication();
-    }).catch(error => {
-      console.log(error);
-    });
+    if (String(localStorage.getItem('access')))
+      await api.get(urls.PROTECTED_USER_DATA_URL).then(
+        response => {
+          userStore.receiveUser(response.data);
+          this.acceptAuthentication();
+        }).catch(error => {
+        console.log(error);
+      });
   }
 
   @Action
@@ -50,7 +52,7 @@ class TokenModule extends VuexModule {
     ).then(response => {
       localStorage.setItem('access', '');
       localStorage.setItem('refresh', '');
-      this.context.commit('rejectAuthentication');
+      this.rejectAuthentication();
     });
   }
 

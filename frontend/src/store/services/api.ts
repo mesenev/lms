@@ -14,34 +14,42 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(async config => {
-  if (config.url != urls.OBTAIN_TOKEN_URL) {
+  if (config.url == urls.OBTAIN_TOKEN_URL)
+    return config;
+  if (!localStorage.getItem('refresh')) {
+    store.commit('token/rejectAuthentication');
+    return config;
+  }
+
+  if ((localStorage.getItem('access')))
     await axios.post(
       urls.VERIFY_TOKEN_URL,
-      { token: String(localStorage.getItem('access')) }
+      { token: (localStorage.getItem('access')) }
     ).then(response => {
-      config.headers['Authorization'] = 'Bearer ' + String(localStorage.getItem('access'));
+      config.headers['Authorization'] = 'Bearer ' + (localStorage.getItem('access'));
     }).catch(error => {
       localStorage.setItem('access', '');
     });
-    if (!localStorage.getItem('access')) {
-      const refresh = String(localStorage.getItem('refresh'));
-      await axios.post(
-        urls.REFRESH_TOKEN_URL,
-        { refresh: localStorage.getItem('refresh') }
-      ).then(response => {
-          localStorage.setItem('access', response.data.access);
-          config.headers['Authorization'] = 'Bearer ' + String(localStorage.getItem('access'));
-        }
-      ).catch(error => {
-        localStorage.setItem('refresh', '');
-        store.commit('token/rejectAuthentication');
-      });
 
-      if (!localStorage.getItem('refresh'))
-        await axios.post(urls.BLACKLIST_TOKEN_URL, { refresh: refresh });
-    }
+  if (!localStorage.getItem('access')) {
+    const refresh = (localStorage.getItem('refresh'));
+    await axios.post(
+      urls.REFRESH_TOKEN_URL,
+      { refresh: localStorage.getItem('refresh') }
+    ).then(response => {
+        localStorage.setItem('access', response.data.access);
+        config.headers['Authorization'] = 'Bearer ' + (localStorage.getItem('access'));
+      }
+    ).catch(error => {
+      localStorage.setItem('refresh', '');
+      store.commit('token/rejectAuthentication');
+    });
+
+    if (!localStorage.getItem('refresh'))
+      await axios.post(urls.BLACKLIST_TOKEN_URL, { refresh: refresh });
   }
   return config;
+
 })
 
 
