@@ -8,7 +8,7 @@ import store from '@/store';
 import CarbonComponentsVue from '@carbon/vue/src/index';
 import VueClipboard from 'vue-clipboard2';
 
-if (process.env.VUE_APP_ENVIRONMENT !== 'development') {
+if (process.env.VUE_APP_ENVIRONMENT === 'production') {
     Sentry.init({
 	    Vue,
 	    environment: process.env.VUE_APP_ENVIRONMENT,
@@ -25,7 +25,7 @@ if (process.env.VUE_APP_ENVIRONMENT !== 'development') {
 			trackComponents: true,
 		},
 		// Vue specific
-		logErrors: process.env.VUE_APP_ENVIRONMENT === 'production' ? false : true,
+		logErrors: process.env.VUE_APP_ENVIRONMENT !== 'production',
 		attachProps: true,
 		attachStacktrace: true,
 	});
