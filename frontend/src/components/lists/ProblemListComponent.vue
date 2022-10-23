@@ -10,7 +10,7 @@
               <div class="problem-list-component--header">
                 <h5 class="problem--title">{{ problem.name }}</h5>
                 <div class="tags">
-                  <submit-status v-if="!!lastSubmit" :submit="lastSubmit"/>
+                  <submit-status v-if="!!problem.last_submit" :submit="problem.last_submit"/>
                   <cv-tag v-else kind="red" label="Не сдано"/>
                 </div>
               </div>
@@ -87,10 +87,6 @@ export default class ProblemListComponent extends Vue {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   eventHandler(_event: object) {
     this.open = true;
-  }
-
-  get lastSubmit(): SubmitModel | null {
-    return null;
   }
 
   get isStaff(): boolean {
