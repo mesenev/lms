@@ -22,23 +22,6 @@
         </li>
         <li class="navigation-title" v-if="extrawork.length > 0">
           <span title="Дополнительные задания" >EX</span>
-<!--          <ul>-->
-<!--            <li class="status status-ok">-->
-<!--              <a href="../../1"><svg viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 6.86325L7.36816 13.1846L17 1.5" stroke-width="2"></path></svg></a>-->
-<!--            </li>-->
-<!--            <li class="status status-wa">-->
-<!--              <a href="../../2"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L15 15M15 1L1 15" stroke-width="2"/></svg></a>-->
-<!--            </li>-->
-<!--            <li class="status status-np">-->
-<!--              <a href="../../3">?</a>-->
-<!--            </li>-->
-<!--            <li class="status status-np">-->
-<!--              <a href="../../4">?</a>-->
-<!--            </li>-->
-<!--            <li class="status status-wa">-->
-<!--              <a href="../../2"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L15 15M15 1L1 15" stroke-width="2"/></svg></a>-->
-<!--            </li>-->
-<!--          </ul>-->
           <ul v-if="!loading">
             <problem-navigation-item :problem="problem" v-for="problem in extrawork" :key="problem.id"/>
           </ul>

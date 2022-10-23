@@ -55,7 +55,7 @@ class SubmitListSerializer(serializers.ModelSerializer):
 class LastSubmitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submit
-        fields = ['id']
+        fields = ['id', 'status']
 
 
 class ProblemStatsSerializer(serializers.ModelSerializer):
