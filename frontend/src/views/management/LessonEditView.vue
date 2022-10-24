@@ -94,7 +94,7 @@ import { Component, Prop } from 'vue-property-decorator';
 import { Mutation } from "vuex-module-decorators";
 
 
-@Component({ components: { EditLessonMaterialsModal, EditLessonModal, ProblemListComponent} })
+@Component({ components: { EditLessonMaterialsModal, EditLessonModal, ProblemListComponent } })
 export default class LessonEditView extends NotificationMixinComponent {
 
   @Prop({ required: true }) lessonId!: number;
