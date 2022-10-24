@@ -36,12 +36,8 @@ class Problem(models.Model):
     author = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='authored_problems', null=True)
     name = models.CharField(max_length=500)
 
-    @property
-    def last_submit(self):
-        submits = list(list(self.submits.all()))
-        return submits[-1] if len(submits) > 0 else None
-
     description = models.TextField()
+
     manual = models.BooleanField(default=False)
     type = models.CharField(max_length=2, choices=PROBLEM_TYPES, default=PROBLEM_TYPES[0][0])
     language = models.CharField(max_length=100, null=True, blank=True)
@@ -56,6 +52,11 @@ class Problem(models.Model):
     de_options = models.CharField(max_length=512, blank=True, default='')
     objects = ProblemManager()
     test_mode = models.CharField(max_length=30, choices=TEST_MODE_TYPES, default=TEST_MODE_TYPES[0][0])
+
+    @property
+    def last_submit(self):
+        submits = list(list(self.submits.all()))
+        return submits[-1] if len(submits) > 0 else None
 
 
 class ProblemStats(models.Model):

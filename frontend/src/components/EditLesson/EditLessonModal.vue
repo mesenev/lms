@@ -104,9 +104,6 @@ import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import axios from 'axios';
 import { Component, Prop } from 'vue-property-decorator';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
-import {forEach, map} from "lodash";
-import logEvent from "@/store/modules/logEvent";
-import {Dictionary} from "vue-router/types/router";
 
 
 @Component({ components: { AddAlt20, SubtractAlt20 } })
