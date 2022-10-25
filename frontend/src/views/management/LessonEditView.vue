@@ -5,58 +5,33 @@
     </div>
     <cv-loading v-if="fetchingLesson"/>
     <div v-else class="bx--row content">
-      <div class="bx--col-lg-8 bx--col-md-4 bx--col-sm-2">
-        <cv-inline-notification
-          v-if="showNotification"
-          @close="hideNotification"
-          :kind="notificationKind"
-          :sub-title="notificationText"
-        />
-        <cv-text-input
-          class="text_field"
-          label="Название урока"
-          v-model.trim="lessonEdit.name"/>
-        <cv-text-input
-          class="text_field"
-          label="Описание урока"
-          v-model.trim="lessonEdit.description"/>
-        <cv-date-picker
-          class="deadLine text_field"
-          kind="single"
-          v-model="lessonEdit.deadline"
-          date-label="Дедлайн"
-          :cal-options=calOptions
-        />
-      </div>
-
-      <div class="bx--col-lg-8 bx--col-md-4 bx--col-sm-2">
-        <div class="content-task-list">
-          <div v-if="getClasswork.length > 0" class="classwork">
-            <h4 class="classwork-title">Классная работа</h4>
-            <div v-if="!fetchingLesson">
-              <problem-list-component :task-list="getClasswork"></problem-list-component>
-            </div>
-            <div v-else>
-              <cv-accordion-skeleton/>
-            </div>
-          </div>
-          <div v-if="getHomework.length > 0" class="homework">
-            <h4 class="homework-title">Домашняя работа</h4>
-            <div v-if="!fetchingLesson">
-              <problem-list-component :task-list="getHomework"></problem-list-component>
-            </div>
-            <div v-else>
-              <cv-accordion-skeleton/>
-            </div>
-          </div>
-          <div v-if="getExtrawork.length > 0" class="homework">
-            <h4 class="extrawork-title">Дополнительные задания</h4>
-            <div v-if="!fetchingLesson">
-              <problem-list-component :task-list="getExtrawork"></problem-list-component>
-            </div>
-            <div v-else>
-              <cv-accordion-skeleton/>
-            </div>
+      <div class="bx--col-lg-6 bx--col-md-5">
+        <div class="edit-content">
+          <cv-inline-notification
+            v-if="showNotification"
+            @close="hideNotification"
+            :kind="notificationKind"
+            :sub-title="notificationText"
+          />
+          <cv-text-input
+            class="text_field"
+            label="Название урока"
+            v-model.trim="lessonEdit.name"/>
+          <cv-text-input
+            class="text_field"
+            label="Описание урока"
+            v-model.trim="lessonEdit.description"/>
+          <cv-date-picker
+              class="deadLine text_field"
+              kind="single"
+              v-model="lessonEdit.deadline"
+              date-label="Дедлайн"
+              :cal-options=calOptions
+            />
+          <div class="finishButton">
+            <cv-button :disabled="!isChanged" v-on:click="createOrUpdate">
+              {{ isNewLesson ? 'Создать урок' : 'Изменить урок' }}
+            </cv-button>
           </div>
         </div>
         <div class="lesson-buttons">
@@ -67,9 +42,55 @@
             :lesson="lessonEdit"
             class="edit--lesson-props"/>
         </div>
-        <cv-button class="finishButton" :disabled="!isChanged" v-on:click="createOrUpdate">
-          {{ isNewLesson ? 'Создать урок' : 'Изменить урок' }}
-        </cv-button>
+      </div>
+
+      <div class="bx--col-lg-5 bx--col-md-4">
+        <cv-content-switcher size="small">
+          <cv-content-switcher-button owner-id="CW" selected>
+            Классная работа
+          </cv-content-switcher-button>
+          <cv-content-switcher-button owner-id="HW">
+            Домашняя работа
+          </cv-content-switcher-button>
+          <cv-content-switcher-button owner-id="EX">
+            Доп. задания
+          </cv-content-switcher-button>
+        </cv-content-switcher>
+        <section class="content-task-list">
+          <cv-content-switcher-content owner-id="CW">
+            <div v-if="getClasswork.length > 0">
+              <div v-if="!fetchingLesson" class="classwork">
+                <problem-list-component :task-list="getClasswork"></problem-list-component>
+              </div>
+              <div v-else>
+                <cv-accordion-skeleton/>
+              </div>
+            </div>
+            <h4 v-else class="empty-tasks">Задания отсутствуют</h4>
+          </cv-content-switcher-content>
+          <cv-content-switcher-content owner-id="HW">
+            <div v-if="getHomework.length > 0">
+              <div v-if="!fetchingLesson" class="homework">
+                <problem-list-component :task-list="getHomework"></problem-list-component>
+              </div>
+              <div v-else>
+                <cv-accordion-skeleton/>
+              </div>
+            </div>
+            <h4 v-else class="empty-tasks">Задания отсутствуют</h4>
+          </cv-content-switcher-content>
+          <cv-content-switcher-content owner-id="EX">
+            <div v-if="getExtrawork.length > 0">
+              <div v-if="!fetchingLesson" class="extrawork">
+                <problem-list-component :task-list="getExtrawork"></problem-list-component>
+              </div>
+              <div v-else>
+                <cv-accordion-skeleton/>
+              </div>
+            </div>
+            <h4 v-else class="empty-tasks">Задания отсутствуют</h4>
+          </cv-content-switcher-content>
+        </section>
       </div>
     </div>
   </div>
@@ -88,13 +109,13 @@ import router from '@/router';
 import lessonStore from '@/store/modules/lesson';
 import materialStore from '@/store/modules/material';
 import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
-import api from '@/store/services/api'
+import axios from 'axios';
 import _ from 'lodash';
 import { Component, Prop } from 'vue-property-decorator';
 import { Mutation } from "vuex-module-decorators";
 
 
-@Component({ components: { EditLessonMaterialsModal, EditLessonModal, ProblemListComponent } })
+@Component({ components: { EditLessonMaterialsModal, EditLessonModal, ProblemListComponent} })
 export default class LessonEditView extends NotificationMixinComponent {
 
   @Prop({ required: true }) lessonId!: number;
@@ -118,8 +139,8 @@ export default class LessonEditView extends NotificationMixinComponent {
 
   createOrUpdate(): void {
     const request = (this.isNewLesson) ?
-      api.post('/api/lesson/', this.lessonEdit) :
-      api.patch(`/api/lesson/${this.lessonEdit.id}/`, this.lessonEdit);
+      axios.post('/api/lesson/', this.lessonEdit) :
+      axios.patch(`/api/lesson/${this.lessonEdit.id}/`, this.lessonEdit);
     request.then(response => {
       this.notificationKind = 'success';
       this.notificationText = (this.lessonId) ? 'Урок успешно изменён' : 'Урок успешно создан';
@@ -179,15 +200,17 @@ export default class LessonEditView extends NotificationMixinComponent {
 
 <style scoped lang="stylus">
 .text_field
-  min-width 10rem
-  max-width 18rem
-  padding-top 2rem
+  margin 2rem
+  max-width 23rem
+  //min-width 10rem
+  //max-width 18rem
 
-.content
-  display flex
+.cv-date-picker >>> .bx--date-picker__input
+  box-sizing border-box
+  width border-box
 
-.head-content
-  margin: 50px
+//.head-content
+//  margin: 50px
 
 .bx--col
   margin: 2rem
@@ -195,6 +218,7 @@ export default class LessonEditView extends NotificationMixinComponent {
 .lesson-buttons
   display flex
   flex-direction row
+  max-width 27rem
 
 .works-col
   margin-right 0
@@ -207,15 +231,27 @@ export default class LessonEditView extends NotificationMixinComponent {
   padding 1rem 1rem 0.5rem 1rem
 
 .classwork, .homework, .extrawork
+  max-height 300px
+  overflow-y auto
+  border black 1px solid
   margin: 20px 0
 
+.edit-content
+  padding-top 1px
+  background-color var(--cds-ui-background)
+  max-width 27rem
+
+.empty-tasks
+  text-align center
+
+.lesson-buttons
+  margin-top 25px
+  margin-bottom 25px
 
 .finishButton
-  margin-top 25px
   display flex
   flex-direction row
-  width 204px
-  background-color var(--cds-interactive-01)
+  justify-content flex-end
 
 .search
   margin 10px 0
@@ -224,18 +260,9 @@ export default class LessonEditView extends NotificationMixinComponent {
   background-color var(--cds-interactive-02)
   margin-left 25px
 
-//border black 1px solid
 .main-content
   border 2px black solid;
   margin: 50px
-
-.bx--text-input
-  border: 2px solid #222;
-  padding: 5
-  display: block;
-  width: 100%;
-  height: 50px;
-  background: #fff;
 
 .change__btn
   margin-top: 10px
