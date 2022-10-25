@@ -5,7 +5,7 @@
     </div>
     <cv-loading v-if="fetchingLesson"/>
     <div v-else class="bx--row content">
-      <div class="bx--col-lg-6 bx--col-md-5">
+      <div class="bx--col-lg-5 bx--col-md-5">
         <div class="edit-content">
           <cv-inline-notification
             v-if="showNotification"
@@ -202,15 +202,9 @@ export default class LessonEditView extends NotificationMixinComponent {
 .text_field
   margin 2rem
   max-width 23rem
-  //min-width 10rem
-  //max-width 18rem
 
 .cv-date-picker >>> .bx--date-picker__input
-  box-sizing border-box
-  width border-box
-
-//.head-content
-//  margin: 50px
+  width auto
 
 .bx--col
   margin: 2rem
