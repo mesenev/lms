@@ -30,11 +30,15 @@
               (${courseEdit.author.username})`.trim()"
           />
 
-          <cv-text-input
-            v-model.trim.number="courseEdit.cats_id"
-            type="number"
-            class="course--cats"
-            label="Cats id"/>
+          <cv-combo-box
+            auto-filter
+            @change="setNewCatsId"
+            class="cv-dropdown course--cats"
+            label="Введите название турнира"
+            auto-highlight
+            :options="contestsFromCats"
+          >
+          </cv-combo-box>
 
           <cv-text-input
             v-model.trim="courseEdit.name"
@@ -113,12 +117,13 @@ import EditCourseLessons from '@/components/EditCourse/EditCourseLessons.vue';
 import EditCourseModal from '@/components/EditCourse/EditCourseModal.vue';
 import GenerateLinks from "@/components/EditCourse/GenerateLinks.vue";
 import CourseModel from '@/models/CourseModel';
+import CatsContestModel, { ContestModel } from '@/models/ContestModel';
 import router from '@/router';
 import courseStore from "@/store/modules/course";
 import userStore from '@/store/modules/user';
 import api from '@/store/services/api';
 import _ from 'lodash';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 
 @Component({
   components: {
@@ -127,7 +132,6 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 })
 export default class CourseEditView extends Vue {
   @Prop() courseId!: number | null;
-  sendingInfo = false;
   fetchingCourse = true;
   store = courseStore;
   userStore = userStore;
@@ -137,6 +141,7 @@ export default class CourseEditView extends Vue {
   counter = 1;
   course: CourseModel = { ...courseStore.newCourse };
   courseEdit = { ...this.course };
+  contestsFromCats: ContestModel[] = [];
   deChecks: string[] = [];
   deOptions = [
   {
@@ -161,7 +166,19 @@ export default class CourseEditView extends Vue {
     return !_.isEqual(this.course, this.courseEdit);
   }
 
+  setNewCatsId(cats_id: number) {
+    try {
+      this.courseEdit.cats_id = cats_id;
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+
   async created() {
+    (await this.fetchContests()).forEach((value) => {
+      this.contestsFromCats.push({ value: value.id.toString(), label: value.name, name: value.name});
+    });
     if (this.courseId === null) {
       this.fetchingCourse = false;
       return;
@@ -172,7 +189,6 @@ export default class CourseEditView extends Vue {
     this.fetchingCourse = false;
   }
 
-
   get isNewCourse(): boolean {
     return isNaN(this.courseEdit.id);
   }
@@ -182,6 +198,16 @@ export default class CourseEditView extends Vue {
       this.courseEdit.cats_id = -1;
     }
   }
+
+  async fetchContests(): Promise<CatsContestModel[]> {
+    let answer = { data: {} };
+    await api.get('api/cats-contests/')
+      .then(response => answer = response)
+      .catch(error => {
+        console.log(error);
+      })
+    return answer.data as CatsContestModel[];
+}
 
   createOrUpdate(): void {
     this.catsIdCheck();

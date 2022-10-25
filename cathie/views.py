@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from cathie.cats_api import cats_get_problems_from_contest, cats_get_problem_description_by_url
+from cathie.cats_api import cats_get_problems_from_contest, cats_get_problem_description_by_url, get_contests_from_cats
 from cathie.models import CatsAccount
 from cathie.serializers import CatsAccountSerializer
 from course.models import Course
@@ -35,6 +35,13 @@ def get_cats_problem_description(request, problem_id):
     problem.description = problem_description
     problem.save()
     return Response(problem_description)
+
+
+@login_required
+@api_view(['GET'])
+def get_cats_contests(request):
+    contests = get_contests_from_cats()
+    return Response(contests)
 
 
 @api_view(['GET', 'POST'])

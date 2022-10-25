@@ -49,6 +49,10 @@ class CourseSerializer(DynamicFieldsModelSerializer):
         instance.save()
         return instance
 
+    def validate(self, attrs):
+        super(CourseSerializer, self).validate(attrs)
+        # todo validate cats_id
+
     class Meta:
         model = Course
         fields = ['id', 'name', 'description', 'author', 'lessons',

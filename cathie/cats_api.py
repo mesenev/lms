@@ -79,5 +79,15 @@ def cats_get_problem_description_by_url(description_url):
     data = request.content.decode('utf-8')
     return data
 
+
+@authorization.check_authorization_for_cats
+def get_contests_from_cats():
+    url = f'{settings.CATS_URL}contests?json=1;sid={authorization.cats_sid()};filter=my'
+    answer = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
+    if answer.status_code != 200:
+        raise CatsAnswerCodeException(answer)
+    data = json.loads(answer.content.decode('utf-8'))
+    return data["contests"]
+
 # def cats_get_problem_by_id(cats_id, user):
 #     pass
