@@ -1,7 +1,7 @@
 <template>
   <div>
     <cv-button class="change-btn" kind="secondary" @click="showModal">
-      Перейти к выбору преподавателей
+      Добавить преподавателей в курс
     </cv-button>
     <cv-modal :visible="modalVisible"
               class="add_lesson_modal"
