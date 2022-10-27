@@ -37,11 +37,9 @@
                 </cv-structured-list-item>
                 <cv-structured-list-item checked v-for="k in Links" :key="k.link" v-else>
                   <cv-structured-list-data>
-                    {{ k.link }}
-                    <component :is="CopyLink16"
-                               class="icon cross"
-                               @click="copyLink(k.link)">
-                    </component>
+                    <cv-link class="link" @click="copyLink(k.link)" title="Скопировать ссылку">
+                      {{ k.link }}
+                    </cv-link>
                   </cv-structured-list-data>
                   <cv-structured-list-data>{{ k.usages }}
                     <component :is="TrashCan16"
@@ -116,7 +114,7 @@ export default class LinksManagerComponent extends Vue {
   }
 
   copyLink(link: string) {
-    this.$copyText(api.defaults.baseURL + '/course-registration/' + link);
+    this.$copyText(window.location.origin + '/course-registration/' + link);
   }
 
 }
@@ -146,6 +144,9 @@ export default class LinksManagerComponent extends Vue {
 
 .links-list
   margin-bottom 0
+
+.link
+  cursor pointer
 
 .input-link-container
   display flex
