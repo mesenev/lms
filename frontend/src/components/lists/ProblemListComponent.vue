@@ -10,7 +10,7 @@
               <div class="problem-list-component--header">
                 <h5 class="problem--title">{{ problem.name }}</h5>
                 <div class="tags">
-                  <submit-status v-if="!!problem.last_submit" :submit="problem.last_submit"/>
+                  <submit-status v-if="!!problem.last_submit/*!!last_submit(problem.id)*/" :submit="problem.last_submit/*last_submit(problem.id)*/"/>
                   <cv-tag v-else kind="red" label="Не сдано"/>
                 </div>
               </div>
@@ -55,7 +55,8 @@ import Launch from '@carbon/icons-vue/es/launch/16';
 
 import userStore from '@/store/modules/user';
 import courseStore from '@/store/modules/course';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import api from '@/store/services/api';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 import CatsProblemModel from "@/models/CatsProblemModel";
 
 @Component({ components: { ProblemStats, SubmitStatus, Launch, StatsGraph } })
@@ -65,20 +66,32 @@ export default class ProblemListComponent extends Vue {
   userStore = userStore;
   courseStore = courseStore;
 
-  target(problem: ProblemModel) {
-    if (!!problem.last_submit)
+  async target(problem: ProblemModel) {
+    const params = {
+      courseId: this.$route.params.courseId,
+      lessonId: this.$route.params.lessonId,
+      problemId: problem.id.toString(),
+      submitId: (await this.last_submit(problem.id)).id.toString(),
+    }
+    if (!!problem.last_submit) {
       return {
-        name: 'ProblemViewWithSubmit', params: {
-          courseId: this.$route.params.courseId,
-          lessonId: this.$route.params.lessonId,
-          problemId: problem.id.toString(),
-          submitId: problem.last_submit.id.toString(),
-        }
+        name: 'ProblemViewWithSubmit',
+        params: params,
       };
+    }
     else
       return { name: 'ProblemView', params: { problemId: problem.id.toString() } };
   }
 
+  async last_submit(problem_id: number) {
+    let answer = { data: {} };
+    await api.get(`api/get-last-user-problem-submit/${this.userStore.user.id}/${problem_id}/`)
+      .then(response => answer = response)
+      .catch(error => {
+        console.log(error);
+      });
+    return answer.data as SubmitModel;
+  }
 
   created() {
     this.$on('cv:change', this.eventHandler);

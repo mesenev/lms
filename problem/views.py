@@ -200,10 +200,10 @@ class SubmitViewSet(viewsets.ModelViewSet):
         if validated_data['problem'].test_mode == 'manual':
             model = serializer.save(student=request.user, status=Submit.DEFAULT_STATUS)
             log_event = LogEvent(
-                    problem=validated_data['problem'], student=request.user, type=LogEvent.TYPE_AWAITING_MANUAL,
-                    submit=model,
-                    data=dict(message='Решение ожидает ручной проверки')
-                )
+                problem=validated_data['problem'], student=request.user, type=LogEvent.TYPE_AWAITING_MANUAL,
+                submit=model,
+                data=dict(message='Решение ожидает ручной проверки')
+            )
             log_event.save()
             return
 
@@ -274,6 +274,11 @@ class LogEventViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+
+@api_view(["GET"])
+def get_last_user_problem_submit(request, user_id, problem_id):
+    print(SubmitSerializer(Submit.objects.filter(problem__id=problem_id, student__id=user_id).last()).data)
+    return Response(SubmitSerializer(Submit.objects.filter(problem__id=problem_id, student__id=user_id).last()).data)
 
 @api_view(['POST'])
 @renderer_classes([JSONRenderer])
