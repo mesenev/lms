@@ -4,7 +4,7 @@
       Добавить задание
     </cv-button>
     <cv-modal
-      :primary-button-disabled="!selected.length || selectedNew" :visible="modalVisible"
+      :primary-button-disabled="addButtonDisabled" :visible="modalVisible"
       class="add_lesson_modal" size="default"
       @modal-hidden="modalHidden"
       @primary-click="addProblem">
@@ -20,7 +20,7 @@
           <cv-content-switcher-button content-selector=".content-1" selected>
             Импортировать задачу из cats
           </cv-content-switcher-button>
-          <cv-content-switcher-button content-selector=".content-2">
+          <cv-content-switcher-button :disabled="true" content-selector=".content-2">
             Создать новую задачу
           </cv-content-switcher-button>
         </cv-content-switcher>
@@ -71,14 +71,14 @@
             <h5>Тип задачи</h5>
               <cv-radio-group
                 @change="(newType) => this.problemType = newType"
-                :vertical="vertical">
+                :vertical="false">
                 <cv-radio-button
-                  v-model="currentProblem.type"
+                  v-model="problemType"
                   label="Классная работа"
                   name="group-1" value="CW"/>
                 <cv-radio-button
-                  v-model="currentProblem.type"
-                  label="Домашнаяя работа"
+                  v-model="problemType"
+                  label="Домашняя работа"
                   name="group-1" value="HW"/>
                 <cv-radio-button
                   v-model="problemType"
@@ -110,7 +110,6 @@ import NotificationMixinComponent from "@/components/common/NotificationMixinCom
 export default class EditLessonModal extends NotificationMixinComponent {
   @Prop({ required: true }) lesson!: LessonModel;
 
-  vertical = false;
   problemStore = problemStore;
   currentProblem: ProblemModel = { ...this.problemStore.getNewProblem, lesson: this.lesson.id };
   selectedNew = false;
@@ -168,6 +167,8 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
 
   modalHidden() {
+    this.problemType = '';
+    this.testingMode = '';
     this.modalVisible = false;
   }
 
@@ -179,6 +180,10 @@ export default class EditLessonModal extends NotificationMixinComponent {
     return this.selected.map(e => {
       return (this.catsFilteredProblems[e as number] as unknown as { id: number })['id'];
     })
+  }
+  get addButtonDisabled(){
+    // debugger;
+    return (!this.selected.length || this.selectedNew) || !this.problemType || !this.testingMode;
   }
 
   get selectedCatsProblems() {
@@ -205,7 +210,10 @@ export default class EditLessonModal extends NotificationMixinComponent {
       const data = this.selectedCatsProblems;
       const problemTypes = new Map<string, number>([['CW', 0], ['HW', 1], ['EX', 2]]);
       data.forEach(element => element.test_mode = this.testingMode);
-      await axios.post(`/api/add-cats-problems-to-lesson/${this.lesson.id}/`, {problem_data: data, problem_type: problemTypes.get(this.problemType)})
+      await axios.post(
+        `/api/add-cats-problems-to-lesson/${this.lesson.id}/`,
+        { problem_data: data, problem_type: problemTypes.get(this.problemType) }
+      )
         .then(async (answer) => {
           if (answer.status == 200) {
             const newProblems = (answer.data as ProblemModel[]).map(element => {
