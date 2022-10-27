@@ -9,6 +9,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from cathie import cats_api
 from course.models import CourseSchedule, Course, CourseLink
 from course.serializers import CourseSerializer, ScheduleSerializer, LinkSerializer, CourseShortSerializer
 from imcslms.default_settings import TEACHER
@@ -118,6 +119,7 @@ def course_registration(request, link):
         raise PermissionDenied()
     link = CourseLink.objects.select_related('course').get(link=link)
     assignment = CourseAssignStudent(course=link.course, user=request.user)
+    cats_api.add_users_to_contest([request.user], link.course_id)
     assignment.save()
     if link.usages > 0:
         link.usages -= 1

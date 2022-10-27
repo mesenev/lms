@@ -176,7 +176,7 @@ export default class CourseEditView extends Vue {
   }
 
   async created() {
-    (await this.fetchContests()).forEach((value) => {
+    (await this.fetchContests()).forEach(value => {
       this.contestsFromCats.push({ value: value.id.toString(), label: value.name, name: value.name});
     });
     if (this.courseId === null) {
@@ -202,7 +202,9 @@ export default class CourseEditView extends Vue {
   async fetchContests(): Promise<CatsContestModel[]> {
     let answer = { data: {} };
     await api.get('api/cats-contests/')
-      .then(response => answer = response)
+      .then(response => {
+        answer = response;
+      })
       .catch(error => {
         console.log(error);
       })

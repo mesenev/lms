@@ -82,12 +82,26 @@ def cats_get_problem_description_by_url(description_url):
 
 @authorization.check_authorization_for_cats
 def get_contests_from_cats():
-    url = f'{settings.CATS_URL}contests?json=1;sid={authorization.cats_sid()};filter=my'
+    url = f'{settings.CATS_URL}contests?json=1;search=has_user(this),since_finish<0;filter=all;'
+    url += f'sid={authorization.cats_sid()}'
     answer = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
     if answer.status_code != 200:
         raise CatsAnswerCodeException(answer)
     data = json.loads(answer.content.decode('utf-8'))
     return data["contests"]
 
+
+@authorization.check_authorization_for_cats
+def add_users_to_contest(students: list, contest_id: int):
+    params = {
+        'logins_to_add': ','.join(students),
+        'by_login': 1,
+    }
+    url = f'{settings.CATS_URL}users_add_participants?json=1;sid={authorization.cats_sid()};cid={contest_id};json=1;'
+    answer = requests.post(url, params=params, headers={'User-Agent': 'Mozilla/5.0'})
+    if answer.status_code != 200:
+        print(answer.json())
+        raise CatsAnswerCodeException(answer)
+    return answer.status_code
 # def cats_get_problem_by_id(cats_id, user):
 #     pass
