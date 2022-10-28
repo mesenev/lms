@@ -4,7 +4,6 @@ import store from '@/store';
 import api from '@/store/services/api'
 import { Dictionary } from 'vue-router/types/router';
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
-import {getCurrentHub} from "@sentry/vue";
 
 @Module({ namespaced: true, name: 'problem', store, dynamic: true })
 class ProblemModule extends VuexModule {

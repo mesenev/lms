@@ -71,7 +71,6 @@ export default class ProblemNavigation extends Vue {
   async created() {
     this.problems = await this.problemStore.fetchProblemsByLessonId(this.lessonId);
     this.loading = false;
-    console.log(this.problems);
   }
 }
 </script>

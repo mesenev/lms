@@ -191,7 +191,7 @@ export default class ProblemView extends Vue {
   }
 
   async created() {
-    if (!this.isStaff && !this.submitId && this.submits.length)
+    if (this.isStaff && !this.submitId && this.submits.length)
       this.changeCurrentSubmit(this.submits[this.submits.length - 1].id);
     if (this.submitId)
       this.studentId = this.submits?.find(x => x.id === this.submitId)?.student as number;

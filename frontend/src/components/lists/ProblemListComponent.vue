@@ -5,17 +5,7 @@
         <cv-structured-list-item
           v-for="problem in taskList"
           :key="problem.id">
-          <div class="problem-list-item">
-            <router-link class="list-element" :to="target(problem)">
-              <div class="problem-list-component--header">
-                <h5 class="problem--title">{{ problem.name }}</h5>
-                <div class="tags">
-                  <submit-status v-if="!!problem.last_submit/*!!last_submit(problem.id)*/" :submit="problem.last_submit/*last_submit(problem.id)*/"/>
-                  <cv-tag v-else kind="red" label="Не сдано"/>
-                </div>
-              </div>
-            </router-link>
-          </div>
+          <student-problem-list-item-component :problem="problem"></student-problem-list-item-component>
         </cv-structured-list-item>
       </template>
     </cv-structured-list>
@@ -25,22 +15,7 @@
       v-for="problem in taskList"
       :key="problem.id"
       align="end">
-      <cv-accordion-item class="accordion" :class="{ doNotShowAccordionContent: !isStaff }">
-        <template slot="title">
-          <div class="problem-list-component--header">
-            <cv-link :to="target(problem)">
-              <Launch/>
-            </cv-link>
-            {{ problem.name }}
-            <div>
-              <stats-graph v-if="problem.stats" :stats="problem.stats"/>
-            </div>
-          </div>
-        </template>
-        <template slot="content">
-          <problem-stats v-if="isStaff && open" :problem="problem"/>
-        </template>
-      </cv-accordion-item>
+      <staff-problem-list-item-component :problem="problem"></staff-problem-list-item-component>
     </cv-accordion>
   </div>
 </template>
@@ -50,63 +25,29 @@ import ProblemStats from '@/components/ProblemStats.vue';
 import StatsGraph from '@/components/StatsGraph.vue';
 import SubmitStatus from "@/components/SubmitStatus.vue";
 import ProblemModel from '@/models/ProblemModel';
-import SubmitModel from "@/models/SubmitModel";
-import Launch from '@carbon/icons-vue/es/launch/16';
 
 import userStore from '@/store/modules/user';
 import courseStore from '@/store/modules/course';
-import api from '@/store/services/api';
 import {Component, Prop, Vue} from 'vue-property-decorator';
 import CatsProblemModel from "@/models/CatsProblemModel";
+import StudentProblemListItemComponent from "@/components/StudentProblemListItemComponent.vue";
+import StaffProblemListItemComponent from "@/components/StaffProblemListItemComponent.vue";
 
-@Component({ components: { ProblemStats, SubmitStatus, Launch, StatsGraph } })
+@Component({ components: {
+    StaffProblemListItemComponent,
+    StudentProblemListItemComponent, ProblemStats, SubmitStatus, StatsGraph } })
 export default class ProblemListComponent extends Vue {
   @Prop({required: true}) taskList!: Array<ProblemModel | CatsProblemModel>;
-  public open = true; /*false?*/
   userStore = userStore;
   courseStore = courseStore;
 
-  async target(problem: ProblemModel) {
-    const params = {
-      courseId: this.$route.params.courseId,
-      lessonId: this.$route.params.lessonId,
-      problemId: problem.id.toString(),
-      submitId: (await this.last_submit(problem.id)).id.toString(),
-    }
-    if (!!problem.last_submit) {
-      return {
-        name: 'ProblemViewWithSubmit',
-        params: params,
-      };
-    }
-    else
-      return { name: 'ProblemView', params: { problemId: problem.id.toString() } };
-  }
-
-  async last_submit(problem_id: number) {
-    let answer = { data: {} };
-    await api.get(`api/get-last-user-problem-submit/${this.userStore.user.id}/${problem_id}/`)
-      .then(response => answer = response)
-      .catch(error => {
-        console.log(error);
-      });
-    return answer.data as SubmitModel;
-  }
-
-  created() {
-    this.$on('cv:change', this.eventHandler);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  eventHandler(_event: object) {
-    this.open = true;
-  }
 
   get isStaff(): boolean {
     const courseId = Number(this.$route.params.courseId);
     return this.userStore.user.staff_for.includes(courseId);
   }
 }
+
 </script>
 <style scoped lang="stylus">
 .aw
