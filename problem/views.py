@@ -14,7 +14,7 @@ from course.models import Course
 from lesson.models import Lesson
 from problem.models import Problem, Submit, CatsSubmit, ProblemStats, LogEvent
 from problem.serializers import ProblemSerializer, SubmitSerializer, SubmitListSerializer, ProblemListSerializer, \
-    LogEventSerializer
+    LogEventSerializer, LastSubmitSerializer
 from users.models import User
 from users.permissions import CourseStaffOrReadOnlyForStudents, object_to_course, CourseStaffOrAuthorReadOnly, \
     CourseStaffOrAuthor
@@ -167,6 +167,12 @@ class SubmitViewSet(viewsets.ModelViewSet):
         ))[:5], many=True)
         return Response(serializer.data)
 
+    @action(detail=False, url_path=r'last-user-submit/(?P<user_id>[^/.]+)/(?P<problem_id>[^/.]+)')
+    def get_last_user_problem_submit(self, request, user_id, problem_id):
+        return Response(LastSubmitSerializer(
+            Submit.objects.filter(problem__id=problem_id, student__id=user_id).last()
+        ).data)
+
     @action(detail=False, url_path='problem-stats/(?P<problem_id>\d+)')
     def problem_stats(self, request, problem_id):
         # TODO: check permissions for it
@@ -282,12 +288,6 @@ class LogEventViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-
-@api_view(["GET"])
-def get_last_user_problem_submit(request, user_id, problem_id):
-    print(SubmitSerializer(Submit.objects.filter(problem__id=problem_id, student__id=user_id).last()).data)
-    return Response(SubmitSerializer(Submit.objects.filter(problem__id=problem_id, student__id=user_id).last()).data)
 
 
 @api_view(['POST'])

@@ -72,12 +72,7 @@ class LogEventSerializer(serializers.ModelSerializer):
 
 class ProblemListSerializer(serializers.ModelSerializer):
     stats = serializers.SerializerMethodField()
-    submits = serializers.SerializerMethodField()
     last_submit = LastSubmitSerializer()
-
-    def get_submits(self, instance):
-        if hasattr(instance, 'submits') and instance.submits:
-            return SubmitSerializer(instance.submits.all(), many=True).data
 
     def get_stats(self, instance):
         if hasattr(instance, 'stats') and instance.stats:
@@ -87,7 +82,7 @@ class ProblemListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Problem
         fields = (
-            'id', 'name', 'last_submit', 'lesson', 'type', 'stats', 'submits'
+            'id', 'name', 'last_submit', 'lesson', 'type', 'stats'
         )
 
 
