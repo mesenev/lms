@@ -1,11 +1,12 @@
 <template>
-  <div v-if="!isStaff"> <!--Разные отображения списка задач, для стафа и студентов-->
+  <div v-if="!isStaff">
     <cv-structured-list>
       <template slot="items">
         <cv-structured-list-item
           v-for="problem in taskList"
           :key="problem.id">
-          <student-problem-list-item-component :problem="problem"></student-problem-list-item-component>
+          <student-problem-list-item-component
+            :problem="problem"></student-problem-list-item-component>
         </cv-structured-list-item>
       </template>
     </cv-structured-list>
@@ -33,9 +34,12 @@ import CatsProblemModel from "@/models/CatsProblemModel";
 import StudentProblemListItemComponent from "@/components/StudentProblemListItemComponent.vue";
 import StaffProblemListItemComponent from "@/components/StaffProblemListItemComponent.vue";
 
-@Component({ components: {
+@Component({
+  components: {
     StaffProblemListItemComponent,
-    StudentProblemListItemComponent, ProblemStats, SubmitStatus, StatsGraph } })
+    StudentProblemListItemComponent, ProblemStats, SubmitStatus, StatsGraph
+  }
+})
 export default class ProblemListComponent extends Vue {
   @Prop({required: true}) taskList!: Array<ProblemModel | CatsProblemModel>;
   userStore = userStore;

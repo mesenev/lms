@@ -5,7 +5,8 @@
         <li class="navigation-title" v-if="classwork.length > 0">
           <span title="Классная работа">CW</span>
           <ul v-if="!loading">
-            <problem-navigation-item :problem="problem" v-for="problem in classwork" :key="problem.id"/>
+            <problem-navigation-item :problem="problem" v-for="problem in classwork"
+                                     :key="problem.id"/>
           </ul>
           <ul v-else>
             <cv-tag-skeleton/>
@@ -14,16 +15,18 @@
         <li class="navigation-title" v-if="homework.length > 0">
           <span title="Домашняя работа">HW</span>
           <ul v-if="!loading">
-            <problem-navigation-item :problem="problem" v-for="problem in homework" :key="problem.id"/>
+            <problem-navigation-item :problem="problem" v-for="problem in homework"
+                                     :key="problem.id"/>
           </ul>
           <ul v-else>
             <cv-tag-skeleton/>
           </ul>
         </li>
         <li class="navigation-title" v-if="extrawork.length > 0">
-          <span title="Дополнительные задания" >EX</span>
+          <span title="Дополнительные задания">EX</span>
           <ul v-if="!loading">
-            <problem-navigation-item :problem="problem" v-for="problem in extrawork" :key="problem.id"/>
+            <problem-navigation-item :problem="problem" v-for="problem in extrawork"
+                                     :key="problem.id"/>
           </ul>
         </li>
       </ul>
@@ -34,19 +37,19 @@
 <script lang="ts">
 import problemStore from '@/store/modules/problem';
 import ProblemNavigationItem from '@/components/ProblemNavigationItem.vue';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 import ProblemModel from "@/models/ProblemModel";
 
 
-@Component({ components: {ProblemNavigationItem} })
+@Component({ components: { ProblemNavigationItem } })
 export default class ProblemNavigation extends Vue {
-  @Prop({ required: true }) lessonId!: number;
+  @Prop({required: true}) lessonId!: number;
   problemStore = problemStore;
   problems: Array<ProblemModel> = [];
   loading = true;
 
   target(pid: number) {
-    return { name: 'ProblemView', params: { problemId: pid.toString() } };
+    return {name: 'ProblemView', params: {problemId: pid.toString()}};
   }
 
   get isProblemsEmpty() {
@@ -80,6 +83,7 @@ export default class ProblemNavigation extends Vue {
 aside
   position absolute
   padding-left 1rem
+
 .navigation-title
   margin-top 0.5rem
 
@@ -104,6 +108,7 @@ aside
 <style lang="stylus" scoped>
 .bx--structured-list-row--header-row
   background-color #393939
+
   .pupil-title
     color white
 </style>

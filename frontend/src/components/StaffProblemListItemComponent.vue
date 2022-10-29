@@ -25,12 +25,11 @@ import Launch from "@carbon/icons-vue/es/launch/16";
 import StatsGraph from "@/components/StatsGraph.vue";
 import ProblemModel from "@/models/ProblemModel";
 import SubmitModel from "@/models/SubmitModel"
-import CatsProblemModel from "@/models/CatsProblemModel";
 import userStore from "@/store/modules/user";
 
-@Component({components: {ProblemStats, SubmitStatus, Launch, StatsGraph}})
+@Component({components: { ProblemStats, SubmitStatus, Launch, StatsGraph } })
 export default class StaffProblemListItemComponent extends Vue {
-  @Prop({required: true}) problem!: ProblemModel | CatsProblemModel;
+  @Prop({ required: true }) problem!: ProblemModel;
   submit: SubmitModel | null = null;
   userStore = userStore;
   loading = false;

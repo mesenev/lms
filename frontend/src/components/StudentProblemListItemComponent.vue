@@ -23,7 +23,7 @@ import submitStore from "@/store/modules/submit";
 import userStore from "@/store/modules/user";
 
 
-@Component({components: {SubmitStatus}})
+@Component({ components: { SubmitStatus } })
 export default class StudentProblemListItemComponent extends Vue {
   @Prop({required: true}) problem!: ProblemModel | CatsProblemModel;
   submitStore = submitStore;
