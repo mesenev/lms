@@ -68,7 +68,8 @@ class LinkSerializer(serializers.Serializer):
     link = serializers.SerializerMethodField(required=False)
     usages = serializers.IntegerField()
 
-    def get_link(self, instance):
+    @staticmethod
+    def get_link(instance):
         return instance.link
 
     def update(self, instance, validated_data):
@@ -81,3 +82,13 @@ class LinkSerializer(serializers.Serializer):
     class Meta:
         model = CourseLink
         fields = '__all__'
+
+
+class AssignTeacherSerializer(serializers.Serializer):
+    def create(self, validated_data):
+        raise NotImplementedError
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError
+
+    id = serializers.IntegerField(required=True)

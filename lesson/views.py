@@ -1,6 +1,5 @@
 from django.db.models import Q
 from rest_framework import viewsets, exceptions
-from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
@@ -38,13 +37,6 @@ class LessonViewSet(viewsets.ModelViewSet):
         if request.user.groups.filter(name=TEACHER).exists():
             return super().create(request, *args, **kwargs)
         raise exceptions.PermissionDenied
-
-
-@api_view(['DELETE'])
-def delete_lesson(request, id):
-    to_delete = Lesson.objects.get(id=id)
-    to_delete.delete()
-    return Response(id)
 
 
 class MaterialViewSet(viewsets.ModelViewSet):

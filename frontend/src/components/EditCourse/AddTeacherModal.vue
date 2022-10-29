@@ -65,6 +65,7 @@ import userStore from '@/store/modules/user';
 
 import {Component, Prop, Watch} from 'vue-property-decorator';
 import axios from "axios";
+import { TEACHER } from "@/utils/consts";
 
 @Component({})
 export default class AddTeacherModal extends NotificationMixinComponent {
@@ -74,13 +75,9 @@ export default class AddTeacherModal extends NotificationMixinComponent {
   async onSearchBarChange(val: string) {
     if (val.length >= 4) {
       await axios.get(
-        `/api/teachersbymail/${this.courseId}/${this.searchValue}/`
+        '/api/users/', { params: { email__icontains: this.searchValue, group: TEACHER } }
       ).then(response => {
-        if (response.data == "No match found :("){
-          this.teachersArray = [];
-        } else {
-          this.teachersArray = response.data;
-        }
+        this.teachersArray = response.data;
         this.pickedTeachers.clear();
         this.teacherNotPicked = true;
         },
@@ -108,6 +105,11 @@ export default class AddTeacherModal extends NotificationMixinComponent {
     this.modalVisible = false;
   }
 
+  get teachersList(){
+    // TODO: filter out already active
+    return this.teachersArray;
+  }
+
   isAnyTeacherPicked() {
     this.teacherNotPicked = this.pickedTeachers.size <= 0;
   }
@@ -130,6 +132,7 @@ export default class AddTeacherModal extends NotificationMixinComponent {
   }
 
   addStuff() {
+    // TODO: add these luckies one by one
     axios.post(`/api/assignteacher/${this.courseId}/`, this.getPickedTeachers())
       .then(response => {
         this.notificationKind = 'success';

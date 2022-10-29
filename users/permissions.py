@@ -31,6 +31,7 @@ def object_to_course(obj):
 
 
 class CourseStaffOrReadOnlyForStudents(permissions.BasePermission):
+    message = 'Edit it without staff status not allowed.'
 
     # TODO: if needed - remove .all() in _for-s
 
@@ -62,3 +63,11 @@ class CourseStaffOrAuthor(permissions.BasePermission):
         if hasattr(obj, 'author') and obj.author == request.user:
             return True
         return False
+
+
+class UserItselfOrReadonly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        else:
+            return request.user.id == obj
