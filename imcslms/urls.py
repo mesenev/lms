@@ -34,13 +34,14 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
     path('', include('cathie.urls')),
     path('', include('users.urls')),
     path('', include('lesson.urls')),
     path('', include('problem.urls')),
     path('', include('course.urls')),
+    path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls')),
     re_path(r"^.*$", index, name='index'),
 ]
+
 
