@@ -60,7 +60,11 @@
           <cv-content-switcher-content owner-id="CW">
             <div v-if="getClasswork.length > 0">
               <div v-if="!fetchingLesson" class="classwork">
-                <problem-list-component :task-list="getClasswork"></problem-list-component>
+                <problem-list-component
+                  :is-editing="true"
+                  @update-problem-delete="updateProblemDelete($event)"
+                  :task-list="getClasswork">
+                </problem-list-component>
               </div>
               <div v-else>
                 <cv-accordion-skeleton/>
@@ -71,7 +75,11 @@
           <cv-content-switcher-content owner-id="HW">
             <div v-if="getHomework.length > 0">
               <div v-if="!fetchingLesson" class="homework">
-                <problem-list-component :task-list="getHomework"></problem-list-component>
+                <problem-list-component
+                  :is-editing="true"
+                  @update-problem-delete="updateProblemDelete($event)"
+                  :task-list="getHomework">
+                </problem-list-component>
               </div>
               <div v-else>
                 <cv-accordion-skeleton/>
@@ -82,7 +90,11 @@
           <cv-content-switcher-content owner-id="EX">
             <div v-if="getExtrawork.length > 0">
               <div v-if="!fetchingLesson" class="extrawork">
-                <problem-list-component :task-list="getExtrawork"></problem-list-component>
+                <problem-list-component
+                  :is-editing="true"
+                  @update-problem-delete="updateProblemDelete($event)"
+                  :task-list="getExtrawork">
+                </problem-list-component>
               </div>
               <div v-else>
                 <cv-accordion-skeleton/>
@@ -108,24 +120,23 @@ import ProblemModel from '@/models/ProblemModel';
 import router from '@/router';
 import lessonStore from '@/store/modules/lesson';
 import materialStore from '@/store/modules/material';
-import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
+import problemStore from '@/store/modules/problem';
 import axios from 'axios';
 import _ from 'lodash';
 import { Component, Prop } from 'vue-property-decorator';
-import { Mutation } from "vuex-module-decorators";
 
 
 @Component({ components: { EditLessonMaterialsModal, EditLessonModal, ProblemListComponent} })
 export default class LessonEditView extends NotificationMixinComponent {
 
   @Prop({ required: true }) lessonId!: number;
-  TrashCan = TrashCan20;
   store = lessonStore;
   materialStore = materialStore;
+  problemStore = problemStore;
   fetchingLesson = true;
   lesson: LessonModel = this.store.getNewLesson;
-  lessonEdit: LessonModel = { ...this.lesson }
-  calOptions = { dateFormat: 'Y-m-d' }
+  lessonEdit: LessonModel = { ...this.lesson };
+  calOptions = { dateFormat: 'Y-m-d' };
   query = '';
 
   async created() {
@@ -155,28 +166,34 @@ export default class LessonEditView extends NotificationMixinComponent {
       this.notificationKind = 'error';
     })
     request.finally(() => this.showNotification = true);
-
   }
 
   get getClasswork(): Array<ProblemModel | CatsProblemModel> {
     return this.lessonEdit.problems.filter(x => x.type === 'CW');
   }
 
-  @Mutation
   updateTaskList(new_problems: Array<ProblemModel | CatsProblemModel>){
     this.lessonEdit = { ...this.lesson }
     new_problems.forEach(element => {
       this.lessonEdit.problems.push(element as ProblemModel)
     })
+    this.problemStore.setProblems({[this.lessonId] : this.lessonEdit.problems});
+  }
+
+  updateProblemDelete(deleted_problem_id: number) {
+    this.lessonEdit.problems = this.lessonEdit.problems
+      .filter(x => x.id != deleted_problem_id);
+    this.lesson.problems = this.lessonEdit.problems;
+    this.problemStore.setProblems({[this.lessonId] : this.lessonEdit.problems});
   }
 
   get getHomework(): Array<ProblemModel | CatsProblemModel> {
     return this.lessonEdit.problems.filter(x => x.type === 'HW');
   }
+
   get getExtrawork(): Array<ProblemModel | CatsProblemModel> {
     return this.lessonEdit.problems.filter(x => x.type === 'EX');
   }
-
 
   searchByTutorial(problems: Array<ProblemModel | CatsProblemModel>):
     Array<ProblemModel | CatsProblemModel> {
@@ -189,11 +206,6 @@ export default class LessonEditView extends NotificationMixinComponent {
 
   get isChanged(): boolean {
     return !_.isEqual(this.lesson, this.lessonEdit);
-  }
-
-  deleteProblem(problem: ProblemModel) {
-    return problem;
-    //
   }
 }
 </script>

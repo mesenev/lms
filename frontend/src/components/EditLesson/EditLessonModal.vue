@@ -221,11 +221,8 @@ export default class EditLessonModal extends NotificationMixinComponent {
               return element;
             });
             this.$emit("update-problem-list", newProblems as ProblemModel[]);
-            const currentProblems = [...this.lesson.problems,...newProblems]
-            this.problemStore.setProblems({[this.lesson.id]: currentProblems});
             this.modalHidden();
             // await this.fetchCatsProblems();
-
           }
         }).catch(answer => {
           this.notificationKind = 'error';
