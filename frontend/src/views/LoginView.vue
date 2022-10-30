@@ -1,7 +1,6 @@
 <template>
   <div class="shell-login">
       <div class="login">
-
         <cv-inline-notification
         @close="hideNotification"
         v-if="showNotification"
@@ -28,8 +27,8 @@
           <div class="submit-btn">
             <cv-button @click="authorization">Войти</cv-button>
           </div>
-        </div>
-  </div>
+      </div>
+    </div>
 </template>
 
 <script lang="ts">
@@ -70,10 +69,14 @@ export default class LoginView extends NotificationMixinComponent {
 
 <style lang="stylus" scoped>
 
+
 .login
   width 40%
-  min-width 400px
   text-align end
+  @media (min-width: 401px)
+    min-width 400px
+  @media (max-width: 400px)
+    min-width 80%
 
 .shell-login
   position absolute
