@@ -8,7 +8,7 @@ import { Action, getModule, Module, Mutation, VuexModule, } from 'vuex-module-de
 class TokenModule extends VuexModule {
   isAuthenticated = false;
 
-  @Action
+  @Action({rawError: true})
   async login(payload: { username: string; password: string }) {
     await api.post(urls.OBTAIN_TOKEN_URL,
       { username: payload.username, password: payload.password }).then(
