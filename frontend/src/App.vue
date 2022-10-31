@@ -1,13 +1,14 @@
 <template>
-    <div class="layout" v-if="isLogin">
-      <lms-header class="layout-header"/>
-      <main class="layout-content">
+    <div class="layout">
+      <lms-header class="layout-header" v-if="isLogin" />
+      <main class="layout-content" v-if="isLogin">
         <lms-breadcrumb class="main--breadcrumb"/>
         <transition name="fade" mode="out-in">
           <router-view/>
         </transition>
       </main>
-      <footer class="layout-footer">
+      <router-view v-else></router-view>
+      <footer class="layout-footer" v-if="isLogin">
         <div class="layout-footer-label">
           <span>dvfu/imcs/staff & Daria-squad</span><br>
           <span>
@@ -18,9 +19,6 @@
         </span>
         </div>
       </footer>
-    </div>
-    <div v-else>
-      <login-view/>
     </div>
 </template>
 

@@ -3,6 +3,7 @@ import userStore from '@/store/modules/user';
 import api from "@/store/services/api";
 import * as urls from '@/store/services/urls';
 import { Action, getModule, Module, Mutation, VuexModule, } from 'vuex-module-decorators';
+import router from "@/router";
 
 @Module({ namespaced: true, name: 'token', store, dynamic: true })
 class TokenModule extends VuexModule {
@@ -58,10 +59,12 @@ class TokenModule extends VuexModule {
 
   @Mutation acceptAuthentication() {
     this.isAuthenticated = true;
+    router.push('/')
   }
 
   @Mutation rejectAuthentication() {
     this.isAuthenticated = false;
+    router.push('/login');
   }
 }
 
