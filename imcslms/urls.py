@@ -9,7 +9,7 @@ from course.views import CourseViewSet, LinkViewSet, ScheduleViewSet
 from lesson.views import LessonViewSet, MaterialViewSet
 from problem.views import ProblemViewSet, SubmitViewSet, LogEventViewSet
 from rating.views import LessonProgressViewSet, CourseProgressViewSet
-from users.views import index, UsersViewSet, StudyGroupsViewSet
+from users.views import index, UsersViewSet
 
 router = DefaultRouter()
 router.register('course', CourseViewSet, basename='course')
@@ -19,7 +19,6 @@ router.register('problem', ProblemViewSet, basename='problem')
 router.register('submit', SubmitViewSet, basename='submit')
 router.register('material', MaterialViewSet, basename='material')
 router.register('users', UsersViewSet, basename='users')
-router.register('studygroups', StudyGroupsViewSet, basename='studygroups')
 router.register('lessonprogress', LessonProgressViewSet, basename='lessonprogress')
 router.register('courseprogress', CourseProgressViewSet, basename='courseprogress')
 router.register('courselink', LinkViewSet, basename='courselink')
@@ -34,13 +33,14 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
     path('', include('cathie.urls')),
     path('', include('users.urls')),
     path('', include('lesson.urls')),
     path('', include('problem.urls')),
     path('', include('course.urls')),
+    path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls')),
     re_path(r"^.*$", index, name='index'),
 ]
+
 

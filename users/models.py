@@ -21,7 +21,6 @@ class StudyGroup(models.Model):
 
 class User(AbstractUser):
     study_group = models.ForeignKey(StudyGroup, on_delete=models.SET_NULL, null=True, blank=True)
-    middle_name = models.CharField(max_length=49, blank=True)
     avatar_url = models.ImageField(upload_to=content_file_name, null=True, blank=True)
     thumbnail = models.ImageField(upload_to=f'avatars/thumbnail/', null=True, blank=True)
     __original_mode = None

@@ -8,3 +8,4 @@ export const de_options = [
     name: 'Python 3.8.1', disabled: false,
   },
 ];
+export const TEACHER = 'teacher';

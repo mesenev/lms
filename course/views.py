@@ -1,20 +1,23 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, exceptions
-from rest_framework.decorators import api_view, action
+from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.mixins import (
     CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
 )
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
 from cathie import cats_api
 from course.models import CourseSchedule, Course, CourseLink
-from course.serializers import CourseSerializer, ScheduleSerializer, LinkSerializer, CourseShortSerializer
+from course.serializers import CourseSerializer, ScheduleSerializer, LinkSerializer, CourseShortSerializer, \
+    AssignTeacherSerializer
 from imcslms.default_settings import TEACHER
-from users.models import User, CourseAssignStudent
-from users.permissions import CourseStaffOrReadOnlyForStudents, CourseStaffOrAuthorReadOnly
+from users.models import User, CourseAssignStudent, CourseAssignTeacher
+from users.permissions import CourseStaffOrReadOnlyForStudents, CourseStaffOrAuthorReadOnly, CourseStaffOrAuthor
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -32,6 +35,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
+        # TODO: register author as teacher instantly
         if request.user.groups.filter(name=TEACHER).exists():
             return super().create(request, *args, **kwargs)
         raise exceptions.PermissionDenied
@@ -43,6 +47,25 @@ class CourseViewSet(viewsets.ModelViewSet):
         queryset = queryset.union(request.user.student_for.all())
         serializer = CourseShortSerializer(queryset, many=True)
         return Response(serializer.data)
+
+    @action(
+        detail=True, methods=['post'], url_path=r'assign-teacher', url_name='assign-teacher',
+        serializer_class=AssignTeacherSerializer
+    )
+    def assign_teacher(self, request, pk=None):
+        course = self.get_object()
+        if course not in request.user.staff_for.all():
+            raise PermissionDenied()
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = User.objects.get(id=serializer.data['id'])
+        exist = CourseAssignTeacher.objects.filter(course=course, user=user).exists()
+        if exist:
+            return Response(dict(code=1, message='user already assigned'))
+        if not exist:
+            assignment = CourseAssignTeacher(course=course, user=user)
+            assignment.save()
+        return Response(dict(code=0, message='user successfully assigned'))
 
 
 class ScheduleViewSet(
@@ -79,7 +102,7 @@ class LinkViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-def __check(link, user_id):
+def link_check(link, user_id):
     answer = dict(
         link_exists=True, student_registered=False, teacher_registered=False,
         is_possible=True, course=None, usages_available=True,
@@ -94,7 +117,7 @@ def __check(link, user_id):
 
     except CourseLink.DoesNotExist:
         answer.update(dict(link_exists=False, is_possible=False))
-        return Response(answer)
+        return answer
     try:
         instance.course.students.get(id=user_id)
         answer.update(dict(student_registered=True, is_possible=False))
@@ -108,29 +131,34 @@ def __check(link, user_id):
     return answer
 
 
-@api_view(['GET'])
-def check_link(request: Request, link):
-    return Response(__check(link, request.user.id))
+class CheckLinkApi(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request: Request, link):
+        return Response(link_check(link, request.user.id))
 
 
-@api_view(['GET'])
-def course_registration(request, link):
-    if not __check(link, request.user.id)['is_possible']:
-        raise PermissionDenied()
-    link = CourseLink.objects.select_related('course').get(link=link)
-    assignment = CourseAssignStudent(course=link.course, user=request.user)
-    cats_api.add_users_to_contest([request.user], link.course_id)
-    assignment.save()
-    if link.usages > 0:
-        link.usages -= 1
-        link.save()
-        return Response(dict(user=assignment.user_id, courseId=assignment.course.id))
-    else:
-        raise NotFound()
+class CourseRegistrationApi(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, link):
+        if not link_check(link, request.user.id)['is_possible']:
+            raise PermissionDenied()
+        link = CourseLink.objects.select_related('course').get(link=link)
+        assignment = CourseAssignStudent(course=link.course, user=request.user)
+        assignment.save()
+        if link.usages > 0:
+            link.usages -= 1
+            link.save()
+            return Response(dict(user=assignment.user_id, courseId=assignment.course.id))
+        else:
+            raise NotFound()
 
 
-@api_view(['DELETE'])
-def delete_link(request, link):
-    courselinks = CourseLink.objects.all()
-    courselinks.get(link=link).delete()
-    return Response(link)
+class LinkDeletionAPi(APIView):
+    permission_classes = [CourseStaffOrAuthor]
+
+    def delete(self, request, link):
+        course_link = CourseLink.objects.get(link=link)
+        course_link.delete()
+        return Response(link)

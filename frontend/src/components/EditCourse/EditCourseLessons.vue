@@ -1,26 +1,29 @@
 <template>
   <div>
-    <cv-structured-list class="lesson--list" v-if="course.lessons.length">
-      <template slot="headings">
-        <cv-structured-list-heading>
-          <h4>Уроки</h4>
-        </cv-structured-list-heading>
-      </template>
-      <template slot="items">
-        <cv-search label="Поиск"
-                   v-model="searchQueryForCourseLessons">
-        </cv-search>
-        <cv-structured-list-item class="lesson-card"
-                                 v-for="lesson in courseLessons"
-                                 :key="lesson.id">
-          <LessonCard :lesson="lesson"
-                      :main-icon="TrashCan"
-                      :second-icon="Settings"
-                      :manipulation="deleteLesson">
-          </LessonCard>
-        </cv-structured-list-item>
-      </template>
-    </cv-structured-list>
+    <div class="main-lesson-container" v-if="course.lessons.length">
+      <h4 class="lesson--list--title">Уроки</h4>
+      <cv-search label="Поиск"
+                 v-model="searchQueryForCourseLessons">
+      </cv-search>
+      <div class="lesson--list">
+        <cv-structured-list id="lessons">
+          <template slot="items">
+            <cv-structured-list-item class="lesson-card"
+                                     v-for="lesson in courseLessons"
+                                     :key="lesson.id">
+              <LessonCard :lesson="lesson"
+                          :main-icon="TrashCan"
+                          :second-icon="Settings"
+                          :manipulation="deleteLesson">
+              </LessonCard>
+            </cv-structured-list-item>
+          </template>
+        </cv-structured-list>
+      </div>
+    </div>
+    <div class="no-lessons-title-container" v-else>
+      <h3 class="no-lessons-title">Список уроков пуст!</h3>
+    </div>
   </div>
 </template>
 
@@ -72,8 +75,22 @@ export default class EditCourseLessons extends Vue {
 .bx--modal-content:focus
   outline none
 
-.lesson--list
+.no-lessons-title-container
+  text-align center
+
+.no-lessons-title
+  margin 1rem
+
+#lessons
   margin-bottom 0
+
+.lesson--list--title
+  margin-bottom 1rem
+
+.lesson--list
+  margin-bottom 1rem
+  max-height 18rem
+  overflow-y auto
 
 .lesson-card:hover
   border-bottom 1px solid var(--cds-ui-05)

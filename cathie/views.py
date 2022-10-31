@@ -1,3 +1,6 @@
+import requests
+from django.conf import settings
+import requests
 from django.contrib.auth.decorators import login_required
 from django_filters.rest_framework import DjangoFilterBackend
 from requests.utils import default_headers
@@ -5,37 +8,43 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from cathie import cats_api
 from cathie.cats_api import cats_get_problems_from_contest, cats_get_problem_description_by_url, get_contests_from_cats
+from cathie.authorization import cats_sid_setter, cats_sid
+from cathie.cats_api import cats_get_problems_from_contest, cats_get_problem_description_by_url
+from cathie.exceptions import CatsAuthorizationException
 from cathie.models import CatsAccount
 from cathie.serializers import CatsAccountSerializer
 from course.models import Course
+from imcslms import settings
 from problem.models import Problem
 
 from django.shortcuts import render
-from cathie.authorization import *
 from users.permissions import CourseStaffOrAuthor
 from django.utils import timezone
 
 
-@login_required
-@api_view(['GET'])
-@renderer_classes([JSONRenderer])
-def get_cats_problems(request, course_id):
-    course = Course.objects.get(pk=course_id)
-    cats_problems = cats_get_problems_from_contest(course.cats_id)
-    return Response(cats_problems)
+class ListCatsProblems(APIView):
+    permission_classes = [CourseStaffOrAuthor]
+
+    def get(self, request, course_id):
+        """Return list of problems from cats if cats_id specified"""
+        course = Course.objects.get(pk=course_id)
+        cats_problems = cats_get_problems_from_contest(course.cats_id)
+        return Response(cats_problems)
 
 
-@login_required
-@api_view(['GET'])
-def get_cats_problem_description(request, problem_id):
-    problem = Problem.objects.get(pk=problem_id)
-    problem_description = cats_get_problem_description_by_url(problem.cats_material_url)
-    problem.description = problem_description
-    problem.save()
-    return Response(problem_description)
+class ProblemDescription(APIView):
+    permission_classes = [CourseStaffOrAuthor]
+
+    def get(self, request, problem_id):
+        problem = Problem.objects.get(pk=problem_id)
+        problem_description = cats_get_problem_description_by_url(problem.cats_material_url)
+        problem.description = problem_description
+        problem.save()
+        return Response(problem_description)
 
 
 @login_required
@@ -54,7 +63,7 @@ def add_users_to_contest(request):
 
 
 @api_view(['GET', 'POST'])
-# @check_authorization_for_cats
+@login_required
 def cats_admin(request):
     if request.method == 'POST':
         new_cats_seed = request.POST["input_cats_seed"]
