@@ -170,7 +170,8 @@ class SubmitViewSet(viewsets.ModelViewSet):
     @action(detail=False, url_path=r'last-user-submit/(?P<user_id>[^/.]+)/(?P<problem_id>[^/.]+)')
     def get_last_user_problem_submit(self, request, user_id, problem_id):
         return Response(LastSubmitSerializer(
-            Submit.objects.filter(problem__id=problem_id, student__id=user_id).last()
+            Submit.objects.filter(problem__id=problem_id, student__id=user_id).annotate(
+                ordering=self.stats_ordering).order_by('problem', 'ordering', '-id').first()
         ).data)
 
     @action(detail=False, url_path='problem-stats/(?P<problem_id>\d+)')
