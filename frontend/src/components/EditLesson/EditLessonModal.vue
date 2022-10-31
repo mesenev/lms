@@ -122,6 +122,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
   fetchingCatsProblems = true;
   modalVisible = false;
   searchQueryForAllProblems = '';
+  loading = false;
   //ToDo add radio button for test modes to modal
   testingMode = '';
   problemType = '';
@@ -183,7 +184,8 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
   get addButtonDisabled(){
     // debugger;
-    return (!this.selected.length || this.selectedNew) || !this.problemType || !this.testingMode;
+    return (!this.selected.length || this.selectedNew) || !this.problemType
+      || !this.testingMode || this.loading;
   }
 
   get selectedCatsProblems() {
@@ -207,14 +209,14 @@ export default class EditLessonModal extends NotificationMixinComponent {
       return
     }
     if (!this.selectedNew) {
+      this.loading = true;
       const data = this.selectedCatsProblems;
       const problemTypes = new Map<string, number>([['CW', 0], ['HW', 1], ['EX', 2]]);
       data.forEach(element => element.test_mode = this.testingMode);
       await axios.post(
         `/api/add-cats-problems-to-lesson/${this.lesson.id}/`,
-        { problem_data: data, problem_type: problemTypes.get(this.problemType) }
-      )
-        .then(async (answer) => {
+        { problem_data: data, problem_type: problemTypes.get(this.problemType)
+        }).then(async (answer) => {
           if (answer.status == 200) {
             const newProblems = (answer.data as ProblemModel[]).map(element => {
               element.type = this.problemType;
@@ -225,11 +227,12 @@ export default class EditLessonModal extends NotificationMixinComponent {
             // await this.fetchCatsProblems();
           }
         }).catch(answer => {
-          this.notificationKind = 'error';
-          this.notificationText = `Произошла ошибка при добавлении задач. ${answer.message}`;
-          this.showNotification = true;
-        })
-
+            this.notificationKind = 'error';
+            this.notificationText = `Произошла ошибка при добавлении задач. ${answer.message}`;
+            this.showNotification = true;
+        }).finally(() => {
+            this.loading = false;
+      })
     }
   }
 }
