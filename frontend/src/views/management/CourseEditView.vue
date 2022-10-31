@@ -14,7 +14,7 @@
       </div>
     </div>
     <div class="bx--row main--content">
-      <div class="bx--col-lg-9 first--block">
+      <div v-bind:class="(!isNewCourse)? 'bx--col-lg-5 bx--col-md-4  col-content':'bx--col-lg-6 col-content'">
         <div class="items">
           <cv-inline-notification
             v-if="showNotification"
@@ -29,24 +29,19 @@
              ${courseEdit.author.last_name}
               (${courseEdit.author.username})`.trim()"
           />
-
           <cv-text-input
             v-model.trim.number="courseEdit.cats_id"
             type="number"
             class="course--cats"
             label="Cats id"/>
-
           <cv-text-input
             v-model.trim="courseEdit.name"
             class="course--name"
             label="Название курса"/>
-
           <cv-text-input
             v-model.trim="courseEdit.description"
             class="course--description"
             label="Описание курса"/>
-
-
           <cv-multi-select
             v-model="deChecks"
             :options="deOptions"
@@ -54,53 +49,37 @@
             label="Выберите среды разработки"
             title="Доступные среды для отправки решений"
             @change="deChanged"/>
-
-          <div class="create--change--btn">
+          <div class="btns--container">
             <cv-button-skeleton v-if="fetchingCourse"/>
-            <cv-button v-else
-                       :disabled="!isChanged"
-                       v-on:click="createOrUpdate">
-              {{ isNewCourse ? 'Создать' : 'Изменить' }}
-            </cv-button>
+            <div class="btns" v-else>
+              <AddTeacherModal
+                v-if="!isNewCourse"
+                class="choose--teacher"
+                :courseId="courseId"/>
+              <cv-button
+                :disabled="!isChanged"
+                @click="createOrUpdate">
+                {{ isNewCourse ? 'Создать' : 'Изменить' }}
+              </cv-button>
+            </div>
           </div>
-
+        </div>
+      </div>
+      <div class="bx--col-lg-6 bx--col-md-6 col-content" v-if="!isNewCourse">
+        <div class="lessons">
           <EditCourseLessons
             v-if="!isNewCourse && !fetchingCourse"
             :course="store.currentCourse"
             class="course-props edit--course"/>
-          <EditCourseModal
-            v-if="!isNewCourse && !fetchingCourse"
-            :course-id="store.currentCourse.id"
-            class="course-props add--btn"/>
-        </div>
-      </div>
-      <div class="bx--col-lg-6 second--block" v-if="!isNewCourse">
-        <div class="link">
-          <h4 class="add-teacher">
-            Добавить преподавателя
-          </h4>
-          <AddTeacherModal class="choose--teacher"
-                           :courseId="courseId"/>
-        </div>
-        <br>
-        <div class="link">
-          <h4 class="create-link">Создать ссылку-приглашение</h4>
-          <cv-number-input
-            :light="false"
-            :label="'Выберите количество учеников курса'"
-            :min="1"
-            :step="1"
-            v-model="counter"
-            class="create-link-input">
-          </cv-number-input>
-          <br>
-          <GenerateLinks
-            :counter="counter"
-            :courseId="courseId"
-            class="generate--link">
-            Сгенерировать ссылку
-          </GenerateLinks>
-          <br>
+          <div class="lessons-modal">
+            <GenerateLinks
+              :courseId="courseId"
+              class="generate--link"/>
+            <EditCourseModal
+              v-if="!isNewCourse && !fetchingCourse"
+              :course-id="store.currentCourse.id"
+              class="course-props add--btn"/>
+          </div>
         </div>
       </div>
     </div>
@@ -134,7 +113,6 @@ export default class CourseEditView extends Vue {
   showNotification = false;
   notificationKind = 'success';
   notificationText = '';
-  counter = 1;
   course: CourseModel = { ...courseStore.newCourse };
   courseEdit = { ...this.course };
   deChecks: string[] = [];
@@ -211,17 +189,6 @@ export default class CourseEditView extends Vue {
 </script>
 
 <style lang="stylus" scoped>
-
-.description--block
-  display flex
-  flex-direction row
-
-.add--btn
-  float right
-
-.edit--course
-  margin-top 2rem
-
 .course--cats
   margin-top 2rem
 
@@ -234,17 +201,17 @@ export default class CourseEditView extends Vue {
 .course--de
   margin-top 2rem
 
-.create--change--btn
+.btns--container
   margin-top 2rem
 
-.first--block
-  background-color var(--cds-ui-02)
-  margin-top 1rem
+.btns
+  display flex
+  justify-content space-between
+  overflow-wrap break-word
 
-.second--block
+.col-content
   margin-top 1rem
-  margin-left 5rem
-  background-color var(--cds-ui-02)
+  margin-right 1rem
 
 .main--content
   margin-top 1rem
@@ -255,22 +222,20 @@ export default class CourseEditView extends Vue {
   flex-direction column
   align-items flex-start
 
+.lessons
+  background-color var(--cds-ui-background)
+  padding 1rem
+
+.lessons-modal
+  display flex
+  justify-content space-between
+
 .generate--link
-  margin-left 2rem
   margin-top 0
   margin-bottom 0
 
-.create-link-input
-  margin-left 2rem
-  margin-bottom 0.5rem
-
-.create-link
-  margin-left 2rem
-  margin-top 3rem
-  margin-bottom 1rem
-
 .choose--teacher
-  margin-left 2rem
+  margin-right 1rem
 
 .add-teacher
   margin 2rem
@@ -282,12 +247,6 @@ export default class CourseEditView extends Vue {
 .title
   margin-left 3rem
   margin-top 1rem
-
-.null
-  background-color var(--cds-ui-02)
-
-.edit--course-props
-  margin-top 10px
 
 .items
   background-color var(--cds-ui-02)

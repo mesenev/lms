@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.urls import reverse
 from model_mommy import mommy
@@ -5,7 +6,6 @@ from rest_framework import status
 
 from course.models import Course
 from course.serializers import CourseSerializer
-from imcslms.default_settings import TEACHER
 from imcslms.test import MainSetup
 from users.models import CourseAssignTeacher
 
@@ -14,7 +14,7 @@ class CourseTests(MainSetup):
     def test_create_course(self):
         self.test_setup()
         course = mommy.make(Course)
-        group = Group.objects.get(name=TEACHER)
+        group = Group.objects.get(name=settings.TEACHER)
         group.user_set.add(self.user)
 
         data = CourseSerializer(course).data

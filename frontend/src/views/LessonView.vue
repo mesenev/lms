@@ -41,7 +41,6 @@
           <div v-if="homework.length > 0" class="homework">
             <h4 class="homework-title">Домашняя работа</h4>
             <div v-if="!loading">
-
                 <problem-list-component :task-list="homework"/>
             </div>
             <div v-else>

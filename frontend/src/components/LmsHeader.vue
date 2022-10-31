@@ -250,5 +250,4 @@ export default class LmsHeader extends Vue {
 .user-view
   padding-left 30px;
   padding-top 10px;
-  margin-bottom 0px;
 </style>

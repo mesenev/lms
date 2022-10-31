@@ -52,6 +52,12 @@ class SubmitListSerializer(serializers.ModelSerializer):
         fields = ['id', 'problem', 'student', 'status', 'created_at', 'lesson', ]
 
 
+class LastSubmitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Submit
+        fields = ['id', 'status']
+
+
 class ProblemStatsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProblemStats
@@ -65,14 +71,8 @@ class LogEventSerializer(serializers.ModelSerializer):
 
 
 class ProblemListSerializer(serializers.ModelSerializer):
-    last_submit = serializers.SerializerMethodField()
     stats = serializers.SerializerMethodField()
-
-    def get_last_submit(self, instance):
-        if hasattr(instance, 'last_submit') and len(instance.last_submit) > 0:
-            return SubmitListSerializer(instance.last_submit[0]).data
-        else:
-            return None
+    last_submit = LastSubmitSerializer()
 
     def get_stats(self, instance):
         if hasattr(instance, 'stats') and instance.stats:

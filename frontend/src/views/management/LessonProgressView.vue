@@ -197,7 +197,7 @@ export default class LessonProgressView extends Vue {
     }
     if (sortBy.index == "0") {
       return this.students.sort((a, b) => {
-        return (a.user.last_name > b.user.last_name) ? order : -1 * order;
+        return (this.users[a.user].last_name > this.users[b.user].last_name) ? order : -1 * order;
       })
     } else {
       return this.students.sort((a, b) => {

@@ -3,7 +3,7 @@ from django.dispatch import receiver
 
 from lesson.models import Lesson
 from problem.models import Submit, Problem
-from rating.models import CourseProgress, LessonProgress, Attendance
+from rating.models import CourseProgress, LessonProgress
 from users.models import CourseAssignStudent
 
 
@@ -31,19 +31,20 @@ post_save.connect(update_lesson_progress, sender=Submit)
 
 
 def calc_lesson_stat(lesson, solved: dict, user):
-    def calc(typeProblem: str) -> int:
+    def calc(problem_type: str) -> int:
+        problems_amount = Problem.objects.filter(lesson_id=lesson.id, type=problem_type).count()
+        problems_ok = len(dict((k, v) for (k, v) in solved[problem_type].items() if v[0] == 'OK'))
         try:
-            return (lesson.scores[typeProblem] / Problem.objects.filter(lesson_id=lesson.id, type=typeProblem).count()) \
-                   * len(dict((k, v) for (k, v) in solved[typeProblem].items() if v[0] == 'OK'))
+            return (lesson.scores[problem_type] / problems_amount) * problems_ok
         except ArithmeticError:
             return 0
 
-    count_of_CW = calc('CW')
-    count_of_HW = calc('HW')
-    count_of_EX = calc('EX')
+    count_of_cw = calc('CW')
+    count_of_hw = calc('HW')
+    count_of_ex = calc('EX')
 
     for i in CourseProgress.objects.filter(course=lesson.course, user=user):
-        i.progress[lesson.id] = {"CW": count_of_CW, "HW": count_of_HW, "EX": count_of_EX}
+        i.progress[lesson.id] = {"CW": count_of_cw, "HW": count_of_hw, "EX": count_of_ex}
         i.save()
 
 
@@ -51,13 +52,9 @@ def calc_lesson_stat(lesson, solved: dict, user):
 def add_student_to_rating_of_lesson(sender, instance, created, **kwargs):
     if not created:
         return
-    user = instance.user
-    course = instance.course
-    for lesson in Lesson.objects.filter(course=course):
-        validated_data = {'course': course, 'lesson': lesson, 'user': user}
-        at = Attendance.objects.create(**validated_data)
+    for lesson in Lesson.objects.filter(course=instance.course):
         validated_data = {
-            'user': user, 'lesson': lesson, 'solved': {'CW': {}, 'HW': {}, 'EX': {}}, 'attendance': at
+            'user': instance.user, 'lesson': lesson, 'solved': {'CW': {}, 'HW': {}, 'EX': {}}, 'attendance': False
         }
         LessonProgress.objects.create(**validated_data)
 
@@ -69,10 +66,10 @@ post_save.connect(add_student_to_rating_of_lesson, sender=CourseAssignStudent)
 def add_student_to_rating_course(sender, instance, created, **kwargs):
     if not created:
         return
-    existLessons, attendance, at = {}, {}, None
+    exist_lessons, attendance, at = {}, {}, None
     for i in Lesson.objects.filter(course=instance.course):
-        existLessons[i.id] = {'CW': 0, 'HW': 0, 'EX': 0}
-    validated_data = {'course': instance.course, 'user': instance.user, 'progress': existLessons}
+        exist_lessons[i.id] = {'CW': 0, 'HW': 0, 'EX': 0}
+    validated_data = {'course': instance.course, 'user': instance.user, 'progress': exist_lessons}
     course_progress = CourseProgress.objects.create(**validated_data)
 
 
@@ -84,11 +81,9 @@ def add_student_to_rating_lesson(sender, instance, created, **kwargs):
     if not created or instance.course is None:
         return
     for i in CourseAssignStudent.objects.filter(course=instance.course.id):
-        validated_data = {'course': i.course, 'lesson': instance, 'user': i.user}
-        at = Attendance.objects.create(**validated_data)
-        validated_data = {'user': i.user, 'lesson': instance, 'solved': {'CW': {}, 'HW': {}, 'EX': {}},
-                          'attendance': at}
-        LessonProgress.objects.create(**validated_data)
+        LessonProgress.objects.create(
+            user=i.user, lesson=instance, solved={'CW': {}, 'HW': {}, 'EX': {}}, attendance=False
+        )
 
 
 @receiver(post_save, sender=Lesson)
@@ -97,7 +92,6 @@ def add_lessons_to_course_rating(sender, instance, created, **kwargs):
         return
     for i in CourseProgress.objects.filter(course=instance.course):
         i.progress.update({instance.id: {'CW': 0, 'HW': 0, 'EX': 0}})
-        i.attendance.add(*(Attendance.objects.filter(user=i.user, course=i.course)))
         i.save()
 
 

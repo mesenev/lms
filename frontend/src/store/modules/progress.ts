@@ -1,9 +1,9 @@
 import UserProgress from '@/models/UserProgress';
-import Attendance from '@/models/Attendance';
 import store from '@/store';
-import api from '@/store/services/api'
-import {Dictionary} from "vue-router/types/router";
-import {Action, getModule, Module, Mutation, VuexModule} from 'vuex-module-decorators';
+import { Dictionary } from "vue-router/types/router";
+import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
+import Attendance from "@/models/Attendance";
+import api from "@/store/services/api";
 
 @Module({ namespaced: true, name: 'progress', store, dynamic: true })
 class ProgressModule extends VuexModule {
@@ -39,7 +39,7 @@ class ProgressModule extends VuexModule {
   }
 
   @Action
-  async fetchCourseProgressById(id: number): Promise<UserProgress[]>{
+  async fetchCourseProgressById(id: number): Promise<UserProgress[]> {
     if (id in this.courseProgress) {
       return this.courseProgress[id];
     }
@@ -56,16 +56,16 @@ class ProgressModule extends VuexModule {
 
 
   @Action
-  async fetchAttendance(id: number): Promise<Attendance[]>{
+  async fetchAttendance(id: number): Promise<Dictionary<Attendance[]>>{
     let answer = { data: {} };
-    await api.get('/api/attendance/', { params: { course_id: id } })
+    await api.get(`/api/lessonprogress/attendance-by-course/${id}/`)
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
       })
-    const result = answer.data as Array<Attendance>;
-    return result;
+    return answer.data as Dictionary<Attendance[]>;
   }
 }
+
 
 export default getModule(ProgressModule);
