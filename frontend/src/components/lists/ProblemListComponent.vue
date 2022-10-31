@@ -21,11 +21,30 @@
     </cv-structured-list>
   </div>
   <div v-else>
-    <cv-inline-notification
-      v-if="showNotification"
-      @close="() => showNotification=false"
-      kind="error"
-      :sub-title="notificationText"/>
+    <cv-modal
+      class="confirm-modal"
+      size="small"
+      :visible="modalVisible"
+      @modal-hidden="hideModal"
+      @primary-click="deleteProblem"
+      :primary-button-disabled="loading">
+      <template slot="label">
+        Подтверждение
+      </template>
+      <template slot="title">
+        Вы уверены?
+      </template>
+      <template slot="content">
+        <cv-inline-notification
+          v-if="showNotification"
+          @close="() => showNotification=false"
+          kind="error"
+          :sub-title="notificationText"/>
+      </template>
+      <template slot="primary-button">
+        Удалить
+      </template>
+    </cv-modal>
     <cv-accordion
       v-for="problem in taskList"
       :key="problem.id"
@@ -45,7 +64,7 @@
               v-if="isEditing"
               :is="TrashCan16"
               class="icon-trash"
-              @click.stop.prevent="deleteProblem(problem.id)">
+              @click.stop.prevent="showConfirmModal(problem.id)">
             </component>
           </div>
         </template>
@@ -66,7 +85,7 @@ import Launch from '@carbon/icons-vue/es/launch/16';
 import TrashCan16 from '@carbon/icons-vue/es/trash-can/16'
 import userStore from '@/store/modules/user';
 import courseStore from '@/store/modules/course';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop } from 'vue-property-decorator';
 import CatsProblemModel from "@/models/CatsProblemModel";
 import api from "@/store/services/api";
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
@@ -79,6 +98,9 @@ export default class ProblemListComponent extends NotificationMixinComponent {
   userStore = userStore;
   courseStore = courseStore;
   TrashCan16 = TrashCan16;
+  modalVisible = false;
+  loading = false;
+  deleteProblemId = 0;
 
   target(problem: ProblemModel) {
     if (!!problem.last_submit)
@@ -98,13 +120,26 @@ export default class ProblemListComponent extends NotificationMixinComponent {
     this.$on('cv:change', this.eventHandler);
   }
 
-  deleteProblem(problemId: number) {
-    api.delete(`/api/problem/${problemId}/`).then(response => {
-      this.$emit('update-problem-delete', problemId);
+  showConfirmModal(problemId: number) {
+    this.deleteProblemId = problemId;
+    this.modalVisible = true;
+  }
+
+  hideModal() {
+    this.modalVisible = false;
+  }
+
+  deleteProblem() {
+    this.loading = true;
+    api.delete(`/api/problem/${this.deleteProblemId}/`).then(() => {
+      this.$emit('update-problem-delete', this.deleteProblemId);
+      this.hideModal();
     }).catch(error => {
       this.notificationKind = 'error';
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.showNotification = true;
+    }).finally(() => {
+      this.loading = false;
     })
   }
 
