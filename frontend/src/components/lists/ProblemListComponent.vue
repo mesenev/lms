@@ -21,29 +21,11 @@
       v-for="problem in taskList"
       :key="problem.id"
       align="end">
-      <cv-accordion-item class="accordion" :class="{ doNotShowAccordionContent: !isStaff }">
-        <template slot="title">
-          <div class="problem-list-component--header">
-            <div class="problem-container">
-              <cv-link :to="target(problem)">
-                {{ problem.name }}
-              </cv-link>
-              <div>
-                <stats-graph v-if="problem.stats" :stats="problem.stats"/>
-              </div>
-            </div>
-            <component
-              v-if="isEditing"
-              :is="TrashCan16"
-              class="icon-trash"
-              @click.stop.prevent="deleteProblem(problem.id)">
-            </component>
-          </div>
-        </template>
-        <template slot="content">
-          <problem-stats v-if="isStaff && open" :problem="problem"/>
-        </template>
-      </cv-accordion-item>
+      <staff-problem-list-item-component
+        @delete-problem-click="deleteProblem($event)"
+        :is-editing="isEditing"
+        :problem="problem">
+      </staff-problem-list-item-component>
     </cv-accordion>
   </div>
 </template>
@@ -54,26 +36,31 @@ import StatsGraph from '@/components/StatsGraph.vue';
 import SubmitStatus from "@/components/SubmitStatus.vue";
 import ProblemModel from '@/models/ProblemModel';
 import Launch from '@carbon/icons-vue/es/launch/16';
-
-import TrashCan16 from '@carbon/icons-vue/es/trash-can/16'
 import userStore from '@/store/modules/user';
 import courseStore from '@/store/modules/course';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop } from 'vue-property-decorator';
 import CatsProblemModel from "@/models/CatsProblemModel";
 import StudentProblemListItemComponent from "@/components/StudentProblemListItemComponent.vue";
 import StaffProblemListItemComponent from "@/components/StaffProblemListItemComponent.vue";
+import NotificationMixinComponent from '../common/NotificationMixinComponent.vue';
 import api from "@/store/services/api";
-import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 
-@Component({ components: { ProblemStats, SubmitStatus, Launch, StatsGraph } })
+@Component({ components: { ProblemStats, SubmitStatus, Launch, StatsGraph, StudentProblemListItemComponent, StaffProblemListItemComponent } })
 export default class ProblemListComponent extends NotificationMixinComponent {
-  @Prop({required: true}) taskList!: Array<ProblemModel | CatsProblemModel>;
-  @Prop({required: false}) isEditing!: false | boolean;
-  public open = true; /*false?*/
+  @Prop({ required: true }) taskList!: Array<ProblemModel | CatsProblemModel>;
+  @Prop({ required: false }) isEditing!: false | boolean;
   userStore = userStore;
   courseStore = courseStore;
-  TrashCan16 = TrashCan16;
 
+  deleteProblem(problemId: number) {
+    api.delete(`/api/problem/${problemId}/`).then(() => {
+      this.$emit('update-problem-delete', problemId);
+    }).catch(error => {
+      this.notificationKind = 'error';
+      this.notificationText = `Что-то пошло не так: ${error.message}`;
+      this.showNotification = true;
+    })
+  }
 
   get isStaff(): boolean {
     const courseId = Number(this.$route.params.courseId);

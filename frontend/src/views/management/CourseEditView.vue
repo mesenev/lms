@@ -97,6 +97,7 @@ import AddTeacherModal from "@/components/EditCourse/AddTeacherModal.vue";
 import EditCourseLessons from '@/components/EditCourse/EditCourseLessons.vue';
 import EditCourseModal from '@/components/EditCourse/EditCourseModal.vue';
 import GenerateLinks from "@/components/EditCourse/GenerateLinks.vue";
+import CatsContestModel, { ContestModel } from "@/models/ContestModel";
 import CourseModel from '@/models/CourseModel';
 import router from '@/router';
 import courseStore from "@/store/modules/course";
@@ -132,6 +133,7 @@ export default class CourseEditView extends Vue {
     name: 'Python 3.8.1', disabled: false,
   },
 ];
+  contestsFromCats: ContestModel[] = [];
 
   deChanged() {
     this.courseEdit = { ...this.courseEdit, de_options: this.deChecks.sort().join(',') };
