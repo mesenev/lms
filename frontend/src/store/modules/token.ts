@@ -27,6 +27,7 @@ class TokenModule extends VuexModule {
         response => {
           userStore.receiveUser(response.data);
           this.acceptAuthentication();
+          router.push('/');
         }
       )
     }
@@ -59,7 +60,6 @@ class TokenModule extends VuexModule {
 
   @Mutation acceptAuthentication() {
     this.isAuthenticated = true;
-    router.push('/')
   }
 
   @Mutation rejectAuthentication() {
