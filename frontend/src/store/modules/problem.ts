@@ -72,9 +72,6 @@ class ProblemModule extends VuexModule {
 
   @Action
   async fetchProblemsByLessonId(id: number): Promise<ProblemModel[]> {
-    if (id in this.problemsByLesson) {
-      return this.problemsByLesson[id];
-    }
     let answer = { data: {} };
     await api.get('/api/problem/', { params: { lesson_id: id } })
       .then(response => answer = response)

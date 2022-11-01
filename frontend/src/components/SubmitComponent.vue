@@ -206,6 +206,8 @@ export default class SubmitComponent extends NotificationMixinComponent {
       this.$emit('submit-created', { id: response.data.id.toString() });
       this.submit = { ...response.data };
       this.submitEdit = { ...this.submit };
+      this.problem.last_submit = this.submit;
+      this.problemStore.changeCurrentProblem(this.problem)
       this.notificationKind = 'success';
       this.notificationText = 'Попытка отправлена';
     }).catch((error: AxiosError) => {
