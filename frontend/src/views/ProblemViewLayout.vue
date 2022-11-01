@@ -1,6 +1,6 @@
 <template>
   <transition mode="out-in" name="fade">
-    <router-view v-if="problem"/>
+    <router-view :key="$route.params.problemId" v-if="problem"/>
     <div class="loading-out" v-else>
       <cv-loading />
     </div>

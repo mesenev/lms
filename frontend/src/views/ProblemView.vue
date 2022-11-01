@@ -97,7 +97,7 @@ import lessonStore from '@/store/modules/lesson';
 import problemStore from '@/store/modules/problem';
 import submitStore from '@/store/modules/submit';
 import userStore from '@/store/modules/user';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue, Watch} from 'vue-property-decorator';
 import CatsPackageWindow from "@/components/CatsPackageWindow.vue";
 
 
@@ -129,6 +129,14 @@ export default class ProblemView extends Vue {
   private catsResultSubmitId: number | null = null;
 
   private logEventComponentKey = 0;
+
+  @Watch('$route.params.problemId', { immediate: true, deep: true })
+  async unUrlChange() {
+    this.recreateLogEventComponent();
+    this.problemStore.changeCurrentProblem(null);
+    const problem = await this.problemStore.fetchProblemById(Number(this.$route.params.problemId));
+    this.problemStore.changeCurrentProblem(problem);
+  }
 
   get lesson() {
     return this.lessonStore.currentLesson;

@@ -28,7 +28,6 @@
 import { Component, Prop } from "vue-property-decorator";
 import ProblemStats from "@/components/ProblemStats.vue";
 import SubmitStatus from "@/components/SubmitStatus.vue";
-import Launch from "@carbon/icons-vue/es/launch/16";
 import StatsGraph from "@/components/StatsGraph.vue";
 import ProblemModel from "@/models/ProblemModel";
 import SubmitModel from "@/models/SubmitModel"
@@ -36,7 +35,7 @@ import userStore from "@/store/modules/user";
 import TrashCan16 from '@carbon/icons-vue/es/trash-can/16'
 import { Vue } from 'vue-property-decorator'
 
-@Component({ components: { ProblemStats, SubmitStatus, Launch, StatsGraph } })
+@Component({ components: { ProblemStats, SubmitStatus, StatsGraph } })
 export default class StaffProblemListItemComponent extends Vue {
   @Prop({ required: true }) problem!: ProblemModel;
   @Prop({ required: false }) isEditing!: false | boolean;
