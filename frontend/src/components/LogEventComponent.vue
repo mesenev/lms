@@ -214,6 +214,8 @@ export default class LogEventComponent extends NotificationMixinComponent {
   }
 
   async createMessageHandler() {
+    if (!this.commentary)
+      return;
     this.messageIsSending = true;
     const newMessage: LogEventModel = {
       ...this.logEventStore.getNewLogEventMessage,
