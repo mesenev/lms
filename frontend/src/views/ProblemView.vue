@@ -68,6 +68,7 @@
           <cv-loading v-else small/>
           <div class="solution-container--submit-list">
             <log-event-component
+              v-if="!!problem"
               :key="logEventComponentKey"
               :problemId="problem.id" :studentId="studentId"
               :selected-submit="submitId"
@@ -75,6 +76,7 @@
               @submit-selected="(x) => changeCurrentSubmit(x.id)"
               @cats-answer="(x) => showCatsAnswerModal(x.id)"
             />
+            <cv-loading v-else></cv-loading>
           </div>
         </div>
       </cv-column>
@@ -132,10 +134,9 @@ export default class ProblemView extends Vue {
 
   @Watch('$route.params.problemId', { immediate: true, deep: true })
   async unUrlChange() {
-    this.recreateLogEventComponent();
-    this.problemStore.changeCurrentProblem(null);
     const problem = await this.problemStore.fetchProblemById(Number(this.$route.params.problemId));
     this.problemStore.changeCurrentProblem(problem);
+    this.recreateLogEventComponent();
   }
 
   get lesson() {
