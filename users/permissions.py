@@ -1,5 +1,5 @@
 from rest_framework import permissions
-
+from course.models import Course
 from lesson.models import LessonContent
 
 
@@ -62,6 +62,21 @@ class CourseStaffOrAuthor(permissions.BasePermission):
             return True
         if hasattr(obj, 'author') and obj.author == request.user:
             return True
+        return False
+
+    def has_permission(self, request, view):
+        if 'course_id' in view.kwargs:
+            queryset = Course.objects.filter(id=view.kwargs['course_id'])
+            if queryset.exists() and queryset.first() in request.user.staff_for.all():
+                return True
+        if 'lesson_id' in view.kwargs:
+            queryset = Course.objects.filter(lessons__id=view.kwargs['lesson_id'])
+            if queryset.exists() and queryset.first() in request.user.staff_for.all():
+                return True
+        if 'problem_id' in view.kwargs:
+            queryset = Course.objects.filter(lessons__problems__id=view.kwargs['problem_id'])
+            if queryset.exists() and queryset.first() in request.user.staff_for.all():
+                return True
         return False
 
 
