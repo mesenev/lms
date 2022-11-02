@@ -214,7 +214,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
       const problemTypes = new Map<string, number>([['CW', 0], ['HW', 1], ['EX', 2]]);
       data.forEach(element => element.test_mode = this.testingMode);
       await axios.post(
-        `/api/add-cats-problems-to-lesson/${this.lesson.id}/`,
+          `/api/lesson/${this.lesson.id}/add_cats_problems/`,
         { problem_data: data, problem_type: problemTypes.get(this.problemType)
         }).then(async (answer) => {
           if (answer.status == 200) {
