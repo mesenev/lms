@@ -1,17 +1,17 @@
 <template>
   <div class="bx--grid">
-    <cv-data-table title="Успеваемость урока" v-if="!loading" @sort="Sort">
+    <cv-data-table v-if="!loading" title="Успеваемость урока" @sort="Sort">
       <template slot="helper-text">
         <router-link :to="{ name: 'LessonView', params: { lessonId: lesson.id } }"
-                     tag="p" class="course--title">
+                     class="course--title" tag="p">
           {{ les.name }}
         </router-link>
       </template>
       <template slot="actions">
         <cv-checkbox
-          label="Не решали"
-          value="value"
-          v-model="dontSolved"/>
+            v-model="dontSolved"
+            label="Не решали"
+            value="value"/>
       </template>
       <template slot="headings">
         <cv-data-table-heading v-for="(column, id) in columns" :key="id" :sortable=isSortable(column.id)>
@@ -30,9 +30,9 @@
               <UserComponent :userProp="user.user"/>
             </router-link>
           </cv-data-table-cell>
-          <cv-data-table-cell class="mark"
-                              v-for="problem in problems"
-                              :key="problem.id">
+          <cv-data-table-cell v-for="problem in problems"
+                              :key="problem.id"
+                              class="mark">
             <div @click="openSubmitOrProblem(problem.id, user.solved[problem.type][problem.id][1])">
               <submit-status v-if="userMarks(user,problem.type,problem.id)"
                              :submit="create_submit(user.solved[problem.type][problem.id],problem.id,user.user)"/>
@@ -62,10 +62,10 @@ import problemStore from "@/store/modules/problem"
 import progressStore from "@/store/modules/progress"
 import userStore from '@/store/modules/user';
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
-import {Component, Prop, Vue} from 'vue-property-decorator';
-import {Dictionary} from "vue-router/types/router";
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Dictionary } from "vue-router/types/router";
 
-@Component({components: {SubmitStatus, UserComponent, UserAvatar20}})
+@Component({ components: { SubmitStatus, UserComponent, UserAvatar20 } })
 export default class LessonProgressView extends Vue {
   @Prop() lessonId!: number;
 
@@ -95,12 +95,12 @@ export default class LessonProgressView extends Vue {
 
   get columns() {
     const a = this.problems.map(l => (
-      {
-        id: l.id,
-        name: l.name,
-      }
+        {
+          id: l.id,
+          name: l.name,
+        }
     ))
-    a.unshift({ id: -2, name: "Ученики" })
+    a.unshift({ id: - 2, name: "Ученики" })
     a.push({ id: 0, name: "Рейтинг" })
     return a
   }
@@ -122,7 +122,7 @@ export default class LessonProgressView extends Vue {
     this.users = await this.userStore.fetchStudentsByCourseId(this.lesson.course);
     this.problems = await this.problemStore.fetchProblemsByLessonId(this.lessonId);
     this.students = this.students.map(
-      obj => Object.assign({}, obj, { user: this.users[obj.user.toLocaleString()]}));
+        obj => Object.assign({}, obj, { user: this.users[obj.user.toLocaleString()] }));
     this.loading = false;
   }
 
@@ -134,18 +134,23 @@ export default class LessonProgressView extends Vue {
   }
 
   definition(column: number) {
-    if (!this.loading && column != -1 && column != 0) {
+    if (!this.loading && column != - 1 && column != 0) {
       const columnProblem = this.problems.filter((problem) => problem.id === column)[0].submits
-      column = (columnProblem) ? columnProblem.filter(x => x.status === 'OK').length : 0;
+      column = (columnProblem) ? columnProblem.filter(x => x.status === 'OK').length:0;
     }
     return `Успешно решило ${column} из ${this.progress.length} студентов`
   }
 
   create_submit(status_id: never, problemId: number, userid: number) {
-    return {id: Object.values(status_id)[1], problem: problemId, student: Number(userid), status: Object.values(status_id)[0]}
+    return {
+      id: Object.values(status_id)[1],
+      problem: problemId,
+      student: Number(userid),
+      status: Object.values(status_id)[0]
+    }
   };
 
-  userMarks(userId: UserProgress, problemType: string, problemId: number){
+  userMarks(userId: UserProgress, problemType: string, problemId: number) {
     return userId.solved[problemType][problemId];
   }
 
@@ -161,7 +166,7 @@ export default class LessonProgressView extends Vue {
     })
     let coefCW = this.lesson.scores['CW'];
     let coefHW = this.lesson.scores['HW'];
-    if (c.length === 0){
+    if (c.length === 0) {
       coefHW = 100;
     }
     if (h.length === 0) {
@@ -171,46 +176,46 @@ export default class LessonProgressView extends Vue {
     let CWSolved = Object.keys(user.solved['CW']).filter(x => c.includes(x) && user.solved['CW'][x][0] === 'OK').length;
     let HWSolved = Object.keys(user.solved['HW']).filter(x => h.includes(x) && user.solved['HW'][x][0] === 'OK').length;
     let EXSolved = Object.keys(user.solved['EX']).filter(x => h.includes(x) && user.solved['EX'][x][0] === 'OK').length;
-    CWSolved =  (coefCW/ c.length) * CWSolved;
-    HWSolved =  (coefHW/ h.length) * HWSolved;
-    EXSolved =  (this.lesson.scores['EX'] / e.length) * EXSolved;
-    let  solvedCount = 0;
-    solvedCount += (CWSolved != CWSolved) ? 0 : CWSolved;
-    solvedCount += (HWSolved != HWSolved) ? 0 : HWSolved;
-    solvedCount += (EXSolved != EXSolved) ? 0 : EXSolved;
+    CWSolved = (coefCW / c.length) * CWSolved;
+    HWSolved = (coefHW / h.length) * HWSolved;
+    EXSolved = (this.lesson.scores['EX'] / e.length) * EXSolved;
+    let solvedCount = 0;
+    solvedCount += (CWSolved != CWSolved) ? 0:CWSolved;
+    solvedCount += (HWSolved != HWSolved) ? 0:HWSolved;
+    solvedCount += (EXSolved != EXSolved) ? 0:EXSolved;
     return solvedCount + '%';
   }
 
   isSortable(column: number): boolean {
-    return (!(column != 0 && column != -1));
+    return (!(column != 0 && column != - 1));
   }
 
   Sort(sortBy: { index: string; order: string }) {
-    let order = -1;
+    let order = - 1;
     if (sortBy.order == "none") {
       return this.students.sort((a, b) => {
         return a.id - b.id
       })
     }
     if (sortBy.order == "ascending") {
-      order *= -1;
+      order *= - 1;
     }
     if (sortBy.index == "0") {
       return this.students.sort((a, b) => {
-        return (this.users[a.user].last_name > this.users[b.user].last_name) ? order : -1 * order;
+        return (this.users[a.user].last_name > this.users[b.user].last_name) ? order:- 1 * order;
       })
     } else {
       return this.students.sort((a, b) => {
         const A = Object.values(a.solved['CW'] && a.solved['HW'] && a.solved['EX']).filter(a => a == 'OK')
         const B = Object.values(b.solved['CW'] && b.solved['HW'] && b.solved['EX']).filter(b => b == 'OK')
-        return (Object.keys(A).length > Object.keys(B).length) ? order : -1 * order
+        return (Object.keys(A).length > Object.keys(B).length) ? order:- 1 * order
       })
     }
   }
 }
 </script>
 
-<style scoped lang="stylus">
+<style lang="stylus" scoped>
 .course--title
   color inherit
   cursor pointer

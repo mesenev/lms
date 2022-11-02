@@ -34,22 +34,22 @@ class ProblemModule extends VuexModule {
   async fetchProblems(data: object) {
     //TODO: remove or fix (data here is set of fields to filter)
     await api.get('/api/problem/', { params: data })
-      .then(response => {
-        this.setProblems(response.data);
-      })
-      .catch(error => {
-        console.log(error);
-      })
+        .then(response => {
+          this.setProblems(response.data);
+        })
+        .catch(error => {
+          console.log(error);
+        })
   }
 
   @Action
   async fetchProblemById(problemId: number): Promise<ProblemModel> {
     let answer = { data: {} };
     await api.get(`/api/problem/${problemId}/`)
-      .then(response => answer = response)
-      .catch(error => {
-        console.log(error);
-      })
+        .then(response => answer = response)
+        .catch(error => {
+          console.log(error);
+        })
     return answer.data as ProblemModel;
   }
 
@@ -57,10 +57,10 @@ class ProblemModule extends VuexModule {
   async fetchCatsProblemById(catsId: number): Promise<CatsProblemModel> {
     let answer = { data: {} };
     await api.get(`/api/cats-problem/${catsId}/`)
-      .then(response => answer = response)
-      .catch(error => {
-        console.log(error);
-      })
+        .then(response => answer = response)
+        .catch(error => {
+          console.log(error);
+        })
     return answer.data as CatsProblemModel;
 
   }
@@ -74,10 +74,10 @@ class ProblemModule extends VuexModule {
   async fetchProblemsByLessonId(id: number): Promise<ProblemModel[]> {
     let answer = { data: {} };
     await api.get('/api/problem/', { params: { lesson_id: id } })
-      .then(response => answer = response)
-      .catch(error => {
-        console.log(error);
-      })
+        .then(response => answer = response)
+        .catch(error => {
+          console.log(error);
+        })
     const result = answer.data as Array<ProblemModel>;
     this.setProblems({ [id]: result })
     return result;
@@ -87,10 +87,10 @@ class ProblemModule extends VuexModule {
   async fetchProblemsForCourse(course_id: number): Promise<ProblemModel[]> {
     let answer = { data: {} };
     await api.get(`/api/problem/by-course/${course_id}/`)
-      .then(response => answer = response)
-      .catch(error => {
-        console.log(error);
-      })
+        .then(response => answer = response)
+        .catch(error => {
+          console.log(error);
+        })
     return answer.data as Array<ProblemModel>;
   }
 }

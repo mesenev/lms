@@ -11,10 +11,10 @@
           </div>
         </div>
         <component
-          v-if="isEditing"
-          :is="TrashCan16"
-          class="icon-trash"
-          @click.stop.prevent="deleteProblemClick(problem.id)">
+            :is="TrashCan16"
+            v-if="isEditing"
+            class="icon-trash"
+            @click.stop.prevent="deleteProblemClick(problem.id)">
         </component>
       </div>
     </template>
@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import ProblemStats from "@/components/ProblemStats.vue";
 import SubmitStatus from "@/components/SubmitStatus.vue";
 import StatsGraph from "@/components/StatsGraph.vue";
@@ -33,7 +33,6 @@ import ProblemModel from "@/models/ProblemModel";
 import SubmitModel from "@/models/SubmitModel"
 import userStore from "@/store/modules/user";
 import TrashCan16 from '@carbon/icons-vue/es/trash-can/16'
-import { Vue } from 'vue-property-decorator'
 
 @Component({ components: { ProblemStats, SubmitStatus, StatsGraph } })
 export default class StaffProblemListItemComponent extends Vue {
@@ -57,8 +56,9 @@ export default class StaffProblemListItemComponent extends Vue {
         },
       };
     } else
-      return { name: 'ProblemView', params: { problemId: problem.id.toString()} };
+      return { name: 'ProblemView', params: { problemId: problem.id.toString() } };
   }
+
   deleteProblemClick(problemId: number) {
     this.$emit('delete-problem-click', problemId);
   }

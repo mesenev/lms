@@ -1,7 +1,7 @@
 <template>
   <transition mode="out-in" name="fade">
-    <router-view :key="$route.params.problemId" v-if="problem"/>
-    <div class="loading-out" v-else>
+    <router-view v-if="problem" :key="$route.params.problemId"/>
+    <div v-else class="loading-out">
       <cv-loading />
     </div>
   </transition>

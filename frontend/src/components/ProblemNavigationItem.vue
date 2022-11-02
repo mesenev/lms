@@ -1,23 +1,23 @@
 <template>
-  <li v-if="!loading" class="status" :class="{'status-ok': isAccepted,
+  <li v-if="!loading" :class="{'status-ok': isAccepted,
                  'status-wa': isRejected,
-                 'status-np': !(isAccepted || isRejected)}">
+                 'status-np': !(isAccepted || isRejected)}" class="status">
     <div class="status-back"></div>
     <router-link :to="target">
       <component
-        v-if="isAccepted"
-        :is="Checkmark16"
-        class="icon-accepted">
+          :is="Checkmark16"
+          v-if="isAccepted"
+          class="icon-accepted">
       </component>
       <component
-        v-else-if="isRejected"
-        :is="Close16"
-        class="icon-rejected">
+          :is="Close16"
+          v-else-if="isRejected"
+          class="icon-rejected">
       </component>
       <span
-        v-else
-        v-text="'?'"
-        class="icon-not-passed">
+          v-else
+          class="icon-not-passed"
+          v-text="'?'">
       </span>
     </router-link>
   </li>
@@ -41,6 +41,18 @@ export default class ProblemNavigationItem extends Vue {
   Checkmark16 = Checkmark16;
   target: object = {};
 
+  get getStatus(): string | undefined {
+    return this.problem.last_submit?.status;
+  }
+
+  get isAccepted() {
+    return this.getStatus === SUBMIT_STATUS.OK;
+  }
+
+  get isRejected() {
+    return this.getStatus === SUBMIT_STATUS.WRONG_ANSWER;
+  }
+
   async created() {
     // TODO: MAKE SEPARATE TARGET METHOD FOR ALL NAVIGATION LINKS
     if (!!this.problem.last_submit) {
@@ -53,24 +65,13 @@ export default class ProblemNavigationItem extends Vue {
           submitId: this.problem.last_submit.id.toString(),
         }
       };
-    }
-    else {
+    } else {
       this.target = {
         name: 'ProblemView',
         params: { problemId: this.problem.id.toString() }
       };
     }
     this.loading = !this.target;
-  }
-
-  get getStatus(): string | undefined {
-    return this.problem.last_submit?.status;
-  }
-  get isAccepted() {
-    return this.getStatus === SUBMIT_STATUS.OK;
-  }
-  get isRejected() {
-    return this.getStatus === SUBMIT_STATUS.WRONG_ANSWER;
   }
 }
 </script>
@@ -115,34 +116,42 @@ li
 
   &-ok
     background-color #4EB052
+
     svg
       width 18px
       height 18px
       margin 3px
+
   &-wa
     background-color #DA1E28
+
     svg
       width 16px
       height 16px
       margin 4px
+
   &-np
     background-color transparent
     border 1px #808080 solid
+
     a
       color black
       text-decoration none
+
       &:hover
         text-decoration 1px underline
 
   &-np &-back
     top -3px
     left -3px
+
   &:hover &-back
     display unset
 
 .icon
   &-rejected, &-accepted
     fill white
+
   &-not-passed
     fill black
     stroke black

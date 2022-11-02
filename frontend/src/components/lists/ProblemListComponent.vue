@@ -3,28 +3,28 @@
     <cv-structured-list>
       <template slot="items">
         <cv-structured-list-item
-          v-for="problem in taskList"
-          :key="problem.id">
+            v-for="problem in taskList"
+            :key="problem.id">
           <student-problem-list-item-component
-            :problem="problem"></student-problem-list-item-component>
+              :problem="problem"></student-problem-list-item-component>
         </cv-structured-list-item>
       </template>
     </cv-structured-list>
   </div>
   <div v-else>
     <cv-inline-notification
-      v-if="showNotification"
-      @close="() => showNotification=false"
-      kind="error"
-      :sub-title="notificationText"/>
+        v-if="showNotification"
+        :sub-title="notificationText"
+        kind="error"
+        @close="() => showNotification=false"/>
     <cv-accordion
-      v-for="problem in taskList"
-      :key="problem.id"
-      align="end">
+        v-for="problem in taskList"
+        :key="problem.id"
+        align="end">
       <staff-problem-list-item-component
-        @delete-problem-click="deleteProblem($event)"
-        :is-editing="isEditing"
-        :problem="problem">
+          :is-editing="isEditing"
+          :problem="problem"
+          @delete-problem-click="deleteProblem($event)">
       </staff-problem-list-item-component>
     </cv-accordion>
   </div>
@@ -45,12 +45,26 @@ import StaffProblemListItemComponent from "@/components/StaffProblemListItemComp
 import NotificationMixinComponent from '../common/NotificationMixinComponent.vue';
 import api from "@/store/services/api";
 
-@Component({ components: { ProblemStats, SubmitStatus, Launch, StatsGraph, StudentProblemListItemComponent, StaffProblemListItemComponent } })
+@Component({
+  components: {
+    ProblemStats,
+    SubmitStatus,
+    Launch,
+    StatsGraph,
+    StudentProblemListItemComponent,
+    StaffProblemListItemComponent
+  }
+})
 export default class ProblemListComponent extends NotificationMixinComponent {
   @Prop({ required: true }) taskList!: Array<ProblemModel | CatsProblemModel>;
   @Prop({ required: false }) isEditing!: false | boolean;
   userStore = userStore;
   courseStore = courseStore;
+
+  get isStaff(): boolean {
+    const courseId = Number(this.$route.params.courseId);
+    return this.userStore.user.staff_for.includes(courseId);
+  }
 
   deleteProblem(problemId: number) {
     api.delete(`/api/problem/${problemId}/`).then(() => {
@@ -61,14 +75,9 @@ export default class ProblemListComponent extends NotificationMixinComponent {
       this.showNotification = true;
     })
   }
-
-  get isStaff(): boolean {
-    const courseId = Number(this.$route.params.courseId);
-    return this.userStore.user.staff_for.includes(courseId);
-  }
 }
 </script>
-<style scoped lang="stylus">
+<style lang="stylus" scoped>
 .problem-list-component--header
   display flex
   align-items center
