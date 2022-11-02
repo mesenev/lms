@@ -33,15 +33,9 @@ class LessonModule extends VuexModule {
     }
   }
 
-  @Action
+  @Action({rawError: true})
   async deleteLesson(id: number) {
-    let answer = {};
-    api.delete(`/api/lesson/${id}/`).then(
-      response => {
-        answer = response.data;
-      }
-    );
-    return answer;
+    await api.delete(`/api/lesson/${id}/`);
   }
 
   @Action
