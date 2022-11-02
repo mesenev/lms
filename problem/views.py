@@ -3,20 +3,19 @@ from django.db import models
 from django.db.models import Q, Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, exceptions, status
-from rest_framework.decorators import api_view, renderer_classes, action
+from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
-from rest_framework.renderers import JSONRenderer
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from cathie.cats_api import cats_get_problem_description_by_url
 from course.models import Course
 from lesson.models import Lesson
 from problem.models import Problem, Submit, CatsSubmit, ProblemStats, LogEvent
-from problem.serializers import ProblemSerializer, SubmitSerializer, SubmitListSerializer, ProblemListSerializer, \
+from problem.serializers import ProblemSerializer, SubmitSerializer, \
+    SubmitListSerializer, ProblemListSerializer, \
     LogEventSerializer
 from users.models import User
-from users.permissions import CourseStaffOrReadOnlyForStudents, object_to_course, CourseStaffOrAuthorReadOnly, \
+from users.permissions import CourseStaffOrReadOnlyForStudents, object_to_course, \
     CourseStaffOrAuthor
 
 
@@ -137,9 +136,8 @@ class SubmitViewSet(viewsets.ModelViewSet):
     def cats_result(self, request, submit_id):
         return Response(CatsSubmit.objects.get(submit__id=submit_id).testing_result)
 
-    @action(detail=False, url_path='five-aw/(?P<course_id>\d+)')
+    @action(detail=False, url_path='five-aw/(?P<course_id>\d+)', permission_classes=[CourseStaffOrAuthor])
     def five_aw(self, request, course_id):
-        # TODO: check permissions for it
         queryset = Submit.objects.filter(
             problem__lesson__course__id=course_id
         ).annotate(
@@ -200,10 +198,10 @@ class SubmitViewSet(viewsets.ModelViewSet):
         if validated_data['problem'].test_mode == 'manual':
             model = serializer.save(student=request.user, status=Submit.DEFAULT_STATUS)
             log_event = LogEvent(
-                    problem=validated_data['problem'], student=request.user, type=LogEvent.TYPE_AWAITING_MANUAL,
-                    submit=model,
-                    data=dict(message='Решение ожидает ручной проверки')
-                )
+                problem=validated_data['problem'], student=request.user, type=LogEvent.TYPE_AWAITING_MANUAL,
+                submit=model,
+                data=dict(message='Решение ожидает ручной проверки')
+            )
             log_event.save()
             return
 
@@ -273,24 +271,3 @@ class LogEventViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-
-@api_view(['POST'])
-@renderer_classes([JSONRenderer])
-def add_cats_problems(request, lesson_id):
-    lesson = Lesson.objects.get(pk=lesson_id)
-    if lesson.course not in list(request.user.staff_for.all()) + list(request.user.author_for.all()):
-        raise exceptions.PermissionDenied
-    problem_data = request.data['problem_data']
-    problem_type = request.data['problem_type']
-    print(type(problem_type))
-    answer = list()
-    for cats_problem in problem_data:
-        materials = cats_get_problem_description_by_url(cats_problem["text_url"])
-        problem = Problem.objects.create(
-            lesson=lesson, author=request.user, name=cats_problem['name'],
-            cats_id=cats_problem['id'], cats_material_url=cats_problem["text_url"],
-            description=materials, test_mode=cats_problem['test_mode'], type=Problem.PROBLEM_TYPES[problem_type][0]
-        )
-        answer.append(ProblemSerializer(problem).data)
-    return Response(answer)
