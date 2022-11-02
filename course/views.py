@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, exceptions
+from rest_framework import viewsets, exceptions, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.mixins import (
@@ -79,7 +79,13 @@ class ScheduleViewSet(
     def create(self, request, *args, **kwargs):
         if not getattr(request.data, 'start_date', ''):
             del request.data['start_date']
-        return super().create(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        course = Course.objects.get(id=(serializer.data['id']))
+        CourseAssignTeacher.objects.create(course=course, user=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @action(detail=False, url_path=r'by-course/(?P<course_id>\d+)')  # hate regexes
     def by_course(self, request, course_id):
