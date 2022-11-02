@@ -18,7 +18,7 @@
               'list--item--submit': event.type === logEventTypes.TYPE_SUBMIT,
               'right': event.author === userStore.user.id,
               'clickable': [logEventTypes.TYPE_SUBMIT,
-                            logEventTypes.TYPE_CATS_SUBMIT].includes(event.type)}"
+                            logEventTypes.TYPE_STATUS_CHANGE].includes(event.type)}"
               v-on:click="elementClickHandler(event)">
 
             <img :src="picUrl(event.data.thumbnail)"
@@ -198,7 +198,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
   elementClickHandler(element: LogEventModel): void {
     if (logEventTypes.TYPE_SUBMIT === element.type)
       this.$emit('submit-selected', { id: element.submit });
-    if (logEventTypes.TYPE_CATS_ANSWER === element.type)
+    if (logEventTypes.TYPE_STATUS_CHANGE === element.type)
       this.$emit('cats-answer', { id: element.submit });
   }
 
@@ -212,6 +212,8 @@ export default class LogEventComponent extends NotificationMixinComponent {
   }
 
   async createMessageHandler() {
+    if (!this.commentary)
+      return;
     this.messageIsSending = true;
     const newMessage: LogEventModel = {
       ...this.logEventStore.getNewLogEventMessage,
