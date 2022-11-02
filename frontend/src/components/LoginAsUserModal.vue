@@ -52,9 +52,9 @@
 
 import {Component} from 'vue-property-decorator';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
-import axios from 'axios';
 import userStore from "@/store/modules/user";
 import UserModel from "@/models/UserModel";
+import api from '@/store/services/api';
 
 
 @Component({ components: {} })
@@ -91,32 +91,32 @@ export default class LoginAsUserModal extends NotificationMixinComponent {
   }
 
   async checkUserStatus() {
-    await axios.get('/api/issuperuser')
-      .then(response => {
-        this.isSuperUser = response.data
-      })
-      .catch(error => {
-        console.log(error);
-      })
+    await api.get('/api/issuperuser')
+        .then(response => {
+          this.isSuperUser = response.data
+        })
+        .catch(error => {
+          console.log(error);
+        })
   }
 
   async loginAsUser() {
-    await axios.post('/api/anotheruserlogin', {username: this.username})
-      .then(response => {
-        location.replace('/');
-      })
-      .catch(error => {
-        this.notificationKind = 'error';
-        this.notificationText = `Что-то пошло не так: ${error.message}`;
-        this.showNotification = true;
-      })
+    await api.post('/api/anotheruserlogin', { username: this.username })
+        .then(response => {
+          location.replace('/');
+        })
+        .catch(error => {
+          this.notificationKind = 'error';
+          this.notificationText = `Что-то пошло не так: ${error.message}`;
+          this.showNotification = true;
+        })
   }
 
   async logoutFromUser() {
-    await axios.get('/api/anotheruserlogout')
-      .then(response => {
-        location.replace('/');
-      })
+    await api.get('/api/anotheruserlogout')
+        .then(response => {
+          location.replace('/');
+        })
   }
 }
 </script>
