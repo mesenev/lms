@@ -101,9 +101,9 @@ import ProblemModel from '@/models/ProblemModel';
 import problemStore from '@/store/modules/problem';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
-import axios from 'axios';
 import { Component, Prop } from 'vue-property-decorator';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
+import api from '@/store/services/api';
 
 
 @Component({ components: { AddAlt20, SubtractAlt20 } })
@@ -122,7 +122,6 @@ export default class EditLessonModal extends NotificationMixinComponent {
   fetchingCatsProblems = true;
   modalVisible = false;
   searchQueryForAllProblems = '';
-  loading = false;
   //ToDo add radio button for test modes to modal
   testingMode = '';
   problemType = '';
@@ -138,16 +137,16 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
   async fetchCatsProblems() {
     this.fetchingCatsProblems = true;
-    await axios.get(`/api/cats-problems/${this.lesson.course}/`)
-      .then(response => {
-        this.catsProblems = response.data;
-      })
-      .catch(error => {
-        console.log(error.response);
-        this.notificationKind = 'error';
-        this.notificationText = `Ошибка получения списка задач: ${error.message}`;
-        this.showNotification = true;
-      })
+    await api.get(`/api/cats-problems/${this.lesson.course}/`)
+        .then(response => {
+          this.catsProblems = response.data;
+        })
+        .catch(error => {
+          console.log(error.response);
+          this.notificationKind = 'error';
+          this.notificationText = `Ошибка получения списка задач: ${error.message}`;
+          this.showNotification = true;
+        })
     this.catsProblems.map(value => {
       this.catsProblemsTruncated.push(
         { id: value.id, name: value.name, status: value.status },
@@ -184,8 +183,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
   get addButtonDisabled(){
     // debugger;
-    return (!this.selected.length || this.selectedNew) || !this.problemType
-      || !this.testingMode || this.loading;
+    return (!this.selected.length || this.selectedNew) || !this.problemType || !this.testingMode;
   }
 
   get selectedCatsProblems() {
@@ -209,30 +207,29 @@ export default class EditLessonModal extends NotificationMixinComponent {
       return
     }
     if (!this.selectedNew) {
-      this.loading = true;
       const data = this.selectedCatsProblems;
       const problemTypes = new Map<string, number>([['CW', 0], ['HW', 1], ['EX', 2]]);
       data.forEach(element => element.test_mode = this.testingMode);
-      await axios.post(
+      await api.post(
           `/api/lesson/${this.lesson.id}/add_cats_problems/`,
-        { problem_data: data, problem_type: problemTypes.get(this.problemType)
-        }).then(async (answer) => {
-          if (answer.status == 200) {
-            const newProblems = (answer.data as ProblemModel[]).map(element => {
-              element.type = this.problemType;
-              return element;
-            });
-            this.$emit("update-problem-list", newProblems as ProblemModel[]);
+          { problem_data: data, problem_type: problemTypes.get(this.problemType) },
+      )
+          .then(async (answer) => {
+            if (answer.status == 200) {
+              const newProblems = (answer.data as ProblemModel[]).map(element => {
+                element.type = this.problemType;
+                return element;
+              });
+              this.$emit("update-problem-list", newProblems as ProblemModel[]);
             this.modalHidden();
             // await this.fetchCatsProblems();
           }
         }).catch(answer => {
-            this.notificationKind = 'error';
-            this.notificationText = `Произошла ошибка при добавлении задач. ${answer.message}`;
-            this.showNotification = true;
-        }).finally(() => {
-            this.loading = false;
-      })
+          this.notificationKind = 'error';
+          this.notificationText = `Произошла ошибка при добавлении задач. ${answer.message}`;
+          this.showNotification = true;
+        })
+
     }
   }
 }
