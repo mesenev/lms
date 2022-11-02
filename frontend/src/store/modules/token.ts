@@ -8,9 +8,15 @@ import router from "@/router";
 @Module({ namespaced: true, name: 'token', store, dynamic: true })
 class TokenModule extends VuexModule {
   isAuthenticated = false;
+  next_url = '';
+
+  @Mutation setNextUrl(new_next_url: string){
+    this.next_url = new_next_url;
+  }
 
   @Action({rawError: true})
-  async login(payload: { username: string; password: string }) {
+  async login(payload: { username: string; password: string; next_url: string }) {
+
     await api.post(urls.OBTAIN_TOKEN_URL,
       { username: payload.username, password: payload.password }).then(
       response => {
@@ -22,12 +28,13 @@ class TokenModule extends VuexModule {
     ).catch(error =>{
       return Promise.reject(error)
     })
+
     if (String(localStorage.getItem('access'))) {
       await api.get(urls.PROTECTED_USER_DATA_URL).then(
         response => {
           userStore.receiveUser(response.data);
           this.acceptAuthentication();
-          router.push('/');
+          router.replace(payload.next_url)
         }
       )
     }
@@ -47,7 +54,6 @@ class TokenModule extends VuexModule {
 
   @Action
   async logout() {
-    console.log('logout')
     await api.post(
       urls.BLACKLIST_TOKEN_URL,
       { refresh: localStorage.getItem('refresh') }
@@ -55,6 +61,7 @@ class TokenModule extends VuexModule {
       localStorage.setItem('access', '');
       localStorage.setItem('refresh', '');
       this.rejectAuthentication();
+      router.replace('/login');
     });
   }
 
@@ -64,7 +71,6 @@ class TokenModule extends VuexModule {
 
   @Mutation rejectAuthentication() {
     this.isAuthenticated = false;
-    router.push('/login');
   }
 }
 
