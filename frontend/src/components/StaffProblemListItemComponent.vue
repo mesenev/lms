@@ -11,10 +11,10 @@
           </div>
         </div>
         <component
-            :is="TrashCan16"
-            v-if="isEditing"
-            class="icon-trash"
-            @click.stop.prevent="deleteProblemClick(problem.id)">
+          :is="TrashCan16"
+          v-if="isEditing"
+          class="icon-trash"
+          @click.stop.prevent="showConfirmModal(problem)">
         </component>
       </div>
     </template>
@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import {Component, Prop, Vue} from "vue-property-decorator";
 import ProblemStats from "@/components/ProblemStats.vue";
 import SubmitStatus from "@/components/SubmitStatus.vue";
 import StatsGraph from "@/components/StatsGraph.vue";
@@ -34,15 +34,14 @@ import SubmitModel from "@/models/SubmitModel"
 import userStore from "@/store/modules/user";
 import TrashCan16 from '@carbon/icons-vue/es/trash-can/16'
 
-@Component({ components: { ProblemStats, SubmitStatus, StatsGraph } })
+@Component({components: {ProblemStats, SubmitStatus, StatsGraph}})
 export default class StaffProblemListItemComponent extends Vue {
-  @Prop({ required: true }) problem!: ProblemModel;
-  @Prop({ required: false }) isEditing!: false | boolean;
+  @Prop({required: true}) problem!: ProblemModel;
+  @Prop({required: false}) isEditing!: false | boolean;
   submit: SubmitModel | null = null;
   userStore = userStore;
   TrashCan16 = TrashCan16;
   loading = false;
-
 
   target(problem: ProblemModel) {
     if (!!problem.last_submit) {
@@ -56,11 +55,11 @@ export default class StaffProblemListItemComponent extends Vue {
         },
       };
     } else
-      return { name: 'ProblemView', params: { problemId: problem.id.toString() } };
+      return {name: 'ProblemView', params: {problemId: problem.id.toString()}};
   }
 
-  deleteProblemClick(problemId: number) {
-    this.$emit('delete-problem-click', problemId);
+  showConfirmModal(problem: ProblemModel) {
+    this.$emit('show-confirm-modal', problem);
   }
 }
 </script>
