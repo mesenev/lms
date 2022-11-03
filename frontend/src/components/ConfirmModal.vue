@@ -5,13 +5,13 @@
       :visible="modalVisible"
       :primary-button-disabled="inAction"
       size="small"
-      @primary-click="doSomething"
+      @primary-click="approve"
       @modal-hidden="hideModal">
       <template slot="label">Подтверждение</template>
       <template slot="title">Вы уверены?</template>
       <template slot="content">
         <div>
-          {{ approvedText }}
+          {{ text }}
         </div>
       </template>
       <template slot="primary-button">Подтвердить</template>
@@ -21,19 +21,16 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Watch, Vue } from "vue-property-decorator";
-import ProblemModel from "@/models/ProblemModel";
-import LessonModel from "@/models/LessonModel";
+import {Component, Prop, Watch, Vue} from "vue-property-decorator";
 
 @Component({})
-export default class ConfirmModal extends Vue{
+export default class ConfirmModal extends Vue {
   @Prop({required: true}) modalTrigger!: boolean;
   @Prop({required: true}) text!: string;
   @Prop({required: true}) approveHandler!: Function;
 
   modalVisible = false;
   inAction = false;
-
 
   @Watch('modalTrigger')
   showModal() {
@@ -44,7 +41,7 @@ export default class ConfirmModal extends Vue{
     this.modalVisible = false;
   }
 
-  async doSomething() {
+  async approve() {
     this.inAction = true;
     await this.approveHandler();
     this.inAction = false;

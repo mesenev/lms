@@ -59,7 +59,7 @@ import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
 import Settings20 from '@carbon/icons-vue/es/settings/20';
 import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
-import { Component, Prop } from 'vue-property-decorator';
+import {Component, Prop} from 'vue-property-decorator';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import router from "@/router";
@@ -73,7 +73,7 @@ import _ from "lodash";
   },
 })
 export default class EditCourseLessons extends NotificationMixinComponent {
-  @Prop({ required: true }) course!: CourseModel;
+  @Prop({required: true}) course!: CourseModel;
   lessonStore = lessonStore;
   TrashCan = TrashCan20;
   Settings = Settings20;
@@ -106,7 +106,7 @@ export default class EditCourseLessons extends NotificationMixinComponent {
   }
 
   editLesson(lesson: LessonModel) {
-    router.push({ name: 'lesson-edit', params: { lessonId: lesson.id.toString() } });
+    router.push({name: 'lesson-edit', params: {lessonId: lesson.id.toString()}});
   }
 
   async deleteLesson() {
@@ -120,7 +120,7 @@ export default class EditCourseLessons extends NotificationMixinComponent {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.showNotification = true;
     });
-    this.lessonStore.setLessons({ [this.course.id]: this.course.lessons });
+    this.lessonStore.setLessons({[this.course.id]: this.course.lessons});
   }
 }
 </script>
