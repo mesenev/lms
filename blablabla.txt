@@ -4,3 +4,4 @@ sadfghjkl
 directory check 1
 add change filter
 test change filter
+do not build
