@@ -4,16 +4,16 @@
       Добавить задание
     </cv-button>
     <cv-modal
-      :primary-button-disabled="addButtonDisabled" :visible="modalVisible"
-      class="add_lesson_modal" size="default"
-      @modal-hidden="modalHidden"
-      @primary-click="addProblem">
+        :primary-button-disabled="addButtonDisabled" :visible="modalVisible"
+        class="add_lesson_modal" size="default"
+        @modal-hidden="modalHidden"
+        @primary-click="addProblem">
       <template slot="label">{{ lesson.name }}</template>
       <cv-inline-notification
-        v-if="showNotification"
-        @close="() => showNotification=false"
-        kind="error"
-        :sub-title="notificationText"/>
+          v-if="showNotification"
+          @close="() => showNotification=false"
+          kind="error"
+          :sub-title="notificationText"/>
       <template slot="title">
         Добавить задание
         <cv-content-switcher class="switcher" @selected="actionSelected">
@@ -25,36 +25,36 @@
           </cv-content-switcher-button>
         </cv-content-switcher>
         <span style="padding-top: 20px">Выберите способ тестирования</span>
-            <cv-radio-group style="margin-top: 10px; padding-bottom: 20px">
+        <cv-radio-group style="margin-top: 10px; padding-bottom: 20px">
 
-              <cv-radio-button label="автоматическое"
-                               value="auto"
-                               v-model="testingMode"
-              />
-              <cv-radio-button label="ручное"
-                               value="manual"
-                               v-model="testingMode"
-              />
-              <cv-radio-button label="автоматическое и ручное"
-                               value="auto_and_manual"
-                               v-model="testingMode"
-              />
+          <cv-radio-button label="автоматическое"
+                           value="auto"
+                           v-model="testingMode"
+          />
+          <cv-radio-button label="ручное"
+                           value="manual"
+                           v-model="testingMode"
+          />
+          <cv-radio-button label="автоматическое и ручное"
+                           value="auto_and_manual"
+                           v-model="testingMode"
+          />
 
-            </cv-radio-group>
+        </cv-radio-group>
       </template>
       <template slot="content">
         <section class="modal--content">
           <div class="content-1">
             <div>
               <cv-inline-notification
-                v-if="showNotification"
-                @close="() => showNotification=false"
-                kind="error"
-                :sub-title="notificationText"/>
+                  v-if="showNotification"
+                  @close="() => showNotification=false"
+                  kind="error"
+                  :sub-title="notificationText"/>
               <cv-data-table
-                v-if="!fetchingCatsProblems" ref="table"
-                v-model="selected" :columns="columns" :data="catsFilteredProblems"
-                class="cats-problems-table" @search="onSearch">
+                  v-if="!fetchingCatsProblems" ref="table"
+                  v-model="selected" :columns="columns" :data="catsFilteredProblems"
+                  class="cats-problems-table" @search="onSearch">
                 <template slot="batch-actions">
                   <div></div>
                 </template>
@@ -182,7 +182,8 @@ export default class EditLessonModal extends NotificationMixinComponent {
       return (this.catsFilteredProblems[e as number] as unknown as { id: number })['id'];
     })
   }
-  get addButtonDisabled(){
+
+  get addButtonDisabled() {
     // debugger;
     return (!this.selected.length || this.selectedNew) || !this.problemType
         || !this.testingMode || this.loading;

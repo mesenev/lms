@@ -11,6 +11,7 @@ import RegistrationView from '@/views/RegistrationView.vue';
 import Vue from 'vue';
 import VueRouter, {RouteConfig} from 'vue-router';
 import LoginView from '@/views/LoginView.vue';
+import token from "@/store/modules/token";
 
 Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
@@ -82,5 +83,23 @@ const router = new VueRouter({
   mode: 'history',
   routes,
 });
+
+router.beforeEach((to, from, next)=>{
+  if (!token.isAuthenticated && to.path != '/login'){
+    next({
+      path: '/login',
+      query: {
+        nextUrl: to.fullPath,
+      }
+    })
+    return
+  }
+  else{
+    next()
+  }
+})
+
+
+
 
 export default router;

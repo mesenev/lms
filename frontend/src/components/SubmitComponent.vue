@@ -15,26 +15,26 @@
       <div class="submit-lang">
         <div>Среда разработки:</div>
         <cv-dropdown
-          v-model="submitEdit.de_id"
-          :items="deOptions"
-          :disabled="deOptions.length === 0"
-          placeholder="Выберите язык программирования"
-          class="lang-choice">
+            v-model="submitEdit.de_id"
+            :disabled="deOptions.length === 0"
+            :items="deOptions"
+            class="lang-choice"
+            placeholder="Выберите язык программирования">
           <cv-dropdown-item v-for="de in deOptions" :key="de.value" :value="de.value">
             <span>{{ de.name }}</span>
           </cv-dropdown-item>
         </cv-dropdown>
       </div>
-      <div class="handlers" v-if="!isStaff">
+      <div v-if="!isStaff" class="handlers">
         <cv-button
-          :disabled="!canSubmit"
-          class="submit-btn"
-          v-on:click="confirmSubmit">
+            :disabled="!canSubmit"
+            class="submit-btn"
+            v-on:click="confirmSubmit">
           Отправить решение
         </cv-button>
         <cv-link
-          v-if="!this.cats_account"
-          :to="{
+            v-if="!this.cats_account"
+            :to="{
           name: 'profile-page',
           params: { userId: userStore.user.id }
         }">
@@ -43,25 +43,25 @@
       </div>
       <div v-if="isStaff" class="handlers handlers-stuff">
         <cv-button
-          :disabled="isAcceptDisabled"
-          class="submit-btn accepted"
-          v-on:click="acceptSubmit">
+            :disabled="isAcceptDisabled"
+            class="submit-btn accepted"
+            v-on:click="acceptSubmit">
           Принять
         </cv-button>
         <cv-button
-          kind='danger'
-          :disabled="isRejectDisabled"
-          class="submit-btn rejected"
-          v-on:click="rejectSubmit">
+            :disabled="isRejectDisabled"
+            class="submit-btn rejected"
+            kind='danger'
+            v-on:click="rejectSubmit">
           Отклонить
         </cv-button>
       </div>
       <cv-inline-notification
-        v-if="showNotification"
-        :kind="notificationKind"
-        :sub-title="notificationText"
-        class="notification"
-        @close="hideNotification"/>
+          v-if="showNotification"
+          :kind="notificationKind"
+          :sub-title="notificationText"
+          class="notification"
+          @close="hideNotification"/>
     </div>
   </div>
 </template>
@@ -105,23 +105,6 @@ export default class SubmitComponent extends NotificationMixinComponent {
   submitEdit: SubmitModel = { ...this.submitStore.defaultSubmit };
   loading = true;
 
-  async created() {
-    await this.updateSubmit();
-  }
-
-  async updateSubmit() {
-    this.loading = true;
-    if (this.submitId) {
-      this.submit = await this.submitStore.fetchSubmitById(this.submitId);
-    } else {
-      this.submit = null;
-    }
-    this.submitEdit = (this.submit) ? { ...this.submit } : { ...this.submitStore.defaultSubmit };
-    if (this.submitEdit.de_id === '' && this.deOptions.length === 1)
-      this.submitEdit.de_id = this.deOptions[0].value;
-    this.loading = false;
-  }
-
   get isChanged(): boolean {
     return !_.isEqual(this.submit, this.submitEdit);
   }
@@ -136,9 +119,9 @@ export default class SubmitComponent extends NotificationMixinComponent {
 
   get canSubmit(): boolean {
     return this.submitEdit.content?.length !== 0
-      && this.isChanged
-      && this.submitEdit.de_id.length !== 0
-      && this.cats_account;
+        && this.isChanged
+        && this.submitEdit.de_id.length !== 0
+        && this.cats_account;
   }
 
   get cats_account(): boolean {
@@ -148,7 +131,6 @@ export default class SubmitComponent extends NotificationMixinComponent {
   get problem(): ProblemModel {
     return this.problemStore.currentProblem as ProblemModel;
   }
-
 
   // TODO: workflow when already-made submit have de that is disabled
   get deOptions() {
@@ -160,6 +142,23 @@ export default class SubmitComponent extends NotificationMixinComponent {
     return isNaN(this.submitEdit.id);
   }
 
+  async created() {
+    await this.updateSubmit();
+  }
+
+  async updateSubmit() {
+    this.loading = true;
+    if (this.submitId) {
+      this.submit = await this.submitStore.fetchSubmitById(this.submitId);
+    } else {
+      this.submit = null;
+    }
+    this.submitEdit = (this.submit) ? { ...this.submit }:{ ...this.submitStore.defaultSubmit };
+    if (this.submitEdit.de_id === '' && this.deOptions.length === 1)
+      this.submitEdit.de_id = this.deOptions[0].value;
+    this.loading = false;
+  }
+
   @Watch('submitId')
   onSubmitIdChanged() {
     this.updateSubmit();
@@ -168,22 +167,22 @@ export default class SubmitComponent extends NotificationMixinComponent {
   patchSubmit(status: string) {
 
     this.submitEdit = (this.submit)
-      ? { ...this.submit, status: status }
-      : { ...this.submitStore.defaultSubmit };
+        ? { ...this.submit, status: status }
+        :{ ...this.submitStore.defaultSubmit };
 
     api.patch(`/api/submit/${this.submitEdit.id}/`, this.submitEdit)
-      .then((response: AxiosResponse<SubmitModel>) => {
-        this.submitStore.changeSubmitStatus(response.data);
-        this.submit = { ...response.data };
-        this.submitEdit = { ...this.submit };
-        this.notificationKind = 'success';
-        this.notificationText = `Работа оценена: ${status}`;
-      })
-      .catch((error: AxiosError) => {
-        this.notificationKind = 'error';
-        this.notificationText = `Что-то пошло не так ${error.message}`
-      })
-      .finally(() => this.showNotification = true);
+        .then((response: AxiosResponse<SubmitModel>) => {
+          this.submitStore.changeSubmitStatus(response.data);
+          this.submit = { ...response.data };
+          this.submitEdit = { ...this.submit };
+          this.notificationKind = 'success';
+          this.notificationText = `Работа оценена: ${status}`;
+        })
+        .catch((error: AxiosError) => {
+          this.notificationKind = 'error';
+          this.notificationText = `Что-то пошло не так ${error.message}`
+        })
+        .finally(() => this.showNotification = true);
   }
 
   acceptSubmit() {
@@ -206,6 +205,8 @@ export default class SubmitComponent extends NotificationMixinComponent {
       this.$emit('submit-created', { id: response.data.id.toString() });
       this.submit = { ...response.data };
       this.submitEdit = { ...this.submit };
+      this.problem.last_submit = this.submit;
+      this.problemStore.changeCurrentProblem(this.problem)
       this.notificationKind = 'success';
       this.notificationText = 'Попытка отправлена';
     }).catch((error: AxiosError) => {

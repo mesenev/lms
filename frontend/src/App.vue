@@ -1,4 +1,7 @@
 <template>
+  <div>
+  <cv-loading v-if="isLoading" overlay style="background: white"></cv-loading>
+  <div v-if="!isLoading">
     <div class="layout" v-if="isLogin">
       <lms-header class="layout-header"/>
       <main class="layout-content">
@@ -19,21 +22,36 @@
         </div>
       </footer>
     </div>
-    <div v-else>
-      <login-view/>
-    </div>
+    <LoginView v-else></LoginView>
+  </div>
+
+  </div>
 </template>
 
 <script lang="ts">
 import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue'
 import LmsHeader from '@/components/LmsHeader.vue';
 import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import LoginView from "@/views/LoginView.vue";
 import tokenStore from "@/store/modules/token"
 
 @Component({ components: { LoginView, LmsHeader, LmsBreadcrumb, LogoGithub } })
 export default class App extends Vue {
+  //TODO set transition and styles for loader
+  @Watch('isLogin')
+  onIsLoginChanged(new_val: boolean){
+    if ( new_val){
+      this.$router.push(((this.$route.query.nextUrl) ?? "/") as string);
+    }
+    else {
+      this.$router.push('/login');
+    }
+  }
+
+  get isLoading(){
+    return tokenStore.isLoading;
+  }
 
   get isLogin() {
     return tokenStore.isAuthenticated;
@@ -57,6 +75,7 @@ export default class App extends Vue {
 {
   opacity: 0;
 }
+
 </style>
 
 <style scoped lang="stylus">
