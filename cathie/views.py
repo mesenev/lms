@@ -1,5 +1,3 @@
-from django.conf import settings
-import requests
 import requests
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -21,7 +19,7 @@ from cathie.models import CatsAccount
 from cathie.serializers import CatsAccountSerializer
 from course.models import Course
 from problem.models import Problem
-from users.permissions import CourseStaffOrAuthor
+from users.permissions import CourseStaffOrAuthor, CourseStaffOrReadOnlyForStudents
 
 
 class ListCatsProblems(APIView):
@@ -83,7 +81,7 @@ class CatsAccountViewSet(viewsets.ModelViewSet):
 
 
 class CatsContest(APIView):
-    permission_classes = [CourseStaffOrAuthor]
+    permission_classes = [CourseStaffOrReadOnlyForStudents]
 
     def get(self, request):
         """Return list of CatsContents from cats"""
