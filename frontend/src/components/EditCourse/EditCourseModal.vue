@@ -80,17 +80,17 @@ import lessonStore from '@/store/modules/lesson';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import api from '@/store/services/api'
-import { Component, Prop } from 'vue-property-decorator';
+import {Component, Prop} from 'vue-property-decorator';
 
-@Component({ components: { LessonCard, AddAlt20, SubtractAlt20 } })
+@Component({components: {LessonCard, AddAlt20, SubtractAlt20}})
 export default class EditCourseModal extends NotificationMixinComponent {
-  @Prop({ required: true }) courseId!: number;
+  @Prop({required: true}) courseId!: number;
 
   AddAlt32 = AddAlt20;
   SubtractAlt32 = SubtractAlt20;
   courseStore = courseStore;
   lessonStore = lessonStore;
-  currentLesson: LessonModel = { ...this.lessonStore.getNewLesson, course: this.courseId };
+  currentLesson: LessonModel = {...this.lessonStore.getNewLesson, course: this.courseId};
   fetchingLessons = true;
   selectedNew = true;
   creationLoader = false;
@@ -123,7 +123,7 @@ export default class EditCourseModal extends NotificationMixinComponent {
   showModal() {
     this.modalVisible = true;
     this.showNotification = false;
-    this.currentLesson = { ...this.lessonStore.getNewLesson, course: this.courseId };
+    this.currentLesson = {...this.lessonStore.getNewLesson, course: this.courseId};
     this.creationLoader = false;
   }
 
@@ -153,7 +153,6 @@ export default class EditCourseModal extends NotificationMixinComponent {
     }
   }
 
-
   async createNewLesson() {
     api.post('/api/lesson/', this.currentLesson)
       .then(response => {
@@ -161,12 +160,15 @@ export default class EditCourseModal extends NotificationMixinComponent {
         course.lessons.push(response.data as LessonModel);
         this.lessonStore.setLessons({[course.id]: course.lessons});
         this.modalHidden();
-    })
+      })
       .catch(error => {
         this.notificationKind = 'error';
         this.notificationText = `Что-то пошло не так: ${error.message}`;
         this.showNotification = true;
-    });
+      })
+      .finally(() => {
+        this.creationLoader = false;
+      })
   }
 }
 </script>
