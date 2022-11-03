@@ -6,9 +6,10 @@
                  v-model="searchQueryForCourseLessons">
       </cv-search>
       <confirm-modal class="confirm--modal"
-                     :deleting-object="deletingLesson"
+                     :approved-text="approvedText"
+                     :element-id="deletingLessonId"
                      :modal-trigger="modalTrigger"
-                     :delete-method="deleteLesson"/>
+                     :some-function="deleteLesson"/>
       <div class="lesson--list">
         <cv-inline-notification
           v-if="showNotification"
@@ -77,8 +78,9 @@ export default class EditCourseLessons extends NotificationMixinComponent {
   TrashCan = TrashCan20;
   Settings = Settings20;
   searchQueryForCourseLessons = '';
-  deletingLesson: LessonModel | undefined;
+  deletingLessonId = 0;
   modalTrigger = false;
+  approvedText = '';
 
   get courseLessons(): LessonModel[] {
     return searchByLessons(this.searchQueryForCourseLessons, this.course.lessons)
@@ -98,7 +100,8 @@ export default class EditCourseLessons extends NotificationMixinComponent {
   }
 
   showConfirmModal(deletingLesson: LessonModel) {
-    this.deletingLesson = deletingLesson;
+    this.approvedText = `Удалить урок: ${deletingLesson.name}`;
+    this.deletingLessonId = deletingLesson.id;
     this.modalTrigger = !this.modalTrigger;
   }
 
@@ -106,11 +109,10 @@ export default class EditCourseLessons extends NotificationMixinComponent {
     router.push({name: 'lesson-edit', params: {lessonId: lesson.id.toString()}});
   }
 
-  async deleteLesson() {
-    await this.lessonStore.deleteLesson(this.deletingLesson!.id).then(() => {
-      console.log("ACCEPTED");
+  async deleteLesson(lessonId: number) {
+    await this.lessonStore.deleteLesson(lessonId).then(() => {
       this.course.lessons =
-          this.course.lessons.filter((x: LessonModel) => x.id != this.deletingLesson!.id);
+          this.course.lessons.filter((x: LessonModel) => x.id != lessonId);
     }).catch(error => {
       this.notificationKind = 'error';
       this.notificationText = `Что-то пошло не так: ${error.message}`;

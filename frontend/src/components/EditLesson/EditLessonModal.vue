@@ -125,6 +125,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
   //ToDo add radio button for test modes to modal
   testingMode = '';
   problemType = '';
+  loading = false;
 
   get catsFilteredProblems() {
     return searchByProblems(this.searchQueryForAllProblems, this.catsProblemsTruncated);
@@ -183,7 +184,8 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
   get addButtonDisabled(){
     // debugger;
-    return (!this.selected.length || this.selectedNew) || !this.problemType || !this.testingMode;
+    return (!this.selected.length || this.selectedNew) || !this.problemType
+        || !this.testingMode || this.loading;
   }
 
   get selectedCatsProblems() {
@@ -207,6 +209,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
       return
     }
     if (!this.selectedNew) {
+      this.loading = true;
       const data = this.selectedCatsProblems;
       const problemTypes = new Map<string, number>([['CW', 0], ['HW', 1], ['EX', 2]]);
       data.forEach(element => element.test_mode = this.testingMode);
@@ -228,7 +231,9 @@ export default class EditLessonModal extends NotificationMixinComponent {
           this.notificationKind = 'error';
           this.notificationText = `Произошла ошибка при добавлении задач. ${answer.message}`;
           this.showNotification = true;
-        })
+        }).finally(() => {
+          this.loading = false;
+      })
 
     }
   }

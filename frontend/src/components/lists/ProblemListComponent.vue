@@ -28,10 +28,10 @@
       :sub-title="notificationText"/>
     <confirm-modal
       class="confirm--modal"
-      :is-problem="true"
+      :approved-text="approvedText"
       :modal-trigger="modalTrigger"
-      :deleting-object="deletingProblem"
-      :delete-method="deleteProblem"/>
+      :element-id="deletingProblemId"
+      :some-function="deleteProblem"/>
     <cv-accordion
       v-for="problem in taskList"
       :key="problem.id"
@@ -86,8 +86,9 @@ export default class ProblemListComponent extends NotificationMixinComponent {
   userStore = userStore;
   courseStore = courseStore;
   TrashCan16 = TrashCan16;
-  deletingProblem: ProblemModel | undefined;
+  deletingProblemId = 0;
   modalTrigger = false;
+  approvedText = '';
 
   target(problem: ProblemModel) {
     if (!!problem.last_submit)
@@ -108,13 +109,14 @@ export default class ProblemListComponent extends NotificationMixinComponent {
   }
 
   showConfirmModal(problem: ProblemModel) {
-    this.deletingProblem = problem;
+    this.approvedText = `Удалить задачу: ${problem.name}`;
+    this.deletingProblemId = problem.id;
     this.modalTrigger = !this.modalTrigger;
   }
 
-  deleteProblem() {
-    api.delete(`/api/problem/${this.deletingProblem?.id}/`).then(() => {
-      this.$emit('update-problem-delete', this.deletingProblem?.id);
+  deleteProblem(problemId: number) {
+    api.delete(`/api/problem/${problemId}/`).then(() => {
+      this.$emit('update-problem-delete', problemId);
     }).catch(error => {
       this.notificationKind = 'error';
       this.notificationText = `Что-то пошло не так: ${error.message}`;

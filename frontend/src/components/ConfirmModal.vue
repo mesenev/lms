@@ -4,19 +4,16 @@
       class="confirm--modal"
       :visible="modalVisible"
       size="small"
-      @primary-click="deleteSomething"
+      @primary-click="doSomething"
       @modal-hidden="hideModal">
       <template slot="label">Подтверждение</template>
       <template slot="title">Вы уверены?</template>
       <template slot="content">
-        <div v-if="isProblem">
-          Удалить задачу: {{ deletingObject.name }}?
-        </div>
-        <div v-else>
-          Удалить урок: {{ deletingObject.name }}?
+        <div>
+          {{ approvedText }}
         </div>
       </template>
-      <template slot="primary-button">Удалить</template>
+      <template slot="primary-button">Подтвердить</template>
       <template slot="secondary-button">Отмена</template>
     </cv-modal>
   </div>
@@ -30,9 +27,9 @@ import LessonModel from "@/models/LessonModel";
 @Component({})
 export default class ConfirmModal extends Vue{
   @Prop({required: true}) modalTrigger!: boolean;
-  @Prop({required: false}) isProblem!: false | boolean;
-  @Prop({required: true}) deletingObject!: ProblemModel | LessonModel;
-  @Prop({required: true}) deleteMethod!: Function;
+  @Prop({required: true}) approvedText!: string;
+  @Prop({required: true}) elementId!: number
+  @Prop({required: true}) someFunction!: Function;
 
   modalVisible = false;
 
@@ -46,8 +43,8 @@ export default class ConfirmModal extends Vue{
     this.modalVisible = false;
   }
 
-  async deleteSomething() {
-    await this.deleteMethod();
+  async doSomething() {
+    await this.someFunction(this.elementId);
     this.hideModal();
   }
 }
