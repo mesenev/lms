@@ -16,7 +16,6 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(async config => {
-  console.log('NEXT URL IN INTERSEPTOR: ', token.next_url)
   if (config.url == urls.OBTAIN_TOKEN_URL)
     return config;
 
@@ -26,13 +25,11 @@ api.interceptors.request.use(async config => {
   }
 
   if ((localStorage.getItem('access')))
-
     await axios.post(
       urls.VERIFY_TOKEN_URL,
       { token: (localStorage.getItem('access')) }
     ).then(response => {
       config.headers['Authorization'] = 'Bearer ' + (localStorage.getItem('access'));
-      router.replace(token.next_url);
     }).catch(error => {
       localStorage.setItem('access', '');
     });
@@ -46,7 +43,6 @@ api.interceptors.request.use(async config => {
     ).then(response => {
         localStorage.setItem('access', response.data.access);
         config.headers['Authorization'] = 'Bearer ' + (localStorage.getItem('access'));
-        router.replace(token.next_url);
       }
     ).catch(error => {
       localStorage.setItem('refresh', '');
@@ -59,7 +55,6 @@ api.interceptors.request.use(async config => {
 
   }
   return config;
-
 })
 
 

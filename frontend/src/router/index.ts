@@ -95,9 +95,11 @@ router.beforeEach((to, from, next)=>{
     return
   }
   else{
-    token.setNextUrl(to.fullPath);
     next()
   }
 })
+
+
+
 
 export default router;

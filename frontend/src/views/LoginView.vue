@@ -42,7 +42,6 @@ export default class LoginView extends NotificationMixinComponent {
   password = '';
   tokenStore = tokenStore;
   async authorization(){
-
     if (!this.login || !this.password){
       this.notificationText = `Пожалуйста заполните все поля`;
       this.notificationKind = 'error';
@@ -52,7 +51,6 @@ export default class LoginView extends NotificationMixinComponent {
     await this.tokenStore.login({
       username: this.login,
       password: this.password,
-      next_url: tokenStore.next_url
     }).catch( error=> {
       if(error.response.status == 401) {
 
