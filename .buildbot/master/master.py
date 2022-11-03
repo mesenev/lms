@@ -1,7 +1,14 @@
 # -*- python -*-
 # ex: set filetype=python:
-
+from buildbot.changes.filter import ChangeFilter
+from buildbot.changes.changes import Change
 from buildbot.plugins import *
+
+
+def tag_filter_fn(git_change: Change):
+    banned_tags = ['bb_ignore', 'bb ignore', 'bb-ignore', 'bbignore']
+    return all(x not in git_change.comments for x in banned_tags)
+
 
 c = BuildmasterConfig = dict()
 c['buildbotNetUsageData'] = 'basic'
@@ -62,7 +69,7 @@ c['schedulers'] = [
     schedulers.SingleBranchScheduler(
         name="main",
         treeStableTimer=5 * 60,
-        change_filter=util.ChangeFilter(branch='main'),
+        change_filter=util.ChangeFilter(branch='main', filter_fn=tag_filter_fn),
         builderNames=["lmsci"]),
     schedulers.SingleBranchScheduler(
         name="pr",
