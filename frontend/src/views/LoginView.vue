@@ -41,18 +41,19 @@ export default class LoginView extends NotificationMixinComponent {
   login = '';
   password = '';
   tokenStore = tokenStore;
-
   async authorization(){
-
     if (!this.login || !this.password){
       this.notificationText = `Пожалуйста заполните все поля`;
       this.notificationKind = 'error';
       this.showNotification = true;
       return;
     }
-
-    await this.tokenStore.login({ username: this.login, password: this.password }).catch( error=> {
+    await this.tokenStore.login({
+      username: this.login,
+      password: this.password,
+    }).catch( error=> {
       if(error.response.status == 401) {
+
         this.notificationText = `Неверные логин или пароль`;
         this.notificationKind = 'error';
         this.showNotification = true;
@@ -63,6 +64,7 @@ export default class LoginView extends NotificationMixinComponent {
         this.showNotification = true;
       }
       })
+
   }
 }
 </script>

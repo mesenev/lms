@@ -3,13 +3,16 @@ import userStore from '@/store/modules/user';
 import api from "@/store/services/api";
 import * as urls from '@/store/services/urls';
 import { Action, getModule, Module, Mutation, VuexModule, } from 'vuex-module-decorators';
+import router from "@/router";
 
 @Module({ namespaced: true, name: 'token', store, dynamic: true })
 class TokenModule extends VuexModule {
+
+  isLoading = false;
   isAuthenticated = false;
 
   @Action({rawError: true})
-  async login(payload: { username: string; password: string }) {
+  async login(payload: { username: string; password: string}) {
     await api.post(urls.OBTAIN_TOKEN_URL,
       { username: payload.username, password: payload.password }).then(
       response => {
@@ -21,6 +24,7 @@ class TokenModule extends VuexModule {
     ).catch(error =>{
       return Promise.reject(error)
     })
+
     if (String(localStorage.getItem('access'))) {
       await api.get(urls.PROTECTED_USER_DATA_URL).then(
         response => {
@@ -34,6 +38,7 @@ class TokenModule extends VuexModule {
   @Action
   async setupTokenStore() {
     if (String(localStorage.getItem('access')))
+      this.setIsLoading();
       await api.get(urls.PROTECTED_USER_DATA_URL).then(
         response => {
           userStore.receiveUser(response.data);
@@ -41,11 +46,11 @@ class TokenModule extends VuexModule {
         }).catch(error => {
         console.log(error);
       });
+      this.denyIsLoading();
   }
 
   @Action
   async logout() {
-    console.log('logout')
     await api.post(
       urls.BLACKLIST_TOKEN_URL,
       { refresh: localStorage.getItem('refresh') }
@@ -62,6 +67,14 @@ class TokenModule extends VuexModule {
 
   @Mutation rejectAuthentication() {
     this.isAuthenticated = false;
+  }
+
+  @Mutation setIsLoading(){
+    this.isLoading = true;
+  }
+
+  @Mutation denyIsLoading(){
+    this.isLoading = false;
   }
 }
 
