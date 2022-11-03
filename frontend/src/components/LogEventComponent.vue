@@ -4,80 +4,79 @@
     <div class="title">
       <span>История решений:</span>
     </div>
-    <div class="wrapper-for_controll-overflow-list"
-         @scroll="handleScroll"
-         id="submit-list-wrapper">
+    <div id="submit-list-wrapper"
+         class="wrapper-for_controll-overflow-list"
+         @scroll="handleScroll">
       <cv-loading v-if="loading"/>
       <cv-structured-list
-        v-else
-        class="submit-list">
+          v-else
+          class="submit-list">
         <template slot="items">
           <div
-            v-for="event in events" :key="event.id" class="list--item"
-            v-bind:class="{
+              v-for="event in events" :key="event.id" class="list--item"
+              v-bind:class="{
               'list--item--submit': event.type === logEventTypes.TYPE_SUBMIT,
               'right': event.author === userStore.user.id,
               'clickable': [logEventTypes.TYPE_SUBMIT,
-                            logEventTypes.TYPE_CATS_SUBMIT].includes(event.type)}"
-            v-on:click="elementClickHandler(event)">
+                            logEventTypes.TYPE_STATUS_CHANGE].includes(event.type)}"
+              v-on:click="elementClickHandler(event)">
 
             <img :src="picUrl(event.data.thumbnail)"
-                 class="student--avatar"
-                 alt='avatar'>
+                 alt='avatar'
+                 class="student--avatar">
             <span class="event--date">{{ event.created_at | withoutSeconds }}</span>
 
             <div v-if="logEventTypes.TYPE_SUBMIT === event.type" class="one-history-point">
               <span>ID решения: {{ event.data.message }}</span>
               <div
-                class="checkbox--submit"
-                v-bind:class="{ 'hidden': event.submit !== selectedSubmit }">
+                  class="checkbox--submit"
+                  v-bind:class="{ 'hidden': event.submit !== selectedSubmit }">
                 <component :is="Checkbox"/>
               </div>
             </div>
             <div v-else class="one-history-point">
               <span>{{ event.data.message }}</span>
               <component
-                :is="iconTrash"
-                v-if="event.author === userStore.user.id && event.type === logEventTypes.TYPE_MESSAGE"
-                class="event--delete"
-                title="Удалить сообщение"
-                @click="deleteEvent(event)"/>
+                  :is="iconTrash"
+                  v-if="event.author === userStore.user.id && event.type === logEventTypes.TYPE_MESSAGE"
+                  class="event--delete"
+                  title="Удалить сообщение"
+                  @click="deleteEvent(event)"/>
             </div>
-            <div class="space" ref="eventListBottom"></div>
+            <div ref="eventListBottom" class="space"></div>
           </div>
         </template>
       </cv-structured-list>
     </div>
     <div class="searchbar-out">
       <cv-text-input
-        v-model.trim="commentary"
-        :disabled="false"
-        :label="''"
-        :light="false"
-        :password-visible="false"
-        :placeholder="'Введите сообщение'"
-        :type="''"
-        :value="''"
-        class="searchbar"
-        v-on:keydown.enter="createMessageHandler">
+          v-model.trim="commentary"
+          :disabled="false"
+          :label="''"
+          :light="false"
+          :password-visible="false"
+          :placeholder="'Введите сообщение'"
+          :type="''"
+          :value="''"
+          class="searchbar"
+          v-on:keydown.enter="createMessageHandler">
       </cv-text-input>
     </div>
     <div class="btn-out">
-      <cv-button kind="tertiary" @click="createMessageHandler" class="btn-send">Отправить
+      <cv-button class="btn-send" kind="tertiary" @click="createMessageHandler">Отправить
       </cv-button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import LogEventModel from "@/models/LogEventModel";
-import * as logEventTypes from '@/models/LogEventModel';
+import LogEventModel, * as logEventTypes from "@/models/LogEventModel";
 import userStore from '@/store/modules/user';
 import TrashCan16 from '@carbon/icons-vue/es/trash-can/16';
 import Checkbox16 from '@carbon/icons-vue/es/checkbox--checked--filled/16';
 import logEventStore from '@/store/modules/logEvent';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
-import { Component, Prop, Watch } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 
 
 @Component({
@@ -113,12 +112,8 @@ export default class LogEventComponent extends NotificationMixinComponent {
   offset = 0;
   previousScrollHeightMinusScrollTop = 0;
 
-  async created() {
-    await this.userStore.fetchUserById(this.studentId);
-    this.loading = false;
-    await this.fetchEvents();
-    this.socketConnectionUpdate();
-    await this.scrollDown();
+  get newEventsSortedList() {
+    return this.newEvents.sort(a => a.id);
   }
 
   // @Watch('studentId')
@@ -127,15 +122,18 @@ export default class LogEventComponent extends NotificationMixinComponent {
   //   this.fetchEvents();
   // }
 
+  async created() {
+    await this.userStore.fetchUserById(this.studentId);
+    this.loading = false;
+    await this.fetchEvents();
+    this.socketConnectionUpdate();
+    await this.scrollDown();
+  }
+
   socketMessageHandler(event: MessageEvent) {
     this.events.push((JSON.parse(event.data) as LogEventModel));
     this.events = [...this.events];
     this.$nextTick(this.scrollDown);
-  }
-
-  get newEventsSortedList(){
-    const newEvents = this.newEvents.sort(a => a.id);
-    return newEvents;
   }
 
   socketEventHandler(event: Event) {
@@ -148,10 +146,10 @@ export default class LogEventComponent extends NotificationMixinComponent {
   }
 
   socketConnectionUpdate() {
-    const protocol = (window.location.protocol === 'http:') ? 'ws://' : 'wss://';
+    const protocol = (window.location.protocol === 'http:') ? 'ws://':'wss://';
     this.connection = new WebSocket(
-      protocol + window.location.host
-      + `/ws/notifications?user_id=${this.studentId}&problem_id=${this.problemId}`
+        protocol + window.location.host
+        + `/ws/notifications?user_id=${this.studentId}&problem_id=${this.problemId}`
     );
     this.connection.onmessage = this.socketMessageHandler;
     this.connection.onclose = this.socketEventHandler;
@@ -161,12 +159,12 @@ export default class LogEventComponent extends NotificationMixinComponent {
 
   async fetchEvents() {
     this.newEvents = await this.logEventStore.fetchLogEventsByProblemAndStudentIds(
-      {
-        problem: this.problemId,
-        student: this.studentId,
-        limit: this.limit,
-        offset: this.offset
-      },
+        {
+          problem: this.problemId,
+          student: this.studentId,
+          limit: this.limit,
+          offset: this.offset
+        },
     );
     if (this.newEvents.length) {
       this.recordScrollPosition();
@@ -200,7 +198,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
   elementClickHandler(element: LogEventModel): void {
     if (logEventTypes.TYPE_SUBMIT === element.type)
       this.$emit('submit-selected', { id: element.submit });
-    if (logEventTypes.TYPE_CATS_ANSWER === element.type)
+    if (logEventTypes.TYPE_STATUS_CHANGE === element.type)
       this.$emit('cats-answer', { id: element.submit });
   }
 
@@ -225,7 +223,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
     await this.logEventStore.createLogEvent(newMessage);
     // if (answer !== undefined) {
     //   await this.fetchThumbnailForEvent(answer);
-      // this.events.push(answer);
+    // this.events.push(answer);
     // }
     this.commentary = '';
     this.messageIsSending = false;
@@ -241,18 +239,18 @@ export default class LogEventComponent extends NotificationMixinComponent {
   recordScrollPosition() {
     const eventList = document.getElementById('submit-list-wrapper')!;
     this.previousScrollHeightMinusScrollTop =
-      eventList.scrollHeight - eventList.scrollTop;
+        eventList.scrollHeight - eventList.scrollTop;
   }
 
   restoreScrollPosition() {
     const eventList = document.getElementById('submit-list-wrapper')!;
     eventList.scrollTop =
-      eventList.scrollHeight - this.previousScrollHeightMinusScrollTop;
+        eventList.scrollHeight - this.previousScrollHeightMinusScrollTop;
   }
 
   handleScroll() {
     const eventList = document.getElementById('submit-list-wrapper')!;
-    if(eventList.scrollTop === 0) {
+    if (eventList.scrollTop === 0) {
       this.fetchEvents();
     }
   }
@@ -265,7 +263,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
 
 </script>
 
-<style scoped lang="stylus">
+<style lang="stylus" scoped>
 .title
   font-size 1em
   padding 1em

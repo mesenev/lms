@@ -139,6 +139,17 @@ class SubmitModule extends VuexModule {
       })
     return data as object;
   }
+
+  @Action
+  async fetchLastSubmit(payload: { user_id: number; problem_id: number }) {
+    let answer = { data: {} };
+    await api.get(`api/submit/last-user-submit/${payload.user_id}/${payload.problem_id}/`)
+      .then(response => answer = response)
+      .catch(error => {
+        console.log(error);
+      });
+    return answer.data as SubmitModel;
+  }
 }
 
 export default getModule(SubmitModule);

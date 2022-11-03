@@ -1,25 +1,27 @@
+from django.conf import settings
+import requests
 import requests
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from requests.utils import default_headers
 from rest_framework import viewsets, status
-from rest_framework.decorators import api_view, renderer_classes
-from rest_framework.renderers import JSONRenderer
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from cathie import cats_api
 from cathie.authorization import cats_sid_setter, cats_sid
 from cathie.cats_api import cats_get_problems_from_contest, cats_get_problem_description_by_url
+from cathie.cats_api import get_contests_from_cats
 from cathie.exceptions import CatsAuthorizationException
 from cathie.models import CatsAccount
 from cathie.serializers import CatsAccountSerializer
 from course.models import Course
 from problem.models import Problem
-
-from django.shortcuts import render
 from users.permissions import CourseStaffOrAuthor
-from django.utils import timezone
 
 
 class ListCatsProblems(APIView):
@@ -78,3 +80,17 @@ class CatsAccountViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(cats_account)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=_status, headers=headers)
+
+
+class CatsContest(APIView):
+    permission_classes = [CourseStaffOrAuthor]
+
+    def get(self, request):
+        """Return list of CatsContents from cats"""
+        return Response(get_contests_from_cats())
+
+    def post(self, request):
+        """Register user to the contest by [user id] and [logins to add]"""
+        contest_id = request.data['contest_id']
+        logins_to_add = request.data['logins_to_add']
+        return Response(status=cats_api.add_users_to_contest(logins_to_add, contest_id))

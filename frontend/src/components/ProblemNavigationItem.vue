@@ -1,39 +1,78 @@
 <template>
-  <li class="status" :class="{'status-ok': isAccepted,
+  <li v-if="!loading" :class="{'status-ok': isAccepted,
                  'status-wa': isRejected,
-                 'status-np': !(isAccepted || isRejected)}">
+                 'status-np': !(isAccepted || isRejected)}" class="status">
     <div class="status-back"></div>
-    <a :href="'../../'+problem.id">
-      <svg v-if="isAccepted"
-        viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 6.86325L7.36816 13.1846L17 1.5" stroke-width="2"></path></svg>
-      <svg v-else-if="isRejected"
-        viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L15 15M15 1L1 15" stroke-width="2"/></svg>
-      <div v-else>?</div>
-    </a>
+    <router-link :to="target">
+      <component
+          :is="Checkmark16"
+          v-if="isAccepted"
+          class="icon-accepted">
+      </component>
+      <component
+          :is="Close16"
+          v-else-if="isRejected"
+          class="icon-rejected">
+      </component>
+      <span
+          v-else
+          class="icon-not-passed"
+          v-text="'?'">
+      </span>
+    </router-link>
+  </li>
+  <li v-else>
+    <cv-tag-skeleton></cv-tag-skeleton>
   </li>
 </template>
 
 <script lang="ts">
 import ProblemModel from "@/models/ProblemModel";
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import {SUBMIT_STATUS} from "@/models/SubmitModel";
+import { SUBMIT_STATUS } from "@/models/SubmitModel";
+import Checkmark16 from "@carbon/icons-vue/es/checkmark/16";
+import Close16 from "@carbon/icons-vue/es/close/16";
 
-@Component({ components: {} })
+@Component({ components: { Close16, Checkmark16 } })
 export default class ProblemNavigationItem extends Vue {
   @Prop({ required: true }) problem!: ProblemModel;
-
+  loading = true;
+  Close16 = Close16;
+  Checkmark16 = Checkmark16;
+  target: object = {};
 
   get getStatus(): string | undefined {
     return this.problem.last_submit?.status;
   }
+
   get isAccepted() {
     return this.getStatus === SUBMIT_STATUS.OK;
   }
+
   get isRejected() {
     return this.getStatus === SUBMIT_STATUS.WRONG_ANSWER;
   }
 
-
+  async created() {
+    // TODO: MAKE SEPARATE TARGET METHOD FOR ALL NAVIGATION LINKS
+    if (!!this.problem.last_submit) {
+      this.target = {
+        name: 'ProblemViewWithSubmit',
+        params: {
+          courseId: this.$route.params.courseId,
+          lessonId: this.$route.params.lessonId,
+          problemId: this.problem.id.toString(),
+          submitId: this.problem.last_submit.id.toString(),
+        }
+      };
+    } else {
+      this.target = {
+        name: 'ProblemView',
+        params: { problemId: this.problem.id.toString() }
+      };
+    }
+    this.loading = !this.target;
+  }
 }
 </script>
 
@@ -64,8 +103,6 @@ li
     &:focus
       outline none
 
-  svg
-    stroke white
 
   &-back
     width 28px
@@ -79,29 +116,43 @@ li
 
   &-ok
     background-color #4EB052
+
     svg
       width 18px
       height 18px
       margin 3px
+
   &-wa
     background-color #DA1E28
+
     svg
       width 16px
       height 16px
       margin 4px
+
   &-np
     background-color transparent
     border 1px #808080 solid
+
     a
       color black
       text-decoration none
+
       &:hover
         text-decoration 1px underline
-
 
   &-np &-back
     top -3px
     left -3px
+
   &:hover &-back
     display unset
+
+.icon
+  &-rejected, &-accepted
+    fill white
+
+  &-not-passed
+    fill black
+    stroke black
 </style>

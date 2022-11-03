@@ -11,16 +11,17 @@ from rest_framework.response import Response
 from course.models import Course
 from lesson.models import Lesson
 from problem.models import Problem, Submit, CatsSubmit, ProblemStats, LogEvent
-from problem.serializers import ProblemSerializer, SubmitSerializer, \
-    SubmitListSerializer, ProblemListSerializer, \
-    LogEventSerializer
+from problem.serializers import ProblemSerializer, SubmitSerializer, SubmitListSerializer, ProblemListSerializer, \
+    LogEventSerializer, LastSubmitSerializer
 from users.models import User
 from users.permissions import CourseStaffOrReadOnlyForStudents, object_to_course, \
     CourseStaffOrAuthor
 
 
 class ProblemViewSet(viewsets.ModelViewSet):
+    # TODO: check only opened lessons are distributed for students
     permission_classes = [CourseStaffOrReadOnlyForStudents]
+
     queryset = Problem.objects.all()
     filterset_fields = ['lesson_id', ]
 
@@ -43,8 +44,8 @@ class ProblemViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @action(detail=False, url_path='by-course/(?P<course_id>\d+)')
-    def by_course(self, request, course_id):
+    @staticmethod
+    def prefetch_query_with_submits(request: Request, queryset):
         submits = request.user.submits.annotate(
             ordering=models.Case(
                 models.When(status="OK", then=models.Value(0)),
@@ -53,18 +54,25 @@ class ProblemViewSet(viewsets.ModelViewSet):
                 output_field=models.IntegerField()
             )
         ).order_by('problem', 'ordering', '-id').distinct('problem')
+        return queryset.prefetch_related(models.Prefetch(lookup='submits', to_attr='last_submit', queryset=submits))
+
+    @action(detail=False, url_path='by-course/(?P<course_id>\d+)')
+    def by_course(self, request, course_id):
         queryset = self.queryset.filter(
             lesson__course=course_id,
             lesson__is_hidden=False,
         ).exclude(
-            submits__status__in=[
-                Submit.AWAITING_MANUAL,
-                Submit.OK,
-                Submit.DEFAULT_STATUS
-            ]
-        ).prefetch_related(models.Prefetch(lookup='submits', to_attr='last_submit', queryset=submits))
+            submits__status__in=[Submit.AWAITING_MANUAL, Submit.OK, Submit.DEFAULT_STATUS]
+        )
+        queryset = self.prefetch_query_with_submits(request, queryset)
         serializer = ProblemListSerializer(list(queryset)[:5], many=True)
 
+        return Response(serializer.data)
+
+    @action(detail=False, url_path='user-submit')
+    def get_problem_list_for_user(self, request):
+        queryset = self.prefetch_query_with_submits(request, self.filter_queryset(self.get_queryset()))
+        serializer = ProblemListSerializer(queryset, many=True)
         return Response(serializer.data)
 
 
@@ -155,6 +163,13 @@ class SubmitViewSet(viewsets.ModelViewSet):
             queryset
         ))[:5], many=True)
         return Response(serializer.data)
+
+    @action(detail=False, url_path=r'last-user-submit/(?P<user_id>[^/.]+)/(?P<problem_id>[^/.]+)')
+    def get_last_user_problem_submit(self, request, user_id, problem_id):
+        return Response(LastSubmitSerializer(
+            Submit.objects.filter(problem__id=problem_id, student__id=user_id).annotate(
+                ordering=self.stats_ordering).order_by('problem', 'ordering', '-id').first()
+        ).data)
 
     @action(detail=False, url_path='problem-stats/(?P<problem_id>\d+)')
     def problem_stats(self, request, problem_id):

@@ -1,7 +1,7 @@
 <template>
   <div class="bx--grid">
     <div class="bx--row header-container">
-      <div class="main-title" :class="{'bx--offset-lg-1': isStaff, 'bx--offset-lg-2': !isStaff}">
+      <div :class="{'bx--offset-lg-1': isStaff, 'bx--offset-lg-2': !isStaff}" class="main-title">
         <h1 v-if="problem" class="">{{ problem.name }}</h1>
         <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
         <div class="description-container">
@@ -12,11 +12,11 @@
           </cv-link>
           <cv-skeleton-text v-else class="" width="'35%'"/>
           <cv-modal
-            :visible="displayProblem"
-            class="problem-description-modal"
-            close-aria-label="Закрыть"
-            size="large"
-            @modal-hidden="hideProblem">
+              :visible="displayProblem"
+              class="problem-description-modal"
+              close-aria-label="Закрыть"
+              size="large"
+              @modal-hidden="hideProblem">
             <template slot="title">{{ problem.name }}</template>
             <template slot="content">
               <problem-description :problem="problem"/>
@@ -28,27 +28,29 @@
             <span v-if="lesson.scores[problem.type]">
               Макс. балл <strong>{{ lesson.scores[problem.type] }}</strong>
             </span>
-            <span>Режим тестирования: <strong>{{this.problem.test_mode}}</strong> </span>
+            <span>Режим тестирования: <strong>{{ this.problem.test_mode }}</strong> </span>
           </div>
         </div>
       </div>
     </div>
     <cv-row class="main-items" justify="center">
-      <problem-navigation :lesson-id="problem.lesson" v-if="!isStaff"></problem-navigation>
+      <problem-navigation v-if="!isStaff" :lesson-id="problem.lesson"></problem-navigation>
       <cv-column v-if="isStaff && !displayCatsPackage">
         <div class="item">
           <cv-structured-list class="student-list" condensed selectable @change="changeStudent">
             <template slot="headings">
-              <cv-structured-list-heading class="pupil-title">Список учеников</cv-structured-list-heading>
-            </template>>
+              <cv-structured-list-heading class="pupil-title">Список учеников
+              </cv-structured-list-heading>
+            </template>
+            >
             <template slot="items">
               <cv-structured-list-item
-                class="student-list--item"
-                v-for="student in studentIds"
-                :key="student"
-                :checked="checkedStudent(student)"
-                :value="student.toString()"
-                name="student">
+                  v-for="student in studentIds"
+                  :key="student"
+                  :checked="checkedStudent(student)"
+                  :value="student.toString()"
+                  class="student-list--item"
+                  name="student">
                 <cv-structured-list-data>
                   <user-component :user-id="student" class="student-list--item--user-component"/>
                 </cv-structured-list-data>
@@ -60,21 +62,23 @@
       <cv-column :lg="{'span': 8, 'offset': isStaff ? 0 : 2}">
         <div class="solution-container item">
           <submit-component
-            v-if="problem"
-            :is-staff="isStaff" :language-list="problem.language"
-            @submit-created="(x) => changeCurrentSubmit(x.id)"
-            :submitId="submitId"
-            class="solution-container--submit-component"/>
+              v-if="problem"
+              :is-staff="isStaff" :language-list="problem.language"
+              :submitId="submitId"
+              class="solution-container--submit-component"
+              @submit-created="(x) => changeCurrentSubmit(x.id)"/>
           <cv-loading v-else small/>
           <div class="solution-container--submit-list">
             <log-event-component
-              :key="logEventComponentKey"
-              :problemId="problem.id" :studentId="studentId"
-              :selected-submit="submitId"
-              class="log--event--component"
-              @submit-selected="(x) => changeCurrentSubmit(x.id)"
-              @cats-answer="(x) => showCatsAnswerModal(x.id)"
+                v-if="!!problem"
+                :key="logEventComponentKey"
+                :problemId="problem.id" :selected-submit="submitId"
+                :studentId="studentId"
+                class="log--event--component"
+                @submit-selected="(x) => changeCurrentSubmit(x.id)"
+                @cats-answer="(x) => showCatsAnswerModal(x.id)"
             />
+            <cv-loading v-else></cv-loading>
           </div>
         </div>
       </cv-column>
@@ -97,7 +101,7 @@ import lessonStore from '@/store/modules/lesson';
 import problemStore from '@/store/modules/problem';
 import submitStore from '@/store/modules/submit';
 import userStore from '@/store/modules/user';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import CatsPackageWindow from "@/components/CatsPackageWindow.vue";
 
 
@@ -147,13 +151,6 @@ export default class ProblemView extends Vue {
     return this.submitStore.submits;
   }
 
-
-  checkedSubmit(submit: SubmitModel): boolean {
-    if (!this.submitIdProp)
-      return submit.id === Math.max(...this.submits.map(s => s.id));
-    return submit.id === this.submitIdProp;
-  }
-
   get userSubmits() {
     return this.submits.filter((x: SubmitModel) => x.student === this.studentId);
   }
@@ -165,6 +162,35 @@ export default class ProblemView extends Vue {
       return "Домашняя работа"
     else if (this.problem?.type === "EX")
       return "Дополнительные задания"
+  }
+
+  get isStaff(): boolean {
+    return this.user.staff_for.includes(Number(this.courseId));
+  }
+
+  get avatarUrl() {
+    if (this.user && this.user.avatar_url)
+      return this.user.thumbnail;
+    return "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
+  }
+
+  get isCompleted(): boolean {
+    return !!this.submits.find((submit: SubmitModel) => (
+        submit.status === 'OK'
+    ));
+  }
+
+  @Watch('$route.params.problemId', { immediate: true, deep: true })
+  async unUrlChange() {
+    const problem = await this.problemStore.fetchProblemById(Number(this.$route.params.problemId));
+    this.problemStore.changeCurrentProblem(problem);
+    this.recreateLogEventComponent();
+  }
+
+  checkedSubmit(submit: SubmitModel): boolean {
+    if (!this.submitIdProp)
+      return submit.id === Math.max(...this.submits.map(s => s.id));
+    return submit.id === this.submitIdProp;
   }
 
   changeCurrentSubmit(id: number): void {
@@ -186,12 +212,8 @@ export default class ProblemView extends Vue {
     this.toggleCatsModal(true);
   }
 
-  get isStaff(): boolean {
-    return this.user.staff_for.includes(Number(this.courseId));
-  }
-
   async created() {
-    if (!this.isStaff && !this.submitId && this.submits.length)
+    if (this.isStaff && !this.submitId && this.submits.length)
       this.changeCurrentSubmit(this.submits[this.submits.length - 1].id);
     if (this.submitId)
       this.studentId = this.submits?.find(x => x.id === this.submitId)?.student as number;
@@ -218,12 +240,6 @@ export default class ProblemView extends Vue {
       this.displayCatsPackage = target as boolean;
   }
 
-  get avatarUrl() {
-    if (this.user && this.user.avatar_url)
-      return this.user.thumbnail;
-    return "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
-  }
-
   checkedStudent(studentId: string): boolean {
     return Number(studentId) === this.studentId;
   }
@@ -231,7 +247,6 @@ export default class ProblemView extends Vue {
   showProblem() {
     this.displayProblem = true;
   }
-
 
   hideProblem() {
     this.displayProblem = false;
@@ -241,12 +256,6 @@ export default class ProblemView extends Vue {
     this.studentId = Number(id);
     this.changeCurrentSubmit(this.userSubmits[this.userSubmits.length - 1].id);
     this.recreateLogEventComponent();
-  }
-
-  get isCompleted(): boolean {
-    return !!this.submits.find((submit: SubmitModel) => (
-      submit.status === 'OK'
-    ));
   }
 
   recreateLogEventComponent() {
@@ -276,7 +285,8 @@ h1
 
 .item
   background-color var(--cds-ui-background)
-  //padding 1rem
+
+//padding 1rem
 
 .solution-container
   display flex
@@ -406,6 +416,7 @@ h1
 
 .student-list
   margin-bottom 2rem
+
   .pupil-title
     padding-left 0.5rem
 
@@ -413,6 +424,7 @@ h1
 .problem-description-modal
   .bx--modal-container
     border-radius 5px
+
 aside
   @media (max-width: 1100px)
     display none

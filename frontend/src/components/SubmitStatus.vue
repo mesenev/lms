@@ -1,6 +1,5 @@
 <template>
   <div class="submit-status--wrapper">
-
     <cv-tag class="tag" :label="submit.status"
             :style="`background-color: ${statusColor(submit.status)};`">
     </cv-tag>
