@@ -121,7 +121,7 @@ import router from '@/router';
 import lessonStore from '@/store/modules/lesson';
 import materialStore from '@/store/modules/material';
 import problemStore from '@/store/modules/problem';
-import axios from 'axios';
+import api from '@/store/services/api';
 import _ from 'lodash';
 import { Component, Prop } from 'vue-property-decorator';
 
@@ -150,8 +150,8 @@ export default class LessonEditView extends NotificationMixinComponent {
 
   createOrUpdate(): void {
     const request = (this.isNewLesson) ?
-      axios.post('/api/lesson/', this.lessonEdit) :
-      axios.patch(`/api/lesson/${this.lessonEdit.id}/`, this.lessonEdit);
+        api.post('/api/lesson/', this.lessonEdit) :
+        api.patch(`/api/lesson/${this.lessonEdit.id}/`, this.lessonEdit);
     request.then(response => {
       this.notificationKind = 'success';
       this.notificationText = (this.lessonId) ? 'Урок успешно изменён' : 'Урок успешно создан';
