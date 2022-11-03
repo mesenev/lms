@@ -11,7 +11,7 @@ ij_formatter_off_tag = @formatter:off
 ij_formatter_on_tag = @formatter:on
 ij_formatter_tags_enabled = false
 ij_smart_tabs = false
-ij_visual_guides = none
+ij_visual_guides = 120
 ij_wrap_on_typing = false
 
 [*.css]
@@ -135,7 +135,7 @@ ij_stylus_value_alignment = 0
 [*.vue]
 indent_size = 2
 tab_width = 2
-ij_continuation_indent_size = 4
+ij_continuation_indent_size = 2
 ij_vue_indent_children_of_top_level = template
 ij_vue_interpolation_new_line_after_start_delimiter = true
 ij_vue_interpolation_new_line_before_end_delimiter = true
@@ -305,7 +305,7 @@ ij_typescript_for_statement_new_line_after_left_paren = false
 ij_typescript_for_statement_right_paren_on_new_line = false
 ij_typescript_for_statement_wrap = off
 ij_typescript_force_quote_style = false
-ij_typescript_force_semicolon_style = false
+ij_typescript_force_semicolon_style = true
 ij_typescript_function_expression_brace_style = end_of_line
 ij_typescript_if_brace_force = never
 ij_typescript_import_merge_members = global
