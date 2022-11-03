@@ -1,6 +1,5 @@
 <template>
   <div>
-  #toDo set transition and styles for loader
   <cv-loading v-if="isLoading" overlay style="background: white"></cv-loading>
   <div v-if="!isLoading">
     <div class="layout" v-if="isLogin">
@@ -39,7 +38,7 @@ import tokenStore from "@/store/modules/token"
 
 @Component({ components: { LoginView, LmsHeader, LmsBreadcrumb, LogoGithub } })
 export default class App extends Vue {
-
+  //TODO set transition and styles for loader
   @Watch('isLogin')
   onIsLoginChanged(new_val: boolean){
     if ( new_val){
