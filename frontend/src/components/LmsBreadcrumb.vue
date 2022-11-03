@@ -24,6 +24,16 @@
         :model="materialStore.currentMaterial"
         page-view="MaterialView"
       />
+      <lms-breadcrumb-item
+        v-if="courseEditSelected.selected"
+        :model="courseEditSelected.value"
+        :page-view="courseEditSelected.page_view"
+      />
+      <lms-breadcrumb-item
+        v-if="lessonEditSelected.selected"
+        :model="lessonEditSelected.value"
+        page-view="lesson-edit"
+      />
     </cv-breadcrumb>
   </div>
 </template>
@@ -66,6 +76,32 @@ export default class LmsBreadcrumb extends Vue {
 
   get materialSelected() {
     return this.isSelected('materialId');
+  }
+
+  get courseEditSelected() {
+    let selected = false;
+    let value = null;
+    let page_view;
+    if (this.$route.name === 'course-edit') {
+      page_view = this.$route.name;
+      selected = true;
+      value = { id: this.$route.params['courseId'], name: 'Редактирование курса' };
+    } else if (this.$route.name === 'course-add') {
+      page_view = this.$route.name;
+      selected = true;
+      value = { id: this.$route.params['courseId'], name: 'Создание курса' };
+    }
+    return { selected, value, page_view };
+  }
+
+  get lessonEditSelected() {
+    let selected = false;
+    let value = null;
+    if (this.$route.name === 'lesson-edit') {
+      selected = true;
+      value = { id: this.$route.params['lessonId'], name: 'Редактирование урока' };
+    }
+    return { selected, value };
   }
 
 }
