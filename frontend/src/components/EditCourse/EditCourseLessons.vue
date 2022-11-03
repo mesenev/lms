@@ -5,11 +5,11 @@
       <cv-search label="Поиск"
                  v-model="searchQueryForCourseLessons">
       </cv-search>
-      <confirm-modal class="confirm--modal"
-                     :approved-text="approvedText"
-                     :element-id="deletingLessonId"
-                     :modal-trigger="modalTrigger"
-                     :some-function="deleteLesson"/>
+      <confirm-modal
+        class="confirm--modal"
+        :text="approvedText"
+        :modal-trigger="modalTrigger"
+        :approve-handler="deleteLesson"/>
       <div class="lesson--list">
         <cv-inline-notification
           v-if="showNotification"
@@ -28,7 +28,7 @@
                           :key="problem"
                           kind="red"
                           :label="problem">
-                 </cv-tag>
+                  </cv-tag>
                 </div>
                 <div class="icons">
                   <component :is="TrashCan"
@@ -78,14 +78,14 @@ export default class EditCourseLessons extends NotificationMixinComponent {
   TrashCan = TrashCan20;
   Settings = Settings20;
   searchQueryForCourseLessons = '';
-  deletingLessonId = 0;
+  deletingLessonId: number | null = null;
   modalTrigger = false;
   approvedText = '';
 
   get courseLessons(): LessonModel[] {
     return searchByLessons(this.searchQueryForCourseLessons, this.course.lessons)
       .sort((a, b) => {
-        return a.id - b.id
+        return a.id - b.id;
       });
   }
 
@@ -106,19 +106,21 @@ export default class EditCourseLessons extends NotificationMixinComponent {
   }
 
   editLesson(lesson: LessonModel) {
-    router.push({name: 'lesson-edit', params: {lessonId: lesson.id.toString()}});
+    router.push({ name: 'lesson-edit', params: { lessonId: lesson.id.toString() } });
   }
 
-  async deleteLesson(lessonId: number) {
-    await this.lessonStore.deleteLesson(lessonId).then(() => {
+  async deleteLesson() {
+    if (!this.deletingLessonId)
+      throw Error;
+    await this.lessonStore.deleteLesson(this.deletingLessonId).then(() => {
       this.course.lessons =
-          this.course.lessons.filter((x: LessonModel) => x.id != lessonId);
+        this.course.lessons.filter((x: LessonModel) => x.id != this.deletingLessonId);
     }).catch(error => {
       this.notificationKind = 'error';
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.showNotification = true;
     });
-    this.lessonStore.setLessons({[this.course.id]: this.course.lessons});
+    this.lessonStore.setLessons({ [this.course.id]: this.course.lessons });
   }
 }
 </script>
@@ -145,23 +147,26 @@ export default class EditCourseLessons extends NotificationMixinComponent {
   overflow-y auto
 
 .lesson
-    padding 20px
-    display flex
-    flex-direction row
-    justify-content space-between
-    align-items center
+  padding 20px
+  display flex
+  flex-direction row
+  justify-content space-between
+  align-items center
 
 .title
   display flex
   flex-direction row
   align-items baseline
+
   h5
     margin-right: 5px
 
 .icon
   transition ease-in-out 0.1s
+
 .icon:active
   transform scale(0.9)
+
 .icon:nth-child(odd)
   margin: 0 10px
 

@@ -3,6 +3,7 @@
     <cv-modal
       class="confirm--modal"
       :visible="modalVisible"
+      :primary-button-disabled="inAction"
       size="small"
       @primary-click="doSomething"
       @modal-hidden="hideModal">
@@ -27,11 +28,11 @@ import LessonModel from "@/models/LessonModel";
 @Component({})
 export default class ConfirmModal extends Vue{
   @Prop({required: true}) modalTrigger!: boolean;
-  @Prop({required: true}) approvedText!: string;
-  @Prop({required: true}) elementId!: number
-  @Prop({required: true}) someFunction!: Function;
+  @Prop({required: true}) text!: string;
+  @Prop({required: true}) approveHandler!: Function;
 
   modalVisible = false;
+  inAction = false;
 
 
   @Watch('modalTrigger')
@@ -44,7 +45,9 @@ export default class ConfirmModal extends Vue{
   }
 
   async doSomething() {
-    await this.someFunction(this.elementId);
+    this.inAction = true;
+    await this.approveHandler();
+    this.inAction = false;
     this.hideModal();
   }
 }
