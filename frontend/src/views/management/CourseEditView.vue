@@ -180,7 +180,7 @@ export default class CourseEditView extends Vue {
 
   catsIdCheck() {
     if (!this.courseEdit.cats_id) {
-      this.courseEdit.cats_id = - 1;
+      this.courseEdit.cats_id = -1;
     }
   }
 

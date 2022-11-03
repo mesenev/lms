@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import SubmitStatus from "@/components/SubmitStatus.vue";
 import ProblemModel from "@/models/ProblemModel";
 import SubmitModel from "@/models/SubmitModel";
@@ -25,7 +25,7 @@ import userStore from "@/store/modules/user";
 
 @Component({ components: { SubmitStatus } })
 export default class StudentProblemListItemComponent extends Vue {
-  @Prop({required: true}) problem!: ProblemModel | CatsProblemModel;
+  @Prop({ required: true }) problem!: ProblemModel | CatsProblemModel;
   submitStore = submitStore;
   userStore = userStore;
   loading = true;

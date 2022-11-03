@@ -37,19 +37,19 @@
 <script lang="ts">
 import problemStore from '@/store/modules/problem';
 import ProblemNavigationItem from '@/components/ProblemNavigationItem.vue';
-import {Component, Prop, Vue} from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import ProblemModel from "@/models/ProblemModel";
 
 
 @Component({ components: { ProblemNavigationItem } })
 export default class ProblemNavigation extends Vue {
-  @Prop({required: true}) lessonId!: number;
+  @Prop({ required: true }) lessonId!: number;
   problemStore = problemStore;
   problems: Array<ProblemModel> = [];
   loading = true;
 
   target(pid: number) {
-    return {name: 'ProblemView', params: {problemId: pid.toString()}};
+    return { name: 'ProblemView', params: { problemId: pid.toString() } };
   }
 
   get isProblemsEmpty() {
