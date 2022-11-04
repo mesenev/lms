@@ -6,7 +6,7 @@
       <Document24 @click="openMaterial" v-else class="icon"/>
       <p @click="openMaterial">{{ material.name }}</p>
     </div>
-    <TrashCan24 class="icon" @click="showConfirmModal"/>
+    <TrashCan24 v-if="isEditing" class="icon" @click="showConfirmModal"/>
   </cv-structured-list-data>
 </template>
 
@@ -22,9 +22,11 @@ import materialStore from '@/store/modules/material';
 @Component({components: {Document24, VideoChat24, TrashCan24}})
 export default class MaterialListComponent extends Vue {
   @Prop() materialProp!: MaterialModel;
+  @Prop({required: false}) isEditing!: false | boolean;
   private materialStore = materialStore;
 
   openMaterial(): void {
+    this.materialStore.setCurrentMaterial(this.material);
     router.push({name: 'MaterialView', params: {materialId: this.material.id.toString()}});
   }
 

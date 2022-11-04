@@ -1,19 +1,40 @@
 <template>
-  <div class="bx--grid">
+  <cv-loading v-if="loading"></cv-loading>
+  <div v-else class="bx--grid">
     <div class="bx--row">
-      <div class="bx--col-lg-16">
+      <div class="bx--col-lg-8">
         <cv-tile>
-          <h1 class="material-title">{{ materials.name }}</h1>
+          <h2 class="material-title">{{ currentMaterial.name }}</h2>
         </cv-tile>
+        <div v-if="isMaterialAVideo" class="video material-content">
+          <youtube :video-id="youTubeGetID"
+                   ref="youtube"
+                   player-width="980"
+                   player-height="480"></youtube>
+        </div>
+        <div v-else class="less material-content">
+          <vue-markdown :source="currentMaterial.content" class="md-body"/>
+        </div>
       </div>
-      <div v-if="isMaterialAVideo" class="video bx--col-lg-10">
-        <youtube :video-id="youTubeGetID"
-                 ref="youtube"
-                 player-width="980"
-                 player-height="480"></youtube>
-      </div>
-      <div v-else class="less bx--col-lg-10">
-        <vue-markdown :source="materials.content" class="md-body"/>
+      <div class="bx--col-lg-4 bx--col-md-4">
+        <div class="other-materials-container">
+          <div class="other-materials">
+            <h4 class="other-materials-title">Другие материалы:</h4>
+            <div class="other-materials-list-container" v-if="otherMaterials.length">
+              <cv-structured-list class="other-materials-list">
+                <template slot="items">
+                  <cv-structured-list-item
+                    v-for="material in otherMaterials"
+                    :key="material.id"
+                  >
+                    <material-list-component :material-prop="material"/>
+                  </cv-structured-list-item>
+                </template>
+              </cv-structured-list>
+            </div>
+            <h5 v-else class="empty-other-materials-title">Это единственный материал!</h5>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -23,24 +44,26 @@
 import MaterialModel from '@/models/MaterialModel';
 import materialStore from '@/store/modules/material';
 import VueMarkdown from 'vue-markdown-render';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 import VueYouTubeEmbed from 'vue-youtube-embed';
-import { VueConstructor } from 'vue';
+import MaterialListComponent from "@/components/lists/MaterialListComponent.vue";
 
 //TODO: check this is ok
 Vue.use(VueYouTubeEmbed);
 
-@Component({ components: { VueMarkdown } })
+@Component({components: {VueMarkdown, MaterialListComponent}})
 export default class MaterialView extends Vue {
-  @Prop() materialId!: number;
+  @Prop({required: true}) materialId!: number;
   private materialStore = materialStore;
-  material!: MaterialModel;
-
+  materials: Array<MaterialModel> = [];
+  loading = true;
 
   async created() {
     const material = await this.materialStore.fetchMaterialById(this.materialId);
-    if (material) {
+    if (material.id) {
+      this.loading = false;
       this.materialStore.setCurrentMaterial(material);
+      this.materials = await this.materialStore.fetchMaterialsByLessonId(material.lesson);
     }
   }
 
@@ -59,10 +82,15 @@ export default class MaterialView extends Vue {
       return true;
   }
 
-  get materials(): MaterialModel {
+  get currentMaterial(): MaterialModel {
     return this.materialStore.currentMaterial;
   }
 
+  get otherMaterials(): Array<MaterialModel> {
+    if (this.materials)
+      return this.materials.filter(x => x.id != this.materialId);
+    return this.materials;
+  }
 }
 </script>
 
@@ -71,16 +99,37 @@ export default class MaterialView extends Vue {
 .material-title
   margin-top 2rem
 
-.video
-  margin-left 1rem
+.material-content
+  min-height 20rem
+  max-height 25rem
 
 .less
-  border .5px solid rgba(0, 0, 0, .3)
-  margin-left 2rem
+  border .5px solid var(--cds-ui-04)
   background-color var(--cds-ui-02)
   padding var(--cds-spacing-05)
-  min-height 10rem
 
+.other-materials-container
+  margin-top 4rem
+  min-height 22.5rem
+  background-color var(--cds-ui-background)
+  border 0.5px solid var(--cds-ui-04)
+
+.other-materials
+  margin 0.5rem 1rem 1rem 1rem
+
+.other-materials-list-container
+  border 1px solid var(--cds-ui-05)
+  max-height 18rem
+  overflow-y auto
+
+.other-materials-list
+  margin-bottom 0
+
+.other-materials-title
+  margin-bottom 1rem
+
+.empty-other-materials-title
+  text-align center
 
 code
   color: var(--color-b)

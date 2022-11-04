@@ -49,6 +49,7 @@
                   :key="material.id"
                 >
                   <material-list-component :material-prop="material"
+                                           :is-editing="true"
                                            @show-confirm-modal="showConfirmModal($event)"/>
                 </cv-structured-list-item>
               </template>
