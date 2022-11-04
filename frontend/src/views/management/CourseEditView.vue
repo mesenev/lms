@@ -186,7 +186,7 @@ export default class CourseEditView extends Vue {
 
   async fetchContests(): Promise<CatsContestModel[]> {
     let answer = { data: {} };
-    await api.get('api/cats-contests/')
+    await api.get('/api/cats-contests/')
         .then(response => {
           answer = response;
         })
