@@ -8,7 +8,7 @@
     <h5 class="list-element--title">{{ lesson.name }}</h5>
     <div class="date-wrapper">
       <div class="list-element--info">
-        <date-view-component :date-as-integer="dateProp" :show-day-week="true"/>
+        <date-view-component v-if="dateProp" :date-as-integer="dateProp" :show-day-week="true"/>
       </div>
     </div>
     <span v-if="courseStore.is_staff" class="list-element--info span--hidden">
@@ -25,20 +25,20 @@ import courseStore from '@/store/modules/course';
 import userStore from '@/store/modules/user';
 import viewOffIcon from '@carbon/icons-vue/es/view--off/16';
 import viewIcon from '@carbon/icons-vue/es/view/16';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import {Component, Prop, Vue} from 'vue-property-decorator';
 import DateViewComponent from "@/components/common/DateViewComponent.vue"
 
-@Component({ components: { viewIcon, viewOffIcon, DateViewComponent } })
+@Component({components: {viewIcon, viewOffIcon, DateViewComponent}})
 export default class LessonListComponent extends Vue {
-  @Prop({ required: true }) lessonProp!: LessonModel;
-  @Prop({ required: false, default: null }) dateProp!: number | null;
+  @Prop({required: true}) lessonProp!: LessonModel;
+  @Prop({required: false, default: null}) dateProp!: number | null;
 
   userStore = userStore;
   courseStore = courseStore;
 
 
   get openLesson() {
-    return { name: 'LessonView', params: { lessonId: this.lesson.id.toString() } };
+    return {name: 'LessonView', params: {lessonId: this.lesson.id.toString()}};
   }
 
   get lesson(): LessonModel {

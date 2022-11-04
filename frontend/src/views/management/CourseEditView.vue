@@ -3,70 +3,70 @@
     <div class="bx--row page--title">
       <div>
         <h1 v-if="!fetchingCourse"
-            class="title">{{ isNewCourse ? 'Создание курса':'Редактирование курса' }}
+            class="title">{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}
         </h1>
         <cv-skeleton-text
-            v-else
-            :heading="true"
-            :width="'35%'"
-            class="main-title"
-            v-text="'Подождите...'"/>
+          v-else
+          :heading="true"
+          :width="'35%'"
+          class="main-title"
+          v-text="'Подождите...'"/>
       </div>
     </div>
     <div class="bx--row main--content">
       <div
-          v-bind:class="(!isNewCourse)? 'bx--col-lg-5 bx--col-md-4  col-content':'bx--col-lg-6 col-content'">
+        v-bind:class="(!isNewCourse)? 'bx--col-lg-5 bx--col-md-4  col-content':'bx--col-lg-6 col-content'">
         <div class="items">
           <cv-inline-notification
-              v-if="showNotification"
-              :kind="notificationKind"
-              :sub-title="notificationText"
-              @close="hideSuccess"
+            v-if="showNotification"
+            :kind="notificationKind"
+            :sub-title="notificationText"
+            @close="hideSuccess"
           />
           <cv-text-input
-              :disabled="true"
-              :value="`${courseEdit.author.first_name}
+            :disabled="true"
+            :value="`${courseEdit.author.first_name}
              ${courseEdit.author.last_name}
               (${courseEdit.author.username})`.trim()"
-              label="Автор"
+            label="Автор"
           />
 
           <cv-combo-box
-              :options="contestsFromCats"
-              auto-filter
-              auto-highlight
-              class="cv-dropdown course--cats"
-              label="Введите название турнира"
-              @change="setNewCatsId"
+            :options="contestsFromCats"
+            auto-filter
+            auto-highlight
+            class="cv-dropdown course--cats"
+            label="Введите название турнира"
+            @change="setNewCatsId"
           >
           </cv-combo-box>
 
           <cv-text-input
-              v-model.trim="courseEdit.name"
-              class="course--name"
-              label="Название курса"/>
+            v-model.trim="courseEdit.name"
+            class="course--name"
+            label="Название курса"/>
           <cv-text-input
-              v-model.trim="courseEdit.description"
-              class="course--description"
-              label="Описание курса"/>
+            v-model.trim="courseEdit.description"
+            class="course--description"
+            label="Описание курса"/>
           <cv-multi-select
-              v-model="deChecks"
-              :options="deOptions"
-              class="course--de"
-              label="Выберите среды разработки"
-              title="Доступные среды для отправки решений"
-              @change="deChanged"/>
+            v-model="deChecks"
+            :options="deOptions"
+            class="course--de"
+            label="Выберите среды разработки"
+            title="Доступные среды для отправки решений"
+            @change="deChanged"/>
           <div class="btns--container">
             <cv-button-skeleton v-if="fetchingCourse"/>
             <div v-else class="btns">
               <AddTeacherModal
-                  v-if="!isNewCourse"
-                  :courseId="courseId"
-                  class="choose--teacher"/>
+                v-if="!isNewCourse"
+                :courseId="courseId"
+                class="choose--teacher"/>
               <cv-button
-                  :disabled="!isChanged"
-                  @click="createOrUpdate">
-                {{ isNewCourse ? 'Создать':'Изменить' }}
+                :disabled="!isChanged"
+                @click="createOrUpdate">
+                {{ isNewCourse ? 'Создать' : 'Изменить' }}
               </cv-button>
             </div>
           </div>
@@ -75,17 +75,17 @@
       <div v-if="!isNewCourse" class="bx--col-lg-6 bx--col-md-6 col-content">
         <div class="lessons">
           <EditCourseLessons
-              v-if="!isNewCourse && !fetchingCourse"
-              :course="store.currentCourse"
-              class="course-props edit--course"/>
+            v-if="!isNewCourse && !fetchingCourse"
+            :course="store.currentCourse"
+            class="course-props edit--course"/>
           <div class="lessons-modal">
             <GenerateLinks
-                :courseId="courseId"
-                class="generate--link"/>
+              :courseId="courseId"
+              class="generate--link"/>
             <EditCourseModal
-                v-if="!isNewCourse && !fetchingCourse"
-                :course-id="store.currentCourse.id"
-                class="course-props add--btn"/>
+              v-if="!isNewCourse && !fetchingCourse"
+              :course-id="store.currentCourse.id"
+              class="course-props add--btn"/>
           </div>
         </div>
       </div>
@@ -136,6 +136,24 @@ export default class CourseEditView extends Vue {
   ];
   contestsFromCats: ContestModel[] = [];
 
+  async created() {
+    (await this.fetchContests()).forEach(value => {
+      this.contestsFromCats.push({
+        value: value.id.toString(),
+        label: value.name,
+        name: value.name
+      });
+    });
+    if (this.courseId === null) {
+      this.fetchingCourse = false;
+      return;
+    }
+    this.course = await this.store.fetchCourseById(this.courseId);
+    this.courseEdit = { ...this.course };
+    this.deChecks = this.courseEdit.de_options.split(',');
+    this.fetchingCourse = false;
+  }
+
   get isChanged(): boolean {
     return !_.isEqual(this.course, this.courseEdit);
   }
@@ -160,23 +178,6 @@ export default class CourseEditView extends Vue {
     }
   }
 
-  async created() {
-    (await this.fetchContests()).forEach(value => {
-      this.contestsFromCats.push({
-        value: value.id.toString(),
-        label: value.name,
-        name: value.name
-      });
-    });
-    if (this.courseId === null) {
-      this.fetchingCourse = false;
-      return;
-    }
-    this.course = await this.store.fetchCourseById(this.courseId);
-    this.courseEdit = { ...this.course };
-    this.deChecks = this.courseEdit.de_options.split(',');
-    this.fetchingCourse = false;
-  }
 
   catsIdCheck() {
     if (!this.courseEdit.cats_id) {
@@ -199,16 +200,16 @@ export default class CourseEditView extends Vue {
   createOrUpdate(): void {
     this.catsIdCheck();
     const request = (this.isNewCourse) ?
-        api.post('/api/course/', this.courseEdit):
-        api.patch(`/api/course/${this.courseEdit.id}/`, this.courseEdit);
+      api.post('/api/course/', this.courseEdit) :
+      api.patch(`/api/course/${this.courseEdit.id}/`, this.courseEdit);
     request.then(response => {
       this.notificationKind = 'success';
-      this.notificationText = (this.courseId) ? 'Курс успешно изменён':'Курс успешно создан';
+      this.notificationText = (this.courseId) ? 'Курс успешно изменён' : 'Курс успешно создан';
       if (this.isNewCourse) {
         this.store.addCourseToArray(response.data);
         this.userStore.addStaffToArray(response.data.id);
         router.replace(
-            { name: 'course-edit', params: { courseId: response.data.id.toString() } },
+          { name: 'course-edit', params: { courseId: response.data.id.toString() } },
         );
       }
       this.course = { ...response.data };
@@ -217,7 +218,7 @@ export default class CourseEditView extends Vue {
     request.catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.notificationKind = 'error';
-    })
+    });
     request.finally(() => this.showNotification = true);
   }
 }

@@ -1,55 +1,49 @@
 <template>
-  <div>
-  <cv-loading v-if="isLoading" overlay style="background: white"></cv-loading>
-  <div v-if="!isLoading">
-    <div class="layout" v-if="isLogin">
-      <lms-header class="layout-header"/>
-      <main class="layout-content">
-        <lms-breadcrumb class="main--breadcrumb"/>
-        <transition name="fade" mode="out-in">
-          <router-view/>
-        </transition>
-      </main>
-      <footer class="layout-footer">
-        <div class="layout-footer-label">
-          <span>dvfu/imcs/staff & Daria-squad</span><br>
-          <span>
+  <cv-loading v-if="isLoading" overlay style="background: white"/>
+  <div class="layout" v-else-if="!isLoading && isLogin">
+    <lms-header class="layout-header"/>
+    <main class="layout-content">
+      <lms-breadcrumb class="main--breadcrumb"/>
+      <transition name="fade" mode="out-in">
+        <router-view/>
+      </transition>
+    </main>
+    <footer class="layout-footer">
+      <div class="layout-footer-label">
+        <span>dvfu/imcs/staff & Daria-squad</span><br>
+        <span>
           feel free to contribute
           <cv-link href="https://github.com/mesenev/lms">
             <logo-github/>
           </cv-link>
         </span>
-        </div>
-      </footer>
-    </div>
-    <LoginView v-else></LoginView>
+      </div>
+    </footer>
   </div>
-
-  </div>
+  <LoginView v-else></LoginView>
 </template>
 
 <script lang="ts">
-import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue'
+import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue';
 import LmsHeader from '@/components/LmsHeader.vue';
 import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import LoginView from "@/views/LoginView.vue";
-import tokenStore from "@/store/modules/token"
+import tokenStore from "@/store/modules/token";
 
 @Component({ components: { LoginView, LmsHeader, LmsBreadcrumb, LogoGithub } })
 export default class App extends Vue {
   //TODO set transition and styles for loader
   @Watch('isLogin')
-  onIsLoginChanged(new_val: boolean){
-    if ( new_val){
+  onIsLoginChanged(new_val: boolean) {
+    if (new_val) {
       this.$router.push(((this.$route.query.nextUrl) ?? "/") as string);
-    }
-    else {
+    } else {
       this.$router.push('/login');
     }
   }
 
-  get isLoading(){
+  get isLoading() {
     return tokenStore.isLoading;
   }
 
