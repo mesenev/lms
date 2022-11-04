@@ -4,11 +4,11 @@ $feature-flags: (
 
 @import '~carbon-components/css/carbon-components.css';
 @import '~carbon-components/scss/globals/scss/styles';
-$carbon--theme: $carbon--theme--white;
-@include carbon--theme($carbon--theme);
+@import '~@carbon/themes/scss/themes';
 
-
+$carbon--theme: $g10;
 :root {
     @include carbon--theme($carbon--theme, true);
     @include carbon--colors();
 }
+
