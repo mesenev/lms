@@ -22,12 +22,12 @@
             label="Описание урока"
             v-model.trim="lessonEdit.description"/>
           <cv-date-picker
-              class="deadLine text_field"
-              kind="single"
-              v-model="lessonEdit.deadline"
-              date-label="Дедлайн"
-              :cal-options=calOptions
-            />
+            class="deadLine text_field"
+            kind="single"
+            v-model="lessonEdit.deadline"
+            date-label="Дедлайн"
+            :cal-options=calOptions
+          />
           <div class="finishButton">
             <cv-button :disabled="!isChanged" v-on:click="createOrUpdate">
               {{ isNewLesson ? 'Создать урок' : 'Изменить урок' }}
@@ -36,11 +36,11 @@
         </div>
         <div class="lesson-buttons">
           <EditLessonModal @update-problem-list="updateTaskList($event)"
-            :lesson="lessonEdit"
-            class="edit--lesson-props"/>
-          <EditLessonMaterialsModal
-            :lesson="lessonEdit"
-            class="edit--lesson-props"/>
+                           :lesson="lessonEdit"
+                           class="edit--lesson-props"/>
+          <EditLessonMaterialsModal @update-material-delete="updateMaterialDelete($event)"
+                                    :lesson="lessonEdit"
+                                    class="edit--lesson-props"/>
         </div>
       </div>
 
@@ -123,20 +123,20 @@ import materialStore from '@/store/modules/material';
 import problemStore from '@/store/modules/problem';
 import api from '@/store/services/api';
 import _ from 'lodash';
-import { Component, Prop } from 'vue-property-decorator';
+import {Component, Prop} from 'vue-property-decorator';
 
 
-@Component({ components: { EditLessonMaterialsModal, EditLessonModal, ProblemListComponent} })
+@Component({components: {EditLessonMaterialsModal, EditLessonModal, ProblemListComponent}})
 export default class LessonEditView extends NotificationMixinComponent {
 
-  @Prop({ required: true }) lessonId!: number;
+  @Prop({required: true}) lessonId!: number;
   store = lessonStore;
   materialStore = materialStore;
   problemStore = problemStore;
   fetchingLesson = true;
   lesson: LessonModel = this.store.getNewLesson;
-  lessonEdit: LessonModel = { ...this.lesson };
-  calOptions = { dateFormat: 'Y-m-d' };
+  lessonEdit: LessonModel = {...this.lesson};
+  calOptions = {dateFormat: 'Y-m-d'};
   query = '';
 
   async created() {
@@ -144,20 +144,20 @@ export default class LessonEditView extends NotificationMixinComponent {
       this.lesson = this.store.currentLesson as LessonModel;
       await this.materialStore.fetchMaterialsByLessonId(this.lesson.id)
     }
-    this.lessonEdit = { ...this.lesson };
+    this.lessonEdit = {...this.lesson};
     this.fetchingLesson = false;
   }
 
   createOrUpdate(): void {
     const request = (this.isNewLesson) ?
-        api.post('/api/lesson/', this.lessonEdit) :
-        api.patch(`/api/lesson/${this.lessonEdit.id}/`, this.lessonEdit);
+      api.post('/api/lesson/', this.lessonEdit) :
+      api.patch(`/api/lesson/${this.lessonEdit.id}/`, this.lessonEdit);
     request.then(response => {
       this.notificationKind = 'success';
       this.notificationText = (this.lessonId) ? 'Урок успешно изменён' : 'Урок успешно создан';
       if (this.isNewLesson) {
         router.replace(
-          { name: 'lesson-edit', params: { lessonId: response.data.id.toString() } },
+          {name: 'lesson-edit', params: {lessonId: response.data.id.toString()}},
         );
       }
     });
@@ -172,19 +172,23 @@ export default class LessonEditView extends NotificationMixinComponent {
     return this.lessonEdit.problems.filter(x => x.type === 'CW');
   }
 
-  updateTaskList(new_problems: Array<ProblemModel | CatsProblemModel>){
-    this.lessonEdit = { ...this.lesson }
+  updateTaskList(new_problems: Array<ProblemModel | CatsProblemModel>) {
+    this.lessonEdit = {...this.lesson}
     new_problems.forEach(element => {
       this.lessonEdit.problems.push(element as ProblemModel)
     })
-    this.problemStore.setProblems({[this.lessonId] : this.lessonEdit.problems});
+    this.problemStore.setProblems({[this.lessonId]: this.lessonEdit.problems});
   }
 
   updateProblemDelete(deleted_problem_id: number) {
     this.lessonEdit.problems = this.lessonEdit.problems
       .filter(x => x.id != deleted_problem_id);
     this.lesson.problems = this.lessonEdit.problems;
-    this.problemStore.setProblems({[this.lessonId] : this.lessonEdit.problems});
+    this.problemStore.setProblems({[this.lessonId]: this.lessonEdit.problems});
+  }
+
+  updateMaterialDelete() {
+    this.lesson.materials = this.lessonEdit.materials;
   }
 
   get getHomework(): Array<ProblemModel | CatsProblemModel> {
@@ -224,6 +228,7 @@ export default class LessonEditView extends NotificationMixinComponent {
 .lesson-buttons
   display flex
   flex-direction row
+  justify-content space-between
   max-width 27rem
 
 .works-col

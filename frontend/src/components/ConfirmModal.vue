@@ -39,6 +39,11 @@ export default class ConfirmModal extends Vue {
 
   hideModal() {
     this.modalVisible = false;
+    this.sideModalAction();
+  }
+
+  sideModalAction() {
+    this.$emit('show-modal');
   }
 
   async approve() {
