@@ -1,34 +1,34 @@
 <template>
   <div class="shell-login">
-      <div class="login">
+    <cv-form @submit.prevent="authorization" class="login">
         <cv-inline-notification
-        @close="hideNotification"
-        v-if="showNotification"
-        :kind="notificationKind"
-        :sub-title="notificationText">
+          @close="hideNotification"
+          v-if="showNotification"
+          :kind="notificationKind"
+          :sub-title="notificationText">
         </cv-inline-notification>
 
-       <h3 class="form-header">Авторизация</h3>
-          <cv-text-input
-            class="log-form"
-            label="Логин"
-            placeholder="Введите свой логин"
-            v-model="login">
-          </cv-text-input>
-          <cv-text-input
-            class="pass-form"
-            type="password"
-            label="Пароль"
-            placeholder="Введите свой пароль"
-            v-model="password"
-          >
-          </cv-text-input>
-        <cv-link >Забыли пароль?</cv-link>
-          <div class="submit-btn">
-            <cv-button @click="authorization">Войти</cv-button>
-          </div>
+      <h3 class="form-header">Авторизация</h3>
+      <cv-text-input
+        class="log-form"
+        label="Логин"
+        placeholder="Введите свой логин"
+        v-model="login">
+      </cv-text-input>
+      <cv-text-input
+        class="pass-form"
+        type="password"
+        label="Пароль"
+        placeholder="Введите свой пароль"
+        v-model="password"
+      >
+      </cv-text-input>
+      <cv-link>Забыли пароль?</cv-link>
+      <div class="submit-btn">
+        <cv-button @click="authorization">Войти</cv-button>
       </div>
-    </div>
+    </cv-form>
+  </div>
 </template>
 
 <script lang="ts">
@@ -41,8 +41,9 @@ export default class LoginView extends NotificationMixinComponent {
   login = '';
   password = '';
   tokenStore = tokenStore;
-  async authorization(){
-    if (!this.login || !this.password){
+
+  async authorization() {
+    if (!this.login || !this.password) {
       this.notificationText = `Пожалуйста заполните все поля`;
       this.notificationKind = 'error';
       this.showNotification = true;
@@ -51,19 +52,18 @@ export default class LoginView extends NotificationMixinComponent {
     await this.tokenStore.login({
       username: this.login,
       password: this.password,
-    }).catch( error=> {
-      if(error.response.status == 401) {
+    }).catch(error => {
+      if (error.response.status == 401) {
 
         this.notificationText = `Неверные логин или пароль`;
         this.notificationKind = 'error';
         this.showNotification = true;
-      }
-      else{
+      } else {
         this.notificationText = `Ошибка получения данных`;
         this.notificationKind = 'error';
         this.showNotification = true;
       }
-      })
+    });
 
   }
 }
@@ -73,7 +73,7 @@ export default class LoginView extends NotificationMixinComponent {
 
 
 .login
-  width 40%
+  width 20%
   text-align end
   @media (min-width: 401px)
     min-width 400px
