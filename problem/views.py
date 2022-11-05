@@ -98,24 +98,27 @@ class SubmitFilter(django_filters.FilterSet):
     lesson = django_filters.ModelChoiceFilter(
         label='lesson', queryset=Lesson.objects.all(), method='lesson_filter'
     )
+    problem = django_filters.ModelChoiceFilter(
+        label='problem', queryset=Lesson.objects.all(), method='problem_filter'
+    )
 
     class Meta:
         model = Submit
         fields = ['problem', 'student', 'status', 'cats_submit__is_sent', ]
 
     def course_filter(self, queryset, name, value):
-        queryset = queryset.filter(lesson__course=value)
-        return queryset
+        return queryset.filter(lesson__course=value)
 
     def lesson_filter(self, queryset, name, value):
-        queryset = queryset.filter(**{f'problem__{name}': value})
-        return queryset
+        return queryset.filter(**{f'problem__{name}': value})
+
+    def problem_filter(self, queryset, name, value):
+        return queryset.filter(problem=value)
 
 
 class SubmitViewSet(viewsets.ModelViewSet):
     permission_classes = [CourseStaffOrReadOnlyForStudents]
     serializer_class = SubmitSerializer
-    queryset = Submit.objects.prefetch_related('cats_submit').all()
     pagination_class = StandardResultsSetPagination
     filterset_class = SubmitFilter
     stats_ordering = models.Case(
@@ -130,32 +133,18 @@ class SubmitViewSet(viewsets.ModelViewSet):
         queryset = Submit.objects.filter(
             Q(student=user) | Q(problem__lesson__course__in=user.staff_for.all())
         ).prefetch_related('problem')
-        problem_id = self.request.query_params.get('', None)
-        user_id = self.request.query_params.get('', None)
-        course_id = self.request.query_params.get('', None)
-        lesson_id = self.request.query_params.get('', None)
-        if course_id:
-            queryset = queryset.filter(lesson__course__id=course_id)
-        if lesson_id:
-            queryset = queryset.filter(lesson__course__id=lesson_id)
-
-        if problem_id:
-            user = User.objects.get(pk=user_id) if user_id else None
-            is_staff = True if user and user.is_staff else False
-            if is_staff:
-                return queryset.filter(problem__id=problem_id)
-            elif user:
-                return queryset.filter(problem__id=problem_id, student__id=user_id)
-
         return queryset
 
     @action(detail=False, url_path='cats-result/(?P<submit_id>\d+)')
     def cats_result(self, request, submit_id):
-        return Response(CatsSubmit.objects.get(submit__id=submit_id).testing_result)
+        queryset = self.get_queryset().filter(id=submit_id).all()
+        if not queryset.exists():
+            raise exceptions.NotFound
+        return Response(queryset.first().cats_submit.testing_result)
 
     @action(detail=False, url_path='five-aw/(?P<course_id>\d+)', permission_classes=[CourseStaffOrAuthor])
     def five_aw(self, request, course_id):
-        queryset = Submit.objects.filter(
+        queryset = self.get_queryset().filter(
             problem__lesson__course__id=course_id
         ).annotate(
             ordering=self.stats_ordering

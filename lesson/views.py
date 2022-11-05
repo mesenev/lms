@@ -1,10 +1,11 @@
 from django.db.models import Q
-from rest_framework import viewsets, exceptions
+from rest_framework import viewsets, exceptions, status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from cathie.cats_api import cats_get_problem_description_by_url
+from course.models import CourseSchedule
 from imcslms.default_settings import TEACHER
 from lesson.models import Lesson, LessonContent
 from lesson.serializers import LessonSerializer, MaterialSerializer, LessonShortSerializer, AddCatsProblemSerializer
@@ -61,6 +62,13 @@ class LessonViewSet(viewsets.ModelViewSet):
             answer.append(problem)
         return Response(ProblemSerializer(answer, many=True).data)
 
+    def destroy(self, request, *args, **kwargs):
+        instance: Lesson = self.get_object()
+        schedule = CourseSchedule.objects.get(course=instance.course)
+        schedule.lessons = list(filter(lambda x: x['lesson_id'] != instance.id, schedule.lessons))
+        schedule.save()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class MaterialViewSet(viewsets.ModelViewSet):
     permission_classes = [CourseStaffOrReadOnlyForStudents]

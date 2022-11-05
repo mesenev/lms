@@ -279,7 +279,7 @@ import CourseScheduleModel, { ScheduleElement } from '@/models/ScheduleModel';
 import courseStore from '@/store/modules/course';
 import Edit from '@carbon/icons-vue/es/edit/20';
 import Back from '@carbon/icons-vue/es/skip--back/20';
-import api from '@/store/services/api'
+import api from '@/store/services/api';
 import _ from 'lodash';
 import { mixins } from 'vue-class-component';
 import { Component, Prop } from 'vue-property-decorator';
@@ -296,23 +296,39 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     } as CourseScheduleModel;
   oldCourseSchedule: CourseScheduleModel = _.cloneDeep(this.courseSchedule);
   iconEdit = Edit;
-  iconBack = Back;
   modalVisible = false;
   st_modalVisible = false;
   startDate: string | null = null;
   changedStartDate: string | null = null;
   set_custom_date = "";
-  set_custom_time: string | null = null;
   cur_custom_date: string | null = null;
   selected: string | null = null;
   loading = true;
   cur_les_upd_id = "";
   k_keeper: number | null = null;
-  courseListId = null;
   updatingInProgress = false;
   newSchedule: Record<string, string | null> = {};
   private schedule: Record<string, string | null> = {
     0: null, 1: null, 2: null, 3: null, 4: null, 5: null, 6: null,
+  };
+
+  async created() {
+    this.course = this.courseStore.currentCourse
+      ?? await this.courseStore.fetchCourseById(this.courseId);
+    this.courseSchedule.course = this.course.id;
+    this.oldCourseSchedule.course = this.course.id;
+    if (!this.course.id || typeof (this.course.schedule) !== 'number') {
+      this.loading = false;
+      return;
+    }
+    this.courseSchedule = await this.courseStore.fetchCourseScheduleByCourseId(this.courseId);
+    this.oldCourseSchedule = _.cloneDeep(this.courseSchedule);
+    this.startDate = this.courseSchedule.start_date;
+    this.schedule = this.courseSchedule.week_schedule;
+    if (this.courseSchedule.lessons)
+      for (let i = 0; i < this.courseSchedule.lessons.length; i++)
+        this.courseSchedule.lessons[i].isSelected = false;
+    this.loading = false;
   }
 
   get calOptions(): object {
@@ -321,7 +337,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
 
   get scheduleChangedAndNotEmpty(): boolean {
     return !_.isEqual(this.courseSchedule, this.oldCourseSchedule)
-      && !!(this.courseSchedule.lessons.length > 0);
+      && (this.courseSchedule.lessons.length > 0);
   }
 
 
@@ -386,24 +402,6 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       }, {});
   }
 
-  async created() {
-    this.course = await this.courseStore.fetchCourseById(this.courseId);
-    this.courseSchedule.course = this.course.id;
-    this.oldCourseSchedule.course = this.course.id;
-    if (!this.course.id || typeof (this.course.schedule) !== 'number') {
-      this.loading = false;
-      return;
-    }
-    this.courseSchedule = await this.courseStore.fetchCourseScheduleByCourseId(this.courseId);
-    this.oldCourseSchedule = _.cloneDeep(this.courseSchedule);
-    this.startDate = this.courseSchedule.start_date;
-    this.schedule = this.courseSchedule.week_schedule;
-    if (this.courseSchedule.lessons)
-      for (let i = 0; i < this.courseSchedule.lessons.length; i++)
-        this.courseSchedule.lessons[i].isSelected = false;
-    this.loading = false;
-  }
-
 
   onUpdateTime(n: number) {
     return (value: string) => this.newSchedule = { ...this.newSchedule, [n]: value };
@@ -426,7 +424,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
       this.k_keeper = Number(element.getAttribute('key_k'));
       const currentDate = (this.courseSchedule as CourseScheduleModel).lessons[this.k_keeper].date;
       const date = new Date(currentDate);
-      this.set_custom_date = date.toISOString()
+      this.set_custom_date = date.toISOString();
       this.cur_custom_date = this.set_custom_date;
     }
     if (this.cur_les_upd_id === null) {
@@ -496,7 +494,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     const schedule = _.cloneDeep(this.courseSchedule);
     const parsed = dateParse(this.set_custom_date);
     if (this.lessonsWOt.map(value => value.id).indexOf(cur_less_id) !== -1) {
-      schedule.lessons.push({ date: parsed, lesson_id: cur_less_id, isSelected: false })
+      schedule.lessons.push({ date: parsed, lesson_id: cur_less_id, isSelected: false });
     } else {
       schedule.lessons[this.k_keeper as number].date = parsed;
     }
