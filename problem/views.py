@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from course.models import Course
 from lesson.models import Lesson
 from problem.models import Problem, Submit, CatsSubmit, ProblemStats, LogEvent
+from problem.permissions import LogEventPermissions
 from problem.serializers import ProblemSerializer, SubmitSerializer, SubmitListSerializer, ProblemListSerializer, \
     LogEventSerializer, LastSubmitSerializer
 from users.models import User
@@ -272,7 +273,7 @@ class LogEventsPagination(LimitOffsetPagination):
 
 
 class LogEventViewSet(viewsets.ModelViewSet):
-    permission_classes = [CourseStaffOrAuthor]
+    permission_classes = [LogEventPermissions]
     queryset = LogEvent.objects.all()
     serializer_class = LogEventSerializer
     filterset_class = LogEventFilter
