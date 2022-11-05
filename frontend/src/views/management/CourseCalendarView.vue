@@ -177,7 +177,7 @@
       </div>
     </div>
 
-    <div v-if="lessonsWOt.length != 0" class="bx--row header no-schedule--wrapper">
+    <div v-if="lessonsWOt.length !== 0" class="bx--row header no-schedule--wrapper">
       <div class="items-top bx--col-lg-10">
         <div class="items-top--element" v-if="!loading">
           <span>Уроки без установленного времени</span>
@@ -272,7 +272,6 @@
 import DateViewComponent from '@/components/common/DateViewComponent.vue';
 import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import WeekDaysMixin from '@/views/management/CourseCalendarView/WeekDaysMixin.vue';
-import DateComponent from '@/components/common/DateViewComponent.vue';
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
 import CourseScheduleModel, { ScheduleElement } from '@/models/ScheduleModel';
@@ -282,7 +281,7 @@ import Back from '@carbon/icons-vue/es/skip--back/20';
 import api from '@/store/services/api';
 import _ from 'lodash';
 import { mixins } from 'vue-class-component';
-import { Component, Prop } from 'vue-property-decorator';
+import { Component, Watch, Prop } from 'vue-property-decorator';
 import { dateParse } from '@/utils/utils';
 
 @Component({ components: { DateViewComponent, Edit, Back } })
@@ -330,6 +329,14 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
         this.courseSchedule.lessons[i].isSelected = false;
     this.loading = false;
   }
+  @Watch('startDate')
+  changeStartDate(new_val: string){
+    this.courseSchedule.start_date = new_val;
+  }
+  @Watch('schedule')
+  changeWeeks(new_val: Record<string, string | null>){
+    this.courseSchedule.week_schedule = new_val;
+  }
 
   get calOptions(): object {
     return { dateFormat: 'd/m/Y' };
@@ -339,7 +346,6 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
     return !_.isEqual(this.courseSchedule, this.oldCourseSchedule)
       && (this.courseSchedule.lessons.length > 0);
   }
-
 
   get isNewSchedule() {
     return !this.courseSchedule.id;
