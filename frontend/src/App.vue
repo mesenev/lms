@@ -1,7 +1,15 @@
 <template>
   <cv-loading v-if="isLoading" overlay style="background: white"/>
-  <div class="layout" v-else-if="!isLoading && isLogin">
-    <lms-header class="layout-header"/>
+  <div v-else-if="!isLoading && isLogin" v-bind:class="{
+    white_theme: current_theme===this.themes.white,
+    g10_theme: current_theme===this.themes.grey_10,
+    g90_theme: current_theme===this.themes.grey_90,
+    g100_theme: current_theme===this.themes.grey_100
+  }" class="layout"
+  >
+
+    <lms-header @change-theme="changeTheme($event)" class="layout-header"/>
+
     <main class="layout-content">
       <lms-breadcrumb class="main--breadcrumb"/>
       <transition name="fade" mode="out-in">
@@ -20,7 +28,7 @@
       </div>
     </footer>
   </div>
-  <LoginView v-else></LoginView>
+  <LoginView class="g100-theme" v-else></LoginView>
 </template>
 
 <script lang="ts">
@@ -30,9 +38,12 @@ import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import LoginView from "@/views/LoginView.vue";
 import tokenStore from "@/store/modules/token";
+import {themes} from '@/utils/consts';
+
 @Component({ components: { LoginView, LmsHeader, LmsBreadcrumb, LogoGithub } })
 export default class App extends Vue {
   //TODO set transition and styles for loader
+
   @Watch('isLogin')
   onIsLoginChanged(new_val: boolean) {
     if (new_val) {
@@ -41,6 +52,15 @@ export default class App extends Vue {
       this.$router.push('/login');
     }
   }
+
+  themes = themes
+  current_theme = this.themes.white
+
+  changeTheme(theme: string){
+    this.current_theme = theme;
+
+  }
+
   get isLoading() {
     return tokenStore.isLoading;
   }
@@ -54,8 +74,31 @@ export default class App extends Vue {
 </script>
 
 <style lang="scss">
+@use '~@carbon/themes';
+@use '~@carbon/colors';
+
 @import "styles/base";
 @import "styles/carbon";
+
+.white_theme {
+  @include themes.theme($white)
+}
+
+.g10_theme {
+  @include themes.theme($g10);
+}
+
+.g90_theme {
+  @include themes.theme($g90);
+}
+
+.g100_theme {
+  @include themes.theme($g100);
+}
+.layout{
+  background: themes.$background;
+}
+
 .fade-enter-active, .fade-leave-active {
   transition: opacity .1s;
 }
@@ -63,10 +106,12 @@ export default class App extends Vue {
 {
   opacity: 0;
 }
+
 </style>
 
 <style scoped lang="stylus">
 @import 'styles/list-elements.styl';
+
 .main--breadcrumb
   margin-top var(--cds-spacing-06);
 .items
@@ -74,13 +119,12 @@ export default class App extends Vue {
   flex-wrap wrap
 .item
   width: 60%
-  color: var(--cds-support-02)
+  color: var(--cds-support-02);
 .layout
   height: 100%
   display flex
   flex-flow column
   &-content
-    background-color var(--cds-ui-01)
     padding-bottom var(--cds-spacing-05)
     margin-top: 3rem;
   &-header, &-footer

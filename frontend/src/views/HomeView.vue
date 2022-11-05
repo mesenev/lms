@@ -1,11 +1,11 @@
 <template>
-  <div class="bx--grid">
+  <cv-grid>
     <div class="bx--row header-container">
       <div class="main-title">
         <h1>Список курсов</h1>
       </div>
     </div>
-    <div class=" bx--row">
+    <cv-row>
       <div class="items bx--col-lg-6">
         <cv-search
           label="label"
@@ -24,8 +24,8 @@
       </div>
       <div class="bx--col-lg-8">
       </div>
-    </div>
-  </div>
+    </cv-row>
+  </cv-grid>
 </template>
 
 <script lang="ts">

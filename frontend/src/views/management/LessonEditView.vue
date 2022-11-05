@@ -28,7 +28,7 @@
               date-label="Дедлайн"
               :cal-options=calOptions
             />
-          <div class="finishButton">
+          <div class="finishButton">¡
             <cv-button :disabled="!isChanged" v-on:click="createOrUpdate">
               {{ isNewLesson ? 'Создать урок' : 'Изменить урок' }}
             </cv-button>

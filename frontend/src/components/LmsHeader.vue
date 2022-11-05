@@ -142,6 +142,14 @@
         <cv-switcher>
           <template>
             <cv-switcher-item>
+              <cv-dropdown v-model="current_theme">
+                <cv-dropdown-item :value="themes.white">white</cv-dropdown-item>
+                <cv-dropdown-item :value="themes.grey_10">g10</cv-dropdown-item>
+                <cv-dropdown-item :value="themes.grey_90">g90</cv-dropdown-item>
+                <cv-dropdown-item :value="themes.grey_100">g100</cv-dropdown-item>
+              </cv-dropdown>
+            </cv-switcher-item>
+            <cv-switcher-item>
               <cv-switcher-item-link
                 :to="{
                   name: 'profile-page',
@@ -204,10 +212,20 @@ import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import tokenStore from '@/store/modules/token'
+import {themes} from '@/utils/consts'
+import { Watch } from "vue-property-decorator";
+import ProblemModel from "@/models/ProblemModel";
 
 @Component({ components: { UserView, LoginAsUserModal, Notification20, UserAvatar20, AppSwitcher20 } })
 export default class LmsHeader extends Vue {
 
+  @Watch('current_theme')
+  changeTheme(){
+    this.$emit("change-theme", this.current_theme);
+  }
+
+  current_theme = '';
+  themes = themes;
   user = userStore.user;
 
   logout(){
@@ -239,15 +257,5 @@ export default class LmsHeader extends Vue {
 
 <style scoped lang="stylus">
 
-.lms
-  padding-left 5px
 
-.acc_text
-  margin: 32px 1rem 8px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid #525252;
-
-.user-view
-  padding-left 30px;
-  padding-top 10px;
 </style>

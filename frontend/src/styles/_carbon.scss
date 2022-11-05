@@ -6,9 +6,3 @@ $feature-flags: (
 @import '~carbon-components/scss/globals/scss/styles';
 @import '~@carbon/themes/scss/themes';
 
-$carbon--theme: $g10;
-:root {
-    @include carbon--theme($carbon--theme, true);
-    @include carbon--colors();
-}
-
