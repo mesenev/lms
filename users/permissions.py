@@ -33,9 +33,9 @@ def object_to_course(obj):
 class CourseStaffOrReadOnlyForStudents(permissions.BasePermission):
     message = 'Edit it without staff status not allowed.'
 
-    # TODO: if needed - remove .all() in _for-s
-
     def has_object_permission(self, request, view, obj):
+        if not bool(request.user and request.user.is_authenticated):
+            return False
         course = object_to_course(obj)
 
         if course in request.user.staff_for.all():
@@ -49,6 +49,8 @@ class CourseStaffOrReadOnlyForStudents(permissions.BasePermission):
 
 class CourseStaffOrAuthorReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
+        if not bool(request.user and request.user.is_authenticated):
+            return False
         if object_to_course(obj) in request.user.staff_for.all():
             return True
         if hasattr(obj, 'student') and obj.student == request.user:
@@ -58,6 +60,8 @@ class CourseStaffOrAuthorReadOnly(permissions.BasePermission):
 
 class CourseStaffOrAuthor(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
+        if not bool(request.user and request.user.is_authenticated):
+            return False
         if object_to_course(obj) in request.user.staff_for.all():
             return True
         if hasattr(obj, 'author') and obj.author == request.user:
@@ -65,6 +69,8 @@ class CourseStaffOrAuthor(permissions.BasePermission):
         return False
 
     def has_permission(self, request, view):
+        if not bool(request.user and request.user.is_authenticated):
+            return False
         if 'course_id' in view.kwargs:
             queryset = Course.objects.filter(id=view.kwargs['course_id'])
             if queryset.exists() and queryset.first() in request.user.staff_for.all():
@@ -82,6 +88,8 @@ class CourseStaffOrAuthor(permissions.BasePermission):
 
 class UserItselfOrReadonly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
+        if not bool(request.user and request.user.is_authenticated):
+            return False
         if request.method in permissions.SAFE_METHODS:
             return True
         else:

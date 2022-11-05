@@ -6,6 +6,8 @@ from users.permissions import object_to_course
 class LogEventPermissions(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj: LogEvent):
+        if not bool(request.user and request.user.is_authenticated):
+            return False
         course = object_to_course(obj)
 
         if course in request.user.staff_for.all():
