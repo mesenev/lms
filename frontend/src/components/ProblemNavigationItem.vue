@@ -78,7 +78,7 @@ export default class ProblemNavigationItem extends Vue {
         }
       };
     } else {
-      return {
+      this.target = {
         name: 'ProblemView', params: {
           courseId: this.$route.params.courseId,
           lessonId: this.$route.params.lessonId,
@@ -86,7 +86,7 @@ export default class ProblemNavigationItem extends Vue {
         }
       };
     }
-    this.loading = !this.target;
+    this.loading = false;
   }
 }
 </script>
