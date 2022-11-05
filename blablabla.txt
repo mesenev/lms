@@ -5,5 +5,4 @@ directory check 1
 add change filter
 test change filter
 do not build
-test 3 test without tag
-
+test 3 test without tag truly
