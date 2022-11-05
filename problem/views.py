@@ -22,8 +22,17 @@ class ProblemViewSet(viewsets.ModelViewSet):
     # TODO: check only opened lessons are distributed for students
     permission_classes = [CourseStaffOrReadOnlyForStudents]
 
-    queryset = Problem.objects.all()
     filterset_fields = ['lesson_id', ]
+
+    def get_queryset(self):
+        queryset = Problem.objects.filter(
+            Q(lesson__course__in=self.request.user.staff_for.all())
+            | (Q(
+                lesson__course__in=self.request.user.student_for.all(),
+                lesson__is_hidden=False
+            ))
+        )
+        return queryset
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -58,7 +67,7 @@ class ProblemViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, url_path='by-course/(?P<course_id>\d+)')
     def by_course(self, request, course_id):
-        queryset = self.queryset.filter(
+        queryset = self.get_queryset().filter(
             lesson__course=course_id,
             lesson__is_hidden=False,
         ).exclude(
