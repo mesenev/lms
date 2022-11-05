@@ -52,15 +52,15 @@
 import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import CourseModel from '@/models/CourseModel';
 import UserModel from "@/models/UserModel";
-import api from '@/store/services/api'
-import {Component, Prop} from 'vue-property-decorator';
-import Home16 from '@carbon/icons-vue/lib/home/16'
-import Education16 from '@carbon/icons-vue/lib/education/16'
+import api from '@/store/services/api';
+import { Component, Prop } from 'vue-property-decorator';
+import Home16 from '@carbon/icons-vue/lib/home/16';
+import Education16 from '@carbon/icons-vue/lib/education/16';
 
 
-@Component({components: {}})
+@Component({ components: {} })
 export default class CourseRegistrationView extends NotificationMixinComponent {
-  @Prop({required: true}) linkProp!: string;
+  @Prop({ required: true }) linkProp!: string;
   course: CourseModel | null = null;
   loading = true;
   is_possible = false;

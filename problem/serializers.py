@@ -1,4 +1,5 @@
-from rest_framework import serializers
+from rest_framework import serializers, status
+from rest_framework.exceptions import ValidationError
 
 from lesson.models import Lesson
 from problem.models import Problem, Submit, ProblemStats, LogEvent
@@ -68,6 +69,12 @@ class LogEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = LogEvent
         fields = '__all__'
+
+    def validate(self, attrs):
+        super(LogEventSerializer, self).validate(attrs)
+        if attrs.get("type") and not attrs.get("data").get("message"):
+            raise ValidationError(detail='Message cannot be empty', code=status.HTTP_400_BAD_REQUEST)
+        return attrs
 
 
 class ProblemListSerializer(serializers.ModelSerializer):

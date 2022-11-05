@@ -61,3 +61,8 @@ class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
         fields = '__all__'
+
+
+class AddCatsProblemSerializer(serializers.Serializer):
+    problem_data = serializers.JSONField(required=True)
+    problem_type = serializers.IntegerField(required=True)
