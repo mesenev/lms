@@ -4,16 +4,16 @@
       Добавить задание
     </cv-button>
     <cv-modal
-        :primary-button-disabled="addButtonDisabled" :visible="modalVisible"
-        class="add_lesson_modal" size="default"
-        @modal-hidden="modalHidden"
-        @primary-click="addProblem">
+      :primary-button-disabled="addButtonDisabled" :visible="modalVisible"
+      class="add_lesson_modal" size="default"
+      @modal-hidden="modalHidden"
+      @primary-click="addProblem">
       <template slot="label">{{ lesson.name }}</template>
       <cv-inline-notification
-          v-if="showNotification"
-          @close="() => showNotification=false"
-          kind="error"
-          :sub-title="notificationText"/>
+        v-if="showNotification"
+        @close="() => showNotification=false"
+        kind="error"
+        :sub-title="notificationText"/>
       <template slot="title">
         Добавить задание
         <cv-content-switcher class="switcher" @selected="actionSelected">
@@ -47,14 +47,14 @@
           <div class="content-1">
             <div>
               <cv-inline-notification
-                  v-if="showNotification"
-                  @close="() => showNotification=false"
-                  kind="error"
-                  :sub-title="notificationText"/>
+                v-if="showNotification"
+                @close="() => showNotification=false"
+                kind="error"
+                :sub-title="notificationText"/>
               <cv-data-table
-                  v-if="!fetchingCatsProblems" ref="table"
-                  v-model="selected" :columns="columns" :data="catsFilteredProblems"
-                  class="cats-problems-table" @search="onSearch">
+                v-if="!fetchingCatsProblems" ref="table"
+                v-model="selected" :columns="columns" :data="catsFilteredProblems"
+                class="cats-problems-table" @search="onSearch">
                 <template slot="batch-actions">
                   <div></div>
                 </template>
@@ -69,22 +69,22 @@
           </div>
           <div class="problem-type-selection">
             <h5>Тип задачи</h5>
-              <cv-radio-group
-                @change="(newType) => this.problemType = newType"
-                :vertical="false">
-                <cv-radio-button
-                  v-model="problemType"
-                  label="Классная работа"
-                  name="group-1" value="CW"/>
-                <cv-radio-button
-                  v-model="problemType"
-                  label="Домашняя работа"
-                  name="group-1" value="HW"/>
-                <cv-radio-button
-                  v-model="problemType"
-                  label="Дополнительные задания"
-                  name="group-1" value="EX"/>
-              </cv-radio-group>
+            <cv-radio-group
+              @change="(newType) => this.problemType = newType"
+              :vertical="false">
+              <cv-radio-button
+                v-model="problemType"
+                label="Классная работа"
+                name="group-1" value="CW"/>
+              <cv-radio-button
+                v-model="problemType"
+                label="Домашняя работа"
+                name="group-1" value="HW"/>
+              <cv-radio-button
+                v-model="problemType"
+                label="Дополнительные задания"
+                name="group-1" value="EX"/>
+            </cv-radio-group>
           </div>
         </section>
       </template>
@@ -101,17 +101,17 @@ import ProblemModel from '@/models/ProblemModel';
 import problemStore from '@/store/modules/problem';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
-import { Component, Prop } from 'vue-property-decorator';
+import {Component, Prop} from 'vue-property-decorator';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import api from '@/store/services/api';
 
 
-@Component({ components: { AddAlt20, SubtractAlt20 } })
+@Component({components: {AddAlt20, SubtractAlt20}})
 export default class EditLessonModal extends NotificationMixinComponent {
-  @Prop({ required: true }) lesson!: LessonModel;
+  @Prop({required: true}) lesson!: LessonModel;
 
   problemStore = problemStore;
-  currentProblem: ProblemModel = { ...this.problemStore.getNewProblem, lesson: this.lesson.id };
+  currentProblem: ProblemModel = {...this.problemStore.getNewProblem, lesson: this.lesson.id};
   selectedNew = false;
   selected = [];
   columns = ['id', 'Название', 'Статус'];
@@ -139,18 +139,18 @@ export default class EditLessonModal extends NotificationMixinComponent {
   async fetchCatsProblems() {
     this.fetchingCatsProblems = true;
     await api.get(`/api/cats-problems/${this.lesson.course}/`)
-        .then(response => {
-          this.catsProblems = response.data;
-        })
-        .catch(error => {
-          console.log(error.response);
-          this.notificationKind = 'error';
-          this.notificationText = `Ошибка получения списка задач: ${error.message}`;
-          this.showNotification = true;
-        })
+      .then(response => {
+        this.catsProblems = response.data;
+      })
+      .catch(error => {
+        console.log(error.response);
+        this.notificationKind = 'error';
+        this.notificationText = `Ошибка получения списка задач: ${error.message}`;
+        this.showNotification = true;
+      })
     this.catsProblems.map(value => {
       this.catsProblemsTruncated.push(
-        { id: value.id, name: value.name, status: value.status },
+        {id: value.id, name: value.name, status: value.status},
       )
     });
     this.catsProblemsTruncated = [...this.catsProblemsTruncated];
@@ -164,7 +164,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
   showModal() {
     this.modalVisible = true;
     this.showNotification = false;
-    this.currentProblem = { ...this.problemStore.getNewProblem, lesson: this.lesson.id };
+    this.currentProblem = {...this.problemStore.getNewProblem, lesson: this.lesson.id};
   }
 
   modalHidden() {
@@ -186,13 +186,20 @@ export default class EditLessonModal extends NotificationMixinComponent {
   get addButtonDisabled() {
     // debugger;
     return (!this.selected.length || this.selectedNew) || !this.problemType
-        || !this.testingMode || this.loading;
+      || !this.testingMode || this.loading;
   }
 
   get selectedCatsProblems() {
     return this.catsProblems.filter(element => {
       return this.selectedIds.find(e => e === element.id);
     });
+  }
+
+  get areUsedTasks() {
+    return this.lesson.problems.filter(element => {
+      return this.selectedCatsProblems.find(e => e.id === element.cats_id)?.id
+        && element.type === this.problemType;
+    }).length > 0;
   }
 
   async addProblem() {
@@ -204,10 +211,16 @@ export default class EditLessonModal extends NotificationMixinComponent {
     }
     if (this.selectedNew)
       return
-    if ( this.testingMode === '' ){
+    if (this.testingMode === '') {
       this.notificationText = 'Выберите режим тестирования';
       this.showNotification = true;
       return
+    }
+    if (this.areUsedTasks) {
+      this.notificationKind = 'error';
+      this.notificationText = `Урок уже содержит одну из выбранных задач.`;
+      this.showNotification = true;
+      return;
     }
     if (!this.selectedNew) {
       this.loading = true;
@@ -215,16 +228,16 @@ export default class EditLessonModal extends NotificationMixinComponent {
       const problemTypes = new Map<string, number>([['CW', 0], ['HW', 1], ['EX', 2]]);
       data.forEach(element => element.test_mode = this.testingMode);
       await api.post(
-          `/api/lesson/${this.lesson.id}/add_cats_problems/`,
-          { problem_data: data, problem_type: problemTypes.get(this.problemType) },
+        `/api/lesson/${this.lesson.id}/add_cats_problems/`,
+        {problem_data: data, problem_type: problemTypes.get(this.problemType)},
       )
-          .then(async (answer) => {
-            if (answer.status == 200) {
-              const newProblems = (answer.data as ProblemModel[]).map(element => {
-                element.type = this.problemType;
-                return element;
-              });
-              this.$emit("update-problem-list", newProblems as ProblemModel[]);
+        .then(async (answer) => {
+          if (answer.status == 200) {
+            const newProblems = (answer.data as ProblemModel[]).map(element => {
+              element.type = this.problemType;
+              return element;
+            });
+            this.$emit("update-problem-list", newProblems as ProblemModel[]);
             this.modalHidden();
             // await this.fetchCatsProblems();
           }
@@ -234,8 +247,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
           this.showNotification = true;
         }).finally(() => {
           this.loading = false;
-      })
-
+        })
     }
   }
 }
