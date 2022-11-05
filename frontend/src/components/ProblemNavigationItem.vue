@@ -27,22 +27,27 @@
 </template>
 
 <script lang="ts">
+import submitStore from "@/store/modules/submit"
+import userStore from "@/store/modules/user"
 import ProblemModel from "@/models/ProblemModel";
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { SUBMIT_STATUS } from "@/models/SubmitModel";
+import SubmitModel, { SUBMIT_STATUS } from "@/models/SubmitModel";
 import Checkmark16 from "@carbon/icons-vue/es/checkmark/16";
 import Close16 from "@carbon/icons-vue/es/close/16";
 
 @Component({ components: { Close16, Checkmark16 } })
 export default class ProblemNavigationItem extends Vue {
   @Prop({ required: true }) problem!: ProblemModel;
+  submitStore = submitStore;
+  userStore = userStore;
+  submit: SubmitModel | null = null;
   loading = true;
   Close16 = Close16;
   Checkmark16 = Checkmark16;
   target: object = {};
 
   get getStatus(): string | undefined {
-    return this.problem.last_submit?.status;
+    return this.submit?.status;
   }
 
   get isAccepted() {
@@ -54,21 +59,31 @@ export default class ProblemNavigationItem extends Vue {
   }
 
   async created() {
+    await this.submitStore.fetchLastSubmit({
+      user_id: this.userStore.user.id,
+      problem_id: this.problem.id
+    })
+      .then((data: SubmitModel | null) => this.submit = data)
+      .catch((error: string) => console.log(error));
+
     // TODO: MAKE SEPARATE TARGET METHOD FOR ALL NAVIGATION LINKS
-    if (!!this.problem.last_submit) {
+    if (!!this.submit?.status) {
       this.target = {
         name: 'ProblemViewWithSubmit',
         params: {
           courseId: this.$route.params.courseId,
           lessonId: this.$route.params.lessonId,
           problemId: this.problem.id.toString(),
-          submitId: this.problem.last_submit.id.toString(),
+          submitId: this.submit.id.toString(),
         }
       };
     } else {
-      this.target = {
-        name: 'ProblemView',
-        params: { problemId: this.problem.id.toString() }
+      return {
+        name: 'ProblemView', params: {
+          courseId: this.$route.params.courseId,
+          lessonId: this.$route.params.lessonId,
+          problemId: this.problem.id.toString(),
+        }
       };
     }
     this.loading = !this.target;
