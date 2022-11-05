@@ -31,5 +31,9 @@ class LessonContent(models.Model):
     content_type = models.CharField(max_length=5, choices=CONTENT_TYPE, blank=True, null=True)
     content = models.TextField()
 
+    def __str__(self):
+        return self.name
+
 
 admin.site.register(Lesson)
+admin.site.register(LessonContent)

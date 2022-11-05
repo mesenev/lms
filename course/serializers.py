@@ -37,6 +37,7 @@ class CourseSerializer(DynamicFieldsModelSerializer):
         request = self.context.get("request")
         user = request.user if request and hasattr(request, "user") else None
         instance = Course.objects.create(**validated_data, **{'author': user})
+        CourseSchedule.objects.create(course_id=instance.id)
         CourseAssignTeacher.objects.create(user=user, course=instance)
         return instance
 

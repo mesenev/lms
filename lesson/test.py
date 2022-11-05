@@ -2,7 +2,7 @@ from django.urls import reverse
 from model_mommy import mommy
 from rest_framework import status
 
-from course.models import Course
+from course.models import Course, CourseSchedule
 from lesson.serializers import LessonSerializer
 from imcslms.test import MainSetup
 from lesson.models import Lesson
@@ -26,6 +26,7 @@ class LessonTests(MainSetup):
         mommy.make(Lesson, course=course).save()
         lesson = Lesson.objects.first()
         CourseAssignTeacher(course=course, user=self.user).save()
+        CourseSchedule(course=course).save()
         data = LessonSerializer(mommy.make(Lesson)).data
         url = reverse('lesson-detail', kwargs=dict(pk=lesson.id))
         data['id'] = lesson.id

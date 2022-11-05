@@ -1,6 +1,6 @@
 import MaterialModel from '@/models/MaterialModel';
 import store from '@/store';
-import api from '@/store/services/api'
+import api from '@/store/services/api';
 import { Dictionary } from "vue-router/types/router";
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
@@ -9,17 +9,17 @@ class MaterialModule extends VuexModule {
 
   _materials: Dictionary<MaterialModel[]> = {};
 
-  private _currentMaterial: MaterialModel = {...this.getNewMaterial};
+  private _currentMaterial: MaterialModel = { ...this.getNewMaterial };
 
   @Action
   async fetchMaterials() {
     await api.get('/api/material/')
-      .then(response => {
-        this.setMaterials(response.data);
-      })
-      .catch(error => {
-        console.log(error);
-      })
+        .then(response => {
+          this.setMaterials(response.data);
+        })
+        .catch(error => {
+          console.log(error);
+        });
   }
 
   get currentMaterial(): MaterialModel {
@@ -41,9 +41,9 @@ class MaterialModule extends VuexModule {
     return {
       id: NaN,
       lesson: NaN,
-      name: 'имя',
-      content_type: 'text',
-      content: 'иям',
+      name: '',
+      content_type: '',
+      content: '',
     };
   }
 
@@ -61,10 +61,10 @@ class MaterialModule extends VuexModule {
   async fetchMaterialById(id: number): Promise<MaterialModel> {
     let answer = { data: {} };
     await api.get(`/api/material/${id}/`)
-      .then(response => answer = response)
-      .catch(error => {
-        console.log(error);
-      })
+        .then(response => answer = response)
+        .catch(error => {
+          console.log(error);
+        });
     return answer.data as MaterialModel;
   }
 
@@ -76,12 +76,12 @@ class MaterialModule extends VuexModule {
 
     let answer = { data: {} };
     await api.get('/api/material/', { params: { lesson_id: id } })
-      .then(response => answer = response)
-      .catch(error => {
-        console.log(error);
-      })
+        .then(response => answer = response)
+        .catch(error => {
+          console.log(error);
+        });
     const result = answer.data as Array<MaterialModel>;
-    this.setMaterials({ [id]: result })
+    this.setMaterials({ [id]: result });
     return result;
   }
 }
