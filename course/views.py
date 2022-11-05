@@ -35,10 +35,11 @@ class CourseViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
-        # TODO: register author as teacher instantly
-        if request.user.groups.filter(name=TEACHER).exists():
-            return super().create(request, *args, **kwargs)
-        raise exceptions.PermissionDenied
+        if not request.user.groups.filter(name=TEACHER).exists():
+            raise exceptions.PermissionDenied
+        return super().create(request, *args, **kwargs)
+
+
 
     @action(detail=False)
     def user_courses(self, request):
