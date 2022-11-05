@@ -80,7 +80,7 @@
               Решения
             </cv-header-menu-item>
             <cv-header-menu-item
-              v-if="courseSelected"
+              v-if="isStaff && courseSelected"
               :to="{ name: 'course-progress', params: { courseId: this.$route.params.courseId } }"
             >
               Успеваемость
@@ -92,7 +92,7 @@
               Успеваемость урока
             </cv-header-menu-item>
             <cv-header-menu-item
-              v-if="courseSelected"
+              v-if="isStaff && courseSelected"
               :to="{ name: 'course-calendar', params: { courseId: this.$route.params.courseId } }"
             >
               Календарь
