@@ -13,7 +13,7 @@
         Решения
       </cv-header-menu-item>
     </cv-header-nav>
-    <cv-header-nav v-if="courseSelected">
+    <cv-header-nav v-if="isStaff && courseSelected">
       <cv-header-menu-item
         :to="{
           name: 'course-progress',
@@ -23,7 +23,7 @@
         Успеваемость
       </cv-header-menu-item>
     </cv-header-nav>
-    <cv-header-nav v-if="lessonSelected">
+    <cv-header-nav v-if="isStaff && lessonSelected">
       <cv-header-menu-item
         :to="{
           name: 'lesson-progress',
@@ -33,7 +33,7 @@
         Успеваемость урока
       </cv-header-menu-item>
     </cv-header-nav>
-    <cv-header-nav v-if="courseSelected">
+    <cv-header-nav v-if="isStaff && courseSelected">
       <cv-header-menu-item
         :to="{ name: 'course-calendar', params: { courseId: this.$route.params.courseId } }"
       >
