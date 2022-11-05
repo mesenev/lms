@@ -76,7 +76,7 @@ def update_submit_status():
         print('nothing to update')
     for cats_submit in query:
         new_status, data = cats_check_solution_status(cats_submit.id_to_check)
-        if not new_status or new_status == 'NP':
+        if not new_status or new_status in ['NP', 'T']:
             continue
 
         log_event = LogEvent(
