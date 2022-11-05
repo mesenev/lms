@@ -30,7 +30,7 @@ def object_to_course(obj):
     return course
 
 
-class CourseStaffOrReadOnlyForStudents(permissions.BasePermission):
+class CourseStaffOrReadOnlyForStudents(permissions.IsAuthenticated):
     message = 'Edit it without staff status not allowed.'
 
     def has_object_permission(self, request, view, obj):
@@ -47,7 +47,7 @@ class CourseStaffOrReadOnlyForStudents(permissions.BasePermission):
         return request.method in permissions.SAFE_METHODS
 
 
-class CourseStaffOrAuthorReadOnly(permissions.BasePermission):
+class CourseStaffOrAuthorReadOnly(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
         if not bool(request.user and request.user.is_authenticated):
             return False
@@ -58,7 +58,7 @@ class CourseStaffOrAuthorReadOnly(permissions.BasePermission):
         return False
 
 
-class CourseStaffOrAuthor(permissions.BasePermission):
+class CourseStaffOrAuthor(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
         if not bool(request.user and request.user.is_authenticated):
             return False
@@ -86,7 +86,7 @@ class CourseStaffOrAuthor(permissions.BasePermission):
         return False
 
 
-class UserItselfOrReadonly(permissions.BasePermission):
+class UserItselfOrReadonly(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
         if not bool(request.user and request.user.is_authenticated):
             return False
