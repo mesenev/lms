@@ -44,6 +44,7 @@ class MaterialModule extends VuexModule {
       name: '',
       content_type: '',
       content: '',
+      is_teacher_only: false,
     };
   }
 
@@ -55,6 +56,28 @@ class MaterialModule extends VuexModule {
   @Mutation
   setCurrentMaterial(material: MaterialModel) {
     this._currentMaterial = material;
+  }
+
+  @Mutation
+  changeMaterialVisibility(material: MaterialModel) {
+    const curMaterial = this._materials[material.lesson].find(el => el.id === material.id);
+    if (curMaterial != undefined) {
+      curMaterial.is_teacher_only = material.is_teacher_only;
+    }
+  }
+
+  @Action
+  async patchMaterialVisibility(params: { is_teacher_only: boolean; id: number }): Promise<MaterialModel> {
+    let answer = { data: {} };
+    await api.patch(`/api/material/${params.id}/`, { ...params })
+        .then(response => {
+          answer = response;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    this.changeMaterialVisibility(answer.data as MaterialModel);
+    return answer.data as MaterialModel;
   }
 
   @Action

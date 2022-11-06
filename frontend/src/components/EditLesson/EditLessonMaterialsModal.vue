@@ -173,7 +173,11 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
 
   get materials(): Array<MaterialModel> {
     if (this.lesson)
-      return this.materialStore._materials[this.lesson.id];
+      return this.materialStore._materials[this.lesson.id].sort(
+        (a, b) => {
+          return (a.is_teacher_only === b.is_teacher_only ? 0 : b.is_teacher_only ? -1 : 1) || a.id - b.id;
+        }
+      );
     return [];
   }
 }

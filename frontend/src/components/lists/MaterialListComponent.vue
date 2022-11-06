@@ -4,9 +4,18 @@
       <VideoChat24 @click="openMaterial" v-if="this.materialProp.content_type === 'video'"
                    class="icon"/>
       <Document24 @click="openMaterial" v-else class="icon"/>
-      <p @click="openMaterial">{{ material.name }}</p>
+      <p @click="openMaterial" :class="(material.is_teacher_only) ? 'material-title' : ''">
+        {{ material.name }}
+      </p>
     </div>
-    <TrashCan24 v-if="isEditing" class="icon" @click="showConfirmModal"/>
+    <div class="action-buttons" v-if="isEditing">
+      <a v-if="!inAction"
+         class="visibility-button icon"
+         @click="changeMaterialVisibility">
+        {{ this.material.is_teacher_only ? 'Материал для учителя' : 'Материал для студентов' }}
+      </a>
+      <TrashCan24 class="icon" @click="showConfirmModal"/>
+    </div>
   </cv-structured-list-data>
 </template>
 
@@ -24,6 +33,7 @@ export default class MaterialListComponent extends Vue {
   @Prop() materialProp!: MaterialModel;
   @Prop({required: false}) isEditing!: false | boolean;
   private materialStore = materialStore;
+  inAction = false;
 
   openMaterial(): void {
     this.materialStore.setCurrentMaterial(this.material);
@@ -32,6 +42,15 @@ export default class MaterialListComponent extends Vue {
 
   showConfirmModal() {
     this.$emit('show-confirm-modal', this.material);
+  }
+
+  async changeMaterialVisibility() {
+    this.inAction = true;
+    await this.materialStore.patchMaterialVisibility({
+      is_teacher_only: !this.materialProp.is_teacher_only,
+      id: this.materialProp.id
+    });
+    this.inAction = false;
   }
 
   get material(): MaterialModel {
@@ -52,9 +71,17 @@ export default class MaterialListComponent extends Vue {
   display flex
   flex-direction row
 
+.action-buttons
+  display flex
+  align-content center
+
 .icon
   margin-right 0.5rem
   cursor pointer
+
+.material-title
+  font-style oblique
+  text-decoration-line underline
 
 p
   display inline-flex

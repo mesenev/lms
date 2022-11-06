@@ -13,11 +13,13 @@ class MaterialSerializer(serializers.Serializer):
     name = serializers.CharField()
     content_type = serializers.CharField(allow_blank=True)
     content = serializers.CharField()
+    is_teacher_only = serializers.BooleanField()
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
         instance.content = validated_data.get('content', instance.content)
         instance.author = validated_data.get('author', instance.author)
+        instance.is_teacher_only = validated_data.get('is_teacher_only', instance.is_teacher_only)
         instance.save()
         return instance
 
@@ -28,7 +30,7 @@ class MaterialSerializer(serializers.Serializer):
 
     class Meta:
         model = LessonContent
-        fields = ('id', 'lesson', 'content_type', 'author', 'content')
+        fields = ('id', 'lesson', 'content_type', 'author', 'content', 'is_teacher_only')
 
 
 class LessonShortSerializer(serializers.ModelSerializer):

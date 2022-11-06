@@ -70,8 +70,16 @@ class LessonViewSet(viewsets.ModelViewSet):
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 class MaterialViewSet(viewsets.ModelViewSet):
     permission_classes = [CourseStaffOrReadOnlyForStudents]
     serializer_class = MaterialSerializer
-    queryset = LessonContent.objects.all()
     filterset_fields = ['lesson_id', ]
+
+    def get_queryset(self):
+        user = self.request.user
+        return LessonContent.objects.all().filter(
+            (Q(is_teacher_only=False) & Q(lesson__course__in=user.student_for.all()))
+            | Q(lesson__course__in=user.staff_for.all())
+            | Q(lesson__course__in=user.author_for.all())
+        )

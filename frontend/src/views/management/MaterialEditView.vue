@@ -55,6 +55,7 @@ export default class MaterialEditView extends Vue {
     name: '',
     content_type: '',
     content: '',
+    is_teacher_only: false,
   }
   materialEdit: MaterialModel = { ...this.material }
   showNotification = false;
