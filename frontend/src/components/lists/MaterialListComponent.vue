@@ -25,19 +25,19 @@ import Document24 from '@carbon/icons-vue/es/document/24';
 import VideoChat24 from '@carbon/icons-vue/es/video--chat/24';
 import TrashCan24 from '@carbon/icons-vue/es/trash-can/24';
 import router from '@/router';
-import {Component, Prop, Vue} from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import materialStore from '@/store/modules/material';
 
-@Component({components: {Document24, VideoChat24, TrashCan24}})
+@Component({ components: { Document24, VideoChat24, TrashCan24 } })
 export default class MaterialListComponent extends Vue {
   @Prop() materialProp!: MaterialModel;
-  @Prop({required: false}) isEditing!: false | boolean;
+  @Prop({ required: false }) isEditing!: false | boolean;
   private materialStore = materialStore;
   inAction = false;
 
   openMaterial(): void {
     this.materialStore.setCurrentMaterial(this.material);
-    router.push({name: 'MaterialView', params: {materialId: this.material.id.toString()}});
+    router.push({ name: 'MaterialView', params: { materialId: this.material.id.toString() } });
   }
 
   showConfirmModal() {

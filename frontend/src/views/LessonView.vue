@@ -97,11 +97,11 @@ import problemStore from '@/store/modules/problem';
 import userStore from '@/store/modules/user';
 import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
-import {Component, Prop, Vue} from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({components: {MaterialListComponent, ProblemListComponent}})
+@Component({ components: { MaterialListComponent, ProblemListComponent } })
 export default class LessonView extends Vue {
-  @Prop({required: true}) lessonId!: number;
+  @Prop({ required: true }) lessonId!: number;
   lessonStore = lessonStore;
   problemStore = problemStore;
   userStore = userStore;
@@ -169,7 +169,7 @@ export default class LessonView extends Vue {
   async changeLessonVisibility() {
     this.changingVisibility = true;
     await this.lessonStore.patchLesson(
-      {id: this.lessonId, is_hidden: !this.lesson?.is_hidden},
+      { id: this.lessonId, is_hidden: !this.lesson?.is_hidden },
     );
     this.changingVisibility = false;
   }
