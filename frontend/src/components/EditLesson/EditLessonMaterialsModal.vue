@@ -74,18 +74,18 @@ import MaterialModel from '@/models/MaterialModel';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import api from '@/store/services/api'
-import {Component, Prop, Vue} from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import materialStore from '@/store/modules/material';
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 
-@Component({components: {AddAlt20, SubtractAlt20, MaterialListComponent, ConfirmModal}})
+@Component({ components: { AddAlt20, SubtractAlt20, MaterialListComponent, ConfirmModal } })
 export default class EditLessonMaterialsModal extends NotificationMixinComponent {
-  @Prop({required: true}) lesson!: LessonModel;
+  @Prop({ required: true }) lesson!: LessonModel;
   AddAlt32 = AddAlt20;
   SubtractAlt32 = SubtractAlt20;
   materialStore = materialStore;
-  currentMaterial: MaterialModel = {...this.materialStore.getNewMaterial, lesson: this.lesson.id};
+  currentMaterial: MaterialModel = { ...this.materialStore.getNewMaterial, lesson: this.lesson.id };
   creationLoader = false;
   material: Array<MaterialModel> = [];
   modalVisible = false;
@@ -98,7 +98,7 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
 
   showModal() {
     this.modalVisible = true;
-    this.currentMaterial = {...this.materialStore.getNewMaterial, lesson: this.lesson.id};
+    this.currentMaterial = { ...this.materialStore.getNewMaterial, lesson: this.lesson.id };
   }
 
   modalHidden() {
@@ -136,7 +136,7 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
     const request = api.post('/api/material/', this.currentMaterial);
     request.then(response => {
       this.lesson.materials.push(response.data as MaterialModel);
-      this.materialStore.setMaterials({[this.lesson.id]: this.lesson.materials});
+      this.materialStore.setMaterials({ [this.lesson.id]: this.lesson.materials });
     });
     request.catch(error => {
       this.notificationKind = 'error';
@@ -151,7 +151,7 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
     await api.delete(`/api/material/${this.deletingMaterialId}/`)
       .then(() => {
         this.lesson.materials = this.lesson.materials.filter(x => x.id != this.deletingMaterialId);
-        this.materialStore.setMaterials({[this.lesson.id]: this.lesson.materials});
+        this.materialStore.setMaterials({ [this.lesson.id]: this.lesson.materials });
       })
       .catch(error => {
         this.notificationKind = 'error';
@@ -173,7 +173,11 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
 
   get materials(): Array<MaterialModel> {
     if (this.lesson)
-      return this.materialStore._materials[this.lesson.id];
+      return this.materialStore._materials[this.lesson.id].sort(
+        (a, b) => {
+          return (a.is_teacher_only === b.is_teacher_only ? 0 : b.is_teacher_only ? -1 : 1) || a.id - b.id;
+        }
+      );
     return [];
   }
 }

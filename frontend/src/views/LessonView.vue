@@ -41,7 +41,7 @@
           <div v-if="homework.length > 0" class="homework">
             <h4 class="homework-title">Домашняя работа</h4>
             <div v-if="!loading">
-                <problem-list-component :task-list="homework"/>
+              <problem-list-component :task-list="homework"/>
             </div>
             <div v-else>
               <cv-accordion-skeleton/>
@@ -50,7 +50,7 @@
           <div v-if="extrawork.length > 0" class="extrawork">
             <h4 class="classwork-title">Дополнительные задания</h4>
             <div v-if="!loading">
-                <problem-list-component :task-list="extrawork"/>
+              <problem-list-component :task-list="extrawork"/>
             </div>
             <div v-else>
               <cv-accordion-skeleton/>
@@ -67,7 +67,14 @@
           <cv-structured-list class="list">
             <template slot="items">
               <cv-structured-list-item
-                v-for="material in materials"
+                v-for="material in studentMaterials"
+                :key="material.id">
+                <material-list-component :material-prop="material"/>
+              </cv-structured-list-item>
+            </template>
+            <template slot="items" v-if="isStaff">
+              <cv-structured-list-item
+                v-for="material in teacherMaterials"
                 :key="material.id">
                 <material-list-component :material-prop="material"/>
               </cv-structured-list-item>
@@ -109,6 +116,8 @@ export default class LessonView extends Vue {
   }
 
   get isMaterialsEmpty() {
+    if (!this.isStaff)
+      return !this.studentMaterials.length;
     return !this.materialStore._materials[this.lessonId].length;
   }
 
@@ -121,9 +130,17 @@ export default class LessonView extends Vue {
   }
 
   //TODO: move materials in separate component
-  get materials(): Array<MaterialModel> {
+  get studentMaterials(): Array<MaterialModel> {
     if (this.lesson)
-      return this.materialStore._materials[this.lessonId];
+      return this.materialStore._materials[this.lessonId].filter(el => !el.is_teacher_only)
+        .sort((a, b) => a.id - b.id);
+    return [];
+  }
+
+  get teacherMaterials(): Array<MaterialModel> {
+    if (this.lesson)
+      return this.materialStore._materials[this.lessonId].filter(el => el.is_teacher_only)
+        .sort((a, b) => a.id - b.id);
     return [];
   }
 
