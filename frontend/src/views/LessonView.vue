@@ -24,11 +24,11 @@
       </div>
     </div>
     <div class="bx--row lesson-content">
-      <div class="items bx--col-lg-6">
+      <div :class="(isProblemsEmpty) ? 'empty-items bx--col-lg-6' : 'items bx--col-lg-6'">
         <div v-if="isProblemsEmpty">
-          <h4 class="no-problems">В уроке пока нет задач</h4>
+          <empty-list-component list-of="problems" :text="emptyProblemsText"/>
         </div>
-        <div class="content-tasks-problems">
+        <div v-else class="content-tasks-problems">
           <div v-if="classwork.length > 0" class="classwork">
             <h4 class="classwork-title">Классная работа</h4>
             <div v-if="!loading">
@@ -59,10 +59,10 @@
         </div>
       </div>
       <div class="bx--col-lg-4 content-info">
-        <h2 class="content-info-title">Материалы</h2>
         <div v-if="isMaterialsEmpty">
-          <h4 class="no-problems">В уроке пока нет материалов</h4>
+          <empty-list-component :text="emptyMaterialsText" list-of="materials"/>
         </div>
+        <h2 v-else class="content-info-title">Материалы</h2>
         <div class="content-info-materials" v-if="!loading">
           <cv-structured-list class="list">
             <template slot="items">
@@ -98,8 +98,9 @@ import userStore from '@/store/modules/user';
 import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import EmptyListComponent from "@/components/EmptyListComponent.vue";
 
-@Component({ components: { MaterialListComponent, ProblemListComponent } })
+@Component({ components: { MaterialListComponent, ProblemListComponent, EmptyListComponent } })
 export default class LessonView extends Vue {
   @Prop({ required: true }) lessonId!: number;
   lessonStore = lessonStore;
@@ -108,6 +109,16 @@ export default class LessonView extends Vue {
   materialStore = materialStore;
   loading = true;
   changingVisibility = false;
+  emptyProblemsText = '';
+  emptyMaterialsText = '';
+
+  async created() {
+    this.emptyProblemsText = 'В данный момент нет доступных задач.';
+    this.emptyMaterialsText = 'Похоже, доступные материалы отсутствуют.';
+    await this.problemStore.fetchProblemsByLessonId(this.lessonId);
+    await this.materialStore.fetchMaterialsByLessonId(this.lessonId);
+    this.loading = false;
+  }
 
   get isProblemsEmpty() {
     if (this.problemStore.problemsByLesson[this.lessonId].length === 0) {
@@ -158,12 +169,6 @@ export default class LessonView extends Vue {
 
   get extrawork(): Array<ProblemModel> {
     return this.problemStore.problemsByLesson[this.lessonId].filter(x => x.type === 'EX');
-  }
-
-  async created() {
-    await this.problemStore.fetchProblemsByLessonId(this.lessonId);
-    await this.materialStore.fetchMaterialsByLessonId(this.lessonId);
-    this.loading = false;
   }
 
   async changeLessonVisibility() {
@@ -238,6 +243,11 @@ export default class LessonView extends Vue {
 
 .lesson-content
   margin-top 2rem
+
+.empty-items
+  background-color var(--cds-ui-background)
+  padding-left 1rem
+  padding-top 1rem
 
 .items
   background-color: var(--cds-ui-02)

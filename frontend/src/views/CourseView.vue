@@ -13,38 +13,43 @@
       </div>
     </div>
     <div class=" bx--row">
-      <div class="items bx--col-lg-6">
-        <cv-search
-          v-model.trim="searchValue"
-          class="search"
-          label="label"
-          placeholder="search"
-          size="size"/>
+      <div :class="(lessons.length) ? 'items bx--col-lg-6' : 'empty-items bx--col-lg-6'">
         <cv-data-table-skeleton v-if="loading" :columns="1" :rows="6"/>
-        <cv-structured-list v-else>
-          <template slot="items" v-if="filterLessons.length > 0">
-            <cv-structured-list-item
-              class="item"
-              v-for="lesson in filterLessons"
-              :key="lesson.id">
-              <lesson-list-component :date-prop="dateForLesson(lesson.id)" :lesson-prop='lesson'/>
-            </cv-structured-list-item>
-          </template>
-          <template slot="items" v-if="isStaff && lessonsNotInSchedule.length > 0">
-            <h3>Следующие уроки не входят в нынешнее расписание, и ученики их не видят:</h3>
-            <cv-structured-list-item
-              class="item"
-              v-for="lesson in lessonsNotInSchedule"
-              :key="lesson.id">
-              <lesson-list-component :lesson-prop='lesson'/>
-            </cv-structured-list-item>
-          </template>
-          <!--          <template slot="items" v-else>-->
-          <!--            <h1 v-if="course && user.staff_for.includes(course.id)">-->
-          <!--              Расписание для курса не составлено-->
-          <!--            </h1>-->
-          <!--          </template>-->
-        </cv-structured-list>
+        <div v-else-if="lessons.length">
+          <cv-search
+            v-model.trim="searchValue"
+            class="search"
+            label="label"
+            placeholder="search"
+            size="size"/>
+          <cv-structured-list>
+            <template slot="items" v-if="filterLessons.length > 0">
+              <cv-structured-list-item
+                class="item"
+                v-for="lesson in filterLessons"
+                :key="lesson.id">
+                <lesson-list-component :date-prop="dateForLesson(lesson.id)" :lesson-prop='lesson'/>
+              </cv-structured-list-item>
+            </template>
+            <template slot="items" v-if="isStaff && lessonsNotInSchedule.length > 0">
+              <h3>Следующие уроки не входят в нынешнее расписание, и ученики их не видят:</h3>
+              <cv-structured-list-item
+                class="item"
+                v-for="lesson in lessonsNotInSchedule"
+                :key="lesson.id">
+                <lesson-list-component :lesson-prop='lesson'/>
+              </cv-structured-list-item>
+            </template>
+            <!--          <template slot="items" v-else>-->
+            <!--            <h1 v-if="course && user.staff_for.includes(course.id)">-->
+            <!--              Расписание для курса не составлено-->
+            <!--            </h1>-->
+            <!--          </template>-->
+          </cv-structured-list>
+        </div>
+        <div v-else class="empty-list-wrapper">
+          <empty-list-component list-of="lessons" :text="emptyText"/>
+        </div>
       </div>
       <div v-if='course' class="submits bx--col-lg-4">
         <user-submit-list-component v-if="isStaff" :course-id="course.id"/>
@@ -67,10 +72,15 @@ import lessonStore from "@/store/modules/lesson";
 import userStore from '@/store/modules/user';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import CourseScheduleModel, { ScheduleElement } from "@/models/ScheduleModel";
+import EmptyListComponent from "@/components/EmptyListComponent.vue";
 
 @Component({
   components: {
-    UserProblemListComponent, LessonListComponent, UserComponent, UserSubmitListComponent,
+    UserProblemListComponent,
+    LessonListComponent,
+    UserComponent,
+    UserSubmitListComponent,
+    EmptyListComponent
   },
 })
 export default class CourseView extends Vue {
@@ -82,10 +92,12 @@ export default class CourseView extends Vue {
   schedule: CourseScheduleModel | undefined;
   private userStore = userStore;
   private user = this.userStore.user;
+  emptyText = '';
 
   async created() {
     this.schedule = await this.courseStore.fetchCourseScheduleByCourseId(this.courseId);
     await this.lessonStore.fetchLessonsByCourseId(this.courseId);
+    this.emptyText = 'В данный момент нет доступных уроков.';
     this.loading = false;
   }
 
@@ -102,7 +114,7 @@ export default class CourseView extends Vue {
   get lessonsNotInSchedule() {
     return this.lessons.filter(lesson => !this.filterLessons.map(lesson => lesson.id)
       .includes(lesson.id)).sort((a: LessonModel, b: LessonModel) => {
-        return a.id - b.id;
+      return a.id - b.id;
     });
   }
 
@@ -140,3 +152,19 @@ export default class CourseView extends Vue {
 }
 
 </script>
+
+<style scoped lang="stylus">
+.empty-list-wrapper
+  padding-left 3rem
+
+.items
+  padding-top 1rem
+  padding-bottom 1rem
+  background-color var(--cds-ui-background)
+
+.empty-items
+  background-color var(--cds-ui-background)
+  display flex
+  align-items center
+  padding-bottom 1rem
+</style>
