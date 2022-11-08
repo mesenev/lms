@@ -2,6 +2,9 @@ from rest_framework import permissions
 from course.models import Course
 from lesson.models import LessonContent
 
+from rest_framework.permissions import IsAuthenticated
+
+
 
 def object_to_course(obj):
     from course.models import Course
@@ -71,6 +74,8 @@ class CourseStaffOrAuthor(permissions.IsAuthenticated):
     def has_permission(self, request, view):
         if not bool(request.user and request.user.is_authenticated):
             return False
+        if request.user.is_superuser:
+            return True
         if 'course_id' in view.kwargs:
             queryset = Course.objects.filter(id=view.kwargs['course_id'])
             if queryset.exists() and queryset.first() in request.user.staff_for.all():
