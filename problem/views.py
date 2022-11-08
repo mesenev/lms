@@ -140,7 +140,7 @@ class SubmitViewSet(viewsets.ModelViewSet):
         queryset = self.get_queryset().filter(id=submit_id).all()
         if not queryset.exists():
             raise exceptions.NotFound
-        return Response(queryset.first().cats_submit.testing_result)
+        return Response(queryset.first().cats_submit.first().testing_result)
 
     @action(detail=False, url_path='five-aw/(?P<course_id>\d+)', permission_classes=[CourseStaffOrAuthor])
     def five_aw(self, request, course_id):
