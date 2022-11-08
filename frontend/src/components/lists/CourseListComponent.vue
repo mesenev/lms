@@ -29,7 +29,7 @@ export default class CourseListComponent extends Vue {
     class="list-element">
     <h5 class="list-element--title">{{ course.name }}</h5>
     <span class="list-element--info">Преподаватель: {{ teacher }}</span>
-    <span class="list-element--info">Следующий урок: {{ "24/1" }}</span>
+<!--    <span class="list-element&#45;&#45;info">Следующий урок: {{ "24/1" }}</span>-->
   </router-link>
 </template>
 
