@@ -6,7 +6,7 @@
         <cv-tile>
           <h2 class="material-title">{{ currentMaterial.name }}</h2>
         </cv-tile>
-        <div v-if="isMaterialAVideo" class="video material-content">
+        <div v-if="isMaterialAVideo" class="video material-content-video">
           <youtube v-if="currentMaterial.content" :video-id="youTubeGetID"
                    ref="youtube"
                    player-width="980"
@@ -101,11 +101,16 @@ export default class MaterialView extends Vue {
 .material-title
   margin-top 2rem
 
-.material-content
+.material-content-video
   overflow-y auto
   min-height 20rem
   max-height 500px
   min-width 980px
+
+.material-content
+  overflow-y auto
+  min-height 20rem
+  max-height 25rem
 
 .less
   border .5px solid var(--cds-ui-04)
