@@ -2,12 +2,12 @@
   <cv-loading v-if="loading"></cv-loading>
   <div v-else class="bx--grid">
     <div class="bx--row">
-      <div class="bx--col-lg-8">
+      <div class="bx--col-lg-9">
         <cv-tile>
           <h2 class="material-title">{{ currentMaterial.name }}</h2>
         </cv-tile>
         <div v-if="isMaterialAVideo" class="video material-content">
-          <youtube :video-id="youTubeGetID"
+          <youtube v-if="currentMaterial.content" :video-id="youTubeGetID"
                    ref="youtube"
                    player-width="980"
                    player-height="480"></youtube>
@@ -16,7 +16,7 @@
           <vue-markdown :source="currentMaterial.content" class="md-body"/>
         </div>
       </div>
-      <div class="bx--col-lg-4 bx--col-md-4">
+      <div v-if="!isMaterialAVideo" class="fixed bx--col-lg-3 bx--col-md-4">
         <div class="other-materials-container">
           <div class="other-materials">
             <h4 class="other-materials-title">Другие материалы:</h4>
@@ -46,6 +46,7 @@ import materialStore from '@/store/modules/material';
 import VueMarkdown from 'vue-markdown-render';
 import {Component, Prop, Vue} from 'vue-property-decorator';
 import VueYouTubeEmbed from 'vue-youtube-embed';
+import { getIdFromURL } from "vue-youtube-embed";
 import MaterialListComponent from "@/components/lists/MaterialListComponent.vue";
 
 //TODO: check this is ok
@@ -73,8 +74,9 @@ export default class MaterialView extends Vue {
   }
 
   get youTubeGetID() {
-    const VID_REGEX = (/(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
-    return (this.materialUrl!.match(VID_REGEX)![1]);
+    // const VID_REGEX = (/(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
+    // return (this.materialUrl!.match(VID_REGEX)![1]);
+    return getIdFromURL(this.currentMaterial.content);
   }
 
   get isMaterialAVideo() {
@@ -100,8 +102,10 @@ export default class MaterialView extends Vue {
   margin-top 2rem
 
 .material-content
+  overflow-y auto
   min-height 20rem
-  max-height 25rem
+  max-height 500px
+  min-width 980px
 
 .less
   border .5px solid var(--cds-ui-04)

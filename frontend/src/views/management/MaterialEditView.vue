@@ -4,26 +4,28 @@
       <h1>Редактирование материала</h1>
     </div>
     <div class="bx--row content">
-      <div class="edit-container bx--col-lg-5">
-        <cv-inline-notification
-          v-if="showNotification"
-          :kind="notificationKind"
-          :sub-title="notificationText"
-          @close="hideSuccess"
-        />
-        <cv-text-input label="Заголовок"
-                       type="text"
-                       v-model="materialEdit.name"/>
-        <cv-text-area label="Содержимое"
-                      class="text-area"
-                      style="min-height: 200px"
-                      v-model="materialEdit.content">
-        </cv-text-area>
-        <div class="change__btn">
-          <cv-button :disabled="canChangeMaterial"
-                     @click="ChangeMaterial">
-            Изменить
-          </cv-button>
+      <div class="edit-container-wrapper bx--col-lg-5">
+        <div class="edit-container">
+          <cv-inline-notification
+            v-if="showNotification"
+            :kind="notificationKind"
+            :sub-title="notificationText"
+            @close="hideSuccess"
+          />
+          <cv-text-input label="Заголовок"
+                         type="text"
+                         v-model="materialEdit.name"/>
+          <cv-text-area label="Содержимое"
+                        class="text-area"
+                        style="min-height: 200px"
+                        v-model="materialEdit.content">
+          </cv-text-area>
+          <div class="change__btn">
+            <cv-button :disabled="canChangeMaterial"
+                       @click="ChangeMaterial">
+              Изменить
+            </cv-button>
+          </div>
         </div>
       </div>
       <div class="preview-container edit-container bx--col-lg-5">
@@ -112,8 +114,6 @@ export default class MaterialEditView extends Vue {
 <style scoped lang="stylus">
 .bx--col-lg-5
   margin-left 20px
-  background-color var(--cds-ui-02)
-  padding var(--cds-spacing-05)
 
 .preview-container
   border 2px black solid
@@ -122,14 +122,18 @@ export default class MaterialEditView extends Vue {
   overflow-wrap break-word
   margin-top 10px
   overflow-y auto
-  height 80%
+  max-height 30rem
 
 .title
   overflow-wrap break-word
 
-.edit-container
+.edit-container-wrapper
   margin-top 2rem
   min-height 400px
+
+.edit-container
+  padding 1rem
+  background-color var(--cds-ui-background)
 
 .text-area >>> .bx--text-area
   min-height 13rem
