@@ -11,11 +11,12 @@ from users.permissions import CourseStaffOrAuthor
 
 
 class CourseProgressViewSet(viewsets.ModelViewSet):
-    #TODO: Fix permission
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = CourseProgressSerializer
-    queryset = CourseProgress.objects.all()
     filterset_fields = ['user_id', 'course_id']
+
+    def get_queryset(self):
+        return CourseProgress.objects.filter(course__in=self.request.user.staff_for.all())
 
 
 class LessonProgressViewSet(viewsets.ModelViewSet):
