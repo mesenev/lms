@@ -7,6 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from requests.utils import default_headers
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -19,6 +20,7 @@ from cathie.models import CatsAccount
 from cathie.serializers import CatsAccountSerializer
 from course.models import Course
 from problem.models import Problem
+from users import permissions
 from users.permissions import CourseStaffOrAuthor, CourseStaffOrReadOnlyForStudents
 
 
@@ -55,7 +57,8 @@ def cats_admin(request):
 
 
 class CatsAccountViewSet(viewsets.ModelViewSet):
-    permission_classes = [CourseStaffOrAuthor]
+    # TODO: FIX PERMISSION TO SELF ACCOUNT ONLY
+    permission_classes = [IsAuthenticated]
     queryset = CatsAccount.objects.all()
     serializer_class = CatsAccountSerializer
     filter_backends = (DjangoFilterBackend,)
