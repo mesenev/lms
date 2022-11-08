@@ -1,14 +1,16 @@
 import django_filters
 from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet
+from rest_framework.response import Response
 from rest_framework.mixins import (
     CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 )
+from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
-from users.models import StudyGroup
 from users.permissions import UserItselfOrReadonly
 from users.serializers import DefaultUserSerializer, StudyGroupsSerializer
 from users.utils import *
+from rest_framework.request import Request
 
 
 def index(request, *args, **kwargs):
@@ -26,6 +28,16 @@ class UserFilter(FilterSet):
         fields = {
             'email': ['exact', 'icontains'],
         }
+
+
+class changeAvatar(APIView):
+
+    def post(self, request: Request):
+        new_avatar = request.data.get('avatar_url')
+        user = request.user
+        user.avatar_url = new_avatar
+        user.save()
+        return Response({'code': 0, 'message': str(user.avatar_url.url)})
 
 
 class UsersViewSet(

@@ -52,7 +52,7 @@ class User(AbstractUser):
 
         temp_thumb = BytesIO()
         image.save(temp_thumb, FTYPE)
-        temp_thumb.seek(-1)
+        #temp_thumb.seek(-1)
 
         self.thumbnail.save(thumb_filename, ContentFile(temp_thumb.read()), save=True)
         temp_thumb.close()
