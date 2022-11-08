@@ -1,6 +1,6 @@
 import django_filters
 from django.db import models
-from django.db.models import Q, Prefetch
+from django.db.models import Q, Prefetch, Subquery
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, exceptions, status, permissions
 from rest_framework.decorators import action
@@ -71,8 +71,12 @@ class ProblemViewSet(viewsets.ModelViewSet):
             lesson__course=course_id,
             lesson__is_hidden=False,
         ).exclude(
-            submits__status__in=[Submit.AWAITING_MANUAL, Submit.OK, Submit.DEFAULT_STATUS]
+            submits__in=Submit.objects.filter(
+                Q(student=request.user)
+                & Q(status__in=[Submit.AWAITING_MANUAL, Submit.OK, Submit.DEFAULT_STATUS])
+            )
         )
+
         queryset = self.prefetch_query_with_submits(request, queryset)
         serializer = ProblemListSerializer(list(queryset)[:5], many=True)
 
