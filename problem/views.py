@@ -188,6 +188,8 @@ class SubmitViewSet(viewsets.ModelViewSet):
         problem = Problem.objects.get(id=request.data['problem'])
         course = object_to_course(problem)
         if request.user.assigns.filter(course=course).exists():
+            if 'status' in request.data:
+                del request.data['status']
             return super().create(request, *args, **kwargs)
         elif course in list(request.user.staff_for.all()) + list(request.user.author_for.all()):
             return super().create(request, *args, **kwargs)

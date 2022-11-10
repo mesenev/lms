@@ -6,14 +6,17 @@ from rest_framework.response import Response
 from course.models import Course
 from rating.models import LessonProgress, CourseProgress
 from rating.serializers import LessonProgressSerializer, CourseProgressSerializer, AttendanceSerializer
+from users import permissions
 from users.permissions import CourseStaffOrAuthor
 
 
 class CourseProgressViewSet(viewsets.ModelViewSet):
-    permission_classes = [CourseStaffOrAuthor]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = CourseProgressSerializer
-    queryset = CourseProgress.objects.all()
     filterset_fields = ['user_id', 'course_id']
+
+    def get_queryset(self):
+        return CourseProgress.objects.filter(course__in=self.request.user.staff_for.all())
 
 
 class LessonProgressViewSet(viewsets.ModelViewSet):
