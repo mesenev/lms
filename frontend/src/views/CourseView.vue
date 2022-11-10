@@ -13,45 +13,48 @@
       </div>
     </div>
     <div class=" bx--row">
-      <div :class="(lessons.length) ? 'items bx--col-lg-6' : 'empty-items bx--col-lg-6'">
+      <div :class="(lessons.length) ? 'items bx--col-lg-6 bx--col-md-6'
+      : 'empty-items bx--col-lg-6 bx--col-md-6'">
         <cv-data-table-skeleton v-if="loading" :columns="1" :rows="6"/>
         <div v-else-if="lessons.length">
           <cv-search
             v-model.trim="searchValue"
             class="search"
             label="label"
-            placeholder="search"
+            placeholder="Введите название урока"
             size="size"/>
-          <cv-structured-list>
-            <template slot="items" v-if="filterLessons.length > 0">
-              <cv-structured-list-item
-                class="item"
-                v-for="lesson in filterLessons"
-                :key="lesson.id">
-                <lesson-list-component :date-prop="dateForLesson(lesson.id)" :lesson-prop='lesson'/>
-              </cv-structured-list-item>
-            </template>
-            <template slot="items" v-if="isStaff && lessonsNotInSchedule.length > 0">
-              <h3>Следующие уроки не входят в нынешнее расписание, и ученики их не видят:</h3>
-              <cv-structured-list-item
-                class="item"
-                v-for="lesson in lessonsNotInSchedule"
-                :key="lesson.id">
-                <lesson-list-component :lesson-prop='lesson'/>
-              </cv-structured-list-item>
-            </template>
-            <!--          <template slot="items" v-else>-->
-            <!--            <h1 v-if="course && user.staff_for.includes(course.id)">-->
-            <!--              Расписание для курса не составлено-->
-            <!--            </h1>-->
-            <!--          </template>-->
-          </cv-structured-list>
+          <div class="lessons-list-wrapper">
+            <cv-structured-list class="lessons-list">
+              <template slot="items" v-if="filterLessons.length > 0">
+                <cv-structured-list-item
+                  class="item"
+                  v-for="lesson in filterLessons"
+                  :key="lesson.id">
+                  <lesson-list-component :date-prop="dateForLesson(lesson.id)"
+                                         :lesson-prop='lesson'/>
+                </cv-structured-list-item>
+              </template>
+              <template slot="items" v-if="isStaff && lessonsNotInSchedule.length > 0">
+                <cv-structured-list-item
+                  class="item"
+                  v-for="lesson in lessonsNotInSchedule"
+                  :key="lesson.id">
+                  <lesson-list-component :lesson-prop='lesson' not-in-schedule="true"/>
+                </cv-structured-list-item>
+              </template>
+              <!--          <template slot="items" v-else>-->
+              <!--            <h1 v-if="course && user.staff_for.includes(course.id)">-->
+              <!--              Расписание для курса не составлено-->
+              <!--            </h1>-->
+              <!--          </template>-->
+            </cv-structured-list>
+          </div>
         </div>
         <div v-else class="empty-list-wrapper">
           <empty-list-component list-of="lessons" :text="emptyText"/>
         </div>
       </div>
-      <div v-if='course' class="submits bx--col-lg-4">
+      <div v-if='course' class="submits bx--col-lg-4 bx--col-md-4">
         <user-submit-list-component v-if="isStaff" :course-id="course.id"/>
         <user-problem-list-component v-else :course-id="course.id"/>
       </div>
@@ -108,6 +111,12 @@ export default class CourseView extends Vue {
   get lessons(): Array<LessonModel> {
     if (!(this.courseId in this.lessonStore.lessonsByCourse))
       return [];
+    const lessons = this.lessonStore.lessonsByCourse[this.courseId].filter(lesson => {
+      return lesson.name.toLowerCase().includes(this.searchValue.toLowerCase());
+    });
+    if (this.isStaff)
+      if (lessons.length)
+        return lessons;
     return this.lessonStore.lessonsByCourse[this.courseId];
   }
 
@@ -126,7 +135,14 @@ export default class CourseView extends Vue {
     this.sortedCourseSchedule.map(lesson =>
       this.lessons.find(elem => elem.name === lesson.name))
       .filter(lesson => typeof lesson != "undefined");
-    return this.sortedCourseSchedule;
+    if (!this.isStaff) {
+      const sortedCourseSchedule = this.sortedCourseSchedule.filter(
+        lesson => lesson.name.toLowerCase().includes(this.searchValue.toLowerCase())
+      );
+      if (sortedCourseSchedule.length)
+        return sortedCourseSchedule;
+    }
+    return this.sortedCourseSchedule
   }
 
   get sortedCourseSchedule() {
@@ -154,17 +170,30 @@ export default class CourseView extends Vue {
 </script>
 
 <style scoped lang="stylus">
-.empty-list-wrapper
-  padding-left 3rem
-
 .items
   padding-top 1rem
   padding-bottom 1rem
+  margin-bottom 1rem
+  margin-right 1rem
   background-color var(--cds-ui-background)
+
+.lessons-list-wrapper
+  max-height 50vh;
+  overflow-y auto
+
+.submits
+  padding-left 0
+  margin-bottom 1rem
 
 .empty-items
   background-color var(--cds-ui-background)
   display flex
   align-items center
+  margin-bottom 1rem
+  margin-right 1rem
   padding-bottom 1rem
+
+.lessons-list
+  margin-bottom 0
+
 </style>

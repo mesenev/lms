@@ -20,18 +20,13 @@ import Box32 from '@carbon/icons-vue/es/box/32';
 export default class EmptyListComponent extends Vue {
   @Prop({ required: true }) text!: string;
   @Prop({ required: true }) listOf!: string;
-  // @Prop({required: false}) areCourses!: false | boolean;
-  // @Prop({required: false}) areLessons!: false | boolean;
-  // @Prop({required: false}) areMaterials!: false | boolean;
-  //
+
   ListChecked = ListChecked32;
   Box = Box32;
-
 }
 </script>
 
 <style scoped lang="stylus">
-
 .empty-list-icon
   width 100px
   height 100px
