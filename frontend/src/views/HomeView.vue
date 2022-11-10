@@ -6,7 +6,8 @@
       </div>
     </div>
     <div class=" bx--row">
-      <div :class="(courses.length) ? 'items bx--col-lg-6' : 'empty-items bx--col-lg-6'">
+      <div :class="(courses.length) ? 'items bx--col-lg-6 bx--col-md-6'
+      : 'empty-items bx--col-lg-6 bx--col-md-6'">
         <cv-data-table-skeleton v-if="loading" :columns="1" :rows="6"/>
         <div v-else-if="courses.length">
           <cv-search
@@ -24,8 +25,6 @@
           </cv-structured-list>
         </div>
         <empty-list-component v-else list-of="courses" :text="emptyText"/>
-      </div>
-      <div class="bx--col-lg-8">
       </div>
     </div>
   </div>

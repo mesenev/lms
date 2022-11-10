@@ -24,7 +24,8 @@
       </div>
     </div>
     <div class="bx--row lesson-content">
-      <div :class="(isProblemsEmpty) ? 'empty-items bx--col-lg-6' : 'items bx--col-lg-6'">
+      <div :class="(isProblemsEmpty) ? 'empty-items bx--col-lg-6 bx--col-md-6'
+      : 'items bx--col-lg-6 bx--col-md-6'">
         <div v-if="isProblemsEmpty">
           <empty-list-component list-of="problems" :text="emptyProblemsText"/>
         </div>
@@ -58,7 +59,7 @@
           </div>
         </div>
       </div>
-      <div class="bx--col-lg-4 content-info">
+      <div class="bx--col-lg-4 bx--col-md-4 content-info">
         <div v-if="isMaterialsEmpty">
           <empty-list-component :text="emptyMaterialsText" list-of="materials"/>
         </div>
@@ -200,6 +201,10 @@ export default class LessonView extends Vue {
 .content-info-title
   margin 1rem
 
+.content-info-materials
+  margin-bottom 1rem
+
+
 .content-tasks-title
   margin 1rem
 
@@ -220,7 +225,6 @@ export default class LessonView extends Vue {
   margin-top 1rem
 
   &-info
-    margin-left 1rem
     height 100%
 
     .list
@@ -246,11 +250,15 @@ export default class LessonView extends Vue {
 
 .empty-items
   background-color var(--cds-ui-background)
-  padding-left 1rem
   padding-top 1rem
+  margin-bottom 1rem
+  margin-right 1rem
+  padding-bottom 1rem
 
 .items
   background-color: var(--cds-ui-02)
+  padding-top 1rem
+  padding-bottom 1rem
   margin-bottom 1rem
-  padding: 1rem
+  margin-right 1rem
 </style>
