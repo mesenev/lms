@@ -9,14 +9,14 @@
         <div v-if="isMaterialAVideo" class="video material-content-video">
           <youtube v-if="currentMaterial.content" :video-id="youTubeGetID"
                    ref="youtube"
-                   player-width="980"
-                   player-height="480"></youtube>
+                   player-width="640"
+                   player-height="360"></youtube>
         </div>
         <div v-else class="less material-content">
           <vue-markdown :source="currentMaterial.content" class="md-body"/>
         </div>
       </div>
-      <div v-if="!isMaterialAVideo" class="fixed bx--col-lg-3 bx--col-md-4">
+      <div class="bx--col-lg-3 bx--col-md-4">
         <div class="other-materials-container">
           <div class="other-materials">
             <h4 class="other-materials-title">Другие материалы:</h4>
@@ -44,7 +44,7 @@
 import MaterialModel from '@/models/MaterialModel';
 import materialStore from '@/store/modules/material';
 import VueMarkdown from 'vue-markdown-render';
-import {Component, Prop, Vue} from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import VueYouTubeEmbed from 'vue-youtube-embed';
 import { getIdFromURL } from "vue-youtube-embed";
 import MaterialListComponent from "@/components/lists/MaterialListComponent.vue";
@@ -52,9 +52,9 @@ import MaterialListComponent from "@/components/lists/MaterialListComponent.vue"
 //TODO: check this is ok
 Vue.use(VueYouTubeEmbed);
 
-@Component({components: {VueMarkdown, MaterialListComponent}})
+@Component({ components: { VueMarkdown, MaterialListComponent } })
 export default class MaterialView extends Vue {
-  @Prop({required: true}) materialId!: number;
+  @Prop({ required: true }) materialId!: number;
   private materialStore = materialStore;
   materials: Array<MaterialModel> = [];
   loading = true;
@@ -102,15 +102,11 @@ export default class MaterialView extends Vue {
   margin-top 2rem
 
 .material-content-video
-  overflow-y auto
   min-height 20rem
-  max-height 500px
   min-width 980px
 
 .material-content
-  overflow-y auto
   min-height 20rem
-  max-height 25rem
 
 .less
   border .5px solid var(--cds-ui-04)

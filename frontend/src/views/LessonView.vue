@@ -198,9 +198,6 @@ export default class LessonView extends Vue {
 .no-problems
   margin 1rem
 
-.content-info-title
-  margin 1rem
-
 .content-info-materials
   margin-bottom 1rem
 
