@@ -143,7 +143,7 @@ class SubmitModule extends VuexModule {
   @Action
   async fetchLastSubmit(payload: { user_id: number; problem_id: number }) {
     let answer = { data: {} };
-    await api.get(`api/submit/last-user-submit/${payload.user_id}/${payload.problem_id}/`)
+    await api.get(`/api/submit/last-user-submit/${payload.user_id}/${payload.problem_id}/`)
       .then(response => answer = response)
       .catch(error => {
         console.log(error);
