@@ -227,6 +227,9 @@ class SubmitViewSet(viewsets.ModelViewSet):
         cats = CatsSubmit(data=dict(
             source_text=validated_data.get('content'),
             problem_id=validated_data['problem'].cats_id,
+            contest_id=Course.objects.filter(
+                lessons__problems__id=validated_data['problem'].id
+            ).first().cats_id,
             de_id=validated_data.get('de_id'),
             # source=validated_data.get('source'),
         ))

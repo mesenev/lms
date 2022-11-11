@@ -13,15 +13,21 @@ def cats_check_status():
 
 
 @authorization.check_authorization_for_cats
-def cats_submit_solution(source_text: str, problem_id: int, de_id: int, cats_account: str):
+def cats_submit_solution(
+        source_text: str, contest_id: int, problem_id: int,
+        de_id: int, cats_account: str
+):
     # ToDo обработать повторную отправку решения
-    url = f'{settings.CATS_URL}?f=api_submit_problem;json=1;'
-    url += f'sid={authorization.cats_sid()}'
+    url = f'{settings.CATS_URL}?f=api_submit_problem;'
     data = {
         'de_id': de_id,
         'source_text': source_text,
         'problem_id': problem_id,
         'submit_as': cats_account,
+        'cid': contest_id,
+        'json': 1,
+        'lang': 'en',
+        'sid': authorization.cats_sid(),
     }
     r = requests.post(url, data=data, headers={'User-Agent': 'Mozilla/5.0'})
     if r.status_code != 200:
