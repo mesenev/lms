@@ -29,13 +29,13 @@ def send_submit_to_cats():
         print('exception below')
         cats_submit.is_error = True
         cats_submit.is_sent = True
-        cats_submit.sending_result = json.dumps(dict(
+        cats_submit.sending_result = dict(
             data={**cats_submit.data, 'submit_as': cats_account, },
             response=dict(
                 headers=exception.response.headers.__dict__,
-                content=exception.response.content.decode('utf-8')
+                content=exception.response.json(),
             ),
-        ))
+        )
         cats_submit.save()
         log_event = LogEvent(
             problem=cats_submit.submit.problem,
