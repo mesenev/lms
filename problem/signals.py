@@ -21,7 +21,10 @@ def update_problem_status(sender, instance, **kwargs):
             default=models.Value(2),
             output_field=models.IntegerField()
         )
-    ).filter(problem=instance.problem).order_by('student', 'ordering', '-id').distinct('student')
+    ).filter(problem=instance.problem).exclude(
+        student__in=instance.problem.lesson.course.staff.all()
+    ).order_by('student', 'ordering', '-id').distinct('student')
+    print('hello world')
     stats.green = len(list((filter(lambda x: x.status == Submit.OK, queryset))))
     stats.yellow = len(list((filter(lambda x: x.status in [Submit.AWAITING_MANUAL, Submit.DEFAULT_STATUS], queryset))))
     stats.red = len(list((filter(
