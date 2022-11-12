@@ -210,8 +210,8 @@ export default class LmsHeader extends Vue {
 
   user = userStore.user;
 
-  logout(){
-    tokenStore.logout();
+  async logout(){
+    await tokenStore.logout();
     window.location.reload();
   }
 
