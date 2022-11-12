@@ -10,7 +10,7 @@ class StudyGroupsSerializer(serializers.ModelSerializer):
 
 
 class DefaultUserSerializer(serializers.ModelSerializer):
-    study_group = serializers.CharField(max_length=20)
+    study_group = serializers.CharField(max_length=20, allow_null=True)
     staff_for = serializers.PrimaryKeyRelatedField(many=True, required=False, read_only=True)
 
     def __init__(self, *args, exclude_staff=False, **kwargs):
@@ -33,7 +33,7 @@ class DefaultUserSerializer(serializers.ModelSerializer):
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.avatar_url = validated_data.get('avatar_url', instance.avatar_url)
         instance.username = validated_data.get('username', instance.username)
-        password = validated_data['password']
+        password = validated_data.get('password', None)
         if password:
             instance.set_password(password)
         instance.save()

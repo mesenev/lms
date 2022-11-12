@@ -15,47 +15,56 @@
       <div class="submit-lang">
         <div>Среда разработки:</div>
         <cv-dropdown
-            v-model="submitEdit.de_id"
-            :disabled="deOptions.length === 0"
-            :items="deOptions"
-            class="lang-choice"
-            placeholder="Выберите язык программирования">
+          v-model="submitEdit.de_id"
+          :disabled="deOptions.length === 0"
+          :items="deOptions"
+          class="lang-choice"
+          placeholder="Выберите язык программирования">
           <cv-dropdown-item v-for="de in deOptions" :key="de.value" :value="de.value">
             <span>{{ de.name }}</span>
           </cv-dropdown-item>
         </cv-dropdown>
       </div>
-      <div v-if="!isStaff" class="handlers">
+    </div>
+    <div class="buttons-block-wrapper">
+      <div class="handlers bx--row buttons-container">
         <cv-button
-            :disabled="!canSubmit"
-            class="submit-btn"
-            v-on:click="confirmSubmit">
+          v-if="!loading"
+          :disabled="!canSubmit"
+          class="submit-btn bx--col-lg-3"
+          v-on:click="confirmSubmit">
           Отправить решение
         </cv-button>
+        <cv-button-skeleton v-else></cv-button-skeleton>
         <cv-link
-            v-if="!this.cats_account"
-            :to="{
+          v-if="!this.cats_account"
+          :to="{
           name: 'profile-page',
           params: { userId: userStore.user.id }
         }">
           <cv-tooltip tip="Установите cats аккаунт для отправки"/>
         </cv-link>
-      </div>
-      <div v-if="isStaff" class="handlers handlers-stuff">
-        <cv-button
+        <div v-if="isStaff" class="handlers-staff bx--row">
+          <cv-button
+            v-if="!loading"
             :disabled="isAcceptDisabled"
-            class="submit-btn accepted"
+            class="submit-btn accepted bx--col-lg-3"
             v-on:click="acceptSubmit">
-          Принять
-        </cv-button>
-        <cv-button
+            Принять
+          </cv-button>
+          <cv-button-skeleton v-else></cv-button-skeleton>
+          <cv-button
+            v-if="!loading"
             :disabled="isRejectDisabled"
-            class="submit-btn rejected"
+            class="submit-btn rejected bx--col-lg-3"
             kind='danger'
             v-on:click="rejectSubmit">
-          Отклонить
-        </cv-button>
+            Отклонить
+          </cv-button>
+          <cv-button-skeleton v-else></cv-button-skeleton>
+        </div>
       </div>
+    </div>
       <cv-inline-notification
           v-if="showNotification"
           :kind="notificationKind"
@@ -63,7 +72,6 @@
           class="notification"
           @close="hideNotification"/>
     </div>
-  </div>
 </template>
 
 <script lang="ts">
@@ -284,20 +292,21 @@ export default class SubmitComponent extends NotificationMixinComponent {
   .lang-choice
     padding 0
 
-.rejected
-  margin-left 0.5rem
+.buttons-block-wrapper
+  background-color var(--cds-ui-01)
 
-.handlers
-  display flex
-  flex-direction row
-  padding 0.5rem
-  background-color #f4f4f4
-  align-items center
-  vertical-align center
-  //justify-content center
+  .handlers
+    display flex
+    flex-direction row
+    padding 0.5rem
+    align-items center
+    vertical-align center
 
-  &-staff
-    justify-content flex-end
+//justify-content center
+
+.buttons-container
+  justify-content space-between
+  margin 0 .5rem 0 .5rem;
 
 </style>
 
@@ -308,7 +317,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
 
   .bx--list-box__field, ui
     border 0.5px solid #8D8D8D
-    background-color #f4f4f4
+    background-color var(--cds-ui-background)
     border-radius 10px
 
 .bx--list-box__menu-icon
