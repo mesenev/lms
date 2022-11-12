@@ -98,4 +98,4 @@ class UserItselfOrReadonly(permissions.IsAuthenticated):
         if request.method in permissions.SAFE_METHODS:
             return True
         else:
-            return request.user.id == obj
+            return request.user.id == obj.id
