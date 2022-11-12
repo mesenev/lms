@@ -39,7 +39,7 @@ export default class App extends Vue {
     if (new_val) {
       this.$router.push(((this.$route.query.nextUrl) ?? "/") as string);
     } else {
-      this.$router.push('/login');
+        window.location.reload();
     }
   }
 
