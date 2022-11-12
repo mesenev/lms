@@ -140,7 +140,7 @@ export default class EditProfileComponent extends NotificationMixinComponent {
   }
 
   async editButtonHandler() {
-    await api.post('/api/edit-profile/', {
+    await api.patch(`/api/users/${this.curUser.id}/`, {
         first_name: this.curUser.first_name,
         last_name: this.curUser.last_name,
         study_group: this.curUser.study_group,
