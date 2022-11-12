@@ -13,7 +13,7 @@
         class="submit-list">
         <template slot="items">
           <div
-            v-for="event in events" :key="event.id" class="list--item"
+            v-for="event in sortedEvents" :key="event.id" class="list--item"
             v-bind:class="{
               'list--item--submit': event.type === logEventTypes.TYPE_SUBMIT,
               'right': event.author === userStore.user.id,
@@ -114,8 +114,8 @@ export default class LogEventComponent extends NotificationMixinComponent {
   offset = 0;
   previousScrollHeightMinusScrollTop = 0;
 
-  get newEventsSortedList() {
-    return this.newEvents.sort(a => -a.id);
+  get sortedEvents() {
+    return this.events.sort((a, b) => a.id - b.id);
   }
 
   // @Watch('studentId')
@@ -129,7 +129,6 @@ export default class LogEventComponent extends NotificationMixinComponent {
     await this.fetchEvents();
     this.socketConnectionUpdate();
     await this.scrollDown();
-    this.loading = false;
   }
 
   socketMessageHandler(event: MessageEvent) {
@@ -170,9 +169,9 @@ export default class LogEventComponent extends NotificationMixinComponent {
     );
     if (this.newEvents.length) {
       this.recordScrollPosition();
-      this.events.unshift(...this.newEventsSortedList);
-      this.offset += this.limit;
+      this.events.unshift(...this.newEvents);
       this.loading = false;
+      this.offset += this.limit;
       this.restoreScrollPosition();
     }
     await this.thumbnailsUpdate();
@@ -181,11 +180,11 @@ export default class LogEventComponent extends NotificationMixinComponent {
   async thumbnailsUpdate() {
     if (!this.events.length)
       return;
-    await this.fetchThumbnailForEvent(this.events[0]);
-    let previous = this.events[0];
-    for (const event of this.events) {
-    if (previous.author !== event.author)
-      await this.fetchThumbnailForEvent(event);
+    let previous = this.sortedEvents[0];
+    await this.fetchThumbnailForEvent(previous);
+    for (const event of this.sortedEvents) {
+      if (previous.author !== event.author)
+        await this.fetchThumbnailForEvent(event);
       previous = event;
     }
     this.events = [...this.events];
@@ -247,8 +246,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
 
   restoreScrollPosition() {
     const eventList = document.getElementById('submit-list-wrapper')!;
-    eventList.scrollTop =
-      eventList.scrollHeight - this.previousScrollHeightMinusScrollTop;
+    eventList.scrollTop = eventList.scrollHeight - this.previousScrollHeightMinusScrollTop;
   }
 
   handleScroll() {
