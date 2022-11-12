@@ -280,7 +280,6 @@ class LogEventsPagination(LimitOffsetPagination):
 
 class LogEventViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
-    queryset = LogEvent.objects.all()
     serializer_class = LogEventSerializer
     filterset_class = LogEventFilter
     pagination_class = LogEventsPagination

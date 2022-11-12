@@ -9,39 +9,41 @@
          @scroll="handleScroll">
       <cv-loading v-if="loading"/>
       <cv-structured-list
-          v-else
-          class="submit-list">
+        v-else
+        class="submit-list">
         <template slot="items">
           <div
-              v-for="event in events" :key="event.id" class="list--item"
-              v-bind:class="{
+            v-for="event in events" :key="event.id" class="list--item"
+            v-bind:class="{
               'list--item--submit': event.type === logEventTypes.TYPE_SUBMIT,
               'right': event.author === userStore.user.id,
               'clickable': [logEventTypes.TYPE_SUBMIT,
                             logEventTypes.TYPE_STATUS_CHANGE].includes(event.type)}"
-              v-on:click="elementClickHandler(event)">
+            v-on:click="elementClickHandler(event)">
 
-            <img :src="picUrl(event.data.thumbnail)"
-                 alt='avatar'
-                 class="student--avatar">
+            <img
+              v-if="event.data.thumbnail"
+              :src="event.data.thumbnail"
+              alt='avatar'
+              class="student--avatar">
             <span class="event--date">{{ event.created_at | withoutSeconds }}</span>
 
             <div v-if="logEventTypes.TYPE_SUBMIT === event.type" class="one-history-point">
               <span>ID решения: {{ event.data.message }}</span>
               <div
-                  class="checkbox--submit"
-                  v-bind:class="{ 'hidden': event.submit !== selectedSubmit }">
+                class="checkbox--submit"
+                v-bind:class="{ 'hidden': event.submit !== selectedSubmit }">
                 <component :is="Checkbox"/>
               </div>
             </div>
             <div v-else class="one-history-point">
               <span>{{ event.data.message }}</span>
               <component
-                  :is="iconTrash"
-                  v-if="event.author === userStore.user.id && event.type === logEventTypes.TYPE_MESSAGE"
-                  class="event--delete"
-                  title="Удалить сообщение"
-                  @click="deleteEvent(event)"/>
+                :is="iconTrash"
+                v-if="event.author === userStore.user.id && event.type === logEventTypes.TYPE_MESSAGE"
+                class="event--delete"
+                title="Удалить сообщение"
+                @click="deleteEvent(event)"/>
             </div>
             <div ref="eventListBottom" class="space"></div>
           </div>
@@ -50,16 +52,16 @@
     </div>
     <div class="searchbar-out">
       <cv-text-input
-          v-model.trim="commentary"
-          :disabled="false"
-          :label="''"
-          :light="false"
-          :password-visible="false"
-          :placeholder="'Введите сообщение'"
-          :type="''"
-          :value="''"
-          class="searchbar"
-          v-on:keydown.enter="createMessageHandler">
+        v-model.trim="commentary"
+        :disabled="false"
+        :label="''"
+        :light="false"
+        :password-visible="false"
+        :placeholder="'Введите сообщение'"
+        :type="''"
+        :value="''"
+        class="searchbar"
+        v-on:keydown.enter="createMessageHandler">
       </cv-text-input>
     </div>
     <div class="btn-out">
@@ -89,7 +91,7 @@ import { Component, Prop } from "vue-property-decorator";
         day: "2-digit",
         hour: "2-digit",
         minute: "2-digit"
-      })
+      });
     }
   }
 })
@@ -113,7 +115,8 @@ export default class LogEventComponent extends NotificationMixinComponent {
   previousScrollHeightMinusScrollTop = 0;
 
   get newEventsSortedList() {
-    return this.newEvents.sort(a => a.id);
+    debugger;
+    return this.newEvents.sort(a => -a.id);
   }
 
   // @Watch('studentId')
@@ -124,10 +127,10 @@ export default class LogEventComponent extends NotificationMixinComponent {
 
   async created() {
     await this.userStore.fetchUserById(this.studentId);
-    this.loading = false;
     await this.fetchEvents();
     this.socketConnectionUpdate();
     await this.scrollDown();
+    this.loading = false;
   }
 
   socketMessageHandler(event: MessageEvent) {
@@ -146,10 +149,10 @@ export default class LogEventComponent extends NotificationMixinComponent {
   }
 
   socketConnectionUpdate() {
-    const protocol = (window.location.protocol === 'http:') ? 'ws://':'wss://';
+    const protocol = (window.location.protocol === 'http:') ? 'ws://' : 'wss://';
     this.connection = new WebSocket(
-        protocol + window.location.host
-        + `/ws/notifications?user_id=${this.studentId}&problem_id=${this.problemId}`
+      protocol + window.location.host
+      + `/ws/notifications?user_id=${this.studentId}&problem_id=${this.problemId}`
     );
     this.connection.onmessage = this.socketMessageHandler;
     this.connection.onclose = this.socketEventHandler;
@@ -159,38 +162,40 @@ export default class LogEventComponent extends NotificationMixinComponent {
 
   async fetchEvents() {
     this.newEvents = await this.logEventStore.fetchLogEventsByProblemAndStudentIds(
-        {
-          problem: this.problemId,
-          student: this.studentId,
-          limit: this.limit,
-          offset: this.offset
-        },
+      {
+        problem: this.problemId,
+        student: this.studentId,
+        limit: this.limit,
+        offset: this.offset
+      },
     );
     if (this.newEvents.length) {
       this.recordScrollPosition();
       this.events.unshift(...this.newEventsSortedList);
-      await this.thumbnailsUpdate();
       this.offset += this.limit;
       this.loading = false;
       this.restoreScrollPosition();
     }
+    await this.thumbnailsUpdate();
   }
 
   async thumbnailsUpdate() {
     if (!this.events.length)
       return;
     await this.fetchThumbnailForEvent(this.events[0]);
+    // debugger;
     let previous = this.events[0];
     for (const event of this.events) {
-      if (previous.author !== event.author)
-        await this.fetchThumbnailForEvent(this.events[0]);
+    if (previous.author !== event.author)
+      await this.fetchThumbnailForEvent(event);
       previous = event;
     }
+    this.events = [...this.events];
   }
 
   async fetchThumbnailForEvent(event: LogEventModel) {
     if (!event.author)
-      return
+      return;
     const user = await this.userStore.fetchUserById(event.author);
     event.data.thumbnail = user.thumbnail;
   }
@@ -239,13 +244,13 @@ export default class LogEventComponent extends NotificationMixinComponent {
   recordScrollPosition() {
     const eventList = document.getElementById('submit-list-wrapper')!;
     this.previousScrollHeightMinusScrollTop =
-        eventList.scrollHeight - eventList.scrollTop;
+      eventList.scrollHeight - eventList.scrollTop;
   }
 
   restoreScrollPosition() {
     const eventList = document.getElementById('submit-list-wrapper')!;
     eventList.scrollTop =
-        eventList.scrollHeight - this.previousScrollHeightMinusScrollTop;
+      eventList.scrollHeight - this.previousScrollHeightMinusScrollTop;
   }
 
   handleScroll() {

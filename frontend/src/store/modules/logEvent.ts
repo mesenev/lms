@@ -28,7 +28,8 @@ class LogEvent extends VuexModule {
       .catch(error => {
         console.error(error);
       })
-    return answer as Array<LogEventModel>;
+    return (answer as Array<LogEventModel>)
+        // .sort( a => a.id);
   }
 
   @Action
