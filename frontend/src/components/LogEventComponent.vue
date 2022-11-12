@@ -115,7 +115,6 @@ export default class LogEventComponent extends NotificationMixinComponent {
   previousScrollHeightMinusScrollTop = 0;
 
   get newEventsSortedList() {
-    debugger;
     return this.newEvents.sort(a => -a.id);
   }
 
@@ -183,7 +182,6 @@ export default class LogEventComponent extends NotificationMixinComponent {
     if (!this.events.length)
       return;
     await this.fetchThumbnailForEvent(this.events[0]);
-    // debugger;
     let previous = this.events[0];
     for (const event of this.events) {
     if (previous.author !== event.author)
