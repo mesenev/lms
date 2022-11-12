@@ -212,6 +212,7 @@ export default class LmsHeader extends Vue {
 
   logout(){
     tokenStore.logout();
+    window.location.reload();
   }
 
   get courseSelected(): boolean {
