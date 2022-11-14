@@ -102,6 +102,8 @@ export default class StatsGraph extends Vue {
   }
 
   get successfulPercent() {
+    if (!this.studentsCount)
+      return 0;
     return Math.trunc(
       this.submits.filter(x => x.status === 'OK').length / this.studentsCount * 100
     );
