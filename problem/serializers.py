@@ -105,6 +105,7 @@ class ProblemSerializer(serializers.ModelSerializer):
     name = serializers.CharField()
     description = serializers.CharField()
     submits = SubmitSerializer(many=True, read_only=True)
+    stats = serializers.SerializerMethodField(read_only=True)
     manual = serializers.BooleanField()
     type = serializers.CharField()
     language = serializers.CharField(required=True, allow_null=True)
@@ -112,6 +113,11 @@ class ProblemSerializer(serializers.ModelSerializer):
     students = serializers.SerializerMethodField()
     de_options = serializers.SerializerMethodField()
     test_mode = serializers.CharField()
+
+    def get_stats(self, instance):
+        if hasattr(instance, 'problemstats') and instance.problemstats:
+            return ProblemStatsSerializer(instance.problemstats).data
+        return None
 
     def get_students(self, instance):
         return {student.id: student.submits.values('id', 'status', 'student').all().first()
@@ -128,7 +134,7 @@ class ProblemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Problem
         fields = (
-            'id', 'name', 'description', 'author', 'lesson', 'submits',
+            'id', 'name', 'description', 'author', 'lesson', 'submits', 'stats',
             'manual', 'type', 'language', 'cats_material_url', 'cats_id', 'students',
             'de_options', 'test_mode'
         )
