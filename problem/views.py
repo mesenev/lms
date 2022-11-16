@@ -173,7 +173,7 @@ class SubmitViewSet(viewsets.ModelViewSet):
                 ordering=self.stats_ordering).order_by('problem', 'ordering', '-id').first()
         ).data)
 
-    @action(detail=False, url_path='problem-stats/(?P<problem_id>\d+)')
+    @action(detail=False, url_path='problem-stats/(?P<problem_id>\d+)', url_name='problem-stats')
     def problem_stats(self, request, problem_id):
         # TODO: check permissions for it
         queryset = Submit.objects.filter(
