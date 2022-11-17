@@ -2,7 +2,6 @@
   <div>
     <cv-inline-loading v-if="loading" state="loading"></cv-inline-loading>
     <div v-else>
-      <span>Прогресс задачи: {{ successfulPercent }}%</span>
       <div class="stats-graph">
         <span class="stat" v-for="student in students"
               :key="student.id" :style="submitStatusStyle(student)"></span>
@@ -99,14 +98,6 @@ export default class StatsGraph extends Vue {
 
   isWithoutSolution(student: UserModel) {
     return this.noSubmitsUsers.includes(student);
-  }
-
-  get successfulPercent() {
-    if (!this.studentsCount)
-      return 0;
-    return Math.trunc(
-      this.submits.filter(x => x.status === 'OK').length / this.studentsCount * 100
-    );
   }
 }
 </script>
