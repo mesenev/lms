@@ -53,11 +53,6 @@ class Problem(models.Model):
     objects = ProblemManager()
     test_mode = models.CharField(max_length=30, choices=TEST_MODE_TYPES, default=TEST_MODE_TYPES[0][0])
 
-    @property
-    def last_submit(self):
-        submits = list(list(self.submits.all()))
-        return submits[-1] if len(submits) > 0 else None
-
 
 class ProblemStats(models.Model):
     problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
