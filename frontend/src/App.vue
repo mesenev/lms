@@ -10,11 +10,19 @@
     </main>
     <footer class="layout-footer">
       <div class="layout-footer-label">
-        <span>dvfu/imcs/staff & Daria-squad</span><br>
+        <div>
+          <span>dvfu/imcs/staff & Daria-squad</span><br>
+          <span>
+            feel free to contribute
+            <cv-link href="https://github.com/mesenev/lms">
+              <logo-github/>
+            </cv-link>
+          </span>
+        </div>
         <span>
-          feel free to contribute
-          <cv-link href="https://github.com/mesenev/lms">
-            <logo-github/>
+          <cv-link href="https://t.me/+FBUuuC4qdvc1ZTIy">
+            Чат для обратной связи
+            <FaceWink/>
           </cv-link>
         </span>
       </div>
@@ -27,11 +35,12 @@
 import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue';
 import LmsHeader from '@/components/LmsHeader.vue';
 import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
+import FaceWink from '@carbon/icons-vue/es/face--wink/16';
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import LoginView from "@/views/LoginView.vue";
 import tokenStore from "@/store/modules/token";
 
-@Component({ components: { LoginView, LmsHeader, LmsBreadcrumb, LogoGithub } })
+@Component({ components: { LoginView, LmsHeader, LmsBreadcrumb, LogoGithub, FaceWink } })
 export default class App extends Vue {
   //TODO set transition and styles for loader
   @Watch('isLogin')
@@ -107,6 +116,9 @@ export default class App extends Vue {
     font-size 0.7em
 
     &-label
+      display flex
+      flex-direction row
+      justify-content space-between
       margin var(--cds-spacing-06) var(--cds-spacing-06)
 
   &-content
