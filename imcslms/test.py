@@ -12,7 +12,7 @@ class MainSetup(APITestCase):
         )
         if group == 'teacher':
             Group.objects.get(name=group).user_set.add(self.user)
-        self.client.user = self.user
-        self.client.login(username=self.user.username, password='password1234')
-        self.client.force_authenticate(user=self.user)
+            self.client.user = self.user
+            self.client.login(username=self.user.username, password='password1234')
+            self.client.force_authenticate(user=self.user)
         return self.user
