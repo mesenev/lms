@@ -1,20 +1,24 @@
 <template>
-  <cv-structured-list-data class="material-container">
-    <div class="material">
-      <VideoChat24 @click="openMaterial" v-if="this.materialProp.content_type === 'video'"
-                   class="icon"/>
-      <Document24 @click="openMaterial" v-else class="icon"/>
-      <p @click="openMaterial" :class="(material.is_teacher_only) ? 'material-title' : ''">
-        {{ material.name }}
-      </p>
-    </div>
-    <div class="action-buttons" v-if="isEditing">
-      <a v-if="!inAction"
-         class="visibility-button icon"
-         @click="changeMaterialVisibility">
-        {{ this.material.is_teacher_only ? 'Материал для учителя' : 'Материал для студентов' }}
-      </a>
-      <TrashCan24 class="icon" @click="showConfirmModal"/>
+  <cv-structured-list-data class="material-wrapper">
+    <div class="material-click" @click="openMaterial">
+      <div class="material-container">
+        <div class="material">
+          <VideoChat24 v-if="this.materialProp.content_type === 'video'"
+                       class="icon"/>
+          <Document24 v-else class="icon"/>
+          <p :class="(material.is_teacher_only) ? 'material-title' : ''">
+            {{ material.name }}
+          </p>
+        </div>
+        <div class="action-buttons" v-if="isEditing">
+          <a v-if="!inAction"
+             class="visibility-button icon"
+             @click.prevent.stop="changeMaterialVisibility">
+            {{ this.material.is_teacher_only ? 'Материал для учителя' : 'Материал для студентов' }}
+          </a>
+          <TrashCan24 class="icon" @click.prevent.stop="showConfirmModal"/>
+        </div>
+      </div>
     </div>
   </cv-structured-list-data>
 </template>
@@ -64,8 +68,14 @@ export default class MaterialListComponent extends Vue {
 .material-container
   display flex
   justify-content space-between
-  padding 0.5rem 0 0.5rem
   align-items center
+
+.material-wrapper
+  cursor pointer
+  padding 0.5rem 0 0.5rem
+
+.material-wrapper:hover
+  background-color var(--cds-ui-01)
 
 .material
   display flex

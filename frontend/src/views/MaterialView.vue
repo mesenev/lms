@@ -62,9 +62,9 @@ export default class MaterialView extends Vue {
   async created() {
     const material = await this.materialStore.fetchMaterialById(this.materialId);
     if (material.id) {
-      this.loading = false;
       this.materialStore.setCurrentMaterial(material);
       this.materials = await this.materialStore.fetchMaterialsByLessonId(material.lesson);
+      this.loading = false;
     }
   }
 
@@ -90,7 +90,11 @@ export default class MaterialView extends Vue {
 
   get otherMaterials(): Array<MaterialModel> {
     if (this.materials)
-      return this.materials.filter(x => x.id != this.materialId);
+      return this.materials.filter(x => x.id != this.materialId).sort(
+        (a, b) => {
+          return (a.is_teacher_only === b.is_teacher_only ? 0
+            : b.is_teacher_only ? -1 : 1) || a.id - b.id;
+        });
     return this.materials;
   }
 }
