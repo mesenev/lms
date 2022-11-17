@@ -67,14 +67,20 @@ class ProblemTests(MainSetup):
         (problem := mommy.make(Problem, type='CW')).save()
         problem.lesson = lesson
         problem.save()
-        (submit_by_student := mommy.make(Submit, problem=problem, student=student, status='OK')).save()
-        (submit_by_teacher := mommy.make(Submit, problem=problem, student=teacher, status='OK')).save()
+        for new_status in ['AW', 'OK', 'WA', 'AW']:
+            (submit_by_student := mommy.make(Submit, problem=problem, student=student, status=new_status)).save()
+            (submit_by_teacher := mommy.make(Submit, problem=problem, student=teacher, status='AW')).save()
         url = reverse('problem-detail', kwargs=dict(pk=problem.id))
         self.client.force_authenticate(user=teacher)
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data.get('submits')), 2)
+        self.assertEqual(len(response.data.get('submits')), 8)
         self.assertEqual(response.data.get('stats')['green'], 1)
+        self.assertEqual(response.data.get('stats')['red'], 0)
+
+        url = reverse('problem-detail', kwargs=dict(pk=-1))
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_read_course(self):
         pass
