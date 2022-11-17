@@ -75,6 +75,12 @@ class CourseStaffOrAuthor(permissions.IsAuthenticated):
             return False
         if request.user.is_superuser:
             return True
+        if request.method not in permissions.SAFE_METHODS:
+            if request.data.get('lesson'):
+                queryset = Course.objects.filter(lessons__id=request.data['lesson'])
+                if queryset.exists() and queryset.first() in request.user.staff_for.all():
+                    return True
+
         if 'course_id' in request.query_params.keys():
             queryset = Course.objects.filter(id=request.query_params['course_id'])
             if queryset.exists() and queryset.first() in request.user.staff_for.all():
@@ -94,7 +100,7 @@ class UserItselfOrReadonly(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
         if not bool(request.user and request.user.is_authenticated):
             return False
-        if request.method in permissions.SAFE_METHODS:
+        if request.method in permissions._METHODS:
             return True
         else:
             return request.user.id == obj.id
