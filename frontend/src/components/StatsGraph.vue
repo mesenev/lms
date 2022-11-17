@@ -2,7 +2,7 @@
   <div>
     <cv-inline-loading v-if="loading" state="loading"></cv-inline-loading>
     <div v-else>
-      <span>Прогресс урока: {{ successfulPercent }}%</span>
+      <span>Прогресс задачи: {{ successfulPercent }}%</span>
       <div class="stats-graph">
         <span class="stat" v-for="student in students"
               :key="student.id" :style="submitStatusStyle(student)"></span>
