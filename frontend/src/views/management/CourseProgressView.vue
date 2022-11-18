@@ -26,7 +26,7 @@
         <cv-data-table-row v-for="row in progress" :key="row.id">
           <cv-data-table-cell>
             <router-link
-              :to="{ name: 'profile-page', params: { userId: users[row.user]} }"
+              :to="{ name: 'profile-page', params: { userId: users[row.user].id} }"
               class="course--title" tag="p">
               <UserComponent :userProp="users[row.user]"/>
             </router-link>
