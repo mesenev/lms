@@ -80,7 +80,7 @@ class CourseStaffOrAuthor(permissions.IsAuthenticated):
                 queryset = Course.objects.filter(lessons__id=request.data['lesson'])
                 if queryset.exists() and queryset.first() in request.user.staff_for.all():
                     return True
-        params = {**view.kwargs, **request.query_params}
+        params = {**view.kwargs, **{key: int(value) for key, value in request.query_params.items()}}
         if 'course_id' in params.keys():
             queryset = Course.objects.filter(id=params['course_id'])
             if queryset.exists() and queryset.first() in request.user.staff_for.all():
