@@ -80,17 +80,17 @@ class CourseStaffOrAuthor(permissions.IsAuthenticated):
                 queryset = Course.objects.filter(lessons__id=request.data['lesson'])
                 if queryset.exists() and queryset.first() in request.user.staff_for.all():
                     return True
-
-        if 'course_id' in request.query_params.keys():
-            queryset = Course.objects.filter(id=request.query_params['course_id'])
+        params = {**view.kwargs, **request.query_params}
+        if 'course_id' in params.keys():
+            queryset = Course.objects.filter(id=params['course_id'])
             if queryset.exists() and queryset.first() in request.user.staff_for.all():
                 return True
-        if 'lesson_id' in request.query_params.keys():
-            queryset = Course.objects.filter(lessons__id=request.query_params['lesson_id'])
+        if 'lesson_id' in params.keys():
+            queryset = Course.objects.filter(lessons__id=params['lesson_id'])
             if queryset.exists() and queryset.first() in request.user.staff_for.all():
                 return True
-        if 'problem_id' in request.query_params.keys():
-            queryset = Course.objects.filter(lessons__problems__id=request.query_params['problem_id'])
+        if 'problem_id' in params.keys():
+            queryset = Course.objects.filter(lessons__problems__id=params['problem_id'])
             if queryset.exists() and queryset.first() in request.user.staff_for.all():
                 return True
         return False
