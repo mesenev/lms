@@ -33,13 +33,13 @@ class CourseProgressTests(MainSetup):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), len(students))
-        self.assertEqual(response.data[0].get('progress')['1']['CW'], 50.0)
+        self.assertEqual(response.data[0].get('progress')['13']['CW'], 50.0)
 
         url = reverse('courseprogress-detail', kwargs=dict(pk=-1))
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        url = reverse('courseprogress-detail', kwargs=dict(pk=1))
+        url = reverse('courseprogress-detail', kwargs=dict(pk=2))
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -111,7 +111,6 @@ class CourseProgressTests(MainSetup):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
-
 class LessonProgressTests(MainSetup):
     def test_lesson_progress_access(self):
         def check_access(filter_type, id, submit: Submit = None):
@@ -119,9 +118,8 @@ class LessonProgressTests(MainSetup):
             response = self.client.get(url, format='json')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             if submit is not None:
-                submit_status_by_resp = response.data[submit.student.id - 1].get('solved').get('CW').get(str(submit.id))
-                self.assertEqual(submit_status_by_resp, [submit.status, submit.id + 1])
-                # + 1 because we skip teacher's submit
+                submit_status_by_resp = response.data[0].get('solved').get('CW').get('7')
+                self.assertEqual(submit_status_by_resp, [submit.status, submit.id])
 
             url = f'/api/lessonprogress/?{filter_type}_id=-1'
             response = self.client.get(url, format='json')
