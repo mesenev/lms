@@ -19,6 +19,7 @@
           <view-off-icon v-if="lessonProp.is_hidden"/>
           <view-icon v-else/>
       </span>
+      <lesson-stats-graph v-else :lesson="lesson" :user="currentUser"/>
     </div>
     <cv-tag v-if="notInSchedule"
             label="Не состоит в расписании"
@@ -36,8 +37,17 @@ import viewIcon from '@carbon/icons-vue/es/view/16';
 import warningAltFilled from '@carbon/icons-vue/es/warning--alt--filled/16';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import DateViewComponent from "@/components/common/DateViewComponent.vue"
+import LessonStatsGraph from "@/components/LessonStatsGraph.vue";
 
-@Component({ components: { viewIcon, viewOffIcon, warningAltFilled, DateViewComponent } })
+@Component({
+  components: {
+    viewIcon,
+    viewOffIcon,
+    warningAltFilled,
+    DateViewComponent,
+    LessonStatsGraph
+  }
+})
 export default class LessonListComponent extends Vue {
   @Prop({ required: true }) lessonProp!: LessonModel;
   @Prop({ required: false, default: null }) dateProp!: number | null;
@@ -58,6 +68,10 @@ export default class LessonListComponent extends Vue {
   get isStaff(): boolean {
     const courseId = Number(this.$route.params.courseId);
     return this.userStore.user.staff_for.includes(courseId);
+  }
+
+  get currentUser() {
+    return this.userStore.user;
   }
 }
 </script>

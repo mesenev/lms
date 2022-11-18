@@ -21,7 +21,6 @@ from users.permissions import CourseStaffOrReadOnlyForStudents, object_to_course
 class ProblemViewSet(viewsets.ModelViewSet):
     # TODO: check only opened lessons are distributed for students
     permission_classes = [CourseStaffOrReadOnlyForStudents]
-
     filterset_fields = ['lesson_id', ]
 
     def get_queryset(self):
@@ -55,21 +54,22 @@ class ProblemViewSet(viewsets.ModelViewSet):
 
     @staticmethod
     def prefetch_query_with_submits(request: Request, queryset):
-        submits = request.user.submits.annotate(
+        submits = Submit.objects.annotate(
             ordering=models.Case(
                 models.When(status="OK", then=models.Value(0)),
                 models.When(status="AW", then=models.Value(1)),
                 default=models.Value(2),
                 output_field=models.IntegerField()
             )
-        ).order_by('problem', 'ordering', '-id').distinct('problem')
-        return queryset.prefetch_related(models.Prefetch(lookup='submits', to_attr='last_submit', queryset=submits))
+        ).filter(student=request.user).order_by('problem', 'ordering', '-id').distinct('problem')
+        return queryset.prefetch_related(
+            models.Prefetch(lookup='submits', to_attr='last_submit_33', queryset=submits)
+        )
 
     @action(detail=False, url_path='by-course/(?P<course_id>\d+)')
     def by_course(self, request, course_id):
         queryset = self.get_queryset().filter(
             lesson__course=course_id,
-            lesson__is_hidden=False,
         ).exclude(
             submits__in=Submit.objects.filter(
                 Q(student=request.user)
@@ -173,7 +173,7 @@ class SubmitViewSet(viewsets.ModelViewSet):
                 ordering=self.stats_ordering).order_by('problem', 'ordering', '-id').first()
         ).data)
 
-    @action(detail=False, url_path='problem-stats/(?P<problem_id>\d+)')
+    @action(detail=False, url_path='problem-stats/(?P<problem_id>\d+)', url_name='problem-stats')
     def problem_stats(self, request, problem_id):
         # TODO: check permissions for it
         queryset = Submit.objects.filter(

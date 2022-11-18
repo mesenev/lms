@@ -7,7 +7,7 @@
             {{ problem.name }}
           </cv-link>
           <div>
-            <stats-graph v-if="problem.stats" :stats="problem.stats"/>
+            <stats-graph :problem="problem"/>
           </div>
         </div>
         <component

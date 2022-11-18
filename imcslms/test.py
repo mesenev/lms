@@ -4,14 +4,15 @@ from rest_framework.test import APITestCase
 
 
 class MainSetup(APITestCase):
-    def test_setup(self):
-        my_group = Group.objects.get(name='teacher')
+    def test_setup(self, group='teacher', username='ksarthak4eve', email='hakunamatata'):
         self.user = get_user_model().objects.create_user(
-            'ksarthak4eve',
-            'hakunamatata',
+            username,
+            email,
             'password1234'
         )
-        my_group.user_set.add(self.user)
-        self.client.login(username=self.user.username, password='password1234')
-        self.client.force_authenticate(user=self.user)
-        return
+        if group == 'teacher':
+            Group.objects.get(name=group).user_set.add(self.user)
+            self.client.user = self.user
+            self.client.login(username=self.user.username, password='password1234')
+            self.client.force_authenticate(user=self.user)
+        return self.user

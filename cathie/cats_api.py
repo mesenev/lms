@@ -61,14 +61,29 @@ def cats_check_solution_status(req_ids: int):
 
 @authorization.check_authorization_for_cats
 def cats_get_problems_from_contest(contest_id):
-    url = f'{settings.CATS_URL}?f=problems;json=1;cid={contest_id};'
-    url += f'sid={authorization.cats_sid()}'
-    answer = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
-    if answer.status_code != 200:
-        raise CatsAnswerCodeException(answer)
-    data = json.loads(answer.content.decode('utf-8'))
-    # course_problems = CatsProblemSerializer(data=data.problems, many=True)
-    return data['problems']
+    url = f'https://imcs.dvfu.ru/cats/problems?'
+    data = {
+        'json': 1,
+        'cid': contest_id,
+        'lang': 'en',
+        'sid': authorization.cats_sid(),
+        'page': 0,
+    }
+    problems = list()
+    cats_answer = requests.get(url, params=data, headers={'User-Agent': 'Mozilla/5.0'})
+    if cats_answer.status_code != 200:
+        raise CatsAnswerCodeException(cats_answer)
+    cats_problems = cats_answer.json()['problems']
+    problems.extend(cats_problems)
+    while len(cats_problems) == 20:
+        data['page'] += 1
+        cats_answer = requests.get(url, params=data, headers={'User-Agent': 'Mozilla/5.0'})
+        if cats_answer.status_code != 200:
+            raise CatsAnswerCodeException(cats_answer)
+        cats_problems = cats_answer.json()['problems']
+        problems.extend(cats_problems)
+
+    return problems
 
 
 def cats_get_problem_description_by_url(description_url):

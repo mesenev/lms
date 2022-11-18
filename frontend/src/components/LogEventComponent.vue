@@ -129,6 +129,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
     await this.fetchEvents();
     this.socketConnectionUpdate();
     await this.scrollDown();
+    this.loading = false;
   }
 
   socketMessageHandler(event: MessageEvent) {

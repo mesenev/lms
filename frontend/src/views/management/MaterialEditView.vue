@@ -3,7 +3,8 @@
     <div class="bx--row header">
       <h1>Редактирование материала</h1>
     </div>
-    <div class="bx--row content">
+    <cv-loading v-if="loading"/>
+    <div v-else class="bx--row content">
       <div class="edit-container-wrapper bx--col-lg-5">
         <div class="edit-container">
           <cv-inline-notification
@@ -63,6 +64,7 @@ export default class MaterialEditView extends Vue {
   showNotification = false;
   notificationKind = 'success';
   notificationText = '';
+  loading = true;
 
   hideSuccess() {
     this.showNotification = false;
@@ -75,39 +77,44 @@ export default class MaterialEditView extends Vue {
       this.material = this.materialStore.currentMaterial;
       this.materialEdit = { ...this.material }
     }
+    this.loading = false;
   }
 
-  get materials(): MaterialModel {
+  get currentMaterial(): MaterialModel {
     return this.material;
   }
 
-  get canChangeMaterialName() {
-    return this.materials.name === this.materialEdit.name;
-  }
-
   get isMaterialEmpty(): boolean {
-    console.log(this.materialEdit.name.length === 0 || this.materialEdit.content.length === 0);
     return this.materialEdit.name.length === 0 || this.materialEdit.content.length === 0;
   }
 
   get canChangeMaterial(): boolean {
-    return _.isEqual(this.materials, this.materialEdit) || this.isMaterialEmpty;
+    return _.isEqual(this.currentMaterial, this.materialEdit) || this.isMaterialEmpty;
   }
 
-  ChangeMaterial() {
-    const request = api.patch(`/api/material/${this.materialEdit.id}/`, this.materialEdit);
-    request.then(() => {
-      this.notificationKind = 'success';
-      this.notificationText = 'Материалы успешно изменены';
-      this.material = this.materialEdit;
-    });
-    request.catch(error => {
-      this.notificationText = `Что-то пошло не так: ${error.message}`;
-      this.notificationKind = 'error';
-    })
-    request.finally(() => this.showNotification = true);
+  async ChangeMaterial() {
+    await api.patch(`/api/material/${this.materialEdit.id}/`, this.materialEdit)
+      .then(() => {
+        this.notificationKind = 'success';
+        this.notificationText = 'Материалы успешно изменены';
+        this.updateMaterials(this.material, this.materialEdit);
+        this.material = this.materialEdit;
+        this.materialStore.setCurrentMaterial(this.material);
+      })
+      .catch(error => {
+        this.notificationText = `Что-то пошло не так: ${error.message}`;
+        this.notificationKind = 'error';
+      })
+      .finally(() => this.showNotification = true);
   }
 
+  async updateMaterials(oldMaterial: MaterialModel, newMaterial: MaterialModel) {
+    let materials = await this.materialStore.fetchMaterialsByLessonId(oldMaterial.lesson);
+    materials = materials.filter(x => x.id !== oldMaterial.id);
+    materials.push(newMaterial);
+    materials.sort((a,b) => a.id - b.id);
+    this.materialStore.setMaterials({ [newMaterial.lesson]: materials });
+  }
 }
 </script>
 

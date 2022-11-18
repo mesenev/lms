@@ -1,62 +1,103 @@
 <template>
-  <div class="stats-graph">
-    <span :style="wrongStyle"></span>
-    <span :style="testingStyle"></span>
-    <span :style="successfulStyle"></span>
-    <span :style="withoutSolutionStyle"></span>
+  <div>
+    <cv-inline-loading v-if="loading" state="loading"></cv-inline-loading>
+    <div v-else>
+      <div class="stats-graph">
+        <span class="stat" v-for="student in students"
+              :key="student.id" :style="submitStatusStyle(student)"></span>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import CourseModel from '@/models/CourseModel';
-import { ProblemStatsModel } from '@/models/ProblemModel';
+import ProblemModel from '@/models/ProblemModel';
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { graphColor } from "@/common/colors";
 import courseStore from '@/store/modules/course';
+import userStore from '@/store/modules/user';
+import submitStore from '@/store/modules/submit';
+import SubmitModel from "@/models/SubmitModel";
+import { Dictionary } from "vue-router/types/router";
+import UserModel from "@/models/UserModel";
 
 interface StatsGraphStyle {
   backgroundColor: string;
   width: string;
 }
 
-@Component
+@Component({})
 export default class StatsGraph extends Vue {
-  @Prop() stats!: ProblemStatsModel;
-
+  @Prop({required: true}) problem!: ProblemModel;
+  userStore = userStore;
+  submitStore = submitStore;
   courseStore = courseStore;
-  size = this.successful + this.testing + this.wrong + this.withoutSolution;
+  _submits: SubmitModel[] = [];
+  usersWithSubmits: number[] = [];
+  loading = true;
+
   wrongStyle: StatsGraphStyle = {
     backgroundColor: '#fc4848',
-    width: `${this.wrong / this.size * 100}%`,
+    width: `${1 / this.studentsCount * 100}%`,
   };
   successfulStyle: StatsGraphStyle = {
     backgroundColor: '#2ff306',
-    width: `${this.successful / this.size * 100}%`,
+    width: `${1 / this.studentsCount * 100}%`,
   };
   testingStyle: StatsGraphStyle = {
-    backgroundColor: '#ddf902',
-    width: `${this.testing / this.size * 100}%`,
+    backgroundColor: '#fff300',
+    width: `${1 / this.studentsCount * 100}%`,
   };
   withoutSolutionStyle: StatsGraphStyle = {
     backgroundColor: '#fcfbfb',
-    width: `${this.testing / this.size * 100}%`,
+    width: `${1 / this.studentsCount * 100}%`,
   };
 
-  get successful() {
-    return this.stats.green;
+  async created() {
+    this._submits = await this.submitStore.fetchProblemStats(this.problem.id);
+    this.usersWithSubmits = this.submits.map(x => x.student);
+    this.loading = false;
   }
 
-  get testing() {
-    return this.stats.yellow;
+  get students(): Dictionary<UserModel> {
+    return this.userStore.currentCourseStudents;
   }
 
-  get wrong() {
-    return this.stats.red;
+  get studentsCount(): number {
+    return Object.keys(this.students).length;
   }
 
-  get withoutSolution() {
-    return (this.courseStore.currentCourse as CourseModel).students.length
-      - (this.successful + this.testing + this.wrong);
+  get submits(): SubmitModel[] {
+    return this._submits.filter(x => this.students[x.student] !== undefined);
+  }
+
+  get noSubmitsUsers(): Array<UserModel> {
+    return Object.keys(this.students)
+      .filter(x => !(this.usersWithSubmits.includes(Number(x))))
+      .map(x => this.students[x]);
+  }
+
+  isSuccessfulStatus(studentId: number) {
+    return this.submits.filter(x => x.status === "OK" && x.student === studentId).length > 0;
+  }
+
+  isTestingStatus(studentId: number) {
+    return this.submits.filter(
+      x => (x.status === 'AW' || x.status === 'NP') && x.student === studentId
+    ).length > 0;
+  }
+
+  submitStatusStyle(student: UserModel) {
+    if (this.isWithoutSolution(student))
+      return this.withoutSolutionStyle;
+    else if (this.isSuccessfulStatus(student.id))
+      return this.successfulStyle;
+    else if (this.isTestingStatus(student.id))
+      return this.testingStyle;
+    return this.wrongStyle;
+  }
+
+  isWithoutSolution(student: UserModel) {
+    return this.noSubmitsUsers.includes(student);
   }
 }
 </script>
@@ -64,9 +105,11 @@ export default class StatsGraph extends Vue {
 <style lang="stylus" scoped>
 .stats-graph
   margin-right 5px
-  width 110px
-  height: 6px
+  width 130px
+  height 5px
   display flex
-  background-color var(--cds-ui-01);
-  border: 1px solid #e8e8e8;
+  background-color var(--cds-ui-01)
+
+.stat
+  border 0.3px solid var(--cds-ui-05)
 </style>

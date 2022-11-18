@@ -17,7 +17,7 @@ export default class UserComponent extends Vue {
   get name() {
     if (this.userModel && this.userModel.first_name && this.userModel.last_name)
       return `${this.userModel.first_name} ${this.userModel.last_name}`;
-    return '';
+    return this.userModel?.username;
   }
 
   get picUrl() {
