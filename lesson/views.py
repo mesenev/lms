@@ -7,8 +7,8 @@ from rest_framework.response import Response
 from cathie.cats_api import cats_get_problem_description_by_url
 from course.models import CourseSchedule
 from imcslms.default_settings import TEACHER
-from lesson.models import Lesson, LessonContent
-from lesson.serializers import LessonSerializer, MaterialSerializer, LessonShortSerializer, AddCatsProblemSerializer
+from lesson.models import Lesson, LessonContent, Attachments
+from lesson.serializers import LessonSerializer, MaterialSerializer, LessonShortSerializer, AddCatsProblemSerializer, AttachmentsSerializer
 from problem.models import Problem
 from problem.serializers import ProblemSerializer
 from users.permissions import CourseStaffOrReadOnlyForStudents
@@ -79,6 +79,20 @@ class MaterialViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return LessonContent.objects.all().filter(
+            (Q(is_teacher_only=False) & Q(lesson__course__in=user.student_for.all()))
+            | Q(lesson__course__in=user.staff_for.all())
+            | Q(lesson__course__in=user.author_for.all())
+        )
+
+
+class AttachmentsViewSet(viewsets.ModelViewSet):
+    permission_classes = [CourseStaffOrReadOnlyForStudents]
+    serializer_class = AttachmentsSerializer
+    filterset_fields = ['material_id', ]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Attachments.objects.all().filter(
             (Q(is_teacher_only=False) & Q(lesson__course__in=user.student_for.all()))
             | Q(lesson__course__in=user.staff_for.all())
             | Q(lesson__course__in=user.author_for.all())

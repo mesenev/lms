@@ -1,8 +1,13 @@
 from django.contrib import admin
 from django.db import models
-
+import os
 from course.models import Course
 from users.models import User
+
+
+def attachment_file_name(instance, filename):
+    filename = f"{instance.username}lesson_material{os.path.splitext(filename)[0]}"
+    return '/'.join(['attachments', filename])
 
 
 class Lesson(models.Model):
@@ -31,6 +36,15 @@ class LessonContent(models.Model):
     content_type = models.CharField(max_length=5, choices=CONTENT_TYPE, blank=True, null=True)
     content = models.TextField()
     is_teacher_only = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+
+class Attachments(models.Model):
+    name = models.CharField(max_length=50)
+    material = models.ForeignKey(LessonContent, on_delete=models.SET_NULL, related_name='attachments', null=True)
+    file_url = models.FileField(upload_to=attachment_file_name)
 
     def __str__(self):
         return self.name

@@ -6,7 +6,7 @@ from rest_framework.routers import DefaultRouter
 
 from cathie.views import CatsAccountViewSet
 from course.views import CourseViewSet, LinkViewSet, ScheduleViewSet
-from lesson.views import LessonViewSet, MaterialViewSet
+from lesson.views import LessonViewSet, MaterialViewSet, AttachmentsViewSet
 from problem.views import ProblemViewSet, SubmitViewSet, LogEventViewSet
 from rating.views import LessonProgressViewSet, CourseProgressViewSet
 from users.views import index, UsersViewSet
@@ -18,6 +18,7 @@ router.register('lesson', LessonViewSet, basename='lesson')
 router.register('problem', ProblemViewSet, basename='problem')
 router.register('submit', SubmitViewSet, basename='submit')
 router.register('material', MaterialViewSet, basename='material')
+router.register('attachments', AttachmentsViewSet, basename='attachments')
 router.register('users', UsersViewSet, basename='users')
 router.register('lessonprogress', LessonProgressViewSet, basename='lessonprogress')
 router.register('courseprogress', CourseProgressViewSet, basename='courseprogress')
