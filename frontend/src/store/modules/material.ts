@@ -3,6 +3,7 @@ import store from '@/store';
 import api from '@/store/services/api';
 import { Dictionary } from "vue-router/types/router";
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
+import AttachmentModel from "@/models/Attachment";
 
 @Module({ namespaced: true, name: 'material', store, dynamic: true })
 class MaterialModule extends VuexModule {
@@ -10,6 +11,7 @@ class MaterialModule extends VuexModule {
   _materials: Dictionary<MaterialModel[]> = {};
 
   private _currentMaterial: MaterialModel = { ...this.getNewMaterial };
+  private _currentAttachments: Array<AttachmentModel> = [];
 
   @Action
   async fetchMaterials() {
@@ -24,6 +26,10 @@ class MaterialModule extends VuexModule {
 
   get currentMaterial(): MaterialModel {
     return this._currentMaterial;
+  }
+
+  get currentAttachments(): Array<AttachmentModel> {
+    return this._currentAttachments;
   }
 
   get currentMaterialType() {
@@ -107,6 +113,24 @@ class MaterialModule extends VuexModule {
     this.setMaterials({ [id]: result });
     return result;
   }
+
+  @Mutation
+  setCurrentAttachments(attachments: AttachmentModel[]){
+    this._currentAttachments = attachments;
+  }
+
+  @Action
+  async fetchAttachmentsByMaterialId(material_id: number){
+    let answer = { data: {} };
+    await api.get('/api/attachment/', {params: {material_id: material_id}})
+        .then(response => answer = response)
+        .catch(error => {
+          console.log(error);
+        });
+    const result = answer.data as Array<AttachmentModel>;
+    this.setCurrentAttachments(result);
+  }
 }
+
 
 export default getModule(MaterialModule);

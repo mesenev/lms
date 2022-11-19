@@ -21,6 +21,7 @@
                         style="min-height: 200px"
                         v-model="materialEdit.content">
           </cv-text-area>
+          <input type="file" id="files" ref="files" multiple  v-on:change="uploadFiles($event.target.files)"/>
           <div class="change__btn">
             <cv-button :disabled="canChangeMaterial"
                        @click="ChangeMaterial">
@@ -28,6 +29,9 @@
             </cv-button>
           </div>
         </div>
+        <cv-list v-for="file in this.material.files" :key="file.name">
+          {{file.name}}
+        </cv-list>
       </div>
       <div class="preview-container edit-container bx--col-lg-5">
         <h4 class="title" v-if="materialEdit.name.length > 0"> {{ materialEdit.name }} </h4>
@@ -44,9 +48,10 @@ import MaterialModel from '@/models/MaterialModel';
 import materialStore from '@/store/modules/material';
 import _ from 'lodash';
 import VueMarkdown from 'vue-markdown-render';
-import Vue, { VueConstructor } from 'vue';
+import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import api from '@/store/services/api';
+import AttachmentModel from "@/models/Attachment";
 
 @Component({ components: { VueMarkdown } })
 export default class MaterialEditView extends Vue {
@@ -60,6 +65,8 @@ export default class MaterialEditView extends Vue {
     content: '',
     is_teacher_only: false,
   }
+  attachments: Array<AttachmentModel> = [];
+  attachmentsEdit: Array<AttachmentModel> = [];
   materialEdit: MaterialModel = { ...this.material }
   showNotification = false;
   notificationKind = 'success';
@@ -72,24 +79,43 @@ export default class MaterialEditView extends Vue {
 
   async created() {
     const material = await this.materialStore.fetchMaterialById(this.materialId);
+    await this.materialStore.fetchAttachmentsByMaterialId(this.materialId);
     if (material) {
       this.materialStore.setCurrentMaterial(material);
       this.material = this.materialStore.currentMaterial;
-      this.materialEdit = { ...this.material }
+      this.materialEdit = _.cloneDeep(this.material)
+      this.attachmentsEdit = _.cloneDeep(this.materialStore.currentAttachments)
     }
     this.loading = false;
+  }
+
+  uploadFiles(fileList: File[]){
+    fileList.forEach((element) =>{
+      this.attachmentsEdit.push({
+        id: 0, name: element.name, material_id: this.material.id, file_url: String(element)
+      })
+    });
   }
 
   get currentMaterial(): MaterialModel {
     return this.material;
   }
 
+  get currentAttachments(): Array<AttachmentModel>{
+    return this.attachments;
+  }
+
   get isMaterialEmpty(): boolean {
     return this.materialEdit.name.length === 0 || this.materialEdit.content.length === 0;
   }
 
+  get isAttachmentsEqual(): boolean {
+    return _.isEqual(this.currentAttachments, this.attachmentsEdit)
+  }
+
+  //toDo fix return
   get canChangeMaterial(): boolean {
-    return _.isEqual(this.currentMaterial, this.materialEdit) || this.isMaterialEmpty;
+    return _.isEqual(this.currentMaterial, this.materialEdit) || this.isMaterialEmpty && this.isAttachmentsEqual
   }
 
   async ChangeMaterial() {
@@ -106,6 +132,18 @@ export default class MaterialEditView extends Vue {
         this.notificationKind = 'error';
       })
       .finally(() => this.showNotification = true);
+
+    await api.patch('/api/attachments/${this.attachmentsEdit.id}/', this.attachmentsEdit)
+      .then(() => {
+        this.notificationKind = 'success';
+        this.notificationText = 'Материалы успешно изменены';
+        this.updateAttachments();
+        this.attachmentsEdit = _.cloneDeep(this.materialStore.currentAttachments);
+      })
+  }
+
+  async updateAttachments(){
+    await this.materialStore.fetchAttachmentsByMaterialId(this.materialId);
   }
 
   async updateMaterials(oldMaterial: MaterialModel, newMaterial: MaterialModel) {

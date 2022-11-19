@@ -1,9 +1,32 @@
 from rest_framework import serializers
 
-from lesson.models import Lesson, LessonContent
+from lesson.models import Lesson, LessonContent, Attachments
 from problem.serializers import ProblemSerializer
 from rating.serializers import LessonProgressSerializer
 from users.serializers import DefaultUserSerializer
+
+
+class AttachmentsSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def create(self, validated_data):
+        attachment = Attachments.objects.create(**validated_data)
+        attachment.save()
+        return attachment
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.material = validated_data.get('material', instance.material)
+        instance.file_url = validated_data.get('file_url', instance.file_url)
+        instance.save()
+        return instance
+
+    class Meta:
+        model = Attachments
+        fields = ('id', 'name', 'material', 'file_url')
 
 
 class MaterialSerializer(serializers.Serializer):
