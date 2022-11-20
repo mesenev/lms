@@ -41,10 +41,10 @@ class LessonContent(models.Model):
         return self.name
 
 
-class Attachments(models.Model):
+class Attachment(models.Model):
     name = models.CharField(max_length=50)
     material = models.ForeignKey(LessonContent, on_delete=models.SET_NULL, related_name='attachments', null=True)
-    file_url = models.FileField(upload_to=attachment_file_name)
+    file_url = models.CharField(max_length=500)
 
     def __str__(self):
         return self.name
