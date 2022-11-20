@@ -28,10 +28,10 @@
               Изменить
             </cv-button>
           </div>
+          <cv-list>
+            <cv-list-item v-for="attachment in this.currentAttachments" :key="attachment.name"></cv-list-item>
+          </cv-list>
         </div>
-        <cv-list v-for="file in this.material.files" :key="file.name">
-          {{file.name}}
-        </cv-list>
       </div>
       <div class="preview-container edit-container bx--col-lg-5">
         <h4 class="title" v-if="materialEdit.name.length > 0"> {{ materialEdit.name }} </h4>
@@ -83,6 +83,7 @@ export default class MaterialEditView extends Vue {
     if (material) {
       this.materialStore.setCurrentMaterial(material);
       this.material = this.materialStore.currentMaterial;
+      console.log('CURRENT ATTACHMENTS:', this.materialStore.currentAttachments)
       this.materialEdit = _.cloneDeep(this.material)
       this.attachmentsEdit = _.cloneDeep(this.materialStore.currentAttachments)
     }
@@ -92,7 +93,7 @@ export default class MaterialEditView extends Vue {
   uploadFiles(fileList: File[]){
     fileList.forEach((element) =>{
       this.attachmentsEdit.push({
-        id: 0, name: element.name, material_id: this.material.id, file_url: String(element)
+        id: 0, name: element.name, material: this.material.id, file_url: String(element)
       })
     });
   }
@@ -133,13 +134,11 @@ export default class MaterialEditView extends Vue {
       })
       .finally(() => this.showNotification = true);
 
-    await api.patch('/api/attachments/${this.attachmentsEdit.id}/', this.attachmentsEdit)
-      .then(() => {
-        this.notificationKind = 'success';
-        this.notificationText = 'Материалы успешно изменены';
-        this.updateAttachments();
-        this.attachmentsEdit = _.cloneDeep(this.materialStore.currentAttachments);
-      })
+    this.attachmentsEdit.forEach(element=>{
+      this.materialStore.createAttachment(element);
+    })
+    await this.updateAttachments();
+    this.attachmentsEdit = _.cloneDeep(this.materialStore.currentAttachments);
   }
 
   async updateAttachments(){

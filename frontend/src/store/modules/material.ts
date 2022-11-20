@@ -120,9 +120,16 @@ class MaterialModule extends VuexModule {
   }
 
   @Action
+  async createAttachment(attachment: AttachmentModel){
+    await api.post('/api/attachments/', attachment).then().catch(error=>{
+      console.log(error)
+    })
+  }
+
+  @Action
   async fetchAttachmentsByMaterialId(material_id: number){
     let answer = { data: {} };
-    await api.get('/api/attachment/', {params: {material_id: material_id}})
+    await api.get('/api/attachments/', {params: {material_id: material_id}})
         .then(response => answer = response)
         .catch(error => {
           console.log(error);
