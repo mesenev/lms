@@ -44,7 +44,7 @@ class LessonContent(models.Model):
 class Attachment(models.Model):
     name = models.CharField(max_length=50)
     material = models.ForeignKey(LessonContent, on_delete=models.SET_NULL, related_name='attachments', null=True)
-    file_url = models.CharField(max_length=500)
+    file_url = models.FileField(upload_to=attachment_file_name)
 
     def __str__(self):
         return self.name
