@@ -127,6 +127,15 @@ class MaterialModule extends VuexModule {
   }
 
   @Action
+  async deleteAttachment(attachment_id: number){
+    await api.delete(`/api/attachments/${attachment_id}/`).then(
+        response =>{
+          this.fetchAttachmentsByMaterialId(this.currentMaterial.id)
+        }
+    ).catch(error=>console.log(error))
+  }
+
+  @Action
   async fetchAttachmentsByMaterialId(material_id: number){
     let answer = { data: {} };
     await api.get('/api/attachments/', {params: {material_id: material_id}})
