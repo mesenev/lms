@@ -38,9 +38,9 @@
             </cv-structured-list-heading>
           </template>
           <template slot="items">
-            <cv-structured-list-item v-for="k in teachersArray" :key="k.id" checked>
+            <cv-structured-list-item v-for="k in teachersList" :key="k.id" checked>
               <cv-structured-list-data>
-                {{k.first_name + " " + k.last_name}}
+                {{ k.first_name + " " + k.last_name }}
               </cv-structured-list-data>
               <cv-structured-list-data>
                 <cv-checkbox
@@ -63,39 +63,45 @@ import NotificationMixinComponent from '@/components/common/NotificationMixinCom
 import UserModel from "@/models/UserModel";
 import userStore from '@/store/modules/user';
 
-import {Component, Prop, Watch} from 'vue-property-decorator';
+import { Component, Prop, Watch } from 'vue-property-decorator';
 import { TEACHER } from "@/utils/consts";
 import api from '@/store/services/api';
 
 @Component({})
 export default class AddTeacherModal extends NotificationMixinComponent {
-  @Prop({required: true}) courseId!: number;
+  @Prop({ required: true }) courseId!: number;
   searchValue = "";
-  @Watch('searchValue')
-  async onSearchBarChange(val: string) {
-    if (val.length >= 4) {
-      await api.get(
-          '/api/users/', { params: { email__icontains: this.searchValue, group: TEACHER } },
-      ).then(response => {
-            this.teachersArray = response.data;
-            this.pickedTeachers.clear();
-            this.teacherNotPicked = true;
-          },
-      ).catch(error => {
-        console.log(error);
-      })
-    }
-    else if (val.length === 0) {
-      this.teachersArray = [];
-      this.pickedTeachers.clear();
-      this.teacherNotPicked = true;
-    }
-  };
   userStore = userStore;
   teachersArray: UserModel[] = [];
   pickedTeachers: Set<UserModel> = new Set<UserModel>();
   modalVisible = false;
   teacherNotPicked = true;
+
+  breakFlag = false;
+
+  @Watch('searchValue')
+  async onSearchBarChange(val: string) {
+    if (val.length >= 4) {
+      await api.get(
+        '/api/users/', { params: { email__icontains: this.searchValue, group: TEACHER } },
+      ).then(response => {
+          this.teachersArray = response.data;
+          this.pickedTeachers.clear();
+          this.teacherNotPicked = true;
+        },
+      ).catch(error => {
+        console.log(error);
+      })
+    } else if (val.length === 0) {
+      this.teachersArray = [];
+      this.pickedTeachers.clear();
+      this.teacherNotPicked = true;
+    }
+  };
+
+  get teachersList() {
+    return this.teachersArray.filter(x => !x.staff_for.includes(this.courseId));
+  }
 
   showModal() {
     this.modalVisible = true;
@@ -105,11 +111,6 @@ export default class AddTeacherModal extends NotificationMixinComponent {
     this.modalVisible = false;
   }
 
-  get teachersList(){
-    // TODO: filter out already active
-    return this.teachersArray;
-  }
-
   isAnyTeacherPicked() {
     this.teacherNotPicked = this.pickedTeachers.size <= 0;
   }
@@ -117,43 +118,39 @@ export default class AddTeacherModal extends NotificationMixinComponent {
   setNotificationText() {
     if (this.pickedTeachers.size > 1) {
       this.notificationText = "Преподаватели успешно добавлены"
-    }
-    else {
+    } else {
       this.notificationText = "Преподаватель успешно добавлен"
     }
   }
 
-  getPickedTeachers(): Array<UserModel> {
-    const curPickedTeachers: Array<UserModel> = []
-    for (const elem of this.pickedTeachers) {
-      curPickedTeachers.push(elem);
+  //ToDo: do it without flag
+  async addStuff() {
+    this.breakFlag = false;
+    for (const teacher of this.pickedTeachers) {
+      if (this.breakFlag)
+        break;
+      await api.post(`/api/course/${this.courseId}/assign-teacher/`, { id: teacher.id })
+        .then(response => {
+          this.notificationKind = 'success';
+          this.setNotificationText();
+          this.showNotification = true;
+          teacher.staff_for.push(this.courseId);
+          this.pickedTeachers.delete(teacher);
+          this.isAnyTeacherPicked();
+        })
+        .catch(error => {
+          this.notificationKind = 'error';
+          this.notificationText = `Что-то пошло не так: ${error.message}`;
+          this.showNotification = true;
+          this.breakFlag = true;
+        });
     }
-    return curPickedTeachers;
-  }
-
-  addStuff() {
-    // TODO: add these luckies one by one
-    api.post(`/api/assignteacher/${this.courseId}/`, this.getPickedTeachers())
-      .then(response => {
-        this.notificationKind = 'success';
-        this.setNotificationText();
-        this.showNotification = true;
-        this.onSearchBarChange(this.searchValue);
-        this.pickedTeachers.clear();
-        this.isAnyTeacherPicked();
-      })
-      .catch(error => {
-        this.notificationKind = 'error';
-        this.notificationText = `Что-то пошло не так: ${error.message}`;
-        this.showNotification = true;
-      });
   }
 
   actionSelected(user: UserModel) {
     if (this.pickedTeachers.has(user)) {
       this.pickedTeachers.delete(user);
-    }
-    else {
+    } else {
       this.pickedTeachers.add(user);
     }
     this.isAnyTeacherPicked();
