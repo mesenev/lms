@@ -31,7 +31,6 @@ class UserFilter(FilterSet):
 
 
 class changeAvatar(APIView):
-
     def post(self, request: Request):
         new_avatar = request.data.get('avatar_url')
         user = request.user

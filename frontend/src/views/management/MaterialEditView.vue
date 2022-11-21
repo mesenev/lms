@@ -95,8 +95,10 @@ export default class MaterialEditView extends Vue {
 
   uploadFiles(fileList: File[]){
     fileList.forEach((element) =>{
+      const fd = new FormData();
+      fd.append('file_url', element)
       this.attachmentsEdit.push({
-        id: -1, name: element.name, material: this.material.id, file_url: (element)
+        id: -1, name: element.name, material: this.material.id, file_url: fd
       })
     });
   }

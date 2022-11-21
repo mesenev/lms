@@ -6,7 +6,7 @@ from users.models import User
 
 
 def attachment_file_name(instance, filename):
-    filename = f"{instance.username}lesson_material{os.path.splitext(filename)[0]}"
+    filename = f"lesson_material{os.path.splitext(filename)[0]}"
     return '/'.join(['attachments', filename])
 
 
