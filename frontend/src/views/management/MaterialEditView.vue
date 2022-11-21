@@ -69,7 +69,7 @@ export default class MaterialEditView extends Vue {
     is_teacher_only: false,
   }
 
-  attachmentsEdit: Array<AttachmentModel> = [];
+  attachmentsEdit: Array<FormData> = [];
   materialEdit: MaterialModel = { ...this.material }
   showNotification = false;
   notificationKind = 'success';
@@ -88,7 +88,6 @@ export default class MaterialEditView extends Vue {
       this.material = this.materialStore.currentMaterial;
       console.log('CURRENT ATTACHMENTS:', this.materialStore.currentAttachments)
       this.materialEdit = _.cloneDeep(this.material)
-      this.attachmentsEdit = _.cloneDeep(this.materialStore.currentAttachments)
     }
     this.loading = false;
   }
@@ -96,10 +95,11 @@ export default class MaterialEditView extends Vue {
   uploadFiles(fileList: File[]){
     fileList.forEach((element) =>{
       const fd = new FormData();
+      fd.append('id', '-1')
+      fd.append('name', element.name)
+      fd.append('material', this.material.id.toString())
       fd.append('file_url', element)
-      this.attachmentsEdit.push({
-        id: -1, name: element.name, material: this.material.id, file_url: fd
-      })
+      this.attachmentsEdit.push(fd);
     });
   }
 
@@ -143,7 +143,7 @@ export default class MaterialEditView extends Vue {
       this.materialStore.createAttachment(element);
     })
     await this.updateAttachments();
-    this.attachmentsEdit = _.cloneDeep(this.materialStore.currentAttachments);
+    this.attachmentsEdit = [];
   }
 
   async updateAttachments(){
