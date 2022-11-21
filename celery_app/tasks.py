@@ -1,11 +1,9 @@
-import json
-
 from celery.utils.log import get_task_logger
 
 from cathie.cats_api import cats_check_solution_status, cats_submit_solution
 from cathie.exceptions import CatsAnswerCodeException, CatsNormalErrorException
 from celery_app.celery_settings import app
-from problem.models import Submit, CatsSubmit, LogEvent
+from problem.models import Submit, CatsSubmit, LogEvent, Problem
 
 logger = get_task_logger(__name__)
 
@@ -85,8 +83,12 @@ def update_submit_status():
             type=LogEvent.TYPE_CATS_ANSWER, data=dict(message='Результат тестирования получен')
         )
         log_event.save()
+        if new_status == Submit.OK and \
+                cats_submit.submit.problem.test_mode == Problem.TEST_MODE_TYPES[2][0]:
+            cats_submit.submit.status = Submit.AWAITING_MANUAL
+        else:
+            cats_submit.submit.status = new_status
 
-        cats_submit.submit.status = new_status
         cats_submit.submit.updated_by = None
         cats_submit.submit.save(update_fields=['status', 'updated_by'])
         cats_submit.testing_result = data[0]  # Todo: investigate why the hell its a list

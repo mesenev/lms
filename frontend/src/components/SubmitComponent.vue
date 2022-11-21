@@ -262,6 +262,13 @@ export default class SubmitComponent extends NotificationMixinComponent {
     .submit-data
       color #d6d5d4
 
+  &-aw
+    color white
+    background-color #8fbd8f
+
+    .submit-data
+      color #d6d5d4
+
   &-wa
     color white
     background-color #DA1E28
