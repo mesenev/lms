@@ -28,17 +28,19 @@
               Изменить
             </cv-button>
           </div>
-          <cv-list>
-            <cv-list-item v-for="attachment in this.currentAttachments" :key="attachment.name"></cv-list-item>
-          </cv-list>
         </div>
       </div>
-      <div class="preview-container edit-container bx--col-lg-5">
+       <div class="preview-container edit-container bx--col-lg-5">
         <h4 class="title" v-if="materialEdit.name.length > 0"> {{ materialEdit.name }} </h4>
         <h4 v-else>Введите название материала</h4>
         <vue-markdown :source="materialEdit.content" class="markdown"/>
       </div>
     </div>
+    <cv-list v-for="element in this.currentAttachments" :key="element.id">
+      <cv-list-item>
+        <attachments-component-list :attachment="element"></attachments-component-list>
+      </cv-list-item>
+    </cv-list>
   </div>
 </template>
 
@@ -52,8 +54,9 @@ import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import api from '@/store/services/api';
 import AttachmentModel from "@/models/Attachment";
+import AttachmentsComponentList from '@/components/lists/AttachmentsComponentList.vue';
 
-@Component({ components: { VueMarkdown } })
+@Component({ components: { VueMarkdown, AttachmentsComponentList } })
 export default class MaterialEditView extends Vue {
   @Prop() materialId!: number;
   private materialStore = materialStore;
@@ -65,7 +68,7 @@ export default class MaterialEditView extends Vue {
     content: '',
     is_teacher_only: false,
   }
-  attachments: Array<AttachmentModel> = [];
+
   attachmentsEdit: Array<AttachmentModel> = [];
   materialEdit: MaterialModel = { ...this.material }
   showNotification = false;
@@ -93,7 +96,7 @@ export default class MaterialEditView extends Vue {
   uploadFiles(fileList: File[]){
     fileList.forEach((element) =>{
       this.attachmentsEdit.push({
-        id: 0, name: element.name, material: this.material.id, file_url: (element)
+        id: -1, name: element.name, material: this.material.id, file_url: (element)
       })
     });
   }
@@ -103,7 +106,7 @@ export default class MaterialEditView extends Vue {
   }
 
   get currentAttachments(): Array<AttachmentModel>{
-    return this.attachments;
+    return this.materialStore.currentAttachments;
   }
 
   get isMaterialEmpty(): boolean {
@@ -116,7 +119,7 @@ export default class MaterialEditView extends Vue {
 
   //toDo fix return
   get canChangeMaterial(): boolean {
-    return _.isEqual(this.currentMaterial, this.materialEdit) || this.isMaterialEmpty && this.isAttachmentsEqual
+    return _.isEqual(this.currentMaterial, this.materialEdit) || this.isMaterialEmpty
   }
 
   async ChangeMaterial() {
