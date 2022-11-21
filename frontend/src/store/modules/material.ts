@@ -120,7 +120,7 @@ class MaterialModule extends VuexModule {
   }
 
   @Action
-  async createAttachment(attachment: AttachmentModel){
+  async createAttachment(attachment: FormData){
     await api.post('/api/attachments/', attachment).then().catch(error=>{
       console.log(error)
     })
