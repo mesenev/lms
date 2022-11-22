@@ -8,7 +8,8 @@ from cathie.cats_api import cats_get_problem_description_by_url
 from course.models import CourseSchedule
 from imcslms.default_settings import TEACHER
 from lesson.models import Lesson, LessonContent, Attachment
-from lesson.serializers import LessonSerializer, MaterialSerializer, LessonShortSerializer, AddCatsProblemSerializer, AttachmentSerializer
+from lesson.serializers import LessonSerializer, MaterialSerializer, LessonShortSerializer, AddCatsProblemSerializer, \
+    AttachmentSerializer
 from problem.models import Problem
 from problem.serializers import ProblemSerializer
 from users.permissions import CourseStaffOrReadOnlyForStudents
@@ -86,10 +87,20 @@ class MaterialViewSet(viewsets.ModelViewSet):
 
 
 class AttachmentViewSet(viewsets.ModelViewSet):
+    """Attachments endpoint for diff purposes"""
     permission_classes = [CourseStaffOrReadOnlyForStudents]
     serializer_class = AttachmentSerializer
-    filterset_fields = ['material', ]
+    filterset_fields = ['material_id', ]
 
     def get_queryset(self):
-        request = self.request
-        return Attachment.objects.all().filter(material_id=request.GET.get('material_id'))
+        user = self.request.user
+        return Attachment.objects.all().filter(
+            (Q(material__is_teacher_only=False)
+             & Q(material__lesson__course__in=user.student_for.all())
+             )
+            | Q(material__lesson__course__in=user.staff_for.all())
+            | Q(material__lesson__course__in=user.author_for.all())
+        )
+
+    def filter_queryset(self, queryset):
+        return super().filter_queryset(queryset)
