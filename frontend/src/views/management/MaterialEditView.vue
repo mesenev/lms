@@ -6,6 +6,9 @@
     <cv-loading v-if="loading"/>
     <div v-else class="bx--row content">
       <div class="edit-container-wrapper bx--col-lg-5">
+        <confirm-modal :modal-trigger="confirmModalTrigger"
+                       :text="approvedText"
+                       :approve-handler="deleteAttachment"/>
         <div class="edit-container">
           <cv-inline-notification
             v-if="showNotification"
@@ -18,10 +21,24 @@
                          v-model="materialEdit.name"/>
           <cv-text-area label="Содержимое"
                         class="text-area"
-                        style="min-height: 200px"
                         v-model="materialEdit.content">
           </cv-text-area>
-          <input type="file" id="files_input" ref="files" multiple  v-on:change="uploadFiles($event.target.files)"/>
+          <p class="attachments-list-label">Вложения</p>
+          <div class="attachments-list-container">
+            <cv-structured-list class="attachments-list">
+              <template slot="items">
+                <cv-structured-list-item class="attachments-list-item"
+                                         v-for="element in this.currentAttachments"
+                                         :key="element.id">
+                  <attachments-component-list :attachment="element"
+                                              @show-confirm-modal="showConfirmModal">
+                  </attachments-component-list>
+                </cv-structured-list-item>
+              </template>
+            </cv-structured-list>
+          </div>
+          <input type="file" id="files_input" ref="files" multiple
+                 @change="uploadFiles($event.target.files)"/>
           <div class="change__btn">
             <cv-button :disabled="canChangeMaterial"
                        @click="ChangeMaterial">
@@ -30,17 +47,12 @@
           </div>
         </div>
       </div>
-       <div class="preview-container edit-container bx--col-lg-5">
+      <div class="preview-container edit-container bx--col-lg-6">
         <h4 class="title" v-if="materialEdit.name.length > 0"> {{ materialEdit.name }} </h4>
         <h4 v-else>Введите название материала</h4>
         <vue-markdown :source="materialEdit.content" html="false" class="markdown"/>
       </div>
     </div>
-    <cv-list v-for="element in this.currentAttachments" :key="element.id">
-      <cv-list-item>
-        <attachments-component-list :attachment="element"></attachments-component-list>
-      </cv-list-item>
-    </cv-list>
   </div>
 </template>
 
@@ -55,8 +67,9 @@ import { Component, Prop } from 'vue-property-decorator';
 import api from '@/store/services/api';
 import AttachmentModel from "@/models/Attachment";
 import AttachmentsComponentList from '@/components/lists/AttachmentsComponentList.vue';
+import ConfirmModal from "@/components/ConfirmModal.vue";
 
-@Component({ components: { VueMarkdown, AttachmentsComponentList } })
+@Component({ components: { VueMarkdown, AttachmentsComponentList, ConfirmModal } })
 export default class MaterialEditView extends Vue {
   @Prop() materialId!: number;
   private materialStore = materialStore;
@@ -75,6 +88,9 @@ export default class MaterialEditView extends Vue {
   notificationKind = 'success';
   notificationText = '';
   loading = true;
+  confirmModalTrigger = false;
+  approvedText = '';
+  deletingAttachmentId: number | null = null;
 
   hideSuccess() {
     this.showNotification = false;
@@ -91,15 +107,14 @@ export default class MaterialEditView extends Vue {
     this.loading = false;
   }
 
-  uploadFiles(fileList: File[]){
-    fileList.forEach((element) =>{
+  uploadFiles(fileList: File[]) {
+    fileList.forEach((element) => {
       const fd = new FormData();
       fd.append('id', '-1')
       fd.append('name', element.name)
       fd.append('material', this.material.id.toString())
       fd.append('file_url', element)
       fd.append('file_format', element.type)
-      console.log(element.type)
       this.attachmentsEdit.push(fd);
     });
   }
@@ -108,7 +123,7 @@ export default class MaterialEditView extends Vue {
     return this.material;
   }
 
-  get currentAttachments(): Array<AttachmentModel>{
+  get currentAttachments(): Array<AttachmentModel> {
     return this.materialStore.currentAttachments;
   }
 
@@ -117,12 +132,17 @@ export default class MaterialEditView extends Vue {
   }
 
   get isAttachmentsEqual(): boolean {
-    return _.isEqual(this.currentAttachments, this.attachmentsEdit)
+    return _.isEqual(this.currentAttachments, this.attachmentsEdit);
   }
 
-  //toDo fix return
   get canChangeMaterial(): boolean {
     return _.isEqual(this.currentMaterial, this.materialEdit) || this.isMaterialEmpty
+  }
+
+  showConfirmModal(deletingAttachment: AttachmentModel) {
+    this.deletingAttachmentId = deletingAttachment.id;
+    this.approvedText = `Удалить вложение: ${deletingAttachment.name}`;
+    this.confirmModalTrigger = !this.confirmModalTrigger;
   }
 
   async ChangeMaterial() {
@@ -140,7 +160,7 @@ export default class MaterialEditView extends Vue {
       })
       .finally(() => this.showNotification = true);
 
-    this.attachmentsEdit.forEach(element=>{
+    this.attachmentsEdit.forEach(element => {
       this.materialStore.createAttachment(element);
     })
     await this.updateAttachments();
@@ -149,7 +169,13 @@ export default class MaterialEditView extends Vue {
     this.attachmentsEdit = [];
   }
 
-  async updateAttachments(){
+  deleteAttachment() {
+    if (!this.deletingAttachmentId)
+      throw Error;
+    this.materialStore.deleteAttachment(this.deletingAttachmentId);
+  }
+
+  async updateAttachments() {
     await this.materialStore.fetchAttachmentsByMaterialId(this.materialId);
   }
 
@@ -157,7 +183,7 @@ export default class MaterialEditView extends Vue {
     let materials = await this.materialStore.fetchMaterialsByLessonId(oldMaterial.lesson);
     materials = materials.filter(x => x.id !== oldMaterial.id);
     materials.push(newMaterial);
-    materials.sort((a,b) => a.id - b.id);
+    materials.sort((a, b) => a.id - b.id);
     this.materialStore.setMaterials({ [newMaterial.lesson]: materials });
   }
 }
@@ -174,13 +200,14 @@ export default class MaterialEditView extends Vue {
   overflow-wrap break-word
   margin-top 10px
   overflow-y auto
-  max-height 30rem
+  max-height 40rem
 
 .title
   overflow-wrap break-word
 
 .edit-container-wrapper
   margin-top 2rem
+  margin-bottom 2rem
   min-height 400px
 
 .edit-container
@@ -200,6 +227,29 @@ export default class MaterialEditView extends Vue {
   font-size: 14px
   font-family: "Monaco", courier, monospace
   margin-top 15px
+
+.attachments-list-label
+  font-size var(--cds-label-01-font-size, 0.75rem)
+  font-weight var(--cds-label-01-font-weight, 400)
+  line-height var(--cds-label-01-line-height, 1.34)
+  letter-spacing var(--cds-label-01-letter-spacing, 0.32px)
+  display: inline-block
+  margin-bottom 0.5rem
+  color: var(--cds-text-02, #525252)
+  vertical-align baseline
+
+.attachments-list-container
+  overflow auto
+  max-height 200px
+  margin-bottom 0.5rem
+
+.attachments-list
+  margin-top 1px
+  margin-bottom 0
+
+.attachments-list-item
+  border-right 1px solid var(--cds-ui-03)
+  border-left 1px solid var(--cds-ui-03)
 
 code {
   color: #f66;

@@ -51,5 +51,6 @@ class Attachment(models.Model):
         return self.name
 
 
+admin.site.register(Attachment)
 admin.site.register(Lesson)
 admin.site.register(LessonContent)
