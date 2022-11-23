@@ -26,9 +26,21 @@ export default class FileListComponent extends NotificationMixinComponent {
     this.materialStore.deleteAttachment(this.attachment.id);
   }
   insertAttachment(){
-    let markdown_file_string = '<img src="' +  this.attachment.file_url + '" alt="' +
-      this.attachment.name
-    markdown_file_string += '" width="500" height="600">'
+    let markdown_file_string = '';
+
+    if (this.attachment.file_format.includes('image/')){
+      markdown_file_string = '<img src="' +  this.attachment.file_url + '" alt="' +
+      this.attachment.name;
+      markdown_file_string += '" width="500" height="600">';
+    }
+    else if(this.attachment.file_format.includes('video/')){
+      markdown_file_string = '<video><source src="' + this.attachment.file_url
+      + ' " controls></video>'
+    }
+    else {
+      markdown_file_string = '<a href="' + this.atta
+    }
+
     window.navigator.clipboard.writeText(markdown_file_string)
   }
 }
