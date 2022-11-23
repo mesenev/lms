@@ -38,7 +38,8 @@ export default class FileListComponent extends NotificationMixinComponent {
       + ' " controls></video>'
     }
     else {
-      markdown_file_string = '<a href="' + this.atta
+      markdown_file_string = '<a href="' + this.attachment.file_url + '">' + this.attachment.name
+      + '</a>'
     }
 
     window.navigator.clipboard.writeText(markdown_file_string)
