@@ -21,12 +21,13 @@ class AttachmentSerializer(serializers.ModelSerializer):
         instance.name = validated_data.get('name', instance.name)
         instance.material = validated_data.get('material', instance.material)
         instance.file_url = validated_data.get('file_url', instance.file_url)
+        instance.file_format = validated_data.get('file_format', instance.file_format)
         instance.save()
         return instance
 
     class Meta:
         model = Attachment
-        fields = ('id', 'name', 'material', 'file_url')
+        fields = ('id', 'name', 'material', 'file_url', 'file_format')
 
 
 class MaterialSerializer(serializers.Serializer):

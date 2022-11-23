@@ -98,6 +98,8 @@ export default class MaterialEditView extends Vue {
       fd.append('name', element.name)
       fd.append('material', this.material.id.toString())
       fd.append('file_url', element)
+      fd.append('file_format', element.type)
+      console.log(element.type)
       this.attachmentsEdit.push(fd);
     });
   }

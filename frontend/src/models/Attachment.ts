@@ -5,4 +5,5 @@ export default interface AttachmentModel {
   name: string;
   material: number;
   file_url: FormData;
+  file_format: string;
 }
