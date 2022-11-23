@@ -21,7 +21,7 @@
                         style="min-height: 200px"
                         v-model="materialEdit.content">
           </cv-text-area>
-          <input type="file" id="files" ref="files" multiple  v-on:change="uploadFiles($event.target.files)"/>
+          <input type="file" id="files_input" ref="files" multiple  v-on:change="uploadFiles($event.target.files)"/>
           <div class="change__btn">
             <cv-button :disabled="canChangeMaterial"
                        @click="ChangeMaterial">
@@ -142,6 +142,8 @@ export default class MaterialEditView extends Vue {
       this.materialStore.createAttachment(element);
     })
     await this.updateAttachments();
+    const input = window.document.getElementById('files_input') as HTMLInputElement
+    input.value = '';
     this.attachmentsEdit = [];
   }
 
