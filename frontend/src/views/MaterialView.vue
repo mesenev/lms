@@ -13,7 +13,7 @@
                    player-height="360"></youtube>
         </div>
         <div v-else class="less material-content">
-          <vue-markdown :source="currentMaterial.content" class="md-body"/>
+          <vue-markdown html="true" :source="currentMaterial.content" class="md-body"/>
         </div>
       </div>
       <div class="bx--col-lg-3 bx--col-md-4">
@@ -43,7 +43,7 @@
 <script lang="ts">
 import MaterialModel from '@/models/MaterialModel';
 import materialStore from '@/store/modules/material';
-import VueMarkdown from 'vue-markdown-render';
+import VueMarkdown from 'vue-markdown';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import VueYouTubeEmbed from 'vue-youtube-embed';
 import { getIdFromURL } from "vue-youtube-embed";

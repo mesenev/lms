@@ -33,7 +33,7 @@
        <div class="preview-container edit-container bx--col-lg-5">
         <h4 class="title" v-if="materialEdit.name.length > 0"> {{ materialEdit.name }} </h4>
         <h4 v-else>Введите название материала</h4>
-        <vue-markdown :source="materialEdit.content" class="markdown"/>
+        <vue-markdown :source="materialEdit.content" html="false" class="markdown"/>
       </div>
     </div>
     <cv-list v-for="element in this.currentAttachments" :key="element.id">
@@ -49,7 +49,7 @@
 import MaterialModel from '@/models/MaterialModel';
 import materialStore from '@/store/modules/material';
 import _ from 'lodash';
-import VueMarkdown from 'vue-markdown-render';
+import VueMarkdown from 'vue-markdown'
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
 import api from '@/store/services/api';
@@ -86,7 +86,6 @@ export default class MaterialEditView extends Vue {
     if (material) {
       this.materialStore.setCurrentMaterial(material);
       this.material = this.materialStore.currentMaterial;
-      console.log('CURRENT ATTACHMENTS:', this.materialStore.currentAttachments)
       this.materialEdit = _.cloneDeep(this.material)
     }
     this.loading = false;

@@ -2,6 +2,7 @@
   <div>
     {{attachment.name}}
     <component class="trash-icon" :is="TrashCan" @click.prevent.stop="deleteAttachment"/>
+    <Insert @click="insertAttachment" />
   </div>
 </template>
 
@@ -10,9 +11,11 @@ import {Component, Prop} from 'vue-property-decorator';
 import NotificationMixinComponent from '../common/NotificationMixinComponent.vue';
 import AttachmentModel from "@/models/Attachment";
 import TrashCan from '@carbon/icons-vue/es/trash-can/20';
+import Insert from '@carbon/icons-vue/es/insert/20'
 import MaterialStore from '@/store/modules/material'
+import marked from 'marked';
 @Component({
-  components: {}
+  components: {Insert}
 })
 export default class FileListComponent extends NotificationMixinComponent {
   @Prop( { required: true } ) attachment!: AttachmentModel;
@@ -21,6 +24,12 @@ export default class FileListComponent extends NotificationMixinComponent {
 
   deleteAttachment(){
     this.materialStore.deleteAttachment(this.attachment.id);
+  }
+  insertAttachment(){
+    let markdown_file_string = '<img src="' +  this.attachment.file_url + '" alt="' +
+      this.attachment.name
+    markdown_file_string += '" width="500" height="600">'
+    window.navigator.clipboard.writeText(markdown_file_string)
   }
 }
 </script>
