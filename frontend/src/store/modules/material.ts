@@ -115,30 +115,27 @@ class MaterialModule extends VuexModule {
   }
 
   @Mutation
-  setCurrentAttachments(attachments: AttachmentModel[]){
+  setCurrentAttachments(attachments: AttachmentModel[]) {
     this._currentAttachments = attachments;
   }
 
-  @Action
-  async createAttachment(attachment: FormData){
-    await api.post('/api/attachments/', attachment).then().catch(error=>{
-      console.log(error)
-    })
+  @Action({rawError: true})
+  async createAttachment(attachment: FormData) {
+    await api.post('/api/attachments/', attachment);
   }
 
-  @Action
-  async deleteAttachment(attachment_id: number){
-    await api.delete(`/api/attachments/${attachment_id}/`).then(
-        response =>{
-          this.fetchAttachmentsByMaterialId(this.currentMaterial.id)
+  @Action({rawError: true})
+  async deleteAttachment(attachment_id: number) {
+    await api.delete(`/api/attachments/${attachment_id}/`).then(response => {
+          this.fetchAttachmentsByMaterialId(this.currentMaterial.id);
         }
-    ).catch(error=>console.log(error))
+    );
   }
 
   @Action
-  async fetchAttachmentsByMaterialId(material_id: number){
+  async fetchAttachmentsByMaterialId(material_id: number) {
     let answer = { data: {} };
-    await api.get('/api/attachments/', {params: {material_id: material_id}})
+    await api.get('/api/attachments/', { params: { material_id: material_id } })
         .then(response => answer = response)
         .catch(error => {
           console.log(error);
