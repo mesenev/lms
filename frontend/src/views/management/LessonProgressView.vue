@@ -1,50 +1,62 @@
 <template>
   <div class="bx--grid">
-    <cv-data-table v-if="!loading" title="Успеваемость урока" @sort="Sort">
-      <template slot="helper-text">
-        <router-link :to="{ name: 'LessonView', params: { lessonId: lesson.id } }"
-                     class="course--title" tag="p">
-          {{ les.name }}
-        </router-link>
-      </template>
-      <template slot="actions">
-        <cv-checkbox
-            v-model="dontSolved"
-            label="Не решали"
-            value="value"/>
-      </template>
-      <template slot="headings">
-        <cv-data-table-heading v-for="(column, id) in columns" :key="id" :sortable=isSortable(column.id)>
-          <h5 v-if="(column.id === 0)">Результаты</h5>
-          <h5 v-else-if="(column.id === -2)">{{ column.name }}</h5>
-          <div v-else @click="openSubmitOrProblem(column.id)">
-            <cv-definition-tooltip :definition="definition(column.id)" :term="column.name"/>
-          </div>
-        </cv-data-table-heading>
-      </template>
-      <template slot="data">
-        <cv-data-table-row v-for="user in progress" :key="user.id">
-          <cv-data-table-cell>
-            <router-link :to="{ name: 'profile-page', params: { userId: user.user.id } }"
-                         class="course--title" tag="p">
-              <UserComponent :userProp="user.user"/>
-            </router-link>
-          </cv-data-table-cell>
-          <cv-data-table-cell v-for="problem in problems"
-                              :key="problem.id"
-                              class="mark">
-            <div @click="openSubmitOrProblem(problem.id, user.solved[problem.type][problem.id][1])">
-              <submit-status v-if="userMarks(user,problem.type,problem.id)"
-                             :submit="create_submit(user.solved[problem.type][problem.id],problem.id,user.user)"/>
-            </div>
-          </cv-data-table-cell>
-          <cv-data-table-cell>
-            {{ average(user) }}
-          </cv-data-table-cell>
-        </cv-data-table-row>
-      </template>
-      >
-    </cv-data-table>
+    <div v-if="!loading">
+      <h2>Успеваемость урока: {{ currentLesson.name }}</h2>
+      <div class="table-actions">
+        <cv-toggle v-model="dontSolved"
+                   value="value">
+          <template slot="text-left">Отображать только студентов без решений</template>
+          <template slot="text-right">Отображать только студентов без решений</template>
+        </cv-toggle>
+        <div class="problem-type-dropdown">
+          <cv-dropdown v-model="problemsType">
+            <cv-dropdown-item value="CW" selected>Классная работа</cv-dropdown-item>
+            <cv-dropdown-item value="HW">Домашняя работа</cv-dropdown-item>
+            <cv-dropdown-item value="EW">Доп. задачи</cv-dropdown-item>
+          </cv-dropdown>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <cv-data-table @sort="Sort">
+          <template slot="headings">
+            <cv-data-table-heading class="fixed-col thead-element"
+                                   v-for="(column, id) in columns" :key="id"
+                                   :sortable="true">
+              <h5 v-if="(column.id === 0)">Результаты</h5>
+              <h5 v-else-if="(column.id === -2)">{{ column.name }}</h5>
+              <div v-else @click="openSubmitOrProblem(column.id)">
+                <cv-definition-tooltip :definition="definition(column.id)"
+                                       :term="column.name"
+                                       direction="bottom"/>
+              </div>
+            </cv-data-table-heading>
+          </template>
+          <template slot="data">
+            <cv-data-table-row v-for="user in progress" :key="user.id">
+              <cv-data-table-cell class="fixed-col">
+                <router-link :to="{ name: 'profile-page', params: { userId: user.user } }"
+                             class="course--title" tag="p">
+                  <UserComponent :userId="user.user"/>
+                </router-link>
+              </cv-data-table-cell>
+              <cv-data-table-cell v-for="problem in problems"
+                                  :key="problem.id"
+                                  class="mark tbody-element">
+                <div
+                  @click="openSubmitOrProblem(problem.id, user.solved[problem.type][problem.id][1])">
+                  <submit-status v-if="userMarks(user,problem.type,problem.id)"
+                                 :submit="create_submit(user.solved[problem.type][problem.id],problem.id,user.user)"/>
+                </div>
+              </cv-data-table-cell>
+              <cv-data-table-cell>
+                {{ average(user) }}
+              </cv-data-table-cell>
+            </cv-data-table-row>
+          </template>
+          >
+        </cv-data-table>
+      </div>
+    </div>
     <cv-data-table-skeleton v-else :columns="2" :rows="6"/>
   </div>
 </template>
@@ -61,17 +73,20 @@ import lessonStore from "@/store/modules/lesson";
 import problemStore from "@/store/modules/problem"
 import progressStore from "@/store/modules/progress"
 import userStore from '@/store/modules/user';
+import submitStore from '@/store/modules/submit';
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Dictionary } from "vue-router/types/router";
+import SubmitModel from "@/models/SubmitModel";
 
-@Component({ components: { SubmitStatus, UserComponent, UserAvatar20 } })
+@Component({ components: { SubmitStatus, UserComponent, UserAvatar20, } })
 export default class LessonProgressView extends Vue {
   @Prop() lessonId!: number;
 
   students: Array<UserProgress> = [];
   users: Dictionary<UserModel> = {};
-  problems: Array<ProblemModel> = [];
+  _problems: Array<ProblemModel> = [];
+  submits: Dictionary<SubmitModel[]> = {};
   lesson: LessonModel = {
     id: NaN,
     course: NaN,
@@ -89,40 +104,46 @@ export default class LessonProgressView extends Vue {
   lessonStore = lessonStore;
   progressStore = progressStore;
   problemStore = problemStore;
+  submitStore = submitStore;
   loading = true;
-  sortable = true;
   dontSolved = false;
+  problemsType = '';
 
   get columns() {
     const a = this.problems.map(l => (
-        {
-          id: l.id,
-          name: l.name,
-        }
+      {
+        id: l.id,
+        name: l.name,
+      }
     ))
-    a.unshift({ id: - 2, name: "Ученики" })
+    a.unshift({ id: -2, name: "Ученики" })
     a.push({ id: 0, name: "Рейтинг" })
     return a
   }
 
+  get problems() {
+    return this._problems.filter(x => x.type === this.problemsType);
+  }
+
   get progress() {
     if (this.dontSolved) {
-      return this.students.filter(x => Object.keys(x.solved["HW"]).length === 0)
+      return this.students.filter(x => Object.keys(x.solved[this.problemsType]).length === 0)
     }
     return this.students;
   }
 
-  get les() {
+  get currentLesson() {
     return this.lesson;
   }
 
   async created() {
     this.lesson = await this.lessonStore.fetchLessonById(this.lessonId);
-    this.students = await this.progressStore.fetchLessonProgressByLessonId(this.lessonId);
     this.users = await this.userStore.fetchStudentsByCourseId(this.lesson.course);
-    this.problems = await this.problemStore.fetchProblemsByLessonId(this.lessonId);
-    this.students = this.students.map(
-        obj => Object.assign({}, obj, { user: this.users[obj.user.toLocaleString()] }));
+    this._problems = await this.problemStore.fetchProblemsByLessonId(this.lessonId);
+    for (const problem of this._problems) {
+      this.submits[problem.id] = await this.submitStore.fetchProblemStats(problem.id);
+    }
+    this.students = (await this.progressStore.fetchLessonProgressByLessonId(this.lessonId));
     this.loading = false;
   }
 
@@ -134,9 +155,9 @@ export default class LessonProgressView extends Vue {
   }
 
   definition(column: number) {
-    if (!this.loading && column != - 1 && column != 0) {
-      const columnProblem = this.problems.filter((problem) => problem.id === column)[0].submits
-      column = (columnProblem) ? columnProblem.filter(x => x.status === 'OK').length:0;
+    if (!this.loading && column != -2 && column != 0) {
+      const columnProblem = this.problems.filter((problem) => problem.id === column)[0]
+      column = (columnProblem) ? (columnProblem.stats ? columnProblem.stats.green : 0) : 0;
     }
     return `Успешно решило ${column} из ${this.progress.length} студентов`
   }
@@ -155,74 +176,128 @@ export default class LessonProgressView extends Vue {
   }
 
   average(user: UserProgress): string {
-    const c = this.problems.filter(x => x.type === "CW").map(function (num) {
-      return num.id.toString();
-    })
-    const h = this.problems.filter(x => x.type === "HW").map(function (num) {
-      return num.id.toString();
-    })
-    const e = this.problems.filter(x => x.type === "EX").map(function (num) {
-      return num.id.toString();
-    })
-    let coefCW = this.lesson.scores['CW'];
-    let coefHW = this.lesson.scores['HW'];
-    if (c.length === 0) {
-      coefHW = 100;
-    }
-    if (h.length === 0) {
-      coefCW = 100;
-    }
+    // const c = this.problems.filter(x => x.type === "CW").map(function (num) {
+    //   return num.id.toString();
+    // })
+    // const h = this.problems.filter(x => x.type === "HW").map(function (num) {
+    //   return num.id.toString();
+    // })
+    // const e = this.problems.filter(x => x.type === "EX").map(function (num) {
+    //   return num.id.toString();
+    // })
+    // let coefCW = this.lesson.scores['CW'];
+    // let coefHW = this.lesson.scores['HW'];
+    // if (c.length === 0) {
+    //   coefHW = 100;
+    // }
+    // if (h.length === 0) {
+    //   coefCW = 100;
+    // }
+    //
+    // let CWSolved = Object.keys(user.solved['CW']).filter(x => c.includes(x) && user.solved['CW'][x][0] === 'OK').length;
+    // let HWSolved = Object.keys(user.solved['HW']).filter(x => h.includes(x) && user.solved['HW'][x][0] === 'OK').length;
+    // let EXSolved = Object.keys(user.solved['EX']).filter(x => h.includes(x) && user.solved['EX'][x][0] === 'OK').length;
 
-    let CWSolved = Object.keys(user.solved['CW']).filter(x => c.includes(x) && user.solved['CW'][x][0] === 'OK').length;
-    let HWSolved = Object.keys(user.solved['HW']).filter(x => h.includes(x) && user.solved['HW'][x][0] === 'OK').length;
-    let EXSolved = Object.keys(user.solved['EX']).filter(x => h.includes(x) && user.solved['EX'][x][0] === 'OK').length;
-    CWSolved = (coefCW / c.length) * CWSolved;
-    HWSolved = (coefHW / h.length) * HWSolved;
-    EXSolved = (this.lesson.scores['EX'] / e.length) * EXSolved;
+    // CWSolved = (coefCW / c.length) * CWSolved;
+    // HWSolved = (coefHW / h.length) * HWSolved;
+    // EXSolved = (this.lesson.scores['EX'] / e.length) * EXSolved;
+    // let solvedCount = 0;
+    // solvedCount += (CWSolved != CWSolved) ? 0 : CWSolved;
+    // solvedCount += (HWSolved != HWSolved) ? 0 : HWSolved;
+    // solvedCount += (EXSolved != EXSolved) ? 0 : EXSolved;
+
+    const problemIds = this.problems.filter(x => x.type === this.problemsType).map(x => x.id);
     let solvedCount = 0;
-    solvedCount += (CWSolved != CWSolved) ? 0:CWSolved;
-    solvedCount += (HWSolved != HWSolved) ? 0:HWSolved;
-    solvedCount += (EXSolved != EXSolved) ? 0:EXSolved;
-    return solvedCount + '%';
-  }
 
-  isSortable(column: number): boolean {
-    return (!(column != 0 && column != - 1));
+    for (const submits of Object.values(this.submits)) {
+      solvedCount += submits.filter(
+        x => x.student === user.user && x.status === 'OK' && problemIds.includes(x.problem.id)
+      ).length ? 1 : 0;
+    }
+    const averageResult = (solvedCount / problemIds.length) * 100;
+
+    return (problemIds.length ? Math.trunc(averageResult) : 0) + '%';
   }
 
   Sort(sortBy: { index: string; order: string }) {
-    let order = - 1;
+    let order = -1;
     if (sortBy.order == "none") {
       return this.students.sort((a, b) => {
         return a.id - b.id
       })
     }
     if (sortBy.order == "ascending") {
-      order *= - 1;
+      order *= -1;
     }
     if (sortBy.index == "0") {
       return this.students.sort((a, b) => {
-        return (this.users[a.user].last_name > this.users[b.user].last_name) ? order:- 1 * order;
+        return (this.users[a.user].last_name > this.users[b.user].last_name) ? order : -1 * order;
+      })
+    } else if (sortBy.index == (this.columns.length - 1).toString()) {
+      return this.students.sort((a, b) => {
+        return (this.average(a) > this.average(b) ? order : -1 * order);
       })
     } else {
-      return this.students.sort((a, b) => {
-        const A = Object.values(a.solved['CW'] && a.solved['HW'] && a.solved['EX']).filter(a => a == 'OK')
-        const B = Object.values(b.solved['CW'] && b.solved['HW'] && b.solved['EX']).filter(b => b == 'OK')
-        return (Object.keys(A).length > Object.keys(B).length) ? order:- 1 * order
+      const solved = this.students.filter(x => x.solved[this.problemsType][sortBy.index]).sort((a, b) => {
+        const aSolutions = a.solved[this.problemsType][sortBy.index];
+        const bSolutions = b.solved[this.problemsType][sortBy.index];
+        const A = aSolutions[0] === 'OK' ? 1 : (aSolutions[0] === 'NP' ? 0 : -1);
+        const B = bSolutions[0] === 'OK' ? 1 : (bSolutions[0] === 'NP' ? 0 : -1);
+        return (A > B) ? order : -1 * order;
       })
+      return this.students = solved.concat(this.students.filter(x => !x.solved[this.problemsType][sortBy.index]));
     }
   }
 }
 </script>
 
 <style lang="stylus" scoped>
-.course--title
-  color inherit
-  cursor pointer
-  display inline
+.table-actions
+  display flex
+  flex-direction row
+
+.problem-type-dropdown
+  width fit-content
+
+/deep/ .bx--list-box__field
+  display flex
+
+.table-wrapper
+  margin-top 1rem
+  border 0.5px solid var(--cds-ui-05)
+  border-collapse separate
+  overflow-x auto
+  width 100%
+
+/deep/ table
+  text-align-last center
+  border-collapse separate
+
+/deep/ th
+  padding-top 0.5rem
+  padding-bottom 0.5rem
+
+.tbody-element, .fixed-col
+  border-right 0.5px solid black
+  z-index 0
+
+.fixed-col:first-child
+  text-align-last left
+  z-index 2
+  position sticky
+  left 0
+
+.fixed-col:last-child
+  border-right none
+
+/deep/ .bx--data-table-container
+  padding-top 0
 
 .mark
   user-select none
+
+/deep/ .tag
+  cursor pointer
 
 .attendance
   display inline
@@ -230,17 +305,4 @@ export default class LessonProgressView extends Vue {
   label
     display inline
 
-.header
-  padding-bottom: 1.5rem
-  padding-top: 1rem
-
-.items
-  background-color var(--cds-ui-02)
-  padding var(--cds-spacing-05)
-
-  .bx--structured-list-thead
-    display none
-
-.item
-  min-height 85px
 </style>
