@@ -231,13 +231,13 @@ import { Watch } from "vue-property-decorator";
 export default class LmsHeader extends Vue {
   @Watch('current_theme')
   changeTheme() {
-    this.$emit("toggle-theme", this.current_theme ? THEMES.g90:THEMES.g10);
+    this.$emit("toggle-theme", this.current_theme ? THEMES.g90: THEMES.g10);
   }
 
   iconLight = Light20;
   iconDark = Asleep20;
 
-  current_theme = false;
+  current_theme = this.getTheme;
   themes = THEMES;
   user = userStore.user;
 
@@ -260,6 +260,10 @@ export default class LmsHeader extends Vue {
 
   get materialSelected(): boolean {
     return this.$route.params.hasOwnProperty('materialId') && this.$route.params['materialId'] != null;
+  }
+
+  get getTheme(): boolean {
+    return localStorage.getItem('theme') === THEMES.g90
   }
 
   get isStaff(): boolean {
