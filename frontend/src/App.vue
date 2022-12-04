@@ -1,7 +1,7 @@
 <template>
   <cv-loading v-if="isLoading" overlay style="background: white"/>
-  <div class="layout" v-else-if="!isLoading && isLogin">
-    <lms-header class="layout-header"/>
+  <div v-else-if="!isLoading && isLogin" :class="current_theme" class="layout">
+    <lms-header @toggle-theme="toggleTheme($event)" class="layout-header"/>
     <main class="layout-content">
       <lms-breadcrumb class="main--breadcrumb"/>
       <transition name="fade" mode="out-in">
@@ -35,12 +35,12 @@
 import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue';
 import LmsHeader from '@/components/LmsHeader.vue';
 import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
-import FaceWink from '@carbon/icons-vue/es/face--wink/16';
 import { Component, Vue, Watch } from 'vue-property-decorator';
+import { THEMES } from "@/utils/consts";
 import LoginView from "@/views/LoginView.vue";
 import tokenStore from "@/store/modules/token";
 
-@Component({ components: { LoginView, LmsHeader, LmsBreadcrumb, LogoGithub, FaceWink } })
+@Component({ components: { LoginView, LmsHeader, LmsBreadcrumb, LogoGithub } })
 export default class App extends Vue {
   //TODO set transition and styles for loader
   @Watch('isLogin')
@@ -50,6 +50,12 @@ export default class App extends Vue {
     } else {
       this.$router.push('/login');
     }
+  }
+
+  current_theme = THEMES.white
+
+  toggleTheme(theme: string) {
+    this.current_theme = theme;
   }
 
   get isLoading() {
@@ -66,24 +72,49 @@ export default class App extends Vue {
 }
 </script>
 
-<style lang="scss">
-@import "styles/base";
-@import "styles/carbon";
+<style lang="sass">
+@use '~@carbon/themes'
+@use '~carbon-components/scss/globals/scss/theme-tokens' as carbon
+@import "styles/base"
+@import "styles/carbon"
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .1s;
-}
+.theme
+  &-white
+    @include themes.theme($white)
+    $carbon--theme: carbon.$carbon--theme--white
+    @include carbon.carbon--theme(carbon.$carbon--theme--white, true)
 
-.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */
-{
-  opacity: 0;
-}
+  &-g10
+    @include themes.theme($g10)
+    $carbon--theme: carbon.$carbon--theme--g10
+    @include carbon.carbon--theme(carbon.$carbon--theme--g10, true)
+
+  &-g90
+    @include themes.theme($g90)
+    $carbon--theme: carbon.$carbon--theme--g90
+    @include carbon.carbon--theme(carbon.$carbon--theme--g90, true)
+
+  &-g100
+    @include themes.theme($g100)
+    $carbon--theme: carbon.$carbon--theme--g100
+    @include carbon.carbon--theme(carbon.$carbon--theme--g100, true)
+
+
+.fade-enter-active, .fade-leave-active
+  transition: opacity .1s
+
+
+.fade-enter, .fade-leave-to
+  opacity: 0
+/* .fade-leave-active in <2.1.8 */
 
 </style>
 
 <style scoped lang="stylus">
 @import 'styles/list-elements.styl';
 
+.layout-content
+  background-color var(--cds-ui-background)
 
 .main--breadcrumb
   margin-top var(--cds-spacing-06);
@@ -100,27 +131,18 @@ export default class App extends Vue {
   height: 100%
   display flex
   flex-flow column
-
   &-content
-    background-color var(--cds-ui-01)
     padding-bottom var(--cds-spacing-05)
     margin-top: 3rem;
-
   &-header, &-footer
     flex-shrink 0
-
   &-footer
     min-height 100px
     background-color var(--cds-ui-05)
     color var(--cds-text-05)
     font-size 0.7em
-
     &-label
-      display flex
-      flex-direction row
-      justify-content space-between
       margin var(--cds-spacing-06) var(--cds-spacing-06)
-
   &-content
     flex-grow 1
     width: 100%
@@ -129,4 +151,3 @@ export default class App extends Vue {
 <style lang="stylus">
 @import "styles/list-elements";
 </style>
-
