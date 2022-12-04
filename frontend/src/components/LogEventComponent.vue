@@ -63,10 +63,7 @@
         class="searchbar"
         v-on:keydown.enter="createMessageHandler">
       </cv-text-input>
-    </div>
-    <div class="btn-out">
-      <cv-button class="btn-send" kind="tertiary" @click="createMessageHandler">Отправить
-      </cv-button>
+      <cv-button class="btn-send" kind="tertiary" @click="createMessageHandler">Отправить</cv-button>
     </div>
   </div>
 </template>
@@ -273,10 +270,6 @@ export default class LogEventComponent extends NotificationMixinComponent {
   color white
   border-top-right-radius 5px
 
-  &-space
-    height calc(2em + 0.5rem)
-    background-color #f4f4f4
-
 .avatar
   width 2em
   margin-bottom 0.3em
@@ -329,7 +322,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
     display none
     right -5px
     bottom -10px
-    background white
+    fill var(--cds-danger-01)
     height 20px
     width 20px
     position absolute
@@ -359,8 +352,9 @@ export default class LogEventComponent extends NotificationMixinComponent {
   font-size 1em
   padding 10px 15px
   margin 0 35px
-  background white
-  border 0.5px solid rgba(0, 0, 0, 0.3)
+  background var(--cds-ui-01)
+  color var(--cds-text-01)
+  border 0.5px solid var(--cds-ui-05)
   border-radius 5px
   overflow-wrap anywhere
   position relative
@@ -388,8 +382,11 @@ export default class LogEventComponent extends NotificationMixinComponent {
   border-color black
 
 
+.scrollable-solution-list
+  height 82%
+
 .wrapper-for_controll-overflow-list
-  height calc(400px)
+  height 100%
   overflow scroll
   overflow-x hidden
   padding 0 0.5rem
@@ -405,20 +402,16 @@ span.event--date
   display none
 
 .btn
-  &-out
-    display flex
-    flex-direction row
-    padding 0.5rem 0 0.5rem 0.5rem
-    justify-content flex-end
-    background-color #f4f4f4
-
   &-send
     padding 0 1rem
+    max-width calc(100px)
 
 .space
   height 10px
 
 .searchbar-out
+  display flex
+  gap 10px
   padding 0.5rem
   border solid #8d8d8d
   border-width 0 0.5px 0.5px 0.5px

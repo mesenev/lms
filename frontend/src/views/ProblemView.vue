@@ -269,6 +269,7 @@ export default class ProblemView extends Vue {
   margin-top 1rem
 
 h1
+  color var(--cds-ui-05)
   font-weight bold
 
 .description-container
@@ -278,6 +279,7 @@ h1
   margin-left 2rem
 
 .problem-information
+  color var(--cds-ui-04)
   margin-top 1rem
 
   span
@@ -363,11 +365,10 @@ h1
 
 .show-problem-link
   cursor pointer
-  border #D8D8D8 solid 1px
   padding 0.5em
-  border-radius 5px
-  background-color white
-  color black
+  border-radius 4px
+  background-color var(--cds-field-01)
+  color var(--cds-text-01)
   display inline-block
   margin-top 0.5rem
 

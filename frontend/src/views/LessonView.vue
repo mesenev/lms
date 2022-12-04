@@ -239,6 +239,7 @@ export default class LessonView extends Vue {
     margin-bottom 1rem
 
     &-title
+      color var(--cds-text-01)
       padding-left 1rem
       margin 1rem 0
 

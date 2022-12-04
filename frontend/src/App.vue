@@ -81,22 +81,22 @@ export default class App extends Vue {
 
 .theme
   &-white
-    @include themes.theme($white)
+    //@include themes.theme($white)
     $carbon--theme: carbon.$carbon--theme--white
     @include carbon.carbon--theme(carbon.$carbon--theme--white, true)
 
   &-g10
-    @include themes.theme($g10)
+    //@include themes.theme($g10)
     $carbon--theme: carbon.$carbon--theme--g10
     @include carbon.carbon--theme(carbon.$carbon--theme--g10, true)
 
   &-g90
-    @include themes.theme($g90)
+    //@include themes.theme($g90)
     $carbon--theme: carbon.$carbon--theme--g90
     @include carbon.carbon--theme(carbon.$carbon--theme--g90, true)
 
   &-g100
-    @include themes.theme($g100)
+    //@include themes.theme($g100)
     $carbon--theme: carbon.$carbon--theme--g100
     @include carbon.carbon--theme(carbon.$carbon--theme--g100, true)
 
@@ -139,7 +139,7 @@ export default class App extends Vue {
     flex-shrink 0
   &-footer
     min-height 100px
-    background-color var(--cds-ui-05)
+    background-color var(--cds-ui-01)
     color var(--cds-text-05)
     font-size 0.7em
     &-label

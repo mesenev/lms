@@ -287,7 +287,8 @@ export default class SubmitComponent extends NotificationMixinComponent {
 .submit-lang
   display flex
   align-items center
-  background #f4f4f4
+  background var(--cds-ui-03)
+  color var(--cds-text-01)
   padding 0.5rem
 
   div
@@ -300,7 +301,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
     padding 0
 
 .buttons-block-wrapper
-  background-color var(--cds-ui-01)
+  background-color var(--cds-ui-03)
 
   .handlers
     display flex
