@@ -52,10 +52,11 @@ export default class App extends Vue {
     }
   }
 
-  current_theme = THEMES.white
+  current_theme = localStorage.getItem('theme') || THEMES.g10;
 
   toggleTheme(theme: string) {
     this.current_theme = theme;
+    localStorage.setItem('theme', theme);
   }
 
   get isLoading() {
