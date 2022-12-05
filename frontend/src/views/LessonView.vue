@@ -31,7 +31,7 @@
         </div>
         <div v-else class="content-tasks-problems">
           <div v-if="classwork.length > 0" class="classwork">
-            <h4 class="classwork-title">Классная работа</h4>
+            <h4 class="classwork-title title">Классная работа</h4>
             <div v-if="!loading">
               <problem-list-component :task-list="classwork"></problem-list-component>
             </div>
@@ -40,7 +40,7 @@
             </div>
           </div>
           <div v-if="homework.length > 0" class="homework">
-            <h4 class="homework-title">Домашняя работа</h4>
+            <h4 class="homework-title title">Домашняя работа</h4>
             <div v-if="!loading">
               <problem-list-component :task-list="homework"/>
             </div>
@@ -49,7 +49,7 @@
             </div>
           </div>
           <div v-if="extrawork.length > 0" class="extrawork">
-            <h4 class="classwork-title">Дополнительные задания</h4>
+            <h4 class="classwork-title title">Дополнительные задания</h4>
             <div v-if="!loading">
               <problem-list-component :task-list="extrawork"/>
             </div>
@@ -186,6 +186,7 @@ export default class LessonView extends Vue {
 <style scoped lang="stylus">
 
 .description-container
+  color var(--cds-text-02)
   margin-left var(--cds-spacing-05)
   padding-left var(--cds-spacing-05)
 
@@ -224,24 +225,28 @@ export default class LessonView extends Vue {
   &-info
     height 100%
 
+    &-title
+      color var(--cds-text-01)
+
     .list
       margin 1rem 0
 
   &-tasks, &-info
-    background-color var(--cds-ui-02)
+    background-color var(--cds-ui-01)
     padding 1rem
 
   /deep/ .bx--accordion__heading
     align-items center
 
 
-  .classwork, .homework, extrawork
-    margin-bottom 1rem
+.classwork, .homework, extrawork
+  margin-bottom 1rem
 
-    &-title
-      color var(--cds-text-01)
-      padding-left 1rem
-      margin 1rem 0
+  &-title
+    font-weight bold
+    color var(--cds-text-01)
+    padding-left 1rem
+    margin 1rem 0
 
 .lesson-content
   margin-top 2rem
@@ -254,7 +259,7 @@ export default class LessonView extends Vue {
   padding-bottom 1rem
 
 .items
-  background-color: var(--cds-ui-02)
+  background-color: var(--cds-ui-01)
   padding-top 1rem
   padding-bottom 1rem
   margin-bottom 1rem
