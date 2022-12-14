@@ -1,7 +1,9 @@
 <template>
   <div class="bx--grid">
     <div v-if="!loading">
-      <h2>Успеваемость урока: {{ currentLesson.name }}</h2>
+      <div class="main-title">
+        <h2>Успеваемость урока: {{ currentLesson.name }}</h2>
+      </div>
       <div class="table-actions">
         <cv-toggle v-model="dontSolved"
                    value="value">
@@ -176,36 +178,6 @@ export default class LessonProgressView extends Vue {
   }
 
   average(user: UserProgress): string {
-    // const c = this.problems.filter(x => x.type === "CW").map(function (num) {
-    //   return num.id.toString();
-    // })
-    // const h = this.problems.filter(x => x.type === "HW").map(function (num) {
-    //   return num.id.toString();
-    // })
-    // const e = this.problems.filter(x => x.type === "EX").map(function (num) {
-    //   return num.id.toString();
-    // })
-    // let coefCW = this.lesson.scores['CW'];
-    // let coefHW = this.lesson.scores['HW'];
-    // if (c.length === 0) {
-    //   coefHW = 100;
-    // }
-    // if (h.length === 0) {
-    //   coefCW = 100;
-    // }
-    //
-    // let CWSolved = Object.keys(user.solved['CW']).filter(x => c.includes(x) && user.solved['CW'][x][0] === 'OK').length;
-    // let HWSolved = Object.keys(user.solved['HW']).filter(x => h.includes(x) && user.solved['HW'][x][0] === 'OK').length;
-    // let EXSolved = Object.keys(user.solved['EX']).filter(x => h.includes(x) && user.solved['EX'][x][0] === 'OK').length;
-
-    // CWSolved = (coefCW / c.length) * CWSolved;
-    // HWSolved = (coefHW / h.length) * HWSolved;
-    // EXSolved = (this.lesson.scores['EX'] / e.length) * EXSolved;
-    // let solvedCount = 0;
-    // solvedCount += (CWSolved != CWSolved) ? 0 : CWSolved;
-    // solvedCount += (HWSolved != HWSolved) ? 0 : HWSolved;
-    // solvedCount += (EXSolved != EXSolved) ? 0 : EXSolved;
-
     const problemIds = this.problems.filter(x => x.type === this.problemsType).map(x => x.id);
     let solvedCount = 0;
 
@@ -252,6 +224,10 @@ export default class LessonProgressView extends Vue {
 </script>
 
 <style lang="stylus" scoped>
+.main-title
+  margin-left 0
+  margin-bottom 0
+
 .table-actions
   display flex
   flex-direction row
@@ -278,7 +254,7 @@ export default class LessonProgressView extends Vue {
   padding-bottom 0.5rem
 
 .tbody-element, .fixed-col
-  border-right 0.5px solid black
+  border-right 0.5px solid var(--cds-ui-05)
   z-index 0
 
 .fixed-col:first-child
