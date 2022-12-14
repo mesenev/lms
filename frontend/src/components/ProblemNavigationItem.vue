@@ -187,4 +187,5 @@ li
   &-not-passed
     fill black
     stroke black
+    color var(--cds-text-01)
 </style>

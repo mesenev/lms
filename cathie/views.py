@@ -8,12 +8,14 @@ from requests.utils import default_headers
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from cathie import cats_api
 from cathie.authorization import cats_sid_setter, cats_sid
-from cathie.cats_api import cats_get_problems_from_contest, cats_get_problem_description_by_url
+from cathie.cats_api import cats_get_problems_from_contest, cats_get_problem_description_by_url, cats_user_login, \
+    get_user_id
 from cathie.cats_api import get_contests_from_cats
 from cathie.exceptions import CatsAuthorizationException
 from cathie.models import CatsAccount
@@ -65,17 +67,12 @@ class CatsAccountViewSet(viewsets.ModelViewSet):
     filterset_fields = ('user', 'username', 'last_check')
 
     def create(self, request, *args, **kwargs):
-        auth = requests.post(
-            f'{settings.CATS_URL}?f=login;json=1',
-            {'login': request.data['login'], 'passwd': request.data['passwd']},
-            headers=default_headers()
-        )
-        if auth.status_code != 200:
-            raise CatsAuthorizationException()
-
+        auth = cats_user_login(request.data['login'], request.data['passwd'])
+        cats_id = get_user_id(auth['sid'])
         cats_account, is_created = CatsAccount.objects.get_or_create(user=request.user)
         _status = status.HTTP_201_CREATED if is_created else status.HTTP_202_ACCEPTED
         cats_account.username = request.data['login']
+        cats_account.cats_user_id = cats_id
         cats_account.last_check = timezone.now()
         cats_account.save()
         serializer = self.get_serializer(cats_account)
@@ -86,9 +83,9 @@ class CatsAccountViewSet(viewsets.ModelViewSet):
 class CatsContest(APIView):
     permission_classes = [CourseStaffOrReadOnlyForStudents]
 
-    def get(self, request):
+    def get(self, request: Request):
         """Return list of CatsContents from cats"""
-        return Response(get_contests_from_cats())
+        return Response(get_contests_from_cats(request.user.cats_account.cats_user_id))
 
     def post(self, request):
         """Register user to the contest by [user id] and [logins to add]"""
