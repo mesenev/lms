@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.urls import reverse
-from model_mommy import mommy
+from model_bakery import baker
 from rest_framework import status
 
 from course.models import Course
@@ -13,7 +13,7 @@ from users.models import CourseAssignTeacher
 class CourseTests(MainSetup):
     def test_create_course(self):
         self.test_setup()
-        course = mommy.make(Course)
+        course = baker.make(Course)
         group = Group.objects.get(name=settings.TEACHER)
         group.user_set.add(self.user)
 
@@ -27,7 +27,7 @@ class CourseTests(MainSetup):
 
     def test_update_course(self):
         self.test_setup()
-        course = mommy.make(Course)
+        course = baker.make(Course)
         CourseAssignTeacher(course=course, user=self.user).save()
         instance = Course.objects.first()
         data = CourseSerializer(instance).data
@@ -38,7 +38,7 @@ class CourseTests(MainSetup):
 
     def test_delete_course(self):
         self.test_setup()
-        instance = mommy.make(Course)
+        instance = baker.make(Course)
         data = CourseSerializer(instance).data
         url = reverse('course-detail', kwargs=dict(pk=instance.id))
         amount = Course.objects.count()

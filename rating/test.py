@@ -1,5 +1,5 @@
 from django.urls import reverse
-from model_mommy import mommy
+from model_bakery import baker
 from rest_framework import status
 
 from course.models import Course
@@ -15,19 +15,19 @@ class CourseProgressTests(MainSetup):
     def test_course_progress_access(self):
         teacher = self.test_setup()
         students = [self.test_setup(group='student', username=f'test_user{i}') for i in range(10)]
-        (course := mommy.make(Course, author=teacher)).save()
+        (course := baker.make(Course, author=teacher)).save()
         CourseAssignTeacher(course=course, user=teacher).save()
         for student in students:
             CourseAssignStudent(course=course, user=student).save()
-        (lesson := mommy.make(Lesson, course=course, scores={'CW': 50, 'HW': 50, 'EX': 10})).save()
-        (problem := mommy.make(Problem, type='CW', lesson=lesson)).save()
+        (lesson := baker.make(Lesson, course=course, scores={'CW': 50, 'HW': 50, 'EX': 10})).save()
+        (problem := baker.make(Problem, type='CW', lesson=lesson)).save()
 
         submits_by_students = []
         for i in range(len(students)):
-            submits_by_students.append(mommy.make(Submit, problem=problem, student=students[i], status='OK'))
+            submits_by_students.append(baker.make(Submit, problem=problem, student=students[i], status='OK'))
             submits_by_students[i].save()
 
-        (submit_by_teacher := mommy.make(Submit, problem=problem, student=teacher, status='OK')).save()
+        (submit_by_teacher := baker.make(Submit, problem=problem, student=teacher, status='OK')).save()
         self.client.force_authenticate(user=teacher)
         url = reverse('courseprogress-list')
         response = self.client.get(url, format='json')
@@ -46,9 +46,9 @@ class CourseProgressTests(MainSetup):
     def test_create_course_progress(self):
         teacher = self.test_setup()
         students = [self.test_setup(group='student', username=f'test_user{i}') for i in range(2)]
-        (course := mommy.make(Course)).save()
-        (lesson := mommy.make(Lesson, course=course)).save()
-        (instance := mommy.make(CourseProgress, course=course, user=students[0])).save()
+        (course := baker.make(Course)).save()
+        (lesson := baker.make(Lesson, course=course)).save()
+        (instance := baker.make(CourseProgress, course=course, user=students[0])).save()
         data = CourseProgressSerializer(instance).data
         CourseAssignTeacher(course=course, user=teacher).save()
         data['user'] = students[1].id
@@ -74,10 +74,10 @@ class CourseProgressTests(MainSetup):
 
         teacher = self.test_setup()
         students = [self.test_setup(group='student', username=f'test_user{i}') for i in range(2)]
-        (course := mommy.make(Course)).save()
+        (course := baker.make(Course)).save()
         CourseAssignTeacher(course=course, user=teacher).save()
-        (lesson := mommy.make(Lesson, course=course)).save()
-        (instance := mommy.make(CourseProgress, user=students[0], course=course)).save()
+        (lesson := baker.make(Lesson, course=course)).save()
+        (instance := baker.make(CourseProgress, user=students[0], course=course)).save()
         data = CourseProgressSerializer(instance).data
         data['id'] = instance.id
         data['user'] = instance.user.id
@@ -95,10 +95,10 @@ class CourseProgressTests(MainSetup):
     def test_delete_course_progress(self):
         teacher = self.test_setup()
         students = [self.test_setup(group='student', username=f'test_user{i}') for i in range(2)]
-        (course := mommy.make(Course)).save()
+        (course := baker.make(Course)).save()
         CourseAssignTeacher(course=course, user=teacher).save()
-        (lesson := mommy.make(Lesson, course=course)).save()
-        (instance := mommy.make(CourseProgress, user=students[0], course=course)).save()
+        (lesson := baker.make(Lesson, course=course)).save()
+        (instance := baker.make(CourseProgress, user=students[0], course=course)).save()
         data = CourseProgressSerializer(instance).data
         data['id'] = instance.id
         data['user'] = instance.user.id
@@ -127,20 +127,20 @@ class LessonProgressTests(MainSetup):
 
         teacher = self.test_setup()
         students = [self.test_setup(group='student', username=f'test_user{i}') for i in range(10)]
-        (course := mommy.make(Course, author=teacher)).save()
+        (course := baker.make(Course, author=teacher)).save()
         CourseAssignTeacher(course=course, user=teacher).save()
         for student in students:
             CourseAssignStudent(course=course, user=student).save()
-        (lesson := mommy.make(Lesson, course=course, scores={'CW': 50, 'HW': 50, 'EX': 10})).save()
-        (problem := mommy.make(Problem, type='CW', lesson=lesson)).save()
+        (lesson := baker.make(Lesson, course=course, scores={'CW': 50, 'HW': 50, 'EX': 10})).save()
+        (problem := baker.make(Problem, type='CW', lesson=lesson)).save()
         submits_by_students = []
         for i in range(len(students)):
-            submits_by_students.append(mommy.make(Submit, problem=problem, student=students[i], status='OK'))
+            submits_by_students.append(baker.make(Submit, problem=problem, student=students[i], status='OK'))
             submits_by_students[i].save()
         for i in range(len(students)):
-            submits_by_students.append(mommy.make(Submit, problem=problem, student=students[i], status='WA'))
+            submits_by_students.append(baker.make(Submit, problem=problem, student=students[i], status='WA'))
             submits_by_students[i].save()
-        (submit_by_teacher := mommy.make(Submit, problem=problem, student=teacher, status='OK')).save()
+        (submit_by_teacher := baker.make(Submit, problem=problem, student=teacher, status='OK')).save()
         self.client.force_authenticate(user=teacher)
 
         check_access('lesson', lesson.id)
@@ -159,9 +159,9 @@ class LessonProgressTests(MainSetup):
 
         teacher = self.test_setup()
         students = [self.test_setup(group='student', username=f'test_user{i}') for i in range(2)]
-        (course := mommy.make(Course)).save()
-        (lesson := mommy.make(Lesson, course=course)).save()
-        (instance := mommy.make(LessonProgress, attendance=True, user=students[0], lesson=lesson)).save()
+        (course := baker.make(Course)).save()
+        (lesson := baker.make(Lesson, course=course)).save()
+        (instance := baker.make(LessonProgress, attendance=True, user=students[0], lesson=lesson)).save()
         data = LessonProgressSerializer(instance).data
         data['user'] = students[1].id
         url = reverse('lessonprogress-list')
@@ -192,10 +192,10 @@ class LessonProgressTests(MainSetup):
 
         teacher = self.test_setup()
         students = [self.test_setup(group='student', username=f'test_user{i}') for i in range(2)]
-        (course := mommy.make(Course)).save()
+        (course := baker.make(Course)).save()
         CourseAssignTeacher(course=course, user=teacher).save()
-        (lesson := mommy.make(Lesson, course=course)).save()
-        (instance := mommy.make(LessonProgress, user=students[0], lesson=lesson)).save()
+        (lesson := baker.make(Lesson, course=course)).save()
+        (instance := baker.make(LessonProgress, user=students[0], lesson=lesson)).save()
         data = LessonProgressSerializer(instance).data
         data['id'] = instance.id
         data['lesson'] = instance.lesson.id
@@ -213,9 +213,9 @@ class LessonProgressTests(MainSetup):
     def test_delete_lesson_progress(self):
         teacher = self.test_setup()
         students = [self.test_setup(group='student', username=f'test_user{i}') for i in range(2)]
-        (course := mommy.make(Course)).save()
-        (lesson := mommy.make(Lesson, course=course)).save()
-        (instance := mommy.make(LessonProgress, attendance=True, user=students[0], lesson=lesson)).save()
+        (course := baker.make(Course)).save()
+        (lesson := baker.make(Lesson, course=course)).save()
+        (instance := baker.make(LessonProgress, attendance=True, user=students[0], lesson=lesson)).save()
         data = LessonProgressSerializer(instance).data
         data['user'] = students[1].id
         amount = LessonProgress.objects.count()

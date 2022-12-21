@@ -4,7 +4,7 @@ from rest_framework import status
 from users.models import User
 from users.serializers import DefaultUserSerializer
 from imcslms.test import MainSetup
-from model_mommy import mommy
+from model_bakery import baker
 
 
 class UserTests(MainSetup):

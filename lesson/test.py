@@ -1,18 +1,20 @@
 from django.urls import reverse
-from model_mommy import mommy
+from model_bakery import baker
 from rest_framework import status
 
 from course.models import Course, CourseSchedule
-from lesson.serializers import LessonSerializer
+from lesson.serializers import LessonSerializer, AttachmentSerializer
 from imcslms.test import MainSetup
-from lesson.models import Lesson
+from lesson.models import Lesson, LessonContent, Attachment
 from users.models import CourseAssignTeacher
+from django.test.client import MULTIPART_CONTENT
+from django.forms import ModelForm
 
 
 class LessonTests(MainSetup):
     def test_create_lesson(self):
         self.test_setup()
-        data = LessonSerializer(mommy.make(Lesson)).data
+        data = LessonSerializer(baker.make(Lesson)).data
         url = reverse('lesson-list')
         amount = Lesson.objects.count()
         self.client.force_authenticate(user=self.user)
@@ -22,12 +24,12 @@ class LessonTests(MainSetup):
 
     def test_delete_lesson(self):
         self.test_setup()
-        (course := mommy.make(Course)).save()
-        mommy.make(Lesson, course=course).save()
+        (course := baker.make(Course)).save()
+        baker.make(Lesson, course=course).save()
         lesson = Lesson.objects.first()
         CourseAssignTeacher(course=course, user=self.user).save()
         CourseSchedule(course=course).save()
-        data = LessonSerializer(mommy.make(Lesson)).data
+        data = LessonSerializer(baker.make(Lesson)).data
         url = reverse('lesson-detail', kwargs=dict(pk=lesson.id))
         data['id'] = lesson.id
         amount = Lesson.objects.count()
@@ -38,11 +40,11 @@ class LessonTests(MainSetup):
 
     def test_update_lesson(self):
         self.test_setup()
-        (course := mommy.make(Course)).save()
-        mommy.make(Lesson, course=course).save()
+        (course := baker.make(Course)).save()
+        baker.make(Lesson, course=course).save()
         lesson = Lesson.objects.first()
         CourseAssignTeacher(course=course, user=self.user).save()
-        data = LessonSerializer(mommy.make(Lesson)).data
+        data = LessonSerializer(baker.make(Lesson)).data
         url = reverse(
             'lesson-detail',
             kwargs=dict(pk=lesson.id)
@@ -53,10 +55,10 @@ class LessonTests(MainSetup):
 
     def test_update_lesson_no_assignment(self):
         self.test_setup()
-        (course := mommy.make(Course)).save()
-        mommy.make(Lesson, course=course).save()
+        (course := baker.make(Course)).save()
+        baker.make(Lesson, course=course).save()
         lesson = Lesson.objects.first()
-        data = LessonSerializer(mommy.make(Lesson)).data
+        data = LessonSerializer(baker.make(Lesson)).data
         url = reverse(
             'lesson-detail',
             kwargs=dict(pk=lesson.id)
