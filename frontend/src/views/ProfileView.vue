@@ -54,7 +54,7 @@
                 </cv-structured-list-item>
                 <cv-structured-list-item>
                   <cv-structured-list-data>Аккаунт Cats</cv-structured-list-data>
-                  <cv-structured-list-data class="cats_status" >
+                  <cv-structured-list-data class="cats_status">
                     <cv-inline-loading active v-if="cats_loading"/>
                     <span v-else> {{ cats_status }}</span>
                   </cv-structured-list-data>
@@ -63,7 +63,8 @@
             </cv-structured-list>
           </div>
           <div class="info-btns">
-            <AddCatsModal v-if="!guestMode" class="add-cats"/>
+            <AddCatsModal v-if="!guestMode" @fetch-cats-account="fetch_cats_account"
+                          class="add-cats"/>
             <ChangePasswordModal v-if="!guestMode" class="change-pass"/>
           </div>
         </div>

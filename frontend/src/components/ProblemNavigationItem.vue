@@ -1,13 +1,19 @@
 <template>
   <li v-if="!loading" :class="{'status-ok': isAccepted,
                  'status-wa': isRejected,
-                 'status-np': !(isAccepted || isRejected)}" class="status">
+                 'status-aw': isAwaitingManual,
+                 'status-np': !(isAccepted || isRejected || isAwaitingManual)}" class="status">
     <div class="status-back"></div>
     <router-link :to="target">
       <component
           :is="Checkmark16"
           v-if="isAccepted"
           class="icon-accepted">
+      </component>
+      <component
+        :is="Checkmark16"
+        v-else-if="isAwaitingManual"
+        class="icon-accepted">
       </component>
       <component
           :is="Close16"
@@ -56,6 +62,9 @@ export default class ProblemNavigationItem extends Vue {
 
   get isRejected() {
     return this.getStatus === SUBMIT_STATUS.WRONG_ANSWER;
+  }
+  get isAwaitingManual() {
+    return this.getStatus === SUBMIT_STATUS.AWAITING_MANUAL;
   }
 
   async created() {
@@ -131,6 +140,14 @@ li
 
   &-ok
     background-color #4EB052
+
+    svg
+      width 18px
+      height 18px
+      margin 3px
+
+  &-aw
+    background-color #8fbd8f
 
     svg
       width 18px

@@ -57,10 +57,10 @@
 <script lang="ts">
 
 
-import { Component, Vue } from 'vue-property-decorator';
+import { Component } from 'vue-property-decorator';
 import api from '@/store/services/api'
-import SubmitModel from "@/models/SubmitModel";
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
+import userStore from "@/store/modules/user";
 
 
 @Component({ components: {} })
@@ -70,6 +70,7 @@ export default class AddCatsModal extends NotificationMixinComponent {
   catsPassword = '';
   catsPasswordRepeat = '';
   transmittingData = false;
+  userStore = userStore;
 
 
   get isButtonDisabled() {
@@ -87,8 +88,8 @@ export default class AddCatsModal extends NotificationMixinComponent {
   async buttonHandler() {
     this.transmittingData = true;
     await api.post('/api/cats_account/', {
-        login: this.catsLogin,
-        passwd: this.catsPassword
+      login: this.catsLogin,
+      passwd: this.catsPassword
     })
       .then(response => {
         this.notificationKind = 'success';
@@ -98,6 +99,8 @@ export default class AddCatsModal extends NotificationMixinComponent {
         if (response.status === 202) {
           this.notificationText = 'Аккаунт успешно обновлён';
         }
+        this.updateUser();
+        this.$emit('fetch-cats-account');
         this.showNotification = true;
       })
       .catch(error => {
@@ -107,6 +110,11 @@ export default class AddCatsModal extends NotificationMixinComponent {
         console.error(error);
       })
     this.transmittingData = false;
+  }
+
+  async updateUser() {
+    const updatedUser = await this.userStore.fetchUserById(this.userStore.user.id);
+    this.userStore.receiveUser(updatedUser);
   }
 }
 </script>

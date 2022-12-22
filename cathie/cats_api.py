@@ -3,6 +3,7 @@ import re
 
 import requests
 from django.conf import settings
+from rest_framework import status
 
 from cathie.exceptions import CatsAnswerCodeException, CatsNormalErrorException
 from cathie import authorization
@@ -103,13 +104,26 @@ def cats_get_problem_description_by_url(description_url):
 
 @authorization.check_authorization_for_cats
 def get_contests_from_cats():
-    url = f'{settings.CATS_URL}contests?json=1;search=has_user(this),since_finish<0;filter=all;'
-    url += f'sid={authorization.cats_sid()}'
-    answer = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
-    if answer.status_code != 200:
-        raise CatsAnswerCodeException(answer)
-    data = json.loads(answer.content.decode('utf-8'))
-    return data["contests"]
+    def intersect_data(obj_1, obj_2):
+        result = []
+        for elm_1 in obj_1:
+            for elm_2 in obj_2:
+                if elm_2['id'] == elm_1['id']:
+                    result.append(elm_1)
+                    break
+        return result
+
+    url_my = f'{settings.CATS_URL}contests?json=1;'
+    get_my_contests = requests.get(url_my + 'filter=my;' + f'sid={authorization.cats_sid()}',
+                                   headers={'User-Agent': 'Mozilla/5.0'})
+    get_unfinished_contests = requests.get(url_my + 'filter=unfinished;' + f'sid={authorization.cats_sid()}',
+                                           headers={'User-Agent': 'Mozilla/5.0'})
+    if get_my_contests.status_code != status.HTTP_200_OK or \
+            get_unfinished_contests.status_code != status.HTTP_200_OK:
+        raise CatsAnswerCodeException(get_my_contests)
+    data = intersect_data(json.loads(get_my_contests.content.decode('utf-8'))['contests'],
+                          json.loads(get_unfinished_contests.content.decode('utf-8'))['contests'])
+    return data
 
 
 @authorization.check_authorization_for_cats
