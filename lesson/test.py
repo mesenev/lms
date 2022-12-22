@@ -87,5 +87,8 @@ class AttachmentsTests(MainSetup):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Attachment.objects.count(), amount + 1)
-        baker_model.delete()
+        Attachment.objects.all().delete()
 
+    def test_delete_attachment(self):
+
+        self.test_setup()
