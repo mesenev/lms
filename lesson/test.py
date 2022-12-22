@@ -1,3 +1,4 @@
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from model_bakery import baker
 from rest_framework import status
@@ -7,8 +8,6 @@ from lesson.serializers import LessonSerializer, AttachmentSerializer
 from imcslms.test import MainSetup
 from lesson.models import Lesson, LessonContent, Attachment
 from users.models import CourseAssignTeacher
-from django.test.client import MULTIPART_CONTENT
-from django.forms import ModelForm
 
 
 class LessonTests(MainSetup):
@@ -69,3 +68,24 @@ class LessonTests(MainSetup):
 
     def test_read_lesson(self):
         pass
+
+
+class AttachmentsTests(MainSetup):
+
+    def test_create_attachment(self):
+
+        self.test_setup()
+
+        baker_model = baker.make(Attachment, _fill_optional=True)
+
+        attachment = AttachmentSerializer(baker_model).data
+        test_file = SimpleUploadedFile('test_file', b'ttttt')
+        attachment['file_url'] = test_file
+        amount = Attachment.objects.count()
+
+        response = self.client.post('/api/attachments/', data=attachment)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Attachment.objects.count(), amount + 1)
+        baker_model.delete()
+
