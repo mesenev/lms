@@ -11,6 +11,7 @@ from users.models import CourseAssignTeacher
 
 
 class LessonTests(MainSetup):
+    # ToDo: check only teacher can create lesson
     def test_create_lesson(self):
         self.test_setup()
         data = LessonSerializer(baker.make(Lesson)).data
@@ -73,12 +74,8 @@ class LessonTests(MainSetup):
 class AttachmentsTests(MainSetup):
 
     def test_create_attachment(self):
-
         self.test_setup()
-
-        baker_model = baker.make(Attachment, _fill_optional=True)
-
-        attachment = AttachmentSerializer(baker_model).data
+        attachment = AttachmentSerializer(baker.make(Attachment, _fill_optional=True)).data
         test_file = SimpleUploadedFile('test_file', b'ttttt')
         attachment['file_url'] = test_file
         amount = Attachment.objects.count()
@@ -90,5 +87,27 @@ class AttachmentsTests(MainSetup):
         Attachment.objects.all().delete()
 
     def test_delete_attachment(self):
-
         self.test_setup()
+
+        (course := baker.make(Course)).save()
+
+        baker.make(Lesson, course=course).save()
+        lesson = Lesson.objects.first()
+
+        baker.make(LessonContent, lesson=lesson).save()
+        material = LessonContent.objects.first()
+
+        baker.make(Attachment, material=material).save()
+        attachment = Attachment.objects.first()
+
+        CourseAssignTeacher(course=course, user=self.user).save()
+        CourseSchedule(course=course).save()
+
+        data = AttachmentSerializer(baker.make(Attachment)).data
+        url = reverse('attachments-detail', kwargs=dict(pk=attachment.id))
+        data['id'] = attachment.id
+        amount = Attachment.objects.count()
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Lesson.objects.count(), amount - 1)
