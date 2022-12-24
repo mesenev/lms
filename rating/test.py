@@ -33,7 +33,8 @@ class CourseProgressTests(MainSetup):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), len(students))
-        self.assertEqual(response.data[0].get('progress')['13']['CW'], 50.0)
+        progress = response.data[0].get('progress')
+        self.assertEqual(progress[list(progress.keys())[0]]['CW'], 50.0)
 
         url = reverse('courseprogress-detail', kwargs=dict(pk=-1))
         response = self.client.get(url, format='json')
@@ -118,7 +119,7 @@ class LessonProgressTests(MainSetup):
             response = self.client.get(url, format='json')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             if submit is not None:
-                submit_status_by_resp = response.data[0].get('solved').get('CW').get('7')
+                submit_status_by_resp = response.data[0].get('solved').get('CW').get(str(submit.problem.id))
                 self.assertEqual(submit_status_by_resp, [submit.status, submit.id])
 
             url = f'/api/lessonprogress/?{filter_type}_id=-1'

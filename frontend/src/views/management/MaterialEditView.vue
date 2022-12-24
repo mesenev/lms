@@ -37,7 +37,11 @@
               </template>
             </cv-structured-list>
           </div>
-          <input type="file" id="files_input" ref="files" multiple
+          <input type="file"
+                 id="files_input"
+                 ref="files"
+                 multiple
+                 :disabled="attachmentLoading"
                  @change="uploadFiles($event.target.files)"/>
           <div class="change__btn">
             <cv-button :disabled="canChangeMaterial"
@@ -82,7 +86,6 @@ export default class MaterialEditView extends Vue {
     is_teacher_only: false,
   }
 
-  attachmentsEdit: Array<FormData> = [];
   materialEdit: MaterialModel = { ...this.material }
   showNotification = false;
   notificationKind = 'success';
@@ -91,6 +94,7 @@ export default class MaterialEditView extends Vue {
   confirmModalTrigger = false;
   approvedText = '';
   deletingAttachmentId: number | null = null;
+  attachmentLoading = false;
 
   hideSuccess() {
     this.showNotification = false;
@@ -109,14 +113,25 @@ export default class MaterialEditView extends Vue {
 
   uploadFiles(fileList: File[]) {
     fileList.forEach((element) => {
+  async uploadFiles(fileList: File[]) {
+    this.attachmentLoading = true;
+    for (const element of fileList) {
       const fd = new FormData();
       fd.append('id', '-1')
       fd.append('name', element.name)
       fd.append('material', this.material.id.toString())
       fd.append('file_url', element)
       fd.append('file_format', element.type)
-      this.attachmentsEdit.push(fd);
-    });
+      await this.materialStore.createAttachment(fd).catch(error => {
+        this.notificationKind = 'error';
+        this.notificationText = `Что-то пошло не так: ${error.message}`;
+        this.showNotification = true;
+      })
+    }
+    await this.updateAttachments();
+    const input = window.document.getElementById('files_input') as HTMLInputElement
+    input.value = '';
+    this.attachmentLoading = false;
   }
 
   get currentMaterial(): MaterialModel {
@@ -173,6 +188,21 @@ export default class MaterialEditView extends Vue {
     if (!this.deletingAttachmentId)
       throw Error;
     this.materialStore.deleteAttachment(this.deletingAttachmentId);
+  }
+
+  async updateAttachments() {
+    await this.materialStore.fetchAttachmentsByMaterialId(this.materialId);
+  }
+
+  async deleteAttachment() {
+    if (!this.deletingAttachmentId)
+      throw Error;
+    await this.materialStore.deleteAttachment(this.deletingAttachmentId)
+      .catch(error => {
+        this.notificationKind = 'error';
+        this.notificationText = `Что-то пошло не так: ${error.message}`
+        this.showNotification = true;
+      })
   }
 
   async updateAttachments() {
