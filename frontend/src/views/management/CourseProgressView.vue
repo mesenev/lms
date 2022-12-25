@@ -1,54 +1,63 @@
 <template>
   <div class="bx--grid">
-    <cv-data-table v-if="!loading" title="Успеваемость курса">
-      <template slot="helper-text">
-        <router-link
-          :to="{ name: 'CourseView', params: { courseId: course.id } }"
-          tag="p" class="course--title">
-          {{ course.name }}
-        </router-link>
-      </template>
-      <template slot="actions">
+    <div v-if="!loading">
+      <div class="main-header">
+        <div class="main-title">
+          <h2>Успеваемость курса: {{ course.name }}</h2>
+        </div>
         <cv-button :disabled="change" v-on:click="mark">
           Отметить посещаемость
         </cv-button>
-      </template>
-      <template slot="headings">
-        <cv-data-table-heading v-for="(column, id) in columns" :key="id" :sortable=true>
-          <h5 v-if="(column.id === 0)">Результаты</h5>
-          <h5 v-else-if="(column.id === -2)">{{ column.name }}</h5>
-          <div v-else @click="openSubmitOrProblem(column.id)">
-            <h5>{{ column.name }}</h5>
-          </div>
-        </cv-data-table-heading>
-      </template>
-      <template slot="data">
-        <cv-data-table-row v-for="row in progress" :key="row.id">
-          <cv-data-table-cell>
-            <router-link
-              :to="{ name: 'profile-page', params: { userId: users[row.user].id} }"
-              class="course--title" tag="p">
-              <UserComponent :userProp="users[row.user]"/>
-            </router-link>
-          </cv-data-table-cell>
-          <cv-data-table-cell v-for="les in lessons" :key="les.id">
-            {{ sum(row.progress[les.id]) }}
-            <div v-for="(value, name) in row.progress[les.id]" :key="value+name"
-                 class="mark">
-              <cv-tag :label="value.toString()" :kind="color(name)"/>
-            </div>
-            <cv-checkbox
-              :checked="student_attendance[`${row.user}-${les.id}`].attendance"
-              :value="`${row.user}-${les.id}`"
-              class="mark"
-              @change="attendanceChange(row.user, les.id)"/>
-          </cv-data-table-cell>
-          <cv-data-table-cell>
-            {{ average(row.lessons) }}
-          </cv-data-table-cell>
-        </cv-data-table-row>
-      </template>
-    </cv-data-table>
+      </div>
+      <div class="table-wrapper">
+        <cv-data-table @sort="Sort">
+          <template slot="headings">
+            <cv-data-table-heading class="fixed-col thead-element"
+                                   v-for="(column, id) in columns" :key="id"
+                                   :sortable=true>
+              <h5 v-if="(column.id === 0)">Результаты</h5>
+              <h5 v-else-if="(column.id === -2)">{{ column.name }}</h5>
+              <div v-else @click="openSubmitOrProblem(column.id)">
+                <h5>{{ column.name }}</h5>
+              </div>
+            </cv-data-table-heading>
+          </template>
+          <template slot="data">
+            <cv-data-table-row v-for="row in progress" :key="row.user">
+              <cv-data-table-cell class="fixed-col">
+                <router-link
+                  :to="{ name: 'profile-page', params: { userId: row.user} }"
+                  class="course--title" tag="p">
+                  <UserComponent :userProp="users[row.user]"/>
+                </router-link>
+              </cv-data-table-cell>
+              <cv-data-table-cell v-for="les in lessons"
+                                  :key="les.id"
+                                  class="tbody-element">
+                <div class="tbody-data">
+                  <div class="marks">
+                    <cv-tag class="result-mark" :label="sum(row.progress[les.id])"/>
+                    <div v-for="(value, name) in row.progress[les.id]" :key="value+name"
+                         class="mark">
+                      <cv-tag :label="value.toString()" :kind="color(name)"/>
+                    </div>
+                  </div>
+                  <div>
+                    <cv-checkbox
+                      :checked="student_attendance[`${row.user}-${les.id}`].attendance"
+                      :value="`${row.user}-${les.id}`"
+                      @change="attendanceChange(row.user, les.id)"/>
+                  </div>
+                </div>
+              </cv-data-table-cell>
+              <cv-data-table-cell>
+                {{ average(row.progress) }}
+              </cv-data-table-cell>
+            </cv-data-table-row>
+          </template>
+        </cv-data-table>
+      </div>
+    </div>
     <cv-data-table-skeleton v-else :columns="2" :rows="6"/>
   </div>
 </template>
@@ -154,17 +163,17 @@ export default class CourseProgressView extends Vue {
   }
 
   sum(type: any) {
-    return (type['CW'] + type['HW'] + type['EX'])
+    return (type['CW'] + type['HW'] + type['EX']).toString();
   }
 
-  average(progress: Dictionary<Dictionary<number>>) {
-    let sum = 0;
-    for (const i in progress) {
-      sum += progress[i]['CW'];
-      sum += progress[i]['HW'];
-      sum += progress[i]['EX'];
+  average(progress: Dictionary<string>) {
+    let sum = 0 as any;
+    for (const submits of Object.values(progress)) {
+      sum += submits['CW' as any];
+      sum += submits['HW' as any];
+      sum += submits['EX' as any];
     }
-    return sum;
+    return sum.toString();
   }
 
   //TODO: change it with classical link
@@ -190,17 +199,94 @@ export default class CourseProgressView extends Vue {
     }
     this.student_attendance = _.cloneDeep(this.student_attendance_copy);
   }
+
+  Sort(sortBy: { index: string; order: string }) {
+    let order = -1;
+    console.log(this.progress);
+    if (sortBy.order == "none") {
+      return this.students_progress.sort((a, b) => {
+        return a.user - b.user
+      })
+    }
+    if (sortBy.order == "ascending") {
+      order *= -1;
+    }
+    if (sortBy.index == "0") {
+      return this.students_progress.sort((a, b) => {
+        return (this.users[a.user].last_name > this.users[b.user].last_name) ? order : -1 * order;
+      })
+    } else if (sortBy.index == (this.columns.length - 1).toString()) {
+      return this.students_progress.sort((a, b) => {
+        const A = a.progress ? this.average(a.progress) : 0;
+        const B = b.progress ? this.average(b.progress) : 0;
+        return A > B ? order : -1 * order;
+      })
+    } else {
+      return this.students_progress.sort((a, b) => {
+        const A = a.progress ? this.sum(a.progress[sortBy.index]) : 0;
+        const B = b.progress ? this.sum(b.progress[sortBy.index]) : 0;
+        return A > B ? order : -1 * order;
+      })
+    }
+  }
 }
 </script>
 
 <style scoped lang="stylus">
-.course--title
-  color inherit
-  cursor pointer
-  display inline
+.main-header
+  display flex
+  flex-direction row
+  justify-content space-between
+  margin-bottom 1rem
+
+.main-title
+  margin-left 0
+  margin-bottom 0
+
+.table-wrapper
+  margin-top 1rem
+  border 0.5px solid var(--cds-ui-05)
+  border-collapse separate
+  overflow-x auto
+  width 100%
+
+.tbody-element, .fixed-col
+  min-width 16rem
+  border-right 0.5px solid var(--cds-ui-05)
+  z-index 0
+
+.tbody-data
+  display flex
+  flex-direction row
+  justify-content space-around
+
+.fixed-col:first-child
+  text-align-last left
+  z-index 2
+  position sticky
+  left 0
+
+.fixed-col:last-child
+  border-right none
+
+/deep/ table
+  text-align-last center
+  border-collapse separate
+
+/deep/ th
+  padding-top 0.5rem
+  padding-bottom 0.5rem
+
+/deep/ .bx--data-table-container
+  padding-top 0
+
+.result-mark
+  color var(--cds-ui-05)
+  background-color var(--cds-ui-background)
+  border var(--cds-ui-05) 0.5px solid
 
 .mark
-  display: inline-block;
+  display: inline-flex;
 
 .attendance
   display inline
@@ -215,9 +301,6 @@ export default class CourseProgressView extends Vue {
 .items
   background-color var(--cds-ui-02)
   padding var(--cds-spacing-05)
-
-  .bx--structured-list-thead
-    display none
 
 .item
   min-height 85px
