@@ -4,7 +4,7 @@
       <div class="main-title">
         <h2>Успеваемость урока: {{ currentLesson.name }}</h2>
       </div>
-      <div class="table-actions">
+      <div class="table-actions" v-if="progress.length">
         <cv-toggle v-model="dontSolved"
                    value="value">
           <template slot="text-left">Отображать только студентов без решений</template>
@@ -18,7 +18,7 @@
           </cv-dropdown>
         </div>
       </div>
-      <div class="table-wrapper">
+      <div class="table-wrapper" v-if="progress.length">
         <cv-data-table @sort="Sort">
           <template slot="headings">
             <cv-data-table-heading class="fixed-col thead-element"
@@ -58,6 +58,7 @@
           >
         </cv-data-table>
       </div>
+      <empty-list-component v-else :text="emptyText" list-of="students"/>
     </div>
     <cv-data-table-skeleton v-else :columns="2" :rows="6"/>
   </div>
@@ -80,8 +81,9 @@ import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Dictionary } from "vue-router/types/router";
 import SubmitModel from "@/models/SubmitModel";
+import EmptyListComponent from "@/components/EmptyListComponent.vue";
 
-@Component({ components: { SubmitStatus, UserComponent, UserAvatar20, } })
+@Component({ components: { EmptyListComponent, SubmitStatus, UserComponent, UserAvatar20, } })
 export default class LessonProgressView extends Vue {
   @Prop() lessonId!: number;
 
@@ -110,6 +112,7 @@ export default class LessonProgressView extends Vue {
   loading = true;
   dontSolved = false;
   problemsType = '';
+  emptyText = '';
 
   get columns() {
     const a = this.problems.map(l => (
@@ -146,6 +149,7 @@ export default class LessonProgressView extends Vue {
       this.submits[problem.id] = await this.submitStore.fetchProblemStats(problem.id);
     }
     this.students = (await this.progressStore.fetchLessonProgressByLessonId(this.lessonId));
+    this.emptyText = 'Ни один студент не записан на курс';
     this.loading = false;
   }
 
@@ -274,6 +278,16 @@ export default class LessonProgressView extends Vue {
 
 /deep/ .tag
   cursor pointer
+
+/deep/ .empty-list-wrapper
+  margin-top 5rem
+  text-align center
+
+  h4
+    font-size var(--cds-productive-heading-04-font-size)
+
+  p
+    font-size var(--cds-productive-heading-03-font-size)
 
 .attendance
   display inline
