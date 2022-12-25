@@ -36,7 +36,7 @@
                                   class="tbody-element">
                 <div class="tbody-data">
                   <div class="marks">
-                    <cv-tag class="result-mark" :label="sum(row.progress[les.id])"/>
+                    <cv-tag class="result-mark" :label="sum(row.progress[les.id]).toString()"/>
                     <div v-for="(value, name) in row.progress[les.id]" :key="value+name"
                          class="mark">
                       <cv-tag :label="Math.trunc(value).toString()" :kind="color(name)"/>
@@ -51,7 +51,7 @@
                 </div>
               </cv-data-table-cell>
               <cv-data-table-cell>
-                {{ average(row.progress) }}
+                {{ average(row.progress).toString() }}
               </cv-data-table-cell>
             </cv-data-table-row>
           </template>
@@ -167,7 +167,7 @@ export default class CourseProgressView extends Vue {
   }
 
   sum(type: any) {
-    return Math.trunc(type['CW'] + type['HW'] + type['EX']).toString();
+    return Math.trunc(type['CW'] + type['HW'] + type['EX']);
   }
 
   average(progress: Dictionary<string>) {
@@ -177,7 +177,7 @@ export default class CourseProgressView extends Vue {
       sum += submits['HW' as any];
       sum += submits['EX' as any];
     }
-    return Math.trunc(sum).toString();
+    return Math.trunc(sum);
   }
 
   //TODO: change it with classical link
