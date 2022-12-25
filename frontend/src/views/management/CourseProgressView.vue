@@ -5,11 +5,11 @@
         <div class="main-title">
           <h2>Успеваемость курса: {{ course.name }}</h2>
         </div>
-        <cv-button :disabled="change" v-on:click="mark">
+        <cv-button :disabled="change" v-on:click="mark" v-if="progress.length">
           Отметить посещаемость
         </cv-button>
       </div>
-      <div class="table-wrapper">
+      <div class="table-wrapper" v-if="progress.length">
         <cv-data-table @sort="Sort">
           <template slot="headings">
             <cv-data-table-heading class="fixed-col thead-element"
@@ -39,10 +39,10 @@
                     <cv-tag class="result-mark" :label="sum(row.progress[les.id])"/>
                     <div v-for="(value, name) in row.progress[les.id]" :key="value+name"
                          class="mark">
-                      <cv-tag :label="value.toString()" :kind="color(name)"/>
+                      <cv-tag :label="Math.trunc(value).toString()" :kind="color(name)"/>
                     </div>
                   </div>
-                  <div>
+                  <div class="mark-checkbox">
                     <cv-checkbox
                       :checked="student_attendance[`${row.user}-${les.id}`].attendance"
                       :value="`${row.user}-${les.id}`"
@@ -57,6 +57,7 @@
           </template>
         </cv-data-table>
       </div>
+      <empty-list-component v-else :text="emptyText" list-of="students"/>
     </div>
     <cv-data-table-skeleton v-else :columns="2" :rows="6"/>
   </div>
@@ -81,8 +82,9 @@ import { Dictionary } from "vue-router/types/router";
 import CourseModel from "@/models/CourseModel";
 import LessonModel from "@/models/LessonModel";
 import api from "@/store/services/api";
+import EmptyListComponent from "@/components/EmptyListComponent.vue";
 
-@Component({ components: { SubmitStatus, UserComponent, UserAvatar20 } })
+@Component({ components: { EmptyListComponent, SubmitStatus, UserComponent, UserAvatar20 } })
 export default class CourseProgressView extends Vue {
   @Prop() courseId!: number;
 
@@ -98,6 +100,7 @@ export default class CourseProgressView extends Vue {
   progressStore = progressStore;
   problemStore = problemStore;
   lessonStore = lessonStore;
+  emptyText = '';
 
   loading = true;
   sortable = true;
@@ -141,6 +144,7 @@ export default class CourseProgressView extends Vue {
     this.users = await this.userStore.fetchStudentsByCourseId(this.courseId);
     this.lessons = await this.lessonStore.fetchLessonsByCourseId(this.courseId);
     this.s = await this.progressStore.fetchAttendance(this.courseId);
+    this.emptyText = 'Ни один студент не записан на данный курс'
 
     for (const [key, val] of Object.entries(this.s))
       for (const at of val)
@@ -163,7 +167,7 @@ export default class CourseProgressView extends Vue {
   }
 
   sum(type: any) {
-    return (type['CW'] + type['HW'] + type['EX']).toString();
+    return Math.trunc(type['CW'] + type['HW'] + type['EX']).toString();
   }
 
   average(progress: Dictionary<string>) {
@@ -173,7 +177,7 @@ export default class CourseProgressView extends Vue {
       sum += submits['HW' as any];
       sum += submits['EX' as any];
     }
-    return sum.toString();
+    return Math.trunc(sum).toString();
   }
 
   //TODO: change it with classical link
@@ -280,13 +284,30 @@ export default class CourseProgressView extends Vue {
 /deep/ .bx--data-table-container
   padding-top 0
 
+.marks
+  min-width 180px
+
 .result-mark
   color var(--cds-ui-05)
   background-color var(--cds-ui-background)
   border var(--cds-ui-05) 0.5px solid
 
 .mark
-  display: inline-flex;
+  display: inline-flex
+
+.mark-checkbox
+  display flex
+  align-items center
+
+/deep/ .empty-list-wrapper
+  margin-top 5rem
+  text-align center
+
+  h4
+    font-size var(--cds-productive-heading-04-font-size)
+
+  p
+    font-size var(--cds-productive-heading-03-font-size)
 
 .attendance
   display inline
