@@ -51,7 +51,7 @@
                 </div>
               </cv-data-table-cell>
               <cv-data-table-cell>
-                {{ average(user) }}
+                {{ average(user).toString() + '%' }}
               </cv-data-table-cell>
             </cv-data-table-row>
           </template>
@@ -177,7 +177,7 @@ export default class LessonProgressView extends Vue {
     return userId.solved[problemType][problemId];
   }
 
-  average(user: UserProgress): string {
+  average(user: UserProgress): number {
     const problemIds = this.problems.filter(x => x.type === this.problemsType).map(x => x.id);
     let solvedCount = 0;
 
@@ -188,7 +188,7 @@ export default class LessonProgressView extends Vue {
     }
     const averageResult = (solvedCount / problemIds.length) * 100;
 
-    return (problemIds.length ? Math.trunc(averageResult) : 0) + '%';
+    return problemIds.length ? Math.trunc(averageResult) : 0;
   }
 
   Sort(sortBy: { index: string; order: string }) {
