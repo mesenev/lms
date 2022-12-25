@@ -299,6 +299,9 @@ export default class CourseProgressView extends Vue {
   display flex
   align-items center
 
+.user-component
+  cursor pointer
+
 /deep/ .empty-list-wrapper
   margin-top 5rem
   text-align center

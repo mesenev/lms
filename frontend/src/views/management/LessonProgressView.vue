@@ -279,6 +279,9 @@ export default class LessonProgressView extends Vue {
 /deep/ .tag
   cursor pointer
 
+.user-component
+  cursor pointer
+
 /deep/ .empty-list-wrapper
   margin-top 5rem
   text-align center
