@@ -249,7 +249,9 @@ export default class LessonEditView extends NotificationMixinComponent {
 
 .edit-content
   padding-top 1px
-  background-color var(--cds-ui-background)
+  padding-right 20px
+  padding-bottom 20px
+  background-color var(--cds-ui-01)
   max-width 27rem
 
 .empty-tasks
@@ -284,4 +286,10 @@ export default class LessonEditView extends NotificationMixinComponent {
 
 .accordion /deep/ .bx--accordion__content
   padding-right 0
+
+.header
+  color var(--cds-text-01)
+  display flex
+  flex-direction row
+  align-items baseline
 </style>
