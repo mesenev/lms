@@ -255,6 +255,7 @@ export default class LessonEditView extends NotificationMixinComponent {
   max-width 27rem
 
 .empty-tasks
+  color var(--cds-text-01)
   text-align center
 
 .lesson-buttons

@@ -238,7 +238,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
 
 .submit-header
   padding 1em
-  border-radius 5px 5px 0 0
+  border-radius 5px 0 0 0
 
   .line
     display flex
