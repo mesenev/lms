@@ -139,7 +139,7 @@ export default class App extends Vue {
     flex-shrink 0
   &-footer
     min-height 100px
-    background-color var(--cds-ui-01)
+    background-color #161616
     color var(--cds-text-05)
     font-size 0.7em
     &-label

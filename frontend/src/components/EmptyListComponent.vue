@@ -31,4 +31,13 @@ export default class EmptyListComponent extends Vue {
   width 100px
   height 100px
   opacity 0.8
+
+.empty
+  &-title
+    color var(--cds-text-01)
+  &-list-icon
+    color var(--cds-text-01)
+  &-text
+    color var(--cds-text-01)
+
 </style>

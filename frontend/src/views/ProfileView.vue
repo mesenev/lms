@@ -175,11 +175,15 @@ export default class ProfileView extends Vue {
   text-align center
 
 .header-title
+  color var(--cds-text-01)
   margin-left -2rem
   margin-top 2rem
 
 .courses-block
   margin 50px
+
+  h3
+    color var(--cds-text-01)
 
 .info-block
   margin 50px
@@ -205,6 +209,10 @@ export default class ProfileView extends Vue {
   display flex
   flex-direction row
   justify-content space-between
+
+  h3
+    color var(--cds-text-01)
+
 
 .list
   margin-top 2rem
