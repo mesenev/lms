@@ -1,7 +1,7 @@
 <template>
   <cv-grid>
     <cv-row class="header">
-      <h1>Отправленные решения </h1>
+      <h1>Отправленные решения</h1>
     </cv-row>
     <cv-row>
       <cv-column :lg="8" class="items">
@@ -156,6 +156,8 @@ interface TablePagination {
 .header
   padding-bottom: 1.5rem
   padding-top: 1rem
+  color var(--cds-text-01)
+
 
 .items
   background-color var(--cds-ui-02)

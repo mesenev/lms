@@ -139,6 +139,7 @@ export default class EditCourseLessons extends NotificationMixinComponent {
   margin-bottom 0
 
 .lesson--list--title
+  color var(--cds-text-01)
   margin-bottom 1rem
 
 .lesson--list
@@ -154,6 +155,7 @@ export default class EditCourseLessons extends NotificationMixinComponent {
   align-items center
 
 .title
+  color var(--cds-text-01)
   display flex
   flex-direction row
   align-items baseline
@@ -172,4 +174,7 @@ export default class EditCourseLessons extends NotificationMixinComponent {
 
 .lesson-card:hover
   border-bottom 1px solid var(--cds-ui-05)
+
+.icons
+  color var(--cds-inverse-02)
 </style>

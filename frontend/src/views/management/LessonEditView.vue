@@ -46,13 +46,13 @@
 
       <div class="bx--col-lg-5 bx--col-md-4">
         <cv-content-switcher size="small">
-          <cv-content-switcher-button owner-id="CW" selected>
+          <cv-content-switcher-button class="type-of-task-tab" owner-id="CW" selected>
             Классная работа
           </cv-content-switcher-button>
-          <cv-content-switcher-button owner-id="HW">
+          <cv-content-switcher-button class="type-of-task-tab" owner-id="HW">
             Домашняя работа
           </cv-content-switcher-button>
-          <cv-content-switcher-button owner-id="EX">
+          <cv-content-switcher-button class="type-of-task-tab" owner-id="EX">
             Доп. задания
           </cv-content-switcher-button>
         </cv-content-switcher>
@@ -249,10 +249,13 @@ export default class LessonEditView extends NotificationMixinComponent {
 
 .edit-content
   padding-top 1px
-  background-color var(--cds-ui-background)
+  padding-right 20px
+  padding-bottom 20px
+  background-color var(--cds-ui-01)
   max-width 27rem
 
 .empty-tasks
+  color var(--cds-text-01)
   text-align center
 
 .lesson-buttons
@@ -284,4 +287,14 @@ export default class LessonEditView extends NotificationMixinComponent {
 
 .accordion /deep/ .bx--accordion__content
   padding-right 0
+
+.type-of-task-tab
+  background-color: var(--cds-active-secondary)
+  color: white
+
+.header
+  color var(--cds-text-01)
+  display flex
+  flex-direction row
+  align-items baseline
 </style>

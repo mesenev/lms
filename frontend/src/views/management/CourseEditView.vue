@@ -281,11 +281,12 @@ export default class CourseEditView extends Vue {
   margin-top 1rem
 
 .title
+  color var(--cds-text-01)
   margin-left 3rem
   margin-top 1rem
 
 .items
-  background-color var(--cds-ui-02)
+  background-color var(--cds-ui-03)
   padding var(--cds-spacing-05)
 
   .change-btn:not([disabled = disabled])
