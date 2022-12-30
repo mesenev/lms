@@ -244,7 +244,7 @@ export default class LessonEditView extends NotificationMixinComponent {
 .classwork, .homework, .extrawork
   max-height 300px
   overflow-y auto
-  border black 1px solid
+  border var(--cds-ui-05) 1px solid
   margin: 20px 0
 
 .edit-content
