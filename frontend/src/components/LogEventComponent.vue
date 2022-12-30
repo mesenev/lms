@@ -63,7 +63,7 @@
         class="searchbar"
         v-on:keydown.enter="createMessageHandler">
       </cv-text-input>
-      <cv-button class="btn-send" kind="tertiary" @click="createMessageHandler">Отправить</cv-button>
+      <cv-button class="btn-send" @click="createMessageHandler">Отправить</cv-button>
     </div>
   </div>
 </template>
@@ -415,7 +415,7 @@ span.event--date
   padding 0.5rem
   border solid #8d8d8d
   border-width 0 0.5px 0.5px 0.5px
-  border-bottom-left-radius 5px
+  border-bottom-right-radius 5px
 </style>
 
 <style lang="stylus">
@@ -424,6 +424,9 @@ span.event--date
     display none
 
 .searchbar
+  flex-direction row
+  align-items center
+
   input
     border-bottom 0
     border-radius 5px

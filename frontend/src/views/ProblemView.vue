@@ -294,9 +294,11 @@ h1
   display flex
 
   &--submit-component
+    margin-bottom 1rem
     flex 59%
 
   &--submit-list
+    margin-bottom 1rem
     flex 40%
 
   @media (max-width: 767px)

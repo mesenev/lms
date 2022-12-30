@@ -28,27 +28,29 @@
     </div>
     <div class="buttons-block-wrapper">
       <div class="handlers bx--row buttons-container">
-        <cv-button
-          v-if="!loading"
-          :disabled="!canSubmit"
-          class="submit-btn bx--col-lg-3"
-          v-on:click="confirmSubmit">
-          Отправить решение
-        </cv-button>
-        <cv-button-skeleton v-else></cv-button-skeleton>
-        <cv-link
-          v-if="!this.cats_account"
-          :to="{
-          name: 'profile-page',
-          params: { userId: userStore.user.id }
-        }">
-          <cv-tooltip tip="Установите cats аккаунт для отправки"/>
-        </cv-link>
-        <div v-if="isStaff" class="handlers-staff bx--row">
+        <div class="submit-container">
+          <cv-button
+            v-if="!loading"
+            :disabled="!canSubmit"
+            class="submit-btn"
+            v-on:click="confirmSubmit">
+            Отправить решение
+          </cv-button>
+          <cv-button-skeleton v-else></cv-button-skeleton>
+          <cv-link
+            v-if="!this.cats_account"
+            :to="{
+            name: 'profile-page',
+            params: { userId: userStore.user.id }
+          }">
+            <cv-tooltip tip="Установите cats аккаунт для отправки"/>
+          </cv-link>
+        </div>
+        <div v-if="isStaff" class="handlers-staff">
           <cv-button
             v-if="!loading"
             :disabled="isAcceptDisabled"
-            class="submit-btn accepted bx--col-lg-3"
+            class="submit-btn accepted"
             v-on:click="acceptSubmit">
             Принять
           </cv-button>
@@ -56,7 +58,7 @@
           <cv-button
             v-if="!loading"
             :disabled="isRejectDisabled"
-            class="submit-btn rejected bx--col-lg-3"
+            class="submit-btn rejected"
             kind='danger'
             v-on:click="rejectSubmit">
             Отклонить
@@ -302,6 +304,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
 
 .buttons-block-wrapper
   background-color var(--cds-ui-03)
+  border-radius 0 0 0 5px
 
   .handlers
     display flex
@@ -310,11 +313,25 @@ export default class SubmitComponent extends NotificationMixinComponent {
     align-items center
     vertical-align center
 
+.handlers-staff
+  display flex
+  width fit-content
+  gap 0.5rem
+
+.submit-btn
+  width min-content
+
 //justify-content center
 
 .buttons-container
   justify-content space-between
-  margin 0 .5rem 0 .5rem;
+  margin 0 .05rem 0 .5rem
+
+.submit-container
+  display flex
+  flex-direction row
+  align-items center
+  gap 0.5rem
 
 </style>
 
@@ -322,6 +339,9 @@ export default class SubmitComponent extends NotificationMixinComponent {
 <style lang="stylus" scoped>
 .bx--dropdown
   border-bottom 0
+
+/deep/.bx--list-box__field
+  display flex
 
   .bx--list-box__field, ui
     border 0.5px solid #8D8D8D
