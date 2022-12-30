@@ -1,25 +1,28 @@
 <template>
   <div class="bx--grid">
     <div class="bx--row header-container">
-      <h1 v-if="!loading && lesson" class="main-title">
-        {{ lesson.name }}
-      </h1>
-      <cv-skeleton-text
-        v-else :heading="true" class="main-title" width="'35%'"/>
-      <div class="description-container">
-        <span v-if="!loading && lesson">
-          Дедлайн {{ lesson.deadline }}
-        </span>
-        <cv-skeleton-text v-else width="'35%'"/>
-        <div v-if="isStaff">
-          <cv-button-skeleton v-if="changingVisibility || !this.lesson" kind="ghost"/>
-          <cv-button v-else
-                     class="lesson-hide-button"
-                     :icon="hiddenIcon"
-                     kind="ghost"
-                     v-on:click="changeLessonVisibility">
-            {{ (lesson.is_hidden) ? "Открыть урок" : "Скрыть урок" }}
-          </cv-button>
+      <div class="main-title">
+        <h1 v-if="!loading && lesson" class=""> Урок: {{ lesson.name }} </h1>
+        <cv-skeleton-text v-else :heading="true" class="main-title" width="'35%'"/>
+        <div class="description-container">
+          <span v-if="!loading && lesson" class="lesson-description">
+            {{ lesson.description }}
+          </span>
+          <cv-skeleton-text v-else width="'35%'"/>
+          <span v-if="!loading && lesson">
+            Дедлайн {{ lesson.deadline }}
+          </span>
+          <cv-skeleton-text v-else width="'35%'"/>
+          <div v-if="isStaff">
+            <cv-button-skeleton v-if="changingVisibility || !this.lesson" kind="ghost"/>
+            <cv-button v-else
+                       class="lesson-hide-button"
+                       :icon="hiddenIcon"
+                       kind="ghost"
+                       v-on:click="changeLessonVisibility">
+              {{ (lesson.is_hidden) ? "Открыть урок" : "Скрыть урок" }}
+            </cv-button>
+          </div>
         </div>
       </div>
     </div>
@@ -186,9 +189,15 @@ export default class LessonView extends Vue {
 <style scoped lang="stylus">
 
 .description-container
-  color var(--cds-text-02)
+  display flex
+  flex-direction column
+  color var(--cds-ui-05)
   margin-left var(--cds-spacing-05)
-  padding-left var(--cds-spacing-05)
+
+.lesson-description
+  max-width 40rem
+  word-break break-word
+  margin-bottom var(--cds-spacing-05)
 
 .lesson-hide-button
   margin-left -1rem
@@ -247,9 +256,6 @@ export default class LessonView extends Vue {
     color var(--cds-text-01)
     padding-left 1rem
     margin 1rem 0
-
-.lesson-content
-  margin-top 2rem
 
 .empty-items
   background-color var(--cds-ui-background)
