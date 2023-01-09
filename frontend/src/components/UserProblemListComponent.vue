@@ -97,6 +97,7 @@ export default class UserProblemListComponent extends Vue {
 
 .submit-list-empty
   background-color var(--cds-ui-background)
+  color var(--cds-text-01)
   padding var(--cds-spacing-05)
   display flex
   height 300px

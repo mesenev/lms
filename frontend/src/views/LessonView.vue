@@ -64,28 +64,32 @@
           </div>
         </div>
       </div>
-      <div class="bx--col-lg-4 bx--col-md-4 content-info">
-        <div v-if="isMaterialsEmpty">
+      <div
+        :class="isMaterialsEmpty ? ('bx--col-lg-4 bx--col-md-4 content-info-empty')
+         : ('bx--col-lg-4 bx--col-md-4 content-info')">
+        <div v-if="isMaterialsEmpty" class="content-info-empty">
           <empty-list-component :text="emptyMaterialsText" list-of="materials"/>
         </div>
-        <h2 v-else class="content-info-title">Материалы</h2>
-        <div class="content-info-materials" v-if="!loading">
-          <cv-structured-list class="list">
-            <template slot="items">
-              <cv-structured-list-item
-                v-for="material in studentMaterials"
-                :key="material.id">
-                <material-list-component :material-prop="material"/>
-              </cv-structured-list-item>
-            </template>
-            <template slot="items" v-if="isStaff">
-              <cv-structured-list-item
-                v-for="material in teacherMaterials"
-                :key="material.id">
-                <material-list-component :material-prop="material"/>
-              </cv-structured-list-item>
-            </template>
-          </cv-structured-list>
+        <div v-else>
+          <h2 class="content-info-title">Материалы</h2>
+          <div class="content-info-materials" v-if="!loading">
+            <cv-structured-list class="list">
+              <template slot="items">
+                <cv-structured-list-item
+                  v-for="material in studentMaterials"
+                  :key="material.id">
+                  <material-list-component :material-prop="material"/>
+                </cv-structured-list-item>
+              </template>
+              <template slot="items" v-if="isStaff">
+                <cv-structured-list-item
+                  v-for="material in teacherMaterials"
+                  :key="material.id">
+                  <material-list-component :material-prop="material"/>
+                </cv-structured-list-item>
+              </template>
+            </cv-structured-list>
+          </div>
         </div>
       </div>
     </div>
@@ -270,7 +274,7 @@ export default class LessonView extends Vue {
     margin 1rem 0
 
 .empty-items
-  background-color var(--cds-ui-background)
+  background-color var(--cds-ui-01)
   padding-top 1rem
   margin-bottom 1rem
   margin-right 1rem
