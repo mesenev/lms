@@ -158,9 +158,11 @@ interface TablePagination {
   padding-top: 1rem
   color var(--cds-text-01)
 
+/deep/.bx--search-input
+  background-color var(--cds-ui-background)
 
 .items
-  background-color var(--cds-ui-02)
+  background-color var(--cds-ui-01)
   padding var(--cds-spacing-05)
 
 .item
