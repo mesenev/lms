@@ -4,15 +4,10 @@
       <div class="main-title">
         <h1 v-if="!loading && lesson" class=""> Урок: {{ lesson.name }} </h1>
         <cv-skeleton-text v-else :heading="true" class="main-title" width="'35%'"/>
-        <div class="description-container">
-          <span v-if="!loading && lesson" class="lesson-description">
-            {{ lesson.description }}
-          </span>
-          <cv-skeleton-text v-else width="'35%'"/>
-          <span v-if="!loading && lesson">
+        <div v-if="!loading && lesson" class="lesson-info">
+          <span>
             Дедлайн {{ lesson.deadline }}
           </span>
-          <cv-skeleton-text v-else width="'35%'"/>
           <div v-if="isStaff">
             <cv-button-skeleton v-if="changingVisibility || !this.lesson" kind="ghost"/>
             <cv-button v-else
@@ -23,6 +18,13 @@
               {{ (lesson.is_hidden) ? "Открыть урок" : "Скрыть урок" }}
             </cv-button>
           </div>
+        </div>
+        <cv-skeleton-text v-else width="'35%'"/>
+        <div class="description-container">
+          <span v-if="!loading && lesson" class="lesson-description">
+             {{ lesson.description }}
+          </span>
+          <cv-skeleton-text v-else width="'35%'"/>
         </div>
       </div>
     </div>
@@ -187,17 +189,26 @@ export default class LessonView extends Vue {
 </script>
 
 <style scoped lang="stylus">
+.lesson-info
+  display flex
+  flex-direction row
+  align-items center
+  margin-top .5rem
+  margin-left var(--cds-spacing-05)
+  gap 2rem
 
 .description-container
   display flex
   flex-direction column
   color var(--cds-ui-05)
-  margin-left var(--cds-spacing-05)
+  margin-top var(--cds-spacing-05)
+  margin-bottom var(--cds-spacing-05)
 
 .lesson-description
   max-width 40rem
   word-break break-word
-  margin-bottom var(--cds-spacing-05)
+  background-color var(--cds-ui-01)
+  padding 1rem
 
 .lesson-hide-button
   margin-left -1rem
