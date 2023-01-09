@@ -219,7 +219,11 @@ export default class LessonEditView extends NotificationMixinComponent {
   margin 2rem
   max-width 23rem
 
+/deep/.bx--text-input
+  background-color var(--cds-ui-background)
+
 .cv-date-picker >>> .bx--date-picker__input
+  background-color var(--cds-ui-background)
   width auto
 
 .bx--col
@@ -256,6 +260,7 @@ export default class LessonEditView extends NotificationMixinComponent {
 
 .empty-tasks
   color var(--cds-text-01)
+  margin-top 1rem
   text-align center
 
 .lesson-buttons

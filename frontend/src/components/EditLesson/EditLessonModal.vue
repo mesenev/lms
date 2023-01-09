@@ -260,6 +260,9 @@ export default class EditLessonModal extends NotificationMixinComponent {
 .change-btn
   background-color var(--cds-interactive-02)
 
+  &:hover
+    border var(--cds-ui-01) 1px solid
+
 .lesson_list
   margin-bottom 0
 
