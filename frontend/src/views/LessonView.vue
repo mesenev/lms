@@ -205,6 +205,7 @@ export default class LessonView extends Vue {
   margin-bottom var(--cds-spacing-05)
 
 .lesson-description
+  width fit-content
   max-width 40rem
   word-break break-word
   background-color var(--cds-ui-01)
