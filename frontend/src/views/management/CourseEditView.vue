@@ -259,7 +259,7 @@ export default class CourseEditView extends Vue {
   align-items flex-start
 
 .lessons
-  background-color var(--cds-ui-background)
+  background-color var(--cds-ui-01)
   padding 1rem
 
 .lessons-modal
@@ -286,8 +286,14 @@ export default class CourseEditView extends Vue {
   margin-top 1rem
 
 .items
-  background-color var(--cds-ui-03)
+  background-color var(--cds-ui-01)
   padding var(--cds-spacing-05)
+
+  /deep/.bx--text-input
+    background-color var(--cds-ui-background)
+
+  /deep/.bx--list-box
+    background-color var(--cds-ui-background)
 
   .change-btn:not([disabled = disabled])
     background-color var(--cds-ui-05)
