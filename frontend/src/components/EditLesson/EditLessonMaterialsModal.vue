@@ -192,6 +192,9 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
   background-color var(--cds-interactive-02)
   margin-left 25px
 
+  &:hover
+    border var(--cds-ui-01) 1px solid
+
 .materials-title
   margin-bottom 0.5rem
 

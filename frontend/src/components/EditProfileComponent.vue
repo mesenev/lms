@@ -185,6 +185,7 @@ export default class EditProfileComponent extends NotificationMixinComponent {
   display flex
   flex-direction row
   justify-content space-between
+  color var(--cds-text-01)
 
 .list-item
   display flex

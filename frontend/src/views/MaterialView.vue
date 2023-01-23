@@ -3,9 +3,9 @@
   <div v-else class="bx--grid">
     <div class="bx--row">
       <div class="bx--col-lg-9">
-        <cv-tile>
+        <div class="main-title">
           <h2 class="material-title">{{ currentMaterial.name }}</h2>
-        </cv-tile>
+        </div>
         <div v-if="isMaterialAVideo" class="video material-content-video">
           <youtube v-if="currentMaterial.content" :video-id="youTubeGetID"
                    ref="youtube"
@@ -101,8 +101,11 @@ export default class MaterialView extends Vue {
 </script>
 
 <style scoped lang="stylus">
+/deep/.bx--title
+  background-color var(--cds-ui-background)
 
 .material-title
+  color var(--cds-text-01)
   margin-top 2rem
 
 .material-content-video
@@ -113,6 +116,7 @@ export default class MaterialView extends Vue {
   min-height 20rem
 
 .less
+  color var(--cds-text-01)
   border .5px solid var(--cds-ui-04)
   background-color var(--cds-ui-02)
   padding var(--cds-spacing-05)
@@ -120,6 +124,7 @@ export default class MaterialView extends Vue {
 .other-materials-container
   margin-top 4rem
   min-height 22.5rem
+  color var(--cds-text-01)
   background-color var(--cds-ui-background)
   border 0.5px solid var(--cds-ui-04)
 

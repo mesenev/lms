@@ -8,6 +8,12 @@ from rest_framework import status
 from cathie.exceptions import CatsAnswerCodeException, CatsNormalErrorException
 from cathie import authorization
 
+ARCHIVE_CONTEST_ID = 500001  # magic constant for `Archive` contest
+headers = {
+    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) '
+                  'AppleWebKit/537.36 (KHTML, like Gecko) '
+                  'Chrome/89.0.4356.6 Safari/537.36'
+}
 
 def cats_check_status():
     pass
@@ -30,7 +36,7 @@ def cats_submit_solution(
         'lang': 'en',
         'sid': authorization.cats_sid(),
     }
-    r = requests.post(url, data=data, headers={'User-Agent': 'Mozilla/5.0'})
+    r = requests.post(url, data=data, headers=headers)
     if r.status_code != 200:
         raise CatsAnswerCodeException(r)
     r_content = r.json()
@@ -62,7 +68,7 @@ def cats_check_solution_status(req_ids: int):
 
 @authorization.check_authorization_for_cats
 def cats_get_problems_from_contest(contest_id):
-    url = f'https://imcs.dvfu.ru/cats/problems?'
+    url = f'{settings.CATS_URL}problems?'
     data = {
         'json': 1,
         'cid': contest_id,
@@ -71,14 +77,14 @@ def cats_get_problems_from_contest(contest_id):
         'page': 0,
     }
     problems = list()
-    cats_answer = requests.get(url, params=data, headers={'User-Agent': 'Mozilla/5.0'})
+    cats_answer = requests.get(url, params=data, headers=headers)
     if cats_answer.status_code != 200:
         raise CatsAnswerCodeException(cats_answer)
     cats_problems = cats_answer.json()['problems']
     problems.extend(cats_problems)
     while len(cats_problems) == 20:
         data['page'] += 1
-        cats_answer = requests.get(url, params=data, headers={'User-Agent': 'Mozilla/5.0'})
+        cats_answer = requests.get(url, params=data, headers=headers)
         if cats_answer.status_code != 200:
             raise CatsAnswerCodeException(cats_answer)
         cats_problems = cats_answer.json()['problems']
@@ -90,11 +96,7 @@ def cats_get_problems_from_contest(contest_id):
 def cats_get_problem_description_by_url(description_url):
     url = f'{settings.CATS_URL}{description_url.lstrip("./")}'
     # todo: remove it and use default headers instead
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) '
-                      'AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/89.0.4356.6 Safari/537.36'
-    }
+
     request = requests.request(method='get', url=url, headers=headers)
     if request.status_code != 200:
         raise CatsAnswerCodeException(request)
@@ -103,27 +105,23 @@ def cats_get_problem_description_by_url(description_url):
 
 
 @authorization.check_authorization_for_cats
-def get_contests_from_cats():
-    def intersect_data(obj_1, obj_2):
-        result = []
-        for elm_1 in obj_1:
-            for elm_2 in obj_2:
-                if elm_2['id'] == elm_1['id']:
-                    result.append(elm_1)
-                    break
-        return result
-
-    url_my = f'{settings.CATS_URL}contests?json=1;'
-    get_my_contests = requests.get(url_my + 'filter=my;' + f'sid={authorization.cats_sid()}',
-                                   headers={'User-Agent': 'Mozilla/5.0'})
-    get_unfinished_contests = requests.get(url_my + 'filter=unfinished;' + f'sid={authorization.cats_sid()}',
-                                           headers={'User-Agent': 'Mozilla/5.0'})
-    if get_my_contests.status_code != status.HTTP_200_OK or \
-            get_unfinished_contests.status_code != status.HTTP_200_OK:
+def get_contests_from_cats(cats_id: int):
+    url = f'{settings.CATS_URL}contests?'
+    data = {
+        'json': 1,
+        'search': f'has_user({cats_id})',
+        'lang': 'en',
+        'sid': authorization.cats_sid(),
+        'page': 0,
+        'filter': 'my'
+    }
+    get_my_contests = requests.get(url, params=data, headers=headers)
+    if get_my_contests.status_code != status.HTTP_200_OK:
         raise CatsAnswerCodeException(get_my_contests)
-    data = intersect_data(json.loads(get_my_contests.content.decode('utf-8'))['contests'],
-                          json.loads(get_unfinished_contests.content.decode('utf-8'))['contests'])
-    return data
+    return list(filter(
+        lambda x: x['id'] != ARCHIVE_CONTEST_ID,
+        get_my_contests.json()['contests']
+    ))
 
 
 @authorization.check_authorization_for_cats
@@ -131,12 +129,39 @@ def add_users_to_contest(students: list, contest_id: int):
     params = {
         'logins_to_add': ','.join(students),
         'by_login': 1,
+        'json': 1,
+        'sid': authorization.cats_sid(),
+        'cid': contest_id,
     }
-    url = f'{settings.CATS_URL}users_add_participants?json=1;sid={authorization.cats_sid()};cid={contest_id};json=1;'
-    answer = requests.post(url, params=params, headers={'User-Agent': 'Mozilla/5.0'})
+    url = f'{settings.CATS_URL}users_add_participants?'
+    answer = requests.post(url, params=params, headers=headers)
     if answer.status_code != 200:
         print(answer.json())
         raise CatsAnswerCodeException(answer)
     return answer.status_code
+
+
 # def cats_get_problem_by_id(cats_id, user):
 #     pass
+
+
+def cats_user_login(username: str, password: str):
+    auth = requests.post(
+        f'{settings.CATS_URL}?f=login;json=1',
+        {'login': username, 'passwd': password},
+        headers=headers
+    )
+    if auth.status_code != 200:
+        raise CatsAnswerCodeException(auth)
+    return auth.json()
+
+
+def get_user_id(sid: str):
+    answer = requests.get(
+        f'{settings.CATS_URL}profile?',
+        params={'sid': sid, 'json': 1},
+        headers=headers
+    )
+    if answer.status_code != 200:
+        raise CatsAnswerCodeException(answer)
+    return answer.json()['id']

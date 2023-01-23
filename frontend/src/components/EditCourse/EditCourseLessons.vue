@@ -125,7 +125,7 @@ export default class EditCourseLessons extends NotificationMixinComponent {
 }
 </script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 .bx--modal-content:focus
   outline none
 
@@ -133,12 +133,14 @@ export default class EditCourseLessons extends NotificationMixinComponent {
   text-align center
 
 .no-lessons-title
+  color var(--cds-text-01)
   margin 1rem
 
 #lessons
   margin-bottom 0
 
 .lesson--list--title
+  color var(--cds-text-01)
   margin-bottom 1rem
 
 .lesson--list
@@ -154,6 +156,7 @@ export default class EditCourseLessons extends NotificationMixinComponent {
   align-items center
 
 .title
+  color var(--cds-text-01)
   display flex
   flex-direction row
   align-items baseline
@@ -172,4 +175,10 @@ export default class EditCourseLessons extends NotificationMixinComponent {
 
 .lesson-card:hover
   border-bottom 1px solid var(--cds-ui-05)
+
+.icons
+  color var(--cds-inverse-02)
+
+/deep/.bx--search-input
+  background-color var(--cds-ui-background)
 </style>

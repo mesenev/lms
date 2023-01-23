@@ -9,3 +9,10 @@ export const de_options = [
   },
 ];
 export const TEACHER = 'teacher';
+
+export const THEMES = {
+  white: 'theme-white',
+  g10: 'theme-g10',
+  g90: 'theme-g90',
+  g100: 'theme-g100',
+}

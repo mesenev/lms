@@ -75,7 +75,7 @@ export default class MaterialListComponent extends Vue {
   padding 0.5rem 0 0.5rem
 
 .material-wrapper:hover
-  background-color var(--cds-ui-01)
+  background-color var(--cds-ui-02)
 
 .material
   display flex

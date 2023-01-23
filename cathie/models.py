@@ -15,6 +15,7 @@ class CatsUserLink(models.Model):
 class CatsAccount(models.Model):
     user = models.OneToOneField(User, related_name='cats_account', on_delete=models.CASCADE)
     username = models.CharField(max_length=50, null=False)
+    cats_user_id = models.IntegerField(null=False)
     last_check = models.DateTimeField(default=timezone.now)
 
     def __str__(self):

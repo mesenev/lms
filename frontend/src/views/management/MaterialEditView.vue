@@ -1,7 +1,7 @@
 <template>
   <div class="bx--grid">
     <div class="bx--row header">
-      <h1>Редактирование материала</h1>
+      <h1 class="main-title">Редактирование материала</h1>
     </div>
     <cv-loading v-if="loading"/>
     <div v-else class="bx--row content">
@@ -51,7 +51,7 @@
           </div>
         </div>
       </div>
-      <div class="preview-container edit-container bx--col-lg-6">
+      <div class="preview-container bx--col-lg-6">
         <h4 class="title" v-if="materialEdit.name.length > 0"> {{ materialEdit.name }} </h4>
         <h4 v-else>Введите название материала</h4>
         <vue-markdown :source="materialEdit.content" html="false" class="markdown"/>
@@ -200,6 +200,9 @@ export default class MaterialEditView extends Vue {
   margin-left 20px
 
 .preview-container
+  padding 1rem
+  color var(--cds-text-01)
+  background-color var(--cds-ui-01)
   border 2px black solid
 
 .markdown
@@ -218,12 +221,19 @@ export default class MaterialEditView extends Vue {
 
 .edit-container
   padding 1rem
+  background-color var(--cds-ui-01)
+
+/deep/.bx--text-input
   background-color var(--cds-ui-background)
 
 .text-area >>> .bx--text-area
+  background-color var(--cds-ui-background)
   min-height 13rem
   resize none
   margin-bottom 10px
+
+#files_input
+  color var(--cds-text-01)
 
 .change__btn
   display flex

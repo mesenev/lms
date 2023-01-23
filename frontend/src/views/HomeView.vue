@@ -110,12 +110,15 @@ export default class HomeView extends NotificationMixinComponent {
   padding 1rem
 
 .items
-  background-color var(--cds-ui-02)
+  background-color var(--cds-ui-01)
   padding var(--cds-spacing-05)
   min-height 600px
 
   .bx--structured-list-thead
     display none
+
+  /deep/.bx--search-input
+    background-color var(--cds-ui-background)
 
 .item
   min-height 85px

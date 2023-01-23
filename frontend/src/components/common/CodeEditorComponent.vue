@@ -35,13 +35,13 @@ export default class CodeEditorComponent extends Vue {
 
 <style lang="stylus" scoped>
 .my-editor
-  background-color: #f5f2f0;
+  background-color: var(--cds-ui-01);
   height 400px;
   font-family: Fira code,Fira Mono,Consolas,Menlo,Courier,monospace;
   font-size: 14px;
   line-height: 1.5;
   padding: 5px 10px;
-  border #8D8D8D solid
+  border var(--cds-ui-04) solid
   border-width 0.5px 0
 </style>
 
