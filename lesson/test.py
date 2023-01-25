@@ -4,7 +4,7 @@ from model_bakery import baker
 from rest_framework import status
 
 from course.models import Course, CourseSchedule
-from lesson.serializers import LessonSerializer, AttachmentSerializer
+from lesson.serializers import LessonSerializer, AttachmentSerializer, MaterialSerializer
 from imcslms.test import MainSetup
 from lesson.models import Lesson, LessonContent, Attachment
 from users.models import CourseAssignTeacher
@@ -69,6 +69,41 @@ class LessonTests(MainSetup):
 
     def test_read_lesson(self):
         pass
+
+
+class MaterialTests(MainSetup):
+
+    def test_create_material(self):
+        self.test_setup()
+        material_content = MaterialSerializer(baker.make(LessonContent, _fill_optional=True)).data
+        amount = LessonContent.objects.count()
+        response = self.client.post(reverse('material-list'), material_content, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(LessonContent.objects.count(), amount + 1)
+
+    def create_material_no_teacher(self):
+        self.test_setup(group='anonymous')
+        material_content = MaterialSerializer(baker.make(LessonContent, _fill_optional=True)).data
+        amount = LessonContent.objects.count()
+        response = self.client.post(reverse('material-list'), material_content, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(LessonContent.objects.count(), amount)
+
+    def test_delete_material(self):
+        self.test_setup()
+        (course := baker.make(Course)).save()
+        baker.make(Lesson, course=course).save()
+        lesson = Lesson.objects.first()
+        baker.make(LessonContent, lesson=lesson).save()
+        CourseAssignTeacher(course=course, user=self.user).save()
+        CourseSchedule(course=course).save()
+        data = {'id': LessonContent.objects.first().id}
+        url = reverse('material-detail', kwargs=dict(pk=data['id']))
+        amount = LessonContent.objects.count()
+
+        response = self.client.delete(url, data)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(amount-1, LessonContent.objects.count())
 
 
 class AttachmentsTests(MainSetup):

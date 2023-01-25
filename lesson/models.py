@@ -12,11 +12,6 @@ def attachment_file_name(instance, filename):
     return '/'.join(['attachments', filename])
 
 
-def attachment_file_name(instance, filename):
-    filename = f"lesson_material{os.path.splitext(filename)[0]}"
-    return '/'.join(['attachments', filename])
-
-
 class Lesson(models.Model):
     course = models.ForeignKey(Course, on_delete=models.SET_NULL, related_name='lessons', null=True)
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
