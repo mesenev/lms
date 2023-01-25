@@ -11,7 +11,17 @@ from users.models import CourseAssignTeacher
 
 
 class LessonTests(MainSetup):
-    # ToDo: check only teacher can create lesson
+
+    def test_only_teacher_can_create_lesson(self):
+        self.test_setup(group='student')
+        data = LessonSerializer(baker.make(Lesson)).data
+        url = reverse('lesson-list')
+        amount = Lesson.objects.count()
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(Lesson.objects.count(), amount)
+
     def test_create_lesson(self):
         self.test_setup()
         data = LessonSerializer(baker.make(Lesson)).data
