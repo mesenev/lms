@@ -43,13 +43,10 @@ class CourseStaffOrReadOnlyForStudents(permissions.IsAuthenticated):
         course = object_to_course(obj)
 
         if course in request.user.staff_for.all():
-            print('if1')
             return True
         if course in request.user.author_for.all():
-            print('if2')
             return True
         if course not in request.user.student_for.all():
-            print('if3')
             return False
         return request.method in permissions.SAFE_METHODS
 

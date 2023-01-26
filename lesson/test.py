@@ -32,6 +32,8 @@ class LessonTests(MainSetup):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Lesson.objects.count(), amount + 1)
 
+    # ToDo test only teacher can delete lesson
+
     def test_delete_lesson(self):
         self.test_setup()
         (course := baker.make(Course)).save()
@@ -48,11 +50,14 @@ class LessonTests(MainSetup):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Lesson.objects.count(), amount - 1)
 
+    # ToDo only teacher can update lesson
+
     def test_update_lesson(self):
         self.test_setup()
         (course := baker.make(Course)).save()
         baker.make(Lesson, course=course).save()
         lesson = Lesson.objects.first()
+
         CourseAssignTeacher(course=course, user=self.user).save()
         data = LessonSerializer(baker.make(Lesson)).data
         url = reverse(
@@ -91,13 +96,46 @@ class MaterialTests(MainSetup):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(LessonContent.objects.count(), amount + 1)
 
-    def create_material_no_teacher(self):
-        self.test_setup(group='anonymous')
+    def test_only_teacher_can_create_material(self):
+        self.test_setup(group='student')
+        self.client.force_authenticate(user=self.user)
         material_content = MaterialSerializer(baker.make(LessonContent, _fill_optional=True)).data
         amount = LessonContent.objects.count()
         response = self.client.post(reverse('material-list'), material_content, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(LessonContent.objects.count(), amount)
+
+    # ToDo only teacher can update material
+
+    def test_update_material(self):
+        self.test_setup()
+        (course := baker.make(Course)).save()
+        (lesson := baker.make(Lesson, course=course)).save()
+        baker.make(LessonContent, lesson=lesson, _fill_optional=True).save()
+        material = LessonContent.objects.first()
+
+        CourseAssignTeacher(course=course, user=self.user).save()
+        data = MaterialSerializer(baker.make(LessonContent, lesson=lesson, _fill_optional=True)).data
+        url = reverse('material-detail',
+                      kwargs=dict(pk=material.id))
+        data['id'] = material.id
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_material_no_assigment_teacher(self):
+        self.test_setup()
+        (course := baker.make(Course)).save()
+        (lesson := baker.make(Lesson, course=course)).save()
+        baker.make(LessonContent, lesson=lesson, _fill_optional=True).save()
+        material = LessonContent.objects.first()
+        data = MaterialSerializer(baker.make(LessonContent, lesson=lesson)).data
+        url = reverse('material-detail',
+                      kwargs=dict(pk=material.id))
+        data['id'] = material.id
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    # ToDo only teacher can delete material
 
     def test_delete_material(self):
         self.test_setup()
@@ -118,6 +156,17 @@ class MaterialTests(MainSetup):
 
 class AttachmentsTests(MainSetup):
 
+    def test_only_teacher_can_create_attachment(self):
+        self.test_setup(group='student')
+        self.client.force_authenticate(user=self.user)
+        attachment = AttachmentSerializer(baker.make(Attachment, _fill_optional=True)).data
+        test_file = SimpleUploadedFile('test_file', b'ttttt')
+        attachment['file_url'] = test_file
+
+        response = self.client.post('/api/attachments/', data=attachment)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        Attachment.objects.all().delete()
+
     def test_create_attachment(self):
         self.test_setup()
         attachment = AttachmentSerializer(baker.make(Attachment, _fill_optional=True)).data
@@ -130,6 +179,8 @@ class AttachmentsTests(MainSetup):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Attachment.objects.count(), amount + 1)
         Attachment.objects.all().delete()
+
+    # ToDo check only teacher can delete attachment
 
     def test_delete_attachment(self):
         self.test_setup()
