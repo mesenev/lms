@@ -85,9 +85,13 @@ class MaterialViewSet(viewsets.ModelViewSet):
             | Q(lesson__course__in=user.author_for.all())
         )
 
+    def create(self, request, *args, **kwargs):
+        if request.user.groups.filter(name=TEACHER).exists():
+            return super().create(request, *args, **kwargs)
+        raise exceptions.PermissionDenied
+
 
 class AttachmentViewSet(viewsets.ModelViewSet):
-    """Attachments endpoint for diff purposes"""
     permission_classes = [CourseStaffOrReadOnlyForStudents]
     serializer_class = AttachmentSerializer
     filterset_fields = ['material_id', ]
@@ -101,6 +105,11 @@ class AttachmentViewSet(viewsets.ModelViewSet):
             | Q(material__lesson__course__in=user.staff_for.all())
             | Q(material__lesson__course__in=user.author_for.all())
         )
+
+    def create(self, request, *args, **kwargs):
+        if request.user.groups.filter(name=TEACHER).exists():
+            return super().create(request, *args, **kwargs)
+        raise exceptions.PermissionDenied
 
     def filter_queryset(self, queryset):
         return super().filter_queryset(queryset)

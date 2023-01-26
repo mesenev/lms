@@ -52,9 +52,11 @@ class Attachment(models.Model):
     def __str__(self):
         return self.name
 
+
 @receiver(pre_delete, sender=Attachment)
 def delete_file_hook(sender, instance, using, **kwargs):
     instance.file_url.delete()
+
 
 admin.site.register(Attachment)
 admin.site.register(Lesson)
