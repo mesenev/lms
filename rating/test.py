@@ -75,6 +75,10 @@ class CourseProgressTests(MainSetup):
 
         teacher = self.test_setup()
         students = [self.test_setup(group='student', username=f'test_user{i}') for i in range(2)]
+        self.user = teacher
+        self.client.user = self.user
+        self.client.force_authenticate(user=self.user)
+
         (course := baker.make(Course)).save()
         CourseAssignTeacher(course=course, user=teacher).save()
         (lesson := baker.make(Lesson, course=course)).save()
@@ -96,6 +100,11 @@ class CourseProgressTests(MainSetup):
     def test_delete_course_progress(self):
         teacher = self.test_setup()
         students = [self.test_setup(group='student', username=f'test_user{i}') for i in range(2)]
+
+        self.user = teacher
+        self.client.user = self.user
+        self.client.force_authenticate(user=self.user)
+
         (course := baker.make(Course)).save()
         CourseAssignTeacher(course=course, user=teacher).save()
         (lesson := baker.make(Lesson, course=course)).save()
@@ -128,6 +137,10 @@ class LessonProgressTests(MainSetup):
 
         teacher = self.test_setup()
         students = [self.test_setup(group='student', username=f'test_user{i}') for i in range(10)]
+
+        self.user = teacher
+        self.client.user = self.user
+        self.client.force_authenticate(user=self.user)
         (course := baker.make(Course, author=teacher)).save()
         CourseAssignTeacher(course=course, user=teacher).save()
         for student in students:
@@ -160,6 +173,10 @@ class LessonProgressTests(MainSetup):
 
         teacher = self.test_setup()
         students = [self.test_setup(group='student', username=f'test_user{i}') for i in range(2)]
+        self.user = teacher
+        self.client.user = self.user
+        self.client.force_authenticate(user=self.user)
+
         (course := baker.make(Course)).save()
         (lesson := baker.make(Lesson, course=course)).save()
         (instance := baker.make(LessonProgress, attendance=True, user=students[0], lesson=lesson)).save()
@@ -193,6 +210,10 @@ class LessonProgressTests(MainSetup):
 
         teacher = self.test_setup()
         students = [self.test_setup(group='student', username=f'test_user{i}') for i in range(2)]
+        self.user = teacher
+        self.client.user = self.user
+        self.client.force_authenticate(user=self.user)
+
         (course := baker.make(Course)).save()
         CourseAssignTeacher(course=course, user=teacher).save()
         (lesson := baker.make(Lesson, course=course)).save()
@@ -214,6 +235,10 @@ class LessonProgressTests(MainSetup):
     def test_delete_lesson_progress(self):
         teacher = self.test_setup()
         students = [self.test_setup(group='student', username=f'test_user{i}') for i in range(2)]
+        self.user = teacher
+        self.client.user = self.user
+        self.client.force_authenticate(user=self.user)
+
         (course := baker.make(Course)).save()
         (lesson := baker.make(Lesson, course=course)).save()
         (instance := baker.make(LessonProgress, attendance=True, user=students[0], lesson=lesson)).save()

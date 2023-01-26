@@ -8,11 +8,9 @@ from model_bakery import baker
 
 
 class UserTests(MainSetup):
-    def test_user_login(self):
-        pass
-
-    def test_user_logout(self):
-        pass
 
     def test_user_change_password(self):
+        pass
+
+    def test_user_change_avatar(self):
         pass

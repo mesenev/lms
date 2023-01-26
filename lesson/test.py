@@ -17,7 +17,6 @@ class LessonTests(MainSetup):
         data = LessonSerializer(baker.make(Lesson)).data
         url = reverse('lesson-list')
         amount = Lesson.objects.count()
-        self.client.force_authenticate(user=self.user)
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(Lesson.objects.count(), amount)
@@ -27,7 +26,6 @@ class LessonTests(MainSetup):
         data = LessonSerializer(baker.make(Lesson)).data
         url = reverse('lesson-list')
         amount = Lesson.objects.count()
-        self.client.force_authenticate(user=self.user)
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Lesson.objects.count(), amount + 1)
@@ -45,7 +43,6 @@ class LessonTests(MainSetup):
         url = reverse('lesson-detail', kwargs=dict(pk=lesson.id))
         data['id'] = lesson.id
         amount = Lesson.objects.count()
-        self.client.force_authenticate(user=self.user)
         response = self.client.delete(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Lesson.objects.count(), amount - 1)
@@ -98,7 +95,6 @@ class MaterialTests(MainSetup):
 
     def test_only_teacher_can_create_material(self):
         self.test_setup(group='student')
-        self.client.force_authenticate(user=self.user)
         material_content = MaterialSerializer(baker.make(LessonContent, _fill_optional=True)).data
         amount = LessonContent.objects.count()
         response = self.client.post(reverse('material-list'), material_content, format='json')
@@ -158,7 +154,6 @@ class AttachmentsTests(MainSetup):
 
     def test_only_teacher_can_create_attachment(self):
         self.test_setup(group='student')
-        self.client.force_authenticate(user=self.user)
         attachment = AttachmentSerializer(baker.make(Attachment, _fill_optional=True)).data
         test_file = SimpleUploadedFile('test_file', b'ttttt')
         attachment['file_url'] = test_file
@@ -203,7 +198,6 @@ class AttachmentsTests(MainSetup):
         url = reverse('attachments-detail', kwargs=dict(pk=attachment.id))
         data['id'] = attachment.id
         amount = Attachment.objects.count()
-        self.client.force_authenticate(user=self.user)
         response = self.client.delete(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Lesson.objects.count(), amount - 1)

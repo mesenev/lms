@@ -11,6 +11,7 @@ from users.models import CourseAssignTeacher
 
 
 class CourseTests(MainSetup):
+
     def test_create_course(self):
         self.test_setup()
         course = baker.make(Course)
