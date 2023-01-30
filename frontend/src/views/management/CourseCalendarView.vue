@@ -584,6 +584,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
 
 <style scoped lang="stylus">
 .header
+  color var(--cds-text-01)
   padding-bottom: 1.5rem
   padding-top: 1rem
 
@@ -593,7 +594,7 @@ export default class CourseCalendarView extends mixins(NotificationMixinComponen
   align-items center
 
 .items-top
-  background-color var(--cds-ui-02)
+  background-color var(--cds-ui-01)
   padding var(--cds-spacing-05)
 
   &--element

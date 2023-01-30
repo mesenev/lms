@@ -170,12 +170,25 @@ export default class CourseView extends Vue {
 </script>
 
 <style scoped lang="stylus">
+.description-container
+  display flex
+  margin-top var(--cds-spacing-05)
+
+.course-description
+  max-width 40rem
+  word-break break-word
+  background-color var(--cds-ui-01)
+  padding 1rem
+
 .items
   padding-top 1rem
   padding-bottom 1rem
   margin-bottom 1rem
   margin-right 1rem
-  background-color var(--cds-ui-background)
+  background-color var(--cds-ui-01)
+
+  /deep/.bx--search-input
+    background-color var(--cds-ui-background)
 
 .lessons-list-wrapper
   max-height 50vh;
@@ -185,8 +198,11 @@ export default class CourseView extends Vue {
   padding-left 0
   margin-bottom 1rem
 
+  /deep/.submit-list-data
+    background-color var(--cds-ui-01)
+
 .empty-items
-  background-color var(--cds-ui-background)
+  background-color var(--cds-ui-01)
   display flex
   align-items center
   margin-bottom 1rem

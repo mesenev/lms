@@ -1,25 +1,30 @@
 <template>
   <div class="bx--grid">
     <div class="bx--row header-container">
-      <h1 v-if="!loading && lesson" class="main-title">
-        {{ lesson.name }}
-      </h1>
-      <cv-skeleton-text
-        v-else :heading="true" class="main-title" width="'35%'"/>
-      <div class="description-container">
-        <span v-if="!loading && lesson">
-          Дедлайн {{ lesson.deadline }}
-        </span>
+      <div class="main-title">
+        <h1 v-if="!loading && lesson" class=""> Урок: {{ lesson.name }} </h1>
+        <cv-skeleton-text v-else :heading="true" class="main-title" width="'35%'"/>
+        <div v-if="!loading && lesson" class="lesson-info">
+          <span>
+            Дедлайн {{ lesson.deadline }}
+          </span>
+          <div v-if="isStaff">
+            <cv-button-skeleton v-if="changingVisibility || !this.lesson" kind="ghost"/>
+            <cv-button v-else
+                       class="lesson-hide-button"
+                       :icon="hiddenIcon"
+                       kind="ghost"
+                       v-on:click="changeLessonVisibility">
+              {{ (lesson.is_hidden) ? "Открыть урок" : "Скрыть урок" }}
+            </cv-button>
+          </div>
+        </div>
         <cv-skeleton-text v-else width="'35%'"/>
-        <div v-if="isStaff">
-          <cv-button-skeleton v-if="changingVisibility || !this.lesson" kind="ghost"/>
-          <cv-button v-else
-                     class="lesson-hide-button"
-                     :icon="hiddenIcon"
-                     kind="ghost"
-                     v-on:click="changeLessonVisibility">
-            {{ (lesson.is_hidden) ? "Открыть урок" : "Скрыть урок" }}
-          </cv-button>
+        <div class="description-container">
+          <span v-if="!loading && lesson" class="lesson-description">
+             {{ lesson.description }}
+          </span>
+          <cv-skeleton-text v-else width="'35%'"/>
         </div>
       </div>
     </div>
@@ -31,7 +36,7 @@
         </div>
         <div v-else class="content-tasks-problems">
           <div v-if="classwork.length > 0" class="classwork">
-            <h4 class="classwork-title">Классная работа</h4>
+            <h4 class="classwork-title title">Классная работа</h4>
             <div v-if="!loading">
               <problem-list-component :task-list="classwork"></problem-list-component>
             </div>
@@ -40,7 +45,7 @@
             </div>
           </div>
           <div v-if="homework.length > 0" class="homework">
-            <h4 class="homework-title">Домашняя работа</h4>
+            <h4 class="homework-title title">Домашняя работа</h4>
             <div v-if="!loading">
               <problem-list-component :task-list="homework"/>
             </div>
@@ -49,7 +54,7 @@
             </div>
           </div>
           <div v-if="extrawork.length > 0" class="extrawork">
-            <h4 class="classwork-title">Дополнительные задания</h4>
+            <h4 class="classwork-title title">Дополнительные задания</h4>
             <div v-if="!loading">
               <problem-list-component :task-list="extrawork"/>
             </div>
@@ -59,28 +64,32 @@
           </div>
         </div>
       </div>
-      <div class="bx--col-lg-4 bx--col-md-4 content-info">
-        <div v-if="isMaterialsEmpty">
+      <div
+        :class="isMaterialsEmpty ? ('bx--col-lg-4 bx--col-md-4 content-info-empty')
+         : ('bx--col-lg-4 bx--col-md-4 content-info')">
+        <div v-if="isMaterialsEmpty" class="content-info-empty">
           <empty-list-component :text="emptyMaterialsText" list-of="materials"/>
         </div>
-        <h2 v-else class="content-info-title">Материалы</h2>
-        <div class="content-info-materials" v-if="!loading">
-          <cv-structured-list class="list">
-            <template slot="items">
-              <cv-structured-list-item
-                v-for="material in studentMaterials"
-                :key="material.id">
-                <material-list-component :material-prop="material"/>
-              </cv-structured-list-item>
-            </template>
-            <template slot="items" v-if="isStaff">
-              <cv-structured-list-item
-                v-for="material in teacherMaterials"
-                :key="material.id">
-                <material-list-component :material-prop="material"/>
-              </cv-structured-list-item>
-            </template>
-          </cv-structured-list>
+        <div v-else>
+          <h2 class="content-info-title">Материалы</h2>
+          <div class="content-info-materials" v-if="!loading">
+            <cv-structured-list class="list">
+              <template slot="items">
+                <cv-structured-list-item
+                  v-for="material in studentMaterials"
+                  :key="material.id">
+                  <material-list-component :material-prop="material"/>
+                </cv-structured-list-item>
+              </template>
+              <template slot="items" v-if="isStaff">
+                <cv-structured-list-item
+                  v-for="material in teacherMaterials"
+                  :key="material.id">
+                  <material-list-component :material-prop="material"/>
+                </cv-structured-list-item>
+              </template>
+            </cv-structured-list>
+          </div>
         </div>
       </div>
     </div>
@@ -184,10 +193,27 @@ export default class LessonView extends Vue {
 </script>
 
 <style scoped lang="stylus">
+.lesson-info
+  display flex
+  flex-direction row
+  align-items center
+  margin-top .5rem
+  margin-left var(--cds-spacing-05)
+  gap 2rem
 
 .description-container
-  margin-left var(--cds-spacing-05)
-  padding-left var(--cds-spacing-05)
+  display flex
+  flex-direction column
+  color var(--cds-ui-05)
+  margin-top var(--cds-spacing-05)
+  margin-bottom var(--cds-spacing-05)
+
+.lesson-description
+  width fit-content
+  max-width 40rem
+  word-break break-word
+  background-color var(--cds-ui-01)
+  padding 1rem
 
 .lesson-hide-button
   margin-left -1rem
@@ -224,36 +250,38 @@ export default class LessonView extends Vue {
   &-info
     height 100%
 
+    &-title
+      color var(--cds-text-01)
+
     .list
       margin 1rem 0
 
   &-tasks, &-info
-    background-color var(--cds-ui-02)
+    background-color var(--cds-ui-01)
     padding 1rem
 
   /deep/ .bx--accordion__heading
     align-items center
 
 
-  .classwork, .homework, extrawork
-    margin-bottom 1rem
+.classwork, .homework, extrawork
+  margin-bottom 1rem
 
-    &-title
-      padding-left 1rem
-      margin 1rem 0
-
-.lesson-content
-  margin-top 2rem
+  &-title
+    font-weight bold
+    color var(--cds-text-01)
+    padding-left 1rem
+    margin 1rem 0
 
 .empty-items
-  background-color var(--cds-ui-background)
+  background-color var(--cds-ui-01)
   padding-top 1rem
   margin-bottom 1rem
   margin-right 1rem
   padding-bottom 1rem
 
 .items
-  background-color: var(--cds-ui-02)
+  background-color: var(--cds-ui-01)
   padding-top 1rem
   padding-bottom 1rem
   margin-bottom 1rem

@@ -48,7 +48,7 @@ export default class StatsGraph extends Vue {
     width: `${1 / this.studentsCount * 100}%`,
   };
   withoutSolutionStyle: StatsGraphStyle = {
-    backgroundColor: '#fcfbfb',
+    backgroundColor: 'var(--cds-ui-01)',
     width: `${1 / this.studentsCount * 100}%`,
   };
 

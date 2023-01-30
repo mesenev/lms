@@ -85,6 +85,7 @@ aside
   padding-left 1rem
 
 .navigation-title
+  color var(--cds-text-01)
   margin-top 0.5rem
 
   span
