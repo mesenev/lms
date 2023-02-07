@@ -73,7 +73,7 @@ export default class EditAvatarModal extends Vue {
 
   changeAvatar() {
     const fd = new FormData();
-    fd.append('avatar_url',this.file );
+    fd.append('avatar_url', this.file );
     const request = api.post('/api/change-avatar/', fd);
     request.then(response => {
       this.notificationKind = 'success';
