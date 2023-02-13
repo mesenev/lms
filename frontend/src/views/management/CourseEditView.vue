@@ -73,21 +73,29 @@
         </div>
       </div>
       <div v-if="!isNewCourse" class="bx--col-lg-6 bx--col-md-6 col-content">
-        <div class="lessons">
-          <EditCourseLessons
-            v-if="!isNewCourse && !fetchingCourse"
-            :course="store.currentCourse"
-            class="course-props edit--course"/>
-          <div class="lessons-modal">
-            <GenerateLinks
-              :courseId="courseId"
-              class="generate--link"/>
-            <EditCourseModal
-              v-if="!isNewCourse && !fetchingCourse"
-              :course-id="store.currentCourse.id"
-              class="course-props add--btn"/>
-          </div>
-        </div>
+        <cv-tabs :container="true" @tab-selected="changeType">
+            <div class="lessons">
+              <cv-tab label="Уроки">
+                <EditCourseLessons
+                  v-if="!isNewCourse && !fetchingCourse"
+                  :course="store.currentCourse"
+                  class="course-props edit--course"/>
+              </cv-tab>
+              <cv-tab label="Тесты">
+                <h2 style="margin: 1rem">Тут будет список тестов &#128519;	</h2>
+              </cv-tab>
+              <div class="lessons-modal">
+                <GenerateLinks
+                  :courseId="courseId"
+                  class="generate--link"/>
+                <EditCourseModal
+                  v-if="!isNewCourse && !fetchingCourse && isLessonsList"
+                  :course-id="store.currentCourse.id"
+                  class="course-props add--btn"/>
+                <AddTestModal v-if="!isLessonsList"/>
+              </div>
+            </div>
+        </cv-tabs>
       </div>
     </div>
   </div>
@@ -106,10 +114,11 @@ import userStore from '@/store/modules/user';
 import api from '@/store/services/api';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import AddTestModal from "@/components/EditCourse/AddTestModal.vue";
 
 @Component({
   components: {
-    AddTeacherModal, EditCourseLessons, EditCourseModal, GenerateLinks,
+    AddTeacherModal, EditCourseLessons, EditCourseModal, GenerateLinks, AddTestModal,
   },
 })
 export default class CourseEditView extends Vue {
@@ -119,6 +128,7 @@ export default class CourseEditView extends Vue {
   store = courseStore;
   userStore = userStore;
   showNotification = false;
+  isLessonsList = false;
   notificationKind = 'success';
   notificationText = '';
   course: CourseModel = { ...courseStore.newCourse };
@@ -152,6 +162,10 @@ export default class CourseEditView extends Vue {
     this.courseEdit = { ...this.course };
     this.deChecks = this.courseEdit.de_options.split(',');
     this.fetchingCourse = false;
+  }
+
+  changeType() {
+    this.isLessonsList = !this.isLessonsList;
   }
 
   get isChanged(): boolean {
