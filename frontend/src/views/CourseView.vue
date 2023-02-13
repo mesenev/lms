@@ -17,37 +17,75 @@
       : 'empty-items bx--col-lg-6 bx--col-md-6'">
         <cv-data-table-skeleton v-if="loading" :columns="1" :rows="6"/>
         <div v-else-if="lessons.length">
-          <cv-search
-            v-model.trim="searchValue"
-            class="search"
-            label="label"
-            placeholder="Введите название урока"
-            size="size"/>
+          <div class="search-container">
+            <cv-content-switcher-content class="search-switcher" owner-id="1">
+              <cv-search
+                v-model.trim="searchValue"
+                class="search"
+                label="label"
+                placeholder="Введите название урока"
+                size="size"/>
+            </cv-content-switcher-content>
+            <cv-content-switcher-content class="search-switcher" owner-id="2">
+              <cv-search
+                v-model.trim="searchValue"
+                class="search"
+                label="label"
+                placeholder="Введите название теста"
+                size="size"/>
+            </cv-content-switcher-content>
+            <cv-content-switcher>
+              <cv-content-switcher-button owner-id="1" :selected="true">Уроки</cv-content-switcher-button>
+              <cv-content-switcher-button owner-id="2" >Тесты</cv-content-switcher-button>
+            </cv-content-switcher>
+          </div>
           <div class="lessons-list-wrapper">
-            <cv-structured-list class="lessons-list">
-              <template slot="items" v-if="filterLessons.length > 0">
-                <cv-structured-list-item
-                  class="item"
-                  v-for="lesson in filterLessons"
-                  :key="lesson.id">
-                  <lesson-list-component :date-prop="dateForLesson(lesson.id)"
-                                         :lesson-prop='lesson'/>
-                </cv-structured-list-item>
-              </template>
-              <template slot="items" v-if="isStaff && lessonsNotInSchedule.length > 0">
-                <cv-structured-list-item
-                  class="item"
-                  v-for="lesson in lessonsNotInSchedule"
-                  :key="lesson.id">
-                  <lesson-list-component :lesson-prop='lesson' not-in-schedule="true"/>
-                </cv-structured-list-item>
-              </template>
-              <!--          <template slot="items" v-else>-->
-              <!--            <h1 v-if="course && user.staff_for.includes(course.id)">-->
-              <!--              Расписание для курса не составлено-->
-              <!--            </h1>-->
-              <!--          </template>-->
-            </cv-structured-list>
+            <cv-content-switcher-content owner-id="1">
+              <cv-structured-list class="lessons-list">
+                <template slot="items" v-if="filterLessons.length > 0">
+                  <cv-structured-list-item
+                    class="item"
+                    v-for="lesson in filterLessons"
+                    :key="lesson.id">
+                    <lesson-list-component :date-prop="dateForLesson(lesson.id)"
+                                           :lesson-prop='lesson'/>
+                  </cv-structured-list-item>
+                </template>
+                <template slot="items" v-if="isStaff && lessonsNotInSchedule.length > 0">
+                  <cv-structured-list-item
+                    class="item"
+                    v-for="lesson in lessonsNotInSchedule"
+                    :key="lesson.id">
+                    <lesson-list-component :lesson-prop='lesson' not-in-schedule="true"/>
+                  </cv-structured-list-item>
+                </template>
+                <!--          <template slot="items" v-else>-->
+                <!--            <h1 v-if="course && user.staff_for.includes(course.id)">-->
+                <!--              Расписание для курса не составлено-->
+                <!--            </h1>-->
+                <!--          </template>-->
+              </cv-structured-list>
+            </cv-content-switcher-content>
+            <cv-content-switcher-content owner-id="2">
+              <cv-structured-list class="lessons-list">
+                <template slot="items" v-if="filterLessons.length > 0">
+                  <cv-structured-list-item
+                    class="item"
+                    v-for="lesson in filterLessons"
+                    :key="lesson.id">
+                    <test-list-component v-if="lesson.name==='lesson1'"/>
+                  </cv-structured-list-item>
+                </template>
+                <template slot="items" v-if="isStaff && lessonsNotInSchedule.length > 0">
+                  <cv-structured-list-item
+                    class="item"
+                    v-for="lesson in lessonsNotInSchedule"
+                    :key="lesson.id">
+                    <test-list-component/>
+                  </cv-structured-list-item>
+                </template>
+              </cv-structured-list>
+            </cv-content-switcher-content>
           </div>
         </div>
         <div v-else class="empty-list-wrapper">
@@ -76,6 +114,7 @@ import userStore from '@/store/modules/user';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import CourseScheduleModel, { ScheduleElement } from "@/models/ScheduleModel";
 import EmptyListComponent from "@/components/EmptyListComponent.vue";
+import TestListComponent from "@/components/lists/TestListComponent.vue";
 
 @Component({
   components: {
@@ -83,7 +122,8 @@ import EmptyListComponent from "@/components/EmptyListComponent.vue";
     LessonListComponent,
     UserComponent,
     UserSubmitListComponent,
-    EmptyListComponent
+    EmptyListComponent,
+    TestListComponent,
   },
 })
 export default class CourseView extends Vue {
@@ -189,6 +229,22 @@ export default class CourseView extends Vue {
 
   /deep/.bx--search-input
     background-color var(--cds-ui-background)
+
+.search-container
+  display flex
+  flex-direction row
+  align-items stretch
+  gap 0.5rem
+  margin-bottom 0.3rem
+
+.search-switcher
+  width 100%
+
+/deep/ .bx--content-switcher
+  width 30%
+  height auto
+  border-radius 5px
+  border 1px solid var(--cds-ui-05)
 
 .lessons-list-wrapper
   max-height 50vh;

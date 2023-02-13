@@ -10,6 +10,10 @@
         page-view="CourseView"
       />
       <lms-breadcrumb-item
+        v-if="testSelected.selected"
+        :model="testSelected.value"
+        page-view="TestView"/>
+      <lms-breadcrumb-item
         v-if="lessonSelected.selected"
         :model="lessonStore.currentLesson"
         page-view="LessonView"
@@ -76,6 +80,16 @@ export default class LmsBreadcrumb extends Vue {
 
   get materialSelected() {
     return this.isSelected('materialId');
+  }
+
+  get testSelected() {
+    let selected = false
+    let value = null;
+    if (this.$route.name === 'TestView') {
+      selected = true;
+      value = {name: 'Демо тест по экономике'};
+    }
+    return { selected, value };
   }
 
   get courseEditSelected() {
