@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rating',
     'channels',
     'wsnotifications',
+    'test',
 ]
 
 REST_FRAMEWORK = dict(
