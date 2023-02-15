@@ -2,7 +2,6 @@ $feature-flags: (
         enable-css-custom-properties: true,
 );
 
-@import '~carbon-components/css/carbon-components.css';
 @import '~carbon-components/scss/globals/scss/styles'; // old theme vars
 //@import '~@carbon/themes/scss/themes'; // new theme vars
 

@@ -22,6 +22,21 @@ module.exports = {
         new HardSourceWebpackPlugin(),
         // new BundleAnalyzerPlugin(), // uncomment to check bundle size in details
       ],
+      optimization: {
+        splitChunks: {
+          cacheGroups: {
+            default: false,
+            styles: {
+              name: 'chunk-vendors',
+              test: /\.s?css$/,
+              chunks: 'all',
+              minChunks: 1,
+              reuseExistingChunk: true,
+              enforce: true,
+            },
+          },
+        },
+      },
       // "optimization": {
       // markdown-it-vue
       //       },
