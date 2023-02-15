@@ -25,11 +25,14 @@
                     placeholder="Введите верный ответ"/>
     </div>
     <div class="radio-container" v-if="answerType==='Radio'">
-      <span>вариант ответа</span>
-      <cv-text-input/>
-      <span>вариант ответа</span>
-      <cv-text-input/>
-      <cv-link>Добавить вариант ответа</cv-link>
+      <div class="answers" id="radio" v-for="answer in answerRadioCount" :key="answer">
+        <span>вариант ответа {{ answer }}</span>
+        <div class="answer-variant">
+          <cv-text-input/>
+          <component v-if="answerRadioCount > 1" class="action-btn" :is="closeFilled24" @click="deleteAnswer('radio')"/>
+        </div>
+      </div>
+      <cv-link @click="addAnswer('radio')">Добавить вариант ответа</cv-link>
       <div class="answer-container">
         <cv-dropdown class="answer" placeholder="Выберите верный вариант ответа">
           <cv-dropdown-item value="1">1</cv-dropdown-item>
@@ -38,20 +41,23 @@
       </div>
     </div>
     <div class="checkbox-container radio-container" v-if="answerType==='Check'">
-      <span>вариант ответа</span>
-      <cv-text-input/>
-      <span>вариант ответа</span>
-      <cv-text-input/>
-      <cv-link>Добавить вариант ответа</cv-link>
+      <div class="answers" id="checkbox" v-for="answer in answerCheckboxCount" :key="answer">
+        <span>вариант ответа {{ answer }}</span>
+        <div class="answer-variant">
+          <cv-text-input/>
+          <component v-if="answerCheckboxCount > 1" class="action-btn" :is="closeFilled24" @click="deleteAnswer('checkbox')"/>
+        </div>
+      </div>
+      <cv-link @click="addAnswer('checkbox')">Добавить вариант ответа</cv-link>
       <div class="answer-container">
         <cv-multi-select label="Выберите верные варианты ответа" :light="true"/>
       </div>
     </div>
-     <span>Сумма баллов</span>
+    <span>Сумма баллов</span>
     <div class="question-footer">
       <cv-number-input class="points-input"/>
       <div class="action-btns">
-        <component class="action-btn" :is="trashCan"/>
+        <component class="action-btn" :is="trashCan24" @click="deleteQuestion"/>
       </div>
     </div>
 
@@ -60,13 +66,38 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import trashCan from "@carbon/icons-vue/lib/trash-can/24"
+import trashCan24 from "@carbon/icons-vue/lib/trash-can/24"
+import closeFilled24 from "@carbon/icons-vue/lib/close--filled/24"
 
-@Component({ components: { trashCan } })
+@Component({ components: { trashCan24, closeFilled24 } })
 export default class TestQuestionComponent extends Vue {
 
   answerType = 'Short';
-  trashCan = trashCan;
+  trashCan24 = trashCan24;
+  closeFilled24 = closeFilled24;
+
+  answerRadioCount = 1;
+  answerCheckboxCount = 1;
+
+  addAnswer(answerType: string) {
+    if (answerType === 'radio') {
+      this.answerRadioCount++;
+    } else {
+      this.answerCheckboxCount++;
+    }
+  }
+
+  deleteAnswer(answerType: string) {
+    if (answerType === 'radio' && this.answerRadioCount > 1) {
+      this.answerRadioCount--;
+    } else if (this.answerCheckboxCount > 1) {
+      this.answerCheckboxCount--;
+    }
+  }
+
+  deleteQuestion() {
+    this.$emit('delete-question');
+  }
 
 }
 </script>
@@ -108,6 +139,11 @@ export default class TestQuestionComponent extends Vue {
 .long-answer
   margin-top 1rem
   margin-bottom 1rem
+
+.answer-variant
+  display flex
+  align-items center
+  gap 1rem
 
 .radio-container
   margin-top 1rem
