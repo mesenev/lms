@@ -27,11 +27,12 @@
             <cv-date-picker kind="single" date-label="Дедлайн"/>
           </div>
         </div>
-        <test-question-component/>
-        <test-question-component/>
+        <div class="questions" v-for="question in questionCount" :key="question">
+          <test-question-component @delete-question="deleteQuestion"/>
+        </div>
         <div class="action-container">
           <div class="action-btns">
-            <component class="action-btn" :is="addAlt"/>
+            <component class="action-btn" :is="addAlt" @click="addQuestion"/>
             <component class="action-btn" :is="image"/>
             <component class="action-btn" :is="videoAdd"/>
             <component class="action-btn" :is="attachment"/>
@@ -75,6 +76,7 @@ export default class AddTestModal extends NotificationMixinComponent {
   videoAdd = videoAdd;
   attachment = attachment;
 
+  questionCount = 1;
   expanded = false;
 
   showModal() {
@@ -89,11 +91,21 @@ export default class AddTestModal extends NotificationMixinComponent {
     console.log(this.expanded);
     this.expanded = !this.expanded;
   }
+
+  addQuestion() {
+    this.questionCount++;
+  }
+
+  deleteQuestion() {
+    if (this.questionCount > 1) {
+      this.questionCount--;
+    }
+  }
 }
 </script>
 
 <style scoped lang="stylus">
-/deep/ .bx--modal-container
+.add-test-modal /deep/ .bx--modal-container
   background var(--cds-ui-02)
 
 .expand-container-head
