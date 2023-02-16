@@ -97,8 +97,8 @@
               </div>
               <div class="expand-fields">
                 <cv-text-input label="Название теста"/>
-                <cv-text-input label="Описание"/>
-                <cv-dropdown label="Способ тестирования" placeholder="Выберите способ тестирования">
+                <cv-text-area label="Описание"/>
+                <cv-dropdown class="testing-type-dropdown" label="Способ тестирования" placeholder="Выберите способ тестирования">
                   <cv-dropdown-item value="1">Auto</cv-dropdown-item>
                   <cv-dropdown-item value="2">Manual</cv-dropdown-item>
                   <cv-dropdown-item value="3">Auto & Manual</cv-dropdown-item>
@@ -395,6 +395,12 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
 .expand-container.expanded
   max-height 500px
+
+.testing-type-dropdown
+  width 40%
+
+.testing-type-dropdown /deep/ .bx--list-box__menu
+  max-height 5rem
 
 /deep/ .bx--list-box__field
   display flex
