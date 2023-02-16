@@ -1,4 +1,6 @@
 from celery.utils.log import get_task_logger
+from django.core.mail import send_mail
+from django.urls import reverse
 
 from cathie.cats_api import cats_check_solution_status, cats_submit_solution
 from cathie.exceptions import CatsAnswerCodeException, CatsNormalErrorException
@@ -93,3 +95,15 @@ def update_submit_status():
         cats_submit.submit.save(update_fields=['status', 'updated_by'])
         cats_submit.testing_result = data[0]  # Todo: investigate why the hell its a list
         cats_submit.save()
+
+
+@app.task
+def send_email(token, email, hostname):
+    email_plaintext_message = f"""<b>Ссылка для восстановления пароля:</b>
+    {hostname.strip('/')}{reverse('password_reset_with_token')}?token={token}"""
+    send_mail(
+        "Password Reset for dvfu lms",
+        email_plaintext_message,
+        "noreply@lms.ru",
+        [email]
+    )
