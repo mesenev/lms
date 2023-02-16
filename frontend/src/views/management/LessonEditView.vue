@@ -55,6 +55,9 @@
           <cv-content-switcher-button class="type-of-task-tab" owner-id="EX">
             Доп. задания
           </cv-content-switcher-button>
+          <cv-content-switcher-button class="type-of-task-tab" owner-id="Test">
+            Тесты
+          </cv-content-switcher-button>
         </cv-content-switcher>
         <section class="content-task-list">
           <cv-content-switcher-content owner-id="CW">
@@ -101,6 +104,9 @@
               </div>
             </div>
             <h4 v-else class="empty-tasks">Задания отсутствуют</h4>
+          </cv-content-switcher-content>
+          <cv-content-switcher-content owner-id="Test">
+            <h4 class="empty-tasks">Список тестов пока пуст</h4>
           </cv-content-switcher-content>
         </section>
       </div>
@@ -219,7 +225,7 @@ export default class LessonEditView extends NotificationMixinComponent {
   margin 2rem
   max-width 23rem
 
-/deep/.bx--text-input
+.text_field /deep/ .bx--text-input
   background-color var(--cds-ui-background)
 
 .cv-date-picker >>> .bx--date-picker__input
