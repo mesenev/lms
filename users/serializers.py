@@ -62,7 +62,7 @@ class TokenValidationMixin:
             reset_token = get_object_or_404(ResetPasswordToken, key=token)
         except (TypeError, ValueError, ValidationError,
                 Http404, ResetPasswordToken.DoesNotExist):
-            raise Http404("Bad password provided")
+            raise Http404("Incorrect token")
 
         if timezone.now() > reset_token.created_at + timedelta(hours=expiry_time):
             reset_token.delete()
@@ -70,11 +70,11 @@ class TokenValidationMixin:
         return attrs
 
 
-class TokenValidationSerializer(serializers.Serializer, TokenValidationMixin):
+class TokenValidationSerializer(TokenValidationMixin, serializers.Serializer):
     token = serializers.CharField()
 
 
-class PasswordTokenSerializer(serializers.Serializer, TokenValidationMixin):
+class PasswordTokenSerializer(TokenValidationMixin, serializers.Serializer):
     password = serializers.CharField(label="Password", style={'input_type': 'password'})
     token = serializers.CharField(allow_blank=True, allow_null=True)
 

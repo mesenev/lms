@@ -100,7 +100,7 @@ def update_submit_status():
 @app.task
 def send_email(token, email, hostname):
     email_plaintext_message = f"""<b>Ссылка для восстановления пароля:</b>
-    {hostname.strip('/')}{reverse('password_reset_with_token')}?token={token}"""
+    {hostname.strip('/')}/reset?token={token}"""
     send_mail(
         "Password Reset for dvfu lms",
         email_plaintext_message,
