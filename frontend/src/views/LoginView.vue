@@ -23,7 +23,7 @@
         v-model="password"
       >
       </cv-text-input>
-      <cv-link>Забыли пароль?</cv-link>
+      <router-link :to="{ name: 'ResetPasswordView' }">Забыли пароль?</router-link>
       <div class="submit-btn">
         <cv-button @click="authorization">Войти</cv-button>
       </div>

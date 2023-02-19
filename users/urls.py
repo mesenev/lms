@@ -17,6 +17,8 @@ urlpatterns = [
          name="reset_password_token_request"),
     path('api/password_reset/with_token', views.ChangePasswordWithTokenAPIView.as_view(),
          name="password_reset_with_token"),
+    path('api/password_reset/verify_token', views.VerifyTokenExists.as_view(),
+         name="verify_token_exists"),
     path('api/auth/', include('djoser.urls')),
     path('api/auth/', include('djoser.urls.jwt')),
     path('api/auth/', include('djoser.urls.authtoken')),

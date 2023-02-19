@@ -42,7 +42,7 @@ class TokenModule extends VuexModule {
       await api.get(urls.PROTECTED_USER_DATA_URL).then(
         response => {
           userStore.receiveUser(response.data);
-          this.acceptAuthentication();
+          // this.acceptAuthentication();
         }).catch(error => {
         console.log(error);
       });
