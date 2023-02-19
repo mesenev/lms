@@ -9,9 +9,10 @@ import CourseEditView from '@/views/management/CourseEditView.vue';
 import ProfileView from "@/views/ProfileView.vue";
 import RegistrationView from '@/views/RegistrationView.vue';
 import Vue from 'vue';
-import VueRouter, {RouteConfig} from 'vue-router';
+import VueRouter, { RouteConfig } from 'vue-router';
 import LoginView from '@/views/LoginView.vue';
 import token from "@/store/modules/token";
+import ResetPasswordView from "@/views/ResetPasswordView.vue";
 
 Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
@@ -69,12 +70,17 @@ const routes: Array<RouteConfig> = [
     component: LoginView,
   },
   {
+    path: '/reset',
+    name: 'ResetPasswordView',
+    component: ResetPasswordView,
+  },
+  {
     path: '/profile/:userId',
     name: 'profile-page',
     component: ProfileView,
     props: (route) => {
       const userId = Number.parseInt(route.params.userId as string, 10);
-      return {userId, ...route.params};
+      return { userId, ...route.params };
     },
   },
 ];
@@ -85,7 +91,7 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next)=>{
-  if (!token.isAuthenticated && to.path != '/login'){
+  if (!token.isAuthenticated && to.name != 'LoginView' && to.name != 'ResetPasswordView'){
     next({
       path: '/login',
       query: {

@@ -1,10 +1,14 @@
 import os
+import random
 from io import BytesIO
+
+import binascii
 from PIL import Image
 from django.contrib import admin
 from django.contrib.auth.models import AbstractUser
 from django.core.files.base import ContentFile
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 def content_file_name(instance, filename):
@@ -81,6 +85,49 @@ class CourseAssignTeacher(models.Model):
         constraints = [models.UniqueConstraint(fields=['course', 'user'], name='only_one_assignment_teacher')]
 
 
+class ResetPasswordToken(models.Model):
+    class Meta:
+        verbose_name = _("Password Reset Token")
+        verbose_name_plural = _("Password Reset Tokens")
+
+    @staticmethod
+    def generate_token(min_length=32, max_length=128):
+        length = random.randint(min_length, max_length)
+        return binascii.hexlify(
+            os.urandom(max_length)
+        ).decode()[0:length]
+
+    id = models.AutoField(
+        primary_key=True
+    )
+
+    user = models.ForeignKey(
+        User,
+        related_name='password_reset_tokens',
+        on_delete=models.CASCADE,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    key = models.CharField(
+        _("Key"),
+        max_length=128,
+        db_index=True,
+        unique=True
+    )
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = self.generate_token()
+        return super(ResetPasswordToken, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return "Password reset token for user {user}".format(user=self.user)
+
+
+admin.site.register(ResetPasswordToken)
 admin.site.register(StudyGroup)
 admin.site.register(CourseAssignStudent)
 admin.site.register(CourseAssignTeacher)
