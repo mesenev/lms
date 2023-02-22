@@ -1,61 +1,66 @@
 <template>
   <div class="question-container">
     <div class="question-header">
-      <cv-text-area class="question" placeholder="Вопрос"/>
+      <cv-text-area v-model="question.question" class="question" placeholder="Вопрос"/>
       <cv-dropdown
-        v-model="answerType"
+        v-model="question.answer_type"
         class="answer-type"
-        value="Short"
-        placeholder="Тип ответа">
-        <cv-dropdown-item value="Short">Короткий ответ</cv-dropdown-item>
-        <cv-dropdown-item value="Long">Параграф</cv-dropdown-item>
-        <cv-dropdown-item value="Radio">Radio</cv-dropdown-item>
-        <cv-dropdown-item value="Check">Checkbox</cv-dropdown-item>
+        placeholder="Тип ответа" @change="answerTypeChange">
+        <cv-dropdown-item value="input" selected>Короткий ответ</cv-dropdown-item>
+        <cv-dropdown-item value="text">Параграф</cv-dropdown-item>
+        <cv-dropdown-item value="radio">Radio</cv-dropdown-item>
+        <cv-dropdown-item value="checkbox">Checkbox</cv-dropdown-item>
       </cv-dropdown>
     </div>
-    <cv-text-input placeholder="Описание (опционально)"/>
-    <div class="short-answer" v-if="answerType==='Short'">
+    <cv-text-input placeholder="Описание (опционально)" v-model="question.description"/>
+    <div class="short-answer" v-if="inputType">
       <span>Ответ</span>
       <cv-text-input class="short-answer-input"
-                     placeholder="Введите верный ответ"/>
+                     placeholder="Введите верный ответ" v-model="question.correct_answers[0]"/>
     </div>
-    <div class="long-answer" v-if="answerType==='Long'">
+    <div class="long-answer" v-if="textType">
       <span>Ответ</span>
       <cv-text-area class="long-answer-input"
-                    placeholder="Введите верный ответ"/>
+                    placeholder="Введите верный ответ" v-model="question.correct_answers[0]"/>
     </div>
-    <div class="radio-container" v-if="answerType==='Radio'">
-      <div class="answers" id="radio" v-for="answer in answerRadioCount" :key="answer">
-        <span>вариант ответа {{ answer }}</span>
+    <div class="radio-container" v-if="radioType">
+      <div class="answers" id="radio" v-for="(answer, index) in question.answers" :key="index">
+        <span>вариант ответа</span>
         <div class="answer-variant">
-          <cv-text-input/>
-          <component v-if="answerRadioCount > 1" class="action-btn" :is="closeFilled24" @click="deleteAnswer('radio')"/>
+          <cv-text-input v-model="question.answers[index]"/>
+          <component v-if="question.answers.length > 1" class="action-btn" :is="closeFilled24"
+                     @click="deleteAnswer(answer)"/>
         </div>
       </div>
-      <cv-link @click="addAnswer('radio')">Добавить вариант ответа</cv-link>
+      <cv-link @click="addAnswer">Добавить вариант ответа</cv-link>
       <div class="answer-container">
-        <cv-dropdown class="answer" placeholder="Выберите верный вариант ответа">
-          <cv-dropdown-item value="1">1</cv-dropdown-item>
-          <cv-dropdown-item value="2">2</cv-dropdown-item>
+        <span>Выберите верные варианты ответа</span>
+        <cv-dropdown class="answer" v-model="question.correct_answers[0]">
+          <cv-dropdown-item :value="answer" v-for="answer in question.answers" :key="answer">
+            {{ answer }}
+          </cv-dropdown-item>
         </cv-dropdown>
       </div>
     </div>
-    <div class="checkbox-container radio-container" v-if="answerType==='Check'">
-      <div class="answers" id="checkbox" v-for="answer in answerCheckboxCount" :key="answer">
-        <span>вариант ответа {{ answer }}</span>
+    <div class="checkbox-container radio-container" v-if="checkboxType">
+      <div class="answers" id="checkbox" v-for="(answer, index) in question.answers" :key="index">
+        <span>вариант ответа</span>
         <div class="answer-variant">
-          <cv-text-input/>
-          <component v-if="answerCheckboxCount > 1" class="action-btn" :is="closeFilled24" @click="deleteAnswer('checkbox')"/>
+          <cv-text-input v-model="question.answers[index]"/>
+          <component v-if="question.answers.length > 1" class="action-btn" :is="closeFilled24"
+                     @click="deleteAnswer(answer)"/>
         </div>
       </div>
-      <cv-link @click="addAnswer('checkbox')">Добавить вариант ответа</cv-link>
+      <cv-link @click="addAnswer">Добавить вариант ответа</cv-link>
       <div class="answer-container">
-        <cv-multi-select label="Выберите верные варианты ответа" :light="true"/>
+        <span>Выберите верные варианты ответа</span>
+        <cv-multi-select :options="checkboxAnswers" v-model="question.correct_answers"
+                         :light="true"/>
       </div>
     </div>
     <span>Сумма баллов</span>
     <div class="question-footer">
-      <cv-number-input class="points-input"/>
+      <cv-number-input class="points-input" v-model="question.points" :min="0"/>
       <div class="action-btns">
         <component class="action-btn" :is="trashCan24" @click="deleteQuestion"/>
       </div>
@@ -65,40 +70,69 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import trashCan24 from "@carbon/icons-vue/lib/trash-can/24"
 import closeFilled24 from "@carbon/icons-vue/lib/close--filled/24"
+import QuestionModel, { ANSWER_TYPE } from "@/models/QuestionModel";
+import questionStore from "@/store/modules/question";
 
 @Component({ components: { trashCan24, closeFilled24 } })
 export default class TestQuestionComponent extends Vue {
-
-  answerType = 'Short';
+  @Prop({ required: true }) testId!: number;
+  @Prop({ required: true }) _question!: QuestionModel;
+  questionStore = questionStore;
   trashCan24 = trashCan24;
   closeFilled24 = closeFilled24;
+  question = { ...questionStore.newQuestion };
 
-  answerRadioCount = 1;
-  answerCheckboxCount = 1;
-
-  addAnswer(answerType: string) {
-    if (answerType === 'radio') {
-      this.answerRadioCount++;
-    } else {
-      this.answerCheckboxCount++;
-    }
+  async created() {
+    this.question = this._question;
   }
 
-  deleteAnswer(answerType: string) {
-    if (answerType === 'radio' && this.answerRadioCount > 1) {
-      this.answerRadioCount--;
-    } else if (this.answerCheckboxCount > 1) {
-      this.answerCheckboxCount--;
-    }
+  get inputType() {
+    return this.question.answer_type === ANSWER_TYPE.INPUT;
+  }
+
+  get textType() {
+    return this.question.answer_type === ANSWER_TYPE.TEXT_FIELD;
+  }
+
+  get radioType() {
+    return this.question.answer_type === ANSWER_TYPE.RADIO;
+  }
+
+  get checkboxType() {
+    return this.question.answer_type === ANSWER_TYPE.CHECKBOXES;
+  }
+
+  get checkboxAnswers() {
+    return this.question.answers.map(item => {
+      const nameVal = item.toLowerCase();
+      return {
+        name: nameVal,
+        label: item,
+        value: nameVal,
+        disabled: false,
+      }
+    })
+  }
+
+  answerTypeChange() {
+    this.question.correct_answers = [''];
+    this.question.answers = [''];
+  }
+
+  addAnswer() {
+    this.question.answers.push('');
+  }
+
+  deleteAnswer(answer: string) {
+    this.question.answers = this.question.answers.filter(x => x !== answer)
   }
 
   deleteQuestion() {
     this.$emit('delete-question');
   }
-
 }
 </script>
 
