@@ -4,10 +4,11 @@
       Добавить задание
     </cv-button>
     <cv-modal
-      :primary-button-disabled="addButtonDisabled" :visible="modalVisible"
+      :primary-button-disabled="addButtonDisabled"
+      :visible="modalVisible"
       class="add_lesson_modal" :size="selectedNew ? 'large' : 'default'"
       @modal-hidden="modalHidden"
-      @primary-click="addProblem">
+      @primary-click="primaryHandler">
       <template slot="label">{{ lesson.name }}</template>
       <cv-inline-notification
         v-if="showNotification"
@@ -96,9 +97,11 @@
                 <component class="expand-btn" :is="chevronDown"/>
               </div>
               <div class="expand-fields">
-                <cv-text-input label="Название теста"/>
-                <cv-text-area label="Описание"/>
-                <cv-dropdown class="testing-type-dropdown" label="Способ тестирования" placeholder="Выберите способ тестирования">
+                <cv-text-input v-model="test.name" label="Название теста"/>
+                <cv-text-area v-model="test.description" label="Описание"/>
+                <cv-dropdown v-model="test.test_mode" class="testing-type-dropdown"
+                             label="Способ тестирования"
+                             placeholder="Выберите способ тестирования">
                   <cv-dropdown-item value="1">Auto</cv-dropdown-item>
                   <cv-dropdown-item value="2">Manual</cv-dropdown-item>
                   <cv-dropdown-item value="3">Auto & Manual</cv-dropdown-item>
@@ -106,8 +109,9 @@
                 <cv-date-picker kind="single" date-label="Дедлайн"/>
               </div>
             </div>
-            <div class="questions" v-for="question in questionCount" :key="question">
-              <test-question-component @delete-question="deleteQuestion"/>
+            <div class="questions" v-for="question in test.questions" :key="question.id">
+              <test-question-component :_question="question" :test-id="test.id"
+                                       @delete-question="deleteQuestion(question.id)"/>
             </div>
             <div class="action-container">
               <div class="action-btns">
@@ -120,7 +124,7 @@
           </cv-content-switcher-content>
         </section>
       </template>
-      <template slot="primary-button">Добавить</template>
+      <template slot="primary-button">{{ selectedNew ? 'Создать тест' : 'Добавить задачу'}}</template>
     </cv-modal>
   </div>
 </template>
@@ -131,6 +135,8 @@ import CatsProblemModel from '@/models/CatsProblemModel';
 import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
 import problemStore from '@/store/modules/problem';
+import testStore from '@/store/modules/test';
+import questionStore from '@/store/modules/question';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import { Component, Prop } from 'vue-property-decorator';
@@ -143,6 +149,8 @@ import addAlt from "@carbon/icons-vue/lib/add--alt/24";
 import videoAdd from "@carbon/icons-vue/lib/video--add/24";
 import image from "@carbon/icons-vue/lib/image/24";
 import attachment from "@carbon/icons-vue/lib/attachment/24";
+import TestModel from "@/models/TestModel";
+import _ from 'lodash';
 
 
 @Component({
@@ -173,7 +181,6 @@ export default class EditLessonModal extends NotificationMixinComponent {
   fetchingCatsProblems = true;
   modalVisible = false;
   searchQueryForAllProblems = '';
-  //ToDo add radio button for test modes to modal
   testingMode = '';
   problemType = '';
   loading = false;
@@ -184,7 +191,10 @@ export default class EditLessonModal extends NotificationMixinComponent {
   videoAdd = videoAdd;
   attachment = attachment;
 
-  questionCount = 1;
+  testStore = testStore;
+  questionStore = questionStore;
+  test: TestModel = { ...testStore.newTest };
+  questionCount = 0;
   expanded = false;
 
 
@@ -194,6 +204,8 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
   async created() {
     if (!this.lesson.course) return
+    this.test = _.cloneDeep(this.test);
+    this.addQuestion();
     await this.fetchCatsProblems()
   }
 
@@ -246,6 +258,9 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
   get addButtonDisabled() {
     // debugger;
+    if (this.selectedNew)
+      return false;
+    else
     return (!this.selected.length || this.selectedNew) || !this.problemType
       || !this.testingMode || this.loading;
   }
@@ -261,6 +276,13 @@ export default class EditLessonModal extends NotificationMixinComponent {
       return this.selectedCatsProblems.find(e => e.id === element.cats_id)?.id
         && element.type === this.problemType;
     }).length > 0;
+  }
+
+  async primaryHandler() {
+    if (this.selectedNew)
+      await this.createTest();
+    else
+      await this.addProblem();
   }
 
   async addProblem() {
@@ -313,18 +335,24 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
 
   expand() {
-    console.log(this.expanded);
     this.expanded = !this.expanded;
   }
 
   addQuestion() {
     this.questionCount++;
+    const newQuestion = _.cloneDeep(this.questionStore.newQuestion);
+    newQuestion.id = this.questionCount;
+    this.test.questions.push(newQuestion);
   }
 
-  deleteQuestion() {
-    if (this.questionCount > 1) {
-      this.questionCount--;
+  deleteQuestion(id: number) {
+    if (this.test.questions.length > 1) {
+      this.test.questions = this.test.questions.filter(x => x.id !== id);
     }
+  }
+
+  async createTest() {
+    await this.testStore.addTest(this.test, this.lesson.id);
   }
 }
 </script>
