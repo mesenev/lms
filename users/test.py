@@ -6,7 +6,6 @@ from users.serializers import DefaultUserSerializer
 from imcslms.test import MainSetup
 from model_bakery import baker
 from django.core.files.uploadedfile import SimpleUploadedFile
-from PIL import Image
 
 
 class UserTests(MainSetup):
