@@ -5,7 +5,7 @@
     </cv-button>
     <cv-modal
       :primary-button-disabled="addButtonDisabled" :visible="modalVisible"
-      class="add_lesson_modal" size="default"
+      class="add_lesson_modal" :size="selectedNew ? 'large' : 'default'"
       @modal-hidden="modalHidden"
       @primary-click="addProblem">
       <template slot="label">{{ lesson.name }}</template>
@@ -17,75 +17,107 @@
       <template slot="title">
         Добавить задание
         <cv-content-switcher class="switcher" @selected="actionSelected">
-          <cv-content-switcher-button content-selector=".content-1" selected>
+          <cv-content-switcher-button owner-id="Problems" selected>
             Импортировать задачу из cats
           </cv-content-switcher-button>
-          <cv-content-switcher-button :disabled="true" content-selector=".content-2">
-            Создать новую задачу
+          <cv-content-switcher-button owner-id="Tests">
+            Создать тест
           </cv-content-switcher-button>
         </cv-content-switcher>
-        <span style="padding-top: 20px">Выберите способ тестирования</span>
-        <cv-radio-group style="margin-top: 10px; padding-bottom: 20px">
+        <cv-content-switcher-content owner-id="Problems">
+          <span style="padding-top: 20px">Выберите способ тестирования</span>
+          <cv-radio-group style="margin-top: 10px; padding-bottom: 20px">
 
-          <cv-radio-button label="автоматическое"
-                           value="auto"
-                           v-model="testingMode"
-          />
-          <cv-radio-button label="ручное"
-                           value="manual"
-                           v-model="testingMode"
-          />
-          <cv-radio-button label="автоматическое и ручное"
-                           value="auto_and_manual"
-                           v-model="testingMode"
-          />
-
-        </cv-radio-group>
+            <cv-radio-button label="автоматическое"
+                             value="auto"
+                             v-model="testingMode"
+            />
+            <cv-radio-button label="ручное"
+                             value="manual"
+                             v-model="testingMode"
+            />
+            <cv-radio-button label="автоматическое и ручное"
+                             value="auto_and_manual"
+                             v-model="testingMode"
+            />
+          </cv-radio-group>
+        </cv-content-switcher-content>
       </template>
       <template slot="content">
         <section class="modal--content">
-          <div class="content-1">
-            <div>
-              <cv-inline-notification
-                v-if="showNotification"
-                @close="() => showNotification=false"
-                kind="error"
-                :sub-title="notificationText"/>
-              <cv-data-table
-                v-if="!fetchingCatsProblems" ref="table"
-                v-model="selected" :columns="columns" :data="catsFilteredProblems"
-                class="cats-problems-table" @search="onSearch">
-                <template slot="batch-actions">
-                  <div></div>
-                </template>
-              </cv-data-table>
-              <cv-data-table-skeleton v-else/>
+          <cv-content-switcher-content owner-id="Problems">
+            <div class="content-1">
+              <div>
+                <cv-inline-notification
+                  v-if="showNotification"
+                  @close="() => showNotification=false"
+                  kind="error"
+                  :sub-title="notificationText"/>
+                <cv-data-table
+                  v-if="!fetchingCatsProblems" ref="table"
+                  v-model="selected" :columns="columns" :data="catsFilteredProblems"
+                  class="cats-problems-table" @search="onSearch">
+                  <template slot="batch-actions">
+                    <div></div>
+                  </template>
+                </cv-data-table>
+                <cv-data-table-skeleton v-else/>
+              </div>
             </div>
-          </div>
-          <div class="content-2" hidden>
-            <cv-text-input v-model.trim="lesson.name" disabled label="Название урока"/>
-            <cv-text-input v-model.trim="currentProblem.name" label="Название задания"/>
-            <cv-text-input v-model.trim="currentProblem.description" label="Описание задания"/>
-          </div>
-          <div class="problem-type-selection">
-            <h5>Тип задачи</h5>
-            <cv-radio-group
-              @change="(newType) => this.problemType = newType"
-              :vertical="false">
-              <cv-radio-button
-                v-model="problemType"
-                label="Классная работа"
-                name="group-1" value="CW"/>
-              <cv-radio-button
-                v-model="problemType"
-                label="Домашняя работа"
-                name="group-1" value="HW"/>
-              <cv-radio-button
-                v-model="problemType"
-                label="Дополнительные задания"
-                name="group-1" value="EX"/>
-            </cv-radio-group>
-          </div>
+            <div class="content-2" hidden>
+              <cv-text-input v-model.trim="lesson.name" disabled label="Название урока"/>
+              <cv-text-input v-model.trim="currentProblem.name" label="Название задания"/>
+              <cv-text-input v-model.trim="currentProblem.description" label="Описание задания"/>
+            </div>
+            <div class="problem-type-selection">
+              <h5>Тип задачи</h5>
+              <cv-radio-group
+                @change="(newType) => this.problemType = newType"
+                :vertical="false">
+                <cv-radio-button
+                  v-model="problemType"
+                  label="Классная работа"
+                  name="group-1" value="CW"/>
+                <cv-radio-button
+                  v-model="problemType"
+                  label="Домашняя работа"
+                  name="group-1" value="HW"/>
+                <cv-radio-button
+                  v-model="problemType"
+                  label="Дополнительные задания"
+                  name="group-1" value="EX"/>
+              </cv-radio-group>
+            </div>
+          </cv-content-switcher-content>
+          <cv-content-switcher-content owner-id="Tests">
+            <div :class="expanded ? 'expand-container expanded' : 'expand-container'">
+              <div @click="expand" class="expand-container-head">
+                <p>Настройки теста</p>
+                <component class="expand-btn" :is="chevronDown"/>
+              </div>
+              <div class="expand-fields">
+                <cv-text-input label="Название теста"/>
+                <cv-text-area label="Описание"/>
+                <cv-dropdown class="testing-type-dropdown" label="Способ тестирования" placeholder="Выберите способ тестирования">
+                  <cv-dropdown-item value="1">Auto</cv-dropdown-item>
+                  <cv-dropdown-item value="2">Manual</cv-dropdown-item>
+                  <cv-dropdown-item value="3">Auto & Manual</cv-dropdown-item>
+                </cv-dropdown>
+                <cv-date-picker kind="single" date-label="Дедлайн"/>
+              </div>
+            </div>
+            <div class="questions" v-for="question in questionCount" :key="question">
+              <test-question-component @delete-question="deleteQuestion"/>
+            </div>
+            <div class="action-container">
+              <div class="action-btns">
+                <component class="action-btn" :is="addAlt" @click="addQuestion"/>
+                <component class="action-btn" :is="image"/>
+                <component class="action-btn" :is="videoAdd"/>
+                <component class="action-btn" :is="attachment"/>
+              </div>
+            </div>
+          </cv-content-switcher-content>
         </section>
       </template>
       <template slot="primary-button">Добавить</template>
@@ -101,17 +133,36 @@ import ProblemModel from '@/models/ProblemModel';
 import problemStore from '@/store/modules/problem';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
-import {Component, Prop} from 'vue-property-decorator';
+import { Component, Prop } from 'vue-property-decorator';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import api from '@/store/services/api';
+import TestQuestionComponent from "@/components/TestQuestionComponent.vue";
+import chevronUp from "@carbon/icons-vue/lib/chevron--up/24";
+import chevronDown from "@carbon/icons-vue/lib/chevron--down/24";
+import addAlt from "@carbon/icons-vue/lib/add--alt/24";
+import videoAdd from "@carbon/icons-vue/lib/video--add/24";
+import image from "@carbon/icons-vue/lib/image/24";
+import attachment from "@carbon/icons-vue/lib/attachment/24";
 
 
-@Component({components: {AddAlt20, SubtractAlt20}})
+@Component({
+  components: {
+    AddAlt20,
+    SubtractAlt20,
+    TestQuestionComponent,
+    chevronUp,
+    chevronDown,
+    addAlt,
+    videoAdd,
+    image,
+    attachment,
+  }
+})
 export default class EditLessonModal extends NotificationMixinComponent {
-  @Prop({required: true}) lesson!: LessonModel;
+  @Prop({ required: true }) lesson!: LessonModel;
 
   problemStore = problemStore;
-  currentProblem: ProblemModel = {...this.problemStore.getNewProblem, lesson: this.lesson.id};
+  currentProblem: ProblemModel = { ...this.problemStore.getNewProblem, lesson: this.lesson.id };
   selectedNew = false;
   selected = [];
   columns = ['id', 'Название', 'Статус'];
@@ -126,6 +177,16 @@ export default class EditLessonModal extends NotificationMixinComponent {
   testingMode = '';
   problemType = '';
   loading = false;
+
+  chevronDown = chevronDown;
+  image = image;
+  addAlt = addAlt;
+  videoAdd = videoAdd;
+  attachment = attachment;
+
+  questionCount = 1;
+  expanded = false;
+
 
   get catsFilteredProblems() {
     return searchByProblems(this.searchQueryForAllProblems, this.catsProblemsTruncated);
@@ -150,7 +211,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
       })
     this.catsProblems.map(value => {
       this.catsProblemsTruncated.push(
-        {id: value.id, name: value.name, status: value.status},
+        { id: value.id, name: value.name, status: value.status },
       )
     });
     this.catsProblemsTruncated = [...this.catsProblemsTruncated];
@@ -164,7 +225,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
   showModal() {
     this.modalVisible = true;
     this.showNotification = false;
-    this.currentProblem = {...this.problemStore.getNewProblem, lesson: this.lesson.id};
+    this.currentProblem = { ...this.problemStore.getNewProblem, lesson: this.lesson.id };
   }
 
   modalHidden() {
@@ -229,7 +290,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
       data.forEach(element => element.test_mode = this.testingMode);
       await api.post(
         `/api/lesson/${this.lesson.id}/add_cats_problems/`,
-        {problem_data: data, problem_type: problemTypes.get(this.problemType)},
+        { problem_data: data, problem_type: problemTypes.get(this.problemType) },
       )
         .then(async (answer) => {
           if (answer.status == 200) {
@@ -250,11 +311,29 @@ export default class EditLessonModal extends NotificationMixinComponent {
         })
     }
   }
+
+  expand() {
+    console.log(this.expanded);
+    this.expanded = !this.expanded;
+  }
+
+  addQuestion() {
+    this.questionCount++;
+  }
+
+  deleteQuestion() {
+    if (this.questionCount > 1) {
+      this.questionCount--;
+    }
+  }
 }
 </script>
 
 <style scoped lang="stylus">
-.bx--modal-content:focus
+.add_lesson_modal /deep/ .bx--modal-container
+  background var(--cds-ui-background)
+
+/deep/ .bx--modal-content:focus
   outline none
 
 .change-btn
@@ -294,9 +373,60 @@ export default class EditLessonModal extends NotificationMixinComponent {
 .add_lesson_modal .bx--btn--primary
   background-color var(--cds-ui-05)
 
-.modal--content
-  height 400px
+//.modal--content
+//  height 400px
 
 .problem-type-selection
   margin-top 2rem
+
+.expand-container-head
+  cursor pointer
+  display flex
+  align-items center
+  justify-content space-between
+  margin-bottom 1rem
+
+.expand-container
+  max-height 3.25rem
+  overflow hidden
+  transition all .3s ease
+  background var(--cds-ui-01)
+  padding 1rem
+
+.expand-container.expanded
+  max-height 500px
+
+.testing-type-dropdown
+  width 40%
+
+.testing-type-dropdown /deep/ .bx--list-box__menu
+  max-height 5rem
+
+/deep/ .bx--list-box__field
+  display flex
+
+.action-container
+  display flex
+  justify-content end
+
+.expand-fields
+  display flex
+  flex-direction column
+  gap 1rem
+
+.action-btns
+  background var(--cds-ui-01)
+  display flex
+  gap 1rem
+  border-radius 5px
+  margin-top 1rem
+  padding 1rem
+
+.action-btn
+  cursor pointer
+  transition ease-in-out 0.1s
+
+.action-btn:active
+  transform scale(0.9)
+
 </style>

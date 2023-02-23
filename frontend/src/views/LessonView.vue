@@ -62,6 +62,15 @@
               <cv-accordion-skeleton/>
             </div>
           </div>
+          <div class="tests">
+            <h4 class="classwork-title title">Тесты</h4>
+            <div v-if="!loading">
+              <test-list-component/>
+            </div>
+            <div v-else>
+              <cv-accordion-skeleton/>
+            </div>
+          </div>
         </div>
       </div>
       <div
@@ -109,8 +118,9 @@ import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import EmptyListComponent from "@/components/EmptyListComponent.vue";
+import TestListComponent from "@/components/lists/TestListComponent.vue";
 
-@Component({ components: { MaterialListComponent, ProblemListComponent, EmptyListComponent } })
+@Component({ components: { TestListComponent, MaterialListComponent, ProblemListComponent, EmptyListComponent } })
 export default class LessonView extends Vue {
   @Prop({ required: true }) lessonId!: number;
   lessonStore = lessonStore;
