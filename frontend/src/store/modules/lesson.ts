@@ -57,6 +57,7 @@ class LessonModule extends VuexModule {
       description: '',
       lessonContent: '',
       problems: [],
+      tests: [],
       materials: [],
       deadline: '2000-01-01',
       progress: [],

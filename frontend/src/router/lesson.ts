@@ -6,6 +6,8 @@ import MaterialEditView from '@/views/management/MaterialEditView.vue';
 import MaterialView from '@/views/MaterialView.vue';
 import ProblemViewLayout from '@/views/ProblemViewLayout.vue';
 import { RouteConfig } from 'vue-router';
+import testRoutes from "@/router/test";
+import TestViewLayout from "@/views/TestViewLayout.vue";
 
 const lessonRoutes: Array<RouteConfig> = [
   {
@@ -26,6 +28,17 @@ const lessonRoutes: Array<RouteConfig> = [
     props: (route) => {
       const problemId = Number.parseInt(route.params.problemId as string, 10);
       return { problemId, ...route.params };
+    },
+  },
+  {
+    path: 'test/:testId',
+    component: TestViewLayout,
+    children: [
+        ...testRoutes,
+    ],
+    props: (route) => {
+      const testId = Number.parseInt(route.params.testId as string, 10);
+      return {testId, ...route.params};
     },
   },
   {

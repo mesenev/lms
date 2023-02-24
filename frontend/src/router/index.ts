@@ -58,11 +58,6 @@ const routes: Array<RouteConfig> = [
           return {lessonId, ...route.params};
         },
       },
-      {
-        path: 'test/',
-        name: 'TestView',
-        component: TestView,
-      },
     ],
   },
   {

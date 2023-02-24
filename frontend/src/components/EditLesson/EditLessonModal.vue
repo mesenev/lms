@@ -352,7 +352,10 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
 
   async createTest() {
-    await this.testStore.addTest(this.test, this.lesson.id);
+    let tests = this.testStore.tests[this.lesson.id];
+    tests ? this.test.id = tests.length : this.test.id = 0;
+    tests ? tests.push(this.test) : tests = [this.test];
+    await this.testStore.setTests({[this.lesson.id]: tests});
   }
 }
 </script>
