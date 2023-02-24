@@ -25,8 +25,8 @@ class QuestionModule extends VuexModule {
     return this.questions[id];
   }
   @Mutation
-  addQuestion(question: QuestionModel, id: number) {
-    this.questions[id].push(question);
+  setQuestions(payload: Dictionary<QuestionModel[]>) {
+    this.questions = {...this.questions, ...payload};
   }
 }
 

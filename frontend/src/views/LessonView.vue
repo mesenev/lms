@@ -114,11 +114,13 @@ import lessonStore from '@/store/modules/lesson';
 import materialStore from '@/store/modules/material';
 import problemStore from '@/store/modules/problem';
 import userStore from '@/store/modules/user';
+import testStore from '@/store/modules/test';
 import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import EmptyListComponent from "@/components/EmptyListComponent.vue";
 import TestListComponent from "@/components/lists/TestListComponent.vue";
+import TestModel from "@/models/TestModel";
 
 @Component({ components: { TestListComponent, MaterialListComponent, ProblemListComponent, EmptyListComponent } })
 export default class LessonView extends Vue {
@@ -127,6 +129,7 @@ export default class LessonView extends Vue {
   problemStore = problemStore;
   userStore = userStore;
   materialStore = materialStore;
+  testStore = testStore;
   loading = true;
   changingVisibility = false;
   emptyProblemsText = '';
@@ -137,6 +140,7 @@ export default class LessonView extends Vue {
     this.emptyMaterialsText = 'Похоже, доступные материалы отсутствуют.';
     await this.problemStore.fetchProblemsByLessonId(this.lessonId);
     await this.materialStore.fetchMaterialsByLessonId(this.lessonId);
+    await this.testStore.fetchTestsByLessonId(this.lessonId);
     this.loading = false;
   }
 
@@ -189,6 +193,10 @@ export default class LessonView extends Vue {
 
   get extrawork(): Array<ProblemModel> {
     return this.problemStore.problemsByLesson[this.lessonId].filter(x => x.type === 'EX');
+  }
+
+  get tests(): Array<TestModel> {
+    return this.testStore.tests[this.lessonId] ? this.testStore.tests[this.lessonId] : [];
   }
 
   async changeLessonVisibility() {

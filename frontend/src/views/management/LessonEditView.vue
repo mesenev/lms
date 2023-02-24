@@ -106,7 +106,15 @@
             <h4 v-else class="empty-tasks">Задания отсутствуют</h4>
           </cv-content-switcher-content>
           <cv-content-switcher-content owner-id="Test">
-            <h4 class="empty-tasks">Список тестов пока пуст</h4>
+            <div v-if="getTests.length > 0">
+              <div v-if="!fetchingLesson" class="extrawork">
+                <test-list-component :tests-prop="getTests"/>
+              </div>
+              <div v-else>
+                <cv-accordion-skeleton/>
+              </div>
+            </div>
+            <h4 v-else class="empty-tasks">Тесты отсутствуют</h4>
           </cv-content-switcher-content>
         </section>
       </div>
@@ -127,18 +135,24 @@ import router from '@/router';
 import lessonStore from '@/store/modules/lesson';
 import materialStore from '@/store/modules/material';
 import problemStore from '@/store/modules/problem';
+import testStore from '@/store/modules/test';
 import api from '@/store/services/api';
 import _ from 'lodash';
 import {Component, Prop} from 'vue-property-decorator';
+import TestModel from "@/models/TestModel";
+import TestListComponent from "@/components/lists/TestListComponent.vue";
 
 
-@Component({components: {EditLessonMaterialsModal, EditLessonModal, ProblemListComponent}})
+@Component({components: {
+    TestListComponent,
+    EditLessonMaterialsModal, EditLessonModal, ProblemListComponent}})
 export default class LessonEditView extends NotificationMixinComponent {
 
   @Prop({required: true}) lessonId!: number;
   store = lessonStore;
   materialStore = materialStore;
   problemStore = problemStore;
+  testStore = testStore;
   fetchingLesson = true;
   lesson: LessonModel = this.store.getNewLesson;
   lessonEdit: LessonModel = {...this.lesson};
@@ -203,6 +217,13 @@ export default class LessonEditView extends NotificationMixinComponent {
 
   get getExtrawork(): Array<ProblemModel | CatsProblemModel> {
     return this.lessonEdit.problems.filter(x => x.type === 'EX');
+  }
+
+  get getTests(): Array<TestModel> {
+    if (this.testStore.tests[this.lessonId])
+      return this.testStore.tests[this.lessonId];
+    else
+      return [];
   }
 
   searchByTutorial(problems: Array<ProblemModel | CatsProblemModel>):

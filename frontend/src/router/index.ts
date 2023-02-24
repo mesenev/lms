@@ -12,7 +12,6 @@ import Vue from 'vue';
 import VueRouter, {RouteConfig} from 'vue-router';
 import LoginView from '@/views/LoginView.vue';
 import token from "@/store/modules/token";
-import TestView from "@/views/TestView.vue";
 
 Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
@@ -56,11 +55,6 @@ const routes: Array<RouteConfig> = [
           const lessonId = Number.parseInt(route.params.lessonId as string, 10);
           return {lessonId, ...route.params};
         },
-      },
-      {
-        path: 'test/',
-        name: 'TestView',
-        component: TestView,
       },
     ],
   },

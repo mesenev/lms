@@ -2,49 +2,38 @@
   <div class="bx--grid">
     <div class="bx--row header-container">
       <div class="bx--offset-lg-2 main-title">
-        <h1>Демо тест по экономике</h1>
+        <h1> {{ test.name }} </h1>
         <div class="info-container">
-        <div class="test-info">
-          <span>Тест</span>
-          <span>
-            Макс. балл <strong> 5 </strong>
+          <div class="test-info">
+            <span>Тест</span>
+            <span>
+            Макс. балл <strong> {{ test.points }} </strong>
           </span>
-          <span>
-            Режим тестирования: <strong>manual</strong>
+            <span>
+            Режим тестирования: <strong> {{ test.test_mode }} </strong>
           </span>
+          </div>
         </div>
-      </div>
       </div>
     </div>
     <cv-row class="main-items" justify="center">
       <cv-column :lg="{'span' : 8, 'offset' : 2}">
         <div class="test-container">
-          <div class="question-container">
-            <h4 class="question-title">Статистическая совокупность - это: </h4>
-            <cv-radio-group class="answers" :vertical="true">
-              <cv-radio-button name="1" label="множество изучаемых разнородных объектов" value="1" :disabled="flag"/>
-              <cv-radio-button name="1" label="множество единиц изучаемого явления" value="2" :disabled="flag"/>
-              <cv-radio-button name="1" label="группа зафиксированных случайных событий" value="3" :disabled="flag"/>
+          <div class="question-container" v-for="question in test.questions" :key="question.id">
+            <h4 class="question-title"> {{ question.question }} </h4>
+            <p class="question-description">{{ question.description }}</p>
+            <cv-radio-group class="answers" :vertical="true" v-if="isQuestionRadioType(question)">
+              <cv-radio-button v-for="(answer, id) in question.answers" :key="id" :name="id"
+                               :label="answer" value="1" :disabled="flag"/>
             </cv-radio-group>
-          </div>
-          <div class="question-container">
-            <h4 class="question-title">
-              Основные стадии экономико-статистического исследования включают:
-            </h4>
-            <div class="answers-checkbox">
-              <cv-checkbox value="1" label="сбор первичных данных" :disabled="flag"/>
-              <cv-checkbox value="2" label="статистическая сводка и группировка данных" :disabled="flag"/>
-              <cv-checkbox value="3" label="контроль и управление объектами статистического изучения" :disabled="flag"/>
-              <cv-checkbox value="4" label="анализ статистических данных" :disabled="flag"/>
+            <div class="answers-checkbox" v-else-if="isQuestionCheckboxType(question)">
+              <cv-checkbox v-for="(answer, id) in question.answers" :key="id" value="1"
+                           :label="answer" :disabled="flag"/>
             </div>
-          </div>
-          <div class="question-container">
-            <h4 class="question-title">Ряд динамики, характеризующий уровень развития социально-экономического явления на определенные даты времени, называется:</h4>
-            <cv-text-input v-model="shorttext" placeholder="Введите ответ" :disabled="flag"/>
-          </div>
-          <div class="question-container">
-            <h4 class="question-title">Дайте понятие экономической статистике:</h4>
-            <cv-text-area v-model="longtext" placeholder="Введите ответ" :disabled="flag"/>
+            <cv-text-input v-else-if="isQuestionInputType(question)" placeholder="Введите ответ"
+                           :disabled="flag"/>
+            <cv-text-area v-else-if="isQuestionTextType(question)" placeholder="Введите ответ"
+                          :disabled="flag"/>
           </div>
         </div>
         <div class="submit-container">
@@ -52,10 +41,10 @@
             <cv-button @click="submitTest" :disabled="flag">Отправить</cv-button>
           </div>
           <cv-inline-notification
-              v-if="showNotification"
-              @close="hideNotification"
-              :kind="notificationKind"
-              :sub-title="notificationText"/>
+            v-if="showNotification"
+            @close="hideNotification"
+            :kind="notificationKind"
+            :sub-title="notificationText"/>
         </div>
       </cv-column>
     </cv-row>
@@ -64,14 +53,43 @@
 
 <script lang="ts">
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
-import { Component } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
+import TestModel from "@/models/TestModel";
+import testStore from '@/store/modules/test';
+import QuestionModel, { ANSWER_TYPE } from "@/models/QuestionModel";
 
-@Component({components: {}})
+@Component({ components: {} })
 export default class TestView extends NotificationMixinComponent {
-  flag = false;
+  @Prop({ required: true }) testId!: number;
 
+  test: TestModel | null = null;
+  testStore = testStore;
+
+  async created() {
+    this.test = await this.testStore.fetchTestById(this.testId);
+  }
+
+  isQuestionInputType(question: QuestionModel) {
+    return question.answer_type === ANSWER_TYPE.INPUT;
+  }
+
+  isQuestionTextType(question: QuestionModel) {
+    return question.answer_type === ANSWER_TYPE.TEXT_FIELD;
+  }
+
+  isQuestionRadioType(question: QuestionModel) {
+    return question.answer_type === ANSWER_TYPE.RADIO;
+  }
+
+  isQuestionCheckboxType(question: QuestionModel) {
+    return question.answer_type === ANSWER_TYPE.CHECKBOXES;
+  }
+
+
+  flag = false;
   shorttext = '';
   longtext = '';
+
   submitTest() {
     this.flag = true;
     this.notificationKind = 'success';
@@ -109,6 +127,9 @@ span
 
 .question-title
   margin-bottom 0.5rem
+
+.question-description
+  margin-bottom 1rem
 
 .answers
   margin-left 0.5rem
