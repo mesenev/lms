@@ -34,11 +34,11 @@ const lessonRoutes: Array<RouteConfig> = [
     path: 'test/:testId',
     component: TestViewLayout,
     children: [
-        ...testRoutes,
+      ...testRoutes,
     ],
     props: (route) => {
       const testId = Number.parseInt(route.params.testId as string, 10);
-      return {testId, ...route.params};
+      return { testId, ...route.params };
     },
   },
   {

@@ -13,6 +13,7 @@ class TestModule extends VuexModule {
     return {
       id: NaN,
       name: '',
+      lesson: NaN,
       description: '',
       questions: [],
       points: NaN,
@@ -79,7 +80,7 @@ class TestModule extends VuexModule {
         },
       ],
       points: 10,
-      test_mode: 'Manual',
+      test_mode: 'manual',
       is_hidden: true,
     } as TestModel;
   }
@@ -92,6 +93,11 @@ class TestModule extends VuexModule {
   @Mutation
   setTests(payload: Dictionary<TestModel[]>) {
     this.tests = { ...this.tests, ...payload };
+  }
+
+  @Action
+  async patchTest(params: { is_hidden: boolean; id: number }) {
+    return;
   }
 }
 
