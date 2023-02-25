@@ -47,7 +47,8 @@
         Редактировать курс
       </cv-header-menu-item>
     </cv-header-nav>
-    <cv-header-nav v-if="isStaff && lessonSelected && !problemSelected && !materialSelected">
+    <cv-header-nav
+      v-if="isStaff && lessonSelected && !problemSelected && !materialSelected && !testSelected">
       <cv-header-menu-item
         :to="{ name: 'lesson-edit', params: { lessonId: this.$route.params.lessonId } }"
       >
@@ -59,6 +60,13 @@
         :to="{ name: 'problem-edit', params: { problemId: this.$route.params.problemId } }"
       >
         Редактировать задачу
+      </cv-header-menu-item>
+    </cv-header-nav>
+    <cv-header-nav v-if="isStaff && testSelected">
+      <cv-header-menu-item
+        :to="{ name: 'test-edit', params: { testId: this.$route.params.testId } }"
+      >
+        Редактировать тест
       </cv-header-menu-item>
     </cv-header-nav>
     <cv-header-nav v-if="isStaff && materialSelected">
@@ -104,7 +112,7 @@
               Редактировать курс
             </cv-header-menu-item>
             <cv-header-menu-item
-              v-if="isStaff && lessonSelected && !problemSelected && !materialSelected"
+              v-if="isStaff && lessonSelected && !problemSelected && !materialSelected && !testSelected"
               :to="{ name: 'lesson-edit', params: { lessonId: this.$route.params.lessonId } }"
             >
               Редактировать урок
@@ -114,6 +122,11 @@
               :to="{ name: 'problem-edit', params: { problemId: this.$route.params.problemId } }"
             >
               Редактировать задачу
+            </cv-header-menu-item>
+            <cv-header-menu-item
+              :to="{ name: 'test-edit', params: { testId: this.$route.params.testId } }"
+            >
+              Редактировать тест
             </cv-header-menu-item>
             <cv-header-menu-item
               v-if="isStaff && materialSelected"
@@ -231,7 +244,7 @@ import { Watch } from "vue-property-decorator";
 export default class LmsHeader extends Vue {
   @Watch('current_theme')
   changeTheme() {
-    this.$emit("toggle-theme", this.current_theme ? THEMES.g90: THEMES.g10);
+    this.$emit("toggle-theme", this.current_theme ? THEMES.g90 : THEMES.g10);
   }
 
   iconLight = Light20;
@@ -256,6 +269,10 @@ export default class LmsHeader extends Vue {
 
   get problemSelected(): boolean {
     return this.$route.params.hasOwnProperty('problemId') && this.$route.params['problemId'] != null;
+  }
+
+  get testSelected(): boolean {
+    return this.$route.params.hasOwnProperty('testId') && this.$route.params['testId'] != null;
   }
 
   get materialSelected(): boolean {

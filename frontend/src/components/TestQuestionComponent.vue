@@ -6,7 +6,7 @@
         v-model="question.answer_type"
         class="answer-type"
         placeholder="Тип ответа" @change="answerTypeChange">
-        <cv-dropdown-item value="input" selected>Короткий ответ</cv-dropdown-item>
+        <cv-dropdown-item value="input">Короткий ответ</cv-dropdown-item>
         <cv-dropdown-item value="text">Параграф</cv-dropdown-item>
         <cv-dropdown-item value="radio">Radio</cv-dropdown-item>
         <cv-dropdown-item value="checkbox">Checkbox</cv-dropdown-item>
@@ -65,7 +65,6 @@
         <component class="action-btn" :is="trashCan24" @click="deleteQuestion"/>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -138,6 +137,7 @@ export default class TestQuestionComponent extends Vue {
 
 <style scoped lang="stylus">
 .question-container
+  line-height var(--cds-body-long-01-line-height, 1.43);
   background var(--cds-ui-01)
   padding 1rem
   border-radius 5px
