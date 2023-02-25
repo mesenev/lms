@@ -7,11 +7,21 @@
           <div class="test-info">
             <span>Тест</span>
             <span>
-            Макс. балл <strong> {{ test.points }} </strong>
-          </span>
+              Макс. балл <strong> {{ test.points }} </strong>
+            </span>
             <span>
-            Режим тестирования: <strong> {{ test.test_mode }} </strong>
-          </span>
+              Режим тестирования: <strong> {{ test.test_mode }} </strong>
+            </span>
+            <div v-if="isStaff" class="visibility">
+              <cv-button-skeleton v-if="changingVisibility || !this.test" kind="ghost"/>
+              <cv-button v-else
+                         class="test-hide-button"
+                         :icon="hiddenIcon"
+                         kind="ghost"
+                         @click="changeLessonVisibility">
+                {{ (test.is_hidden) ? "Открыть тест" : "Скрыть тест" }}
+              </cv-button>
+            </div>
           </div>
         </div>
       </div>
@@ -56,7 +66,10 @@ import NotificationMixinComponent from "@/components/common/NotificationMixinCom
 import { Component, Prop } from "vue-property-decorator";
 import TestModel from "@/models/TestModel";
 import testStore from '@/store/modules/test';
+import userStore from '@/store/modules/user';
 import QuestionModel, { ANSWER_TYPE } from "@/models/QuestionModel";
+import viewOff from '@carbon/icons-vue/es/view--off/32';
+import view from '@carbon/icons-vue/es/view/32';
 
 @Component({ components: {} })
 export default class TestView extends NotificationMixinComponent {
@@ -64,9 +77,28 @@ export default class TestView extends NotificationMixinComponent {
 
   test: TestModel | null = null;
   testStore = testStore;
+  userStore = userStore;
+  changingVisibility = false;
 
   async created() {
     this.test = await this.testStore.fetchTestById(this.testId);
+  }
+
+  get isStaff(): boolean {
+    // return this.userStore.user.staff_for.includes(Number(this.test?.lesson));
+    return true;
+  }
+
+  get hiddenIcon() {
+    return (this.test?.is_hidden) ? viewOff : view;
+  }
+
+  async changeLessonVisibility() {
+    this.changingVisibility = true;
+    await this.testStore.patchTest(
+      { id: this.testId, is_hidden: !this.test?.is_hidden },
+    );
+    this.changingVisibility = false;
   }
 
   isQuestionInputType(question: QuestionModel) {
@@ -85,10 +117,7 @@ export default class TestView extends NotificationMixinComponent {
     return question.answer_type === ANSWER_TYPE.CHECKBOXES;
   }
 
-
   flag = false;
-  shorttext = '';
-  longtext = '';
 
   submitTest() {
     this.flag = true;
@@ -113,6 +142,11 @@ span
 .test-info
   color var(--cds-ui-04)
   margin-top 0.5rem
+  display inline-flex
+  align-items center
+
+.visibility
+  margin-left 1rem
 
 .test-container
   display flex
@@ -132,7 +166,7 @@ span
   margin-bottom 1rem
 
 .answers
-  margin-left 0.5rem
+  margin-left 1rem
 
 .answers-checkbox
   margin-left 1rem

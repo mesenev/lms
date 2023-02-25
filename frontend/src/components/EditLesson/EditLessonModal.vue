@@ -94,7 +94,7 @@
             <div :class="expanded ? 'expand-container expanded' : 'expand-container'">
               <div @click="expand" class="expand-container-head">
                 <p>Настройки теста</p>
-                <component class="expand-btn" :is="chevronDown"/>
+                <component class="expand-btn" :is="expanded ? chevronUp : chevronDown"/>
               </div>
               <div class="expand-fields">
                 <cv-text-input v-model="test.name" label="Название теста"/>
@@ -102,9 +102,9 @@
                 <cv-dropdown v-model="test.test_mode" class="testing-type-dropdown"
                              label="Способ тестирования"
                              placeholder="Выберите способ тестирования">
-                  <cv-dropdown-item value="1">Auto</cv-dropdown-item>
-                  <cv-dropdown-item value="2">Manual</cv-dropdown-item>
-                  <cv-dropdown-item value="3">Auto & Manual</cv-dropdown-item>
+                  <cv-dropdown-item value="auto">Auto</cv-dropdown-item>
+                  <cv-dropdown-item value="manual">Manual</cv-dropdown-item>
+                  <cv-dropdown-item value="auto_and_manual">Auto & Manual</cv-dropdown-item>
                 </cv-dropdown>
                 <cv-date-picker kind="single" date-label="Дедлайн"/>
               </div>
@@ -124,7 +124,8 @@
           </cv-content-switcher-content>
         </section>
       </template>
-      <template slot="primary-button">{{ selectedNew ? 'Создать тест' : 'Добавить задачу'}}</template>
+      <template slot="primary-button">{{ selectedNew ? 'Создать тест' : 'Добавить задачу' }}
+      </template>
     </cv-modal>
   </div>
 </template>
@@ -185,6 +186,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
   problemType = '';
   loading = false;
 
+  chevronUp = chevronUp;
   chevronDown = chevronDown;
   image = image;
   addAlt = addAlt;
@@ -261,8 +263,8 @@ export default class EditLessonModal extends NotificationMixinComponent {
     if (this.selectedNew)
       return false;
     else
-    return (!this.selected.length || this.selectedNew) || !this.problemType
-      || !this.testingMode || this.loading;
+      return (!this.selected.length || this.selectedNew) || !this.problemType
+        || !this.testingMode || this.loading;
   }
 
   get selectedCatsProblems() {
@@ -355,7 +357,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
     let tests = this.testStore.tests[this.lesson.id];
     tests ? this.test.id = tests.length : this.test.id = 0;
     tests ? tests.push(this.test) : tests = [this.test];
-    await this.testStore.setTests({[this.lesson.id]: tests});
+    await this.testStore.setTests({ [this.lesson.id]: tests });
   }
 }
 </script>
