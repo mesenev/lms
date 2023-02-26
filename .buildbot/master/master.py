@@ -6,7 +6,7 @@ from buildbot.plugins import *
 
 c = BuildmasterConfig = dict()
 c['buildbotNetUsageData'] = 'basic'
-repository_url = 'git://github.com/mesenev/lms.git'
+repository_url = 'https://github.com/mesenev/lms.git'
 
 c['workers'] = [
     worker.Worker("lms-worker-main", "pass"),

@@ -16,5 +16,3 @@ def build_composition():
             "build"
         ]).returncode
     return exec_code, build_message(exec_code)
-
-

@@ -48,7 +48,7 @@ services:
     build:
       context: ../.
       dockerfile: ./.docker/Dockerfile
-    image: "_registry.mesenev.ru/lms/backend:latest@${commit}"
+    image: "_registry.mesenev.ru/lms/backend:latest@${COMMIT}"
     command: "sh /application/.docker/conf/gunicorn/django.sh"
     restart: unless-stopped
     volumes:
@@ -107,4 +107,4 @@ volumes:
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: 'media'
+      device: '/var/lms/media'
