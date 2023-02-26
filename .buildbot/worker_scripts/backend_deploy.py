@@ -17,7 +17,7 @@ def deploy_backend():
     print('deploying database')
     exec_code = subprocess.run(
         [
-            "docker-compose",
+            "docker", "compose",
             "-f",
             ".docker/docker-compose.prod.yml",
             "up",
@@ -30,7 +30,7 @@ def deploy_backend():
     print('deploying composition')
     exec_code = subprocess.run(
         [
-            "docker-compose",
+            "docker", "compose",
             "-f",
             ".docker/docker-compose.prod.yml",
             "up",
@@ -42,7 +42,7 @@ def deploy_backend():
     print('making a migration')
     exec_code = subprocess.run(
         [
-            "docker-compose",
+            "docker", "compose",
             "-f",
             ".docker/docker-compose.prod.yml",
             "exec",
@@ -59,7 +59,7 @@ def deploy_backend():
         return exec_code, message
     exec_code = subprocess.run(
         [
-            "docker-compose",
+            "docker", "compose",
             "-f",
             ".docker/docker-compose.prod.yml",
             "exec",
@@ -70,4 +70,3 @@ def deploy_backend():
         ]).returncode
     message = '\n'.join([message, 'collectstatic failed.' if exec_code else 'collectstatic succeed'])
     return exec_code, message
-
