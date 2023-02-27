@@ -4,7 +4,7 @@ version: "3.3"
 services:
   nginx:
     container_name: nginx
-    image: nginx:1.17-alpine
+    image: nginx:alpine
     restart: unless-stopped
     volumes:
       - "./conf/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
@@ -48,7 +48,7 @@ services:
     build:
       context: ../.
       dockerfile: ./.docker/Dockerfile
-    image: "_registry.mesenev.ru/lms/backend:latest@${COMMIT}"
+    image: registry.mesenev.ru/lms/backend:latest
     command: "sh /application/.docker/conf/gunicorn/django.sh"
     restart: unless-stopped
     volumes:
@@ -80,7 +80,7 @@ services:
   beat:
     container_name: beat
     restart: unless-stopped
-    image: _registry.mesenev.ru/lms/backend:latest
+    image: registry.mesenev.ru/lms/backend:latest
     command: "sh .docker/conf/gunicorn/celery.sh"
     env_file:
       - "conf/common.env"
@@ -103,8 +103,3 @@ volumes:
   v-redis:
   v-static:
   v-media:
-    driver: local
-    driver_opts:
-      type: 'none'
-      o: 'bind'
-      device: '/var/lms/media'
