@@ -14,8 +14,6 @@
               <component class="expand-btn" :is="expanded ? chevronUp : chevronDown"/>
             </div>
             <div class="expand-fields">
-              <cv-text-input v-model="testEdit.name" label="Название теста"/>
-              <cv-text-area v-model="testEdit.description" label="Описание"/>
               <cv-dropdown v-model="testEdit.test_mode" class="testing-type-dropdown"
                            label="Способ тестирования"
                            placeholder="Выберите способ тестирования">
@@ -23,7 +21,9 @@
                 <cv-dropdown-item value="manual">Manual</cv-dropdown-item>
                 <cv-dropdown-item value="auto_and_manual">Auto & Manual</cv-dropdown-item>
               </cv-dropdown>
-              <cv-date-picker kind="single" date-label="Дедлайн"/>
+              <cv-text-input v-model="testEdit.name" label="Название теста"/>
+              <cv-text-area v-model="testEdit.description" label="Описание"/>
+              <!--              <cv-date-picker kind="single" date-label="Дедлайн"/>-->
             </div>
           </div>
           <div class="questions" v-for="(question, index) in testEdit.questions" :key="index">
@@ -43,6 +43,11 @@
           <div class="change">
             <cv-button @click="changeTest" :disabled="!isChanged">Изменить</cv-button>
           </div>
+          <cv-inline-notification
+            v-if="showNotification"
+            @close="() => showNotification=false"
+            kind="error"
+            :sub-title="notificationText"/>
         </div>
       </cv-column>
     </cv-row>
@@ -118,13 +123,21 @@ export default class TestEditView extends NotificationMixinComponent {
   }
 
   async changeTest() {
-    await api.patch(`/api/test/${this.testId}/`, { ...this.testEdit, questions: this.testEdit.questions }).then(response => {
+    this.testEdit.points = 0;
+    this.testEdit.questions.forEach((question) => {
+      this.testEdit.points += question.points;
+    })
+    await api.patch(`/api/test/${this.testId}/`, {
+      ...this.testEdit,
+      questions: this.testEdit.questions
+    }).then(response => {
       this.notificationKind = 'success';
       this.notificationText = 'Тест успешно изменен';
       this.testStore.changeCurrentTest(this.testEdit);
       this.test = response.data;
       this.testEdit = this.test;
     }).catch(error => {
+      this.testEdit.points = this.test.points;
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.notificationKind = 'error';
     }).finally(() => {
@@ -135,6 +148,9 @@ export default class TestEditView extends NotificationMixinComponent {
 </script>
 
 <style scoped lang="stylus">
+.main-items
+  color var(--cds-text-01)
+
 .expand-container-head
   cursor pointer
   display flex
