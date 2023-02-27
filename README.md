@@ -1,3 +1,4 @@
+![develop branch current status](https://bb.mesenev.ru/badges/lmsci.svg)
 We are strongly advice you to use pycharm during development process.
 
 Create a file `imcslms/settings.py` with content:
