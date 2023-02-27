@@ -2,8 +2,15 @@
   <div class="bx--grid">
     <div class="bx--row header-container">
       <div class="bx--offset-lg-2 main-title">
-        <h1> {{ test.name }} </h1>
+        <h1 v-if="test && !loading"> {{ test.name }} </h1>
+        <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
         <div class="info-container">
+           <div class="description-container">
+            <span v-if="!loading && test" class="lesson-description">
+               {{ test.description }}
+            </span>
+            <cv-skeleton-text v-else width="'35%'"/>
+          </div>
           <div class="test-info">
             <span>Тест</span>
             <span>
@@ -28,16 +35,16 @@
     </div>
     <cv-row class="main-items" justify="center">
       <cv-column :lg="{'span' : 8, 'offset' : 2}">
-        <div class="test-container">
-          <div class="question-container" v-for="question in test.questions" :key="question.id">
-            <h4 class="question-title"> {{ question.question }} </h4>
+        <div v-if="!loading" class="test-container">
+          <div class="question-container" v-for="(question, index) in test.questions" :key="index">
+            <h4 class="question-title"> {{ question.text }} </h4>
             <p class="question-description">{{ question.description }}</p>
             <cv-radio-group class="answers" :vertical="true" v-if="isQuestionRadioType(question)">
-              <cv-radio-button v-for="(answer, id) in question.answers" :key="id" :name="id"
+              <cv-radio-button v-for="(answer, id) in question.all_answers" :key="id" :name="id"
                                :label="answer" value="1" :disabled="flag"/>
             </cv-radio-group>
             <div class="answers-checkbox" v-else-if="isQuestionCheckboxType(question)">
-              <cv-checkbox v-for="(answer, id) in question.answers" :key="id" value="1"
+              <cv-checkbox v-for="(answer, id) in question.all_answers" :key="id" value="1"
                            :label="answer" :disabled="flag"/>
             </div>
             <cv-text-input v-else-if="isQuestionInputType(question)" placeholder="Введите ответ"
@@ -46,7 +53,7 @@
                           :disabled="flag"/>
           </div>
         </div>
-        <div class="submit-container">
+        <div v-if="!loading" class="submit-container">
           <div class="question-container submit">
             <cv-button @click="submitTest" :disabled="flag">Отправить</cv-button>
           </div>
@@ -56,6 +63,7 @@
             :kind="notificationKind"
             :sub-title="notificationText"/>
         </div>
+        <cv-loading v-else/>
       </cv-column>
     </cv-row>
   </div>
@@ -64,7 +72,6 @@
 <script lang="ts">
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import { Component, Prop } from "vue-property-decorator";
-import TestModel from "@/models/TestModel";
 import testStore from '@/store/modules/test';
 import userStore from '@/store/modules/user';
 import QuestionModel, { ANSWER_TYPE } from "@/models/QuestionModel";
@@ -78,7 +85,12 @@ export default class TestView extends NotificationMixinComponent {
   testStore = testStore;
   userStore = userStore;
   changingVisibility = false;
+  loading = true;
 
+
+  async created() {
+    this.loading = false;
+  }
 
   get isStaff(): boolean {
     // return this.userStore.user.staff_for.includes(Number(this.test?.lesson));
@@ -139,6 +151,13 @@ span
 .info-container
   display block
 
+.description-container
+  max-width 60%
+  word-break break-word
+  background-color var(--cds-ui-01)
+  margin-top 0.5rem
+  padding 1rem
+
 .test-info
   color var(--cds-ui-04)
   margin-top 0.5rem
@@ -149,6 +168,7 @@ span
   margin-left 1rem
 
 .test-container
+  color var(--cds-text-01)
   display flex
   flex-direction column
   gap 1rem
@@ -163,6 +183,7 @@ span
   margin-bottom 0.5rem
 
 .question-description
+  margin-left 0.5rem
   margin-bottom 1rem
 
 .answers

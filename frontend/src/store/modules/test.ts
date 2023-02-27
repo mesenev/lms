@@ -48,7 +48,6 @@ class TestModule extends VuexModule {
         .catch(error => {
           console.log(error);
         });
-    console.log(answer.data);
     return answer.data as TestModel;
   }
 

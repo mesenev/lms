@@ -24,7 +24,6 @@ export default class TestViewLayout extends Vue {
     this.test = await this.testStore.fetchTestById(this.testId);
     this.testStore.changeCurrentTest(this.test);
     await this.testStore.fetchTestsByLessonId(this.test.lesson);
-    console.log(this.test);
   }
 }
 </script>
