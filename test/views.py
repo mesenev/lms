@@ -19,6 +19,7 @@ class AddAttachmentToQuestion(APIView):
 class TestViewSet(viewsets.ModelViewSet):
     serializer_class = TestSerializer
     permission_classes = [CourseStaffOrReadOnlyForStudents]
+    filterset_fields = ['lesson_id', ]
 
     def get_queryset(self):
         user = self.request.user

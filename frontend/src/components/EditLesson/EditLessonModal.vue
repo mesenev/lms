@@ -93,16 +93,16 @@
                 <component class="expand-btn" :is="expanded ? chevronUp : chevronDown"/>
               </div>
               <div class="expand-fields">
-                <cv-text-input v-model="test.name" label="Название теста"/>
-                <cv-text-area v-model="test.description" label="Описание"/>
-                <cv-dropdown v-model="test.test_mode" class="testing-type-dropdown"
+                <cv-dropdown :up="true" v-model="test.test_mode" class="testing-type-dropdown"
                              label="Способ тестирования"
                              placeholder="Выберите способ тестирования">
                   <cv-dropdown-item value="auto">Auto</cv-dropdown-item>
                   <cv-dropdown-item value="manual">Manual</cv-dropdown-item>
                   <cv-dropdown-item value="auto_and_manual">Auto & Manual</cv-dropdown-item>
                 </cv-dropdown>
-                <cv-date-picker kind="single" date-label="Дедлайн"/>
+                <cv-text-input v-model="test.name" label="Название теста"/>
+                <cv-text-area v-model="test.description" label="Описание"/>
+<!--                <cv-date-picker kind="single" date-label="Дедлайн"/>-->
               </div>
             </div>
             <div class="questions" v-for="(question, index) in test.questions" :key="index">
@@ -364,6 +364,9 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
 
   async createTest() {
+    this.test.questions.forEach((question) => {
+      this.test.points += question.points;
+    })
     await api.post('/api/test/', this.test).then(response => {
       this.notificationKind = 'success';
       this.notificationText = 'Тест успешно создан';
@@ -446,9 +449,6 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
 .testing-type-dropdown
   width 40%
-
-.testing-type-dropdown /deep/ .bx--list-box__menu
-  max-height 5rem
 
 /deep/ .bx--list-box__field
   display flex
