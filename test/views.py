@@ -21,11 +21,12 @@ class TestViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return Test.objects.all().filter(
-            (Q(lesson__course__in=user.student_for.all()))
-            | Q(lesson__course__in=user.staff_for.all())
-            | Q(lesson__course__in=user.author_for.all())
-        )
+        return Test.objects.all()\
+            #.filter(
+            #(Q(lesson__course__in=user.student_for.all()))
+            #| Q(lesson__course__in=user.staff_for.all())
+            #| Q(lesson__course__in=user.author_for.all())
+        #)
 
     def create(self, request, *args, **kwargs):
         if request.user.groups.filter(name=TEACHER).exists():
