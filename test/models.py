@@ -3,6 +3,8 @@ from lesson.models import Lesson
 import pydantic
 from django_pydantic_field import SchemaField
 from users.models import User
+import typing
+from django.contrib import admin
 
 
 class Answer(pydantic.BaseModel):
@@ -11,7 +13,6 @@ class Answer(pydantic.BaseModel):
 
 
 class Question(pydantic.BaseModel):
-    test: int
     text: str
     description: str
     correct_answers: list[str] = []
@@ -28,7 +29,7 @@ class Test(models.Model):
         ('auto_and_manual', 'Manual then automated testing')
     ]
     description = models.TextField(default='')
-    questions: list[Question] = SchemaField(default=[])
+    questions: typing.Sequence[Question] = SchemaField(schema=list[Question])
     points = models.IntegerField()
     name = models.CharField(max_length=500)
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, related_name='tests', null=True)
@@ -49,3 +50,5 @@ class TestSolution(models.Model):
     score = models.IntegerField()
     status = models.CharField(max_length=30, choices=SOLUTION_STATUS, default='AWAIT VERIFICATION')
 
+
+admin.site.register(Test)
