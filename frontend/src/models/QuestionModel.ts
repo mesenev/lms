@@ -1,12 +1,10 @@
 export default interface QuestionModel {
-  id: number;
-  test: number;
-  question: string;
+  text: string;
   description: string | null;
   answer_type: string;
-  answers: Array<string>;
+  all_answers: Array<string>;
   correct_answers: Array<string>;
-  attachment_file: string | null;
+  attachment_url: string | null;
   points: number;
 }
 

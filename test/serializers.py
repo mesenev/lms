@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from test.models import Test, TestSolution, Question
+from django_pydantic_field import SchemaField
 from django.db import models
-from django_pydantic_field.rest_framework import SchemaField
+from lesson.models import Lesson
 
 
 class TestSerializer(serializers.ModelSerializer):

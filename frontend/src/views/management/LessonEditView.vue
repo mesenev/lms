@@ -108,7 +108,7 @@
           <cv-content-switcher-content owner-id="Test">
             <div v-if="getTests.length > 0">
               <div v-if="!fetchingLesson" class="extrawork">
-                <test-list-component :tests-prop="getTests"/>
+                <test-list-component :tests-list="getTests"/>
               </div>
               <div v-else>
                 <cv-accordion-skeleton/>
@@ -162,7 +162,8 @@ export default class LessonEditView extends NotificationMixinComponent {
   async created() {
     if (this.lessonId) {
       this.lesson = this.store.currentLesson as LessonModel;
-      await this.materialStore.fetchMaterialsByLessonId(this.lesson.id)
+      await this.materialStore.fetchMaterialsByLessonId(this.lesson.id);
+      await this.testStore.fetchTestsByLessonId(this.lesson.id);
     }
     this.lessonEdit = {...this.lesson};
     this.fetchingLesson = false;
@@ -220,10 +221,7 @@ export default class LessonEditView extends NotificationMixinComponent {
   }
 
   get getTests(): Array<TestModel> {
-    if (this.testStore.tests[this.lessonId])
-      return this.testStore.tests[this.lessonId];
-    else
-      return [];
+    return this.lessonEdit.tests;
   }
 
   searchByTutorial(problems: Array<ProblemModel | CatsProblemModel>):

@@ -65,7 +65,7 @@
           <div class="tests">
             <h4 class="classwork-title title">Тесты</h4>
             <div v-if="!loading">
-              <test-list-component/>
+              <test-list-component :tests-list="tests"/>
             </div>
             <div v-else>
               <cv-accordion-skeleton/>
@@ -145,7 +145,7 @@ export default class LessonView extends Vue {
   }
 
   get isProblemsEmpty() {
-    if (this.problemStore.problemsByLesson[this.lessonId].length === 0) {
+    if (this.problemStore.problemsByLesson[this.lessonId].length === 0 && this.tests.length === 0) {
       return true;
     }
   }
@@ -196,7 +196,7 @@ export default class LessonView extends Vue {
   }
 
   get tests(): Array<TestModel> {
-    return this.testStore.tests[this.lessonId] ? this.testStore.tests[this.lessonId] : [];
+    return this.testStore.testsByLesson[this.lessonId];
   }
 
   async changeLessonVisibility() {

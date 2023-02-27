@@ -6,26 +6,27 @@
     <cv-modal
       :primary-button-disabled="addButtonDisabled"
       :visible="modalVisible"
-      class="add_lesson_modal" :size="selectedNew ? 'large' : 'default'"
+      class="add_lesson_modal" :size="isTestsSelected ? 'large' : 'default'"
       @modal-hidden="modalHidden"
       @primary-click="primaryHandler">
       <template slot="label">{{ lesson.name }}</template>
-      <cv-inline-notification
-        v-if="showNotification"
-        @close="() => showNotification=false"
-        kind="error"
-        :sub-title="notificationText"/>
       <template slot="title">
         Добавить задание
         <cv-content-switcher class="switcher" @selected="actionSelected">
-          <cv-content-switcher-button owner-id="Problems" selected>
+          <cv-content-switcher-button @click.native="setContentType('Problems')" owner-id="Problems"
+                                      selected>
             Импортировать задачу из cats
           </cv-content-switcher-button>
-          <cv-content-switcher-button owner-id="Tests">
+          <cv-content-switcher-button @click.native="setContentType('Tests')" owner-id="Tests">
             Создать тест
           </cv-content-switcher-button>
         </cv-content-switcher>
         <cv-content-switcher-content owner-id="Problems">
+          <cv-inline-notification
+            v-if="showNotification"
+            @close="() => showNotification=false"
+            kind="error"
+            :sub-title="notificationText"/>
           <span style="padding-top: 20px">Выберите способ тестирования</span>
           <cv-radio-group style="margin-top: 10px; padding-bottom: 20px">
 
@@ -49,11 +50,6 @@
           <cv-content-switcher-content owner-id="Problems">
             <div class="content-1">
               <div>
-                <cv-inline-notification
-                  v-if="showNotification"
-                  @close="() => showNotification=false"
-                  kind="error"
-                  :sub-title="notificationText"/>
                 <cv-data-table
                   v-if="!fetchingCatsProblems" ref="table"
                   v-model="selected" :columns="columns" :data="catsFilteredProblems"
@@ -109,9 +105,9 @@
                 <cv-date-picker kind="single" date-label="Дедлайн"/>
               </div>
             </div>
-            <div class="questions" v-for="question in test.questions" :key="question.id">
+            <div class="questions" v-for="(question, index) in test.questions" :key="index">
               <test-question-component :_question="question" :test-id="test.id"
-                                       @delete-question="deleteQuestion(question.id)"/>
+                                       @delete-question="deleteQuestion(question)"/>
             </div>
             <div class="action-container">
               <div class="action-btns">
@@ -121,10 +117,15 @@
                 <component class="action-btn" :is="attachment"/>
               </div>
             </div>
+            <cv-inline-notification
+              v-if="showNotification"
+              @close="() => showNotification=false"
+              kind="error"
+              :sub-title="notificationText"/>
           </cv-content-switcher-content>
         </section>
       </template>
-      <template slot="primary-button">{{ selectedNew ? 'Создать тест' : 'Добавить задачу' }}
+      <template slot="primary-button">{{ isTestsSelected ? 'Создать тест' : 'Добавить задачу' }}
       </template>
     </cv-modal>
   </div>
@@ -152,6 +153,7 @@ import image from "@carbon/icons-vue/lib/image/24";
 import attachment from "@carbon/icons-vue/lib/attachment/24";
 import TestModel from "@/models/TestModel";
 import _ from 'lodash';
+import QuestionModel from "@/models/QuestionModel";
 
 
 @Component({
@@ -193,9 +195,10 @@ export default class EditLessonModal extends NotificationMixinComponent {
   videoAdd = videoAdd;
   attachment = attachment;
 
+  contentType = 'Problems';
   testStore = testStore;
   questionStore = questionStore;
-  test: TestModel = { ...testStore.newTest };
+  test: TestModel = { ...testStore.newTest, lesson: this.lesson.id };
   questionCount = 0;
   expanded = false;
 
@@ -252,6 +255,14 @@ export default class EditLessonModal extends NotificationMixinComponent {
     this.selectedNew = !this.selectedNew;
   }
 
+  setContentType(type: string) {
+    this.contentType = type;
+  }
+
+  get isTestsSelected() {
+    return this.contentType === 'Tests';
+  }
+
   get selectedIds() {
     return this.selected.map(e => {
       return (this.catsFilteredProblems[e as number] as unknown as { id: number })['id'];
@@ -281,7 +292,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
 
   async primaryHandler() {
-    if (this.selectedNew)
+    if (this.isTestsSelected)
       await this.createTest();
     else
       await this.addProblem();
@@ -342,22 +353,26 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
   addQuestion() {
     this.questionCount++;
-    const newQuestion = _.cloneDeep(this.questionStore.newQuestion);
-    newQuestion.id = this.questionCount;
+    const newQuestion = _.cloneDeep({ ...this.questionStore.newQuestion, test: this.test.id });
     this.test.questions.push(newQuestion);
   }
 
-  deleteQuestion(id: number) {
+  deleteQuestion(question: QuestionModel) {
     if (this.test.questions.length > 1) {
-      this.test.questions = this.test.questions.filter(x => x.id !== id);
+      this.test.questions = this.test.questions.filter(x => x !== question);
     }
   }
 
   async createTest() {
-    let tests = this.testStore.tests[this.lesson.id];
-    tests ? this.test.id = tests.length : this.test.id = 0;
-    tests ? tests.push(this.test) : tests = [this.test];
-    await this.testStore.setTests({ [this.lesson.id]: tests });
+    await api.post('/api/test/', this.test).then(response => {
+      this.notificationKind = 'success';
+      this.notificationText = 'Тест успешно создан';
+    }).catch(error => {
+      this.notificationText = `Что-то пошло не так: ${error.message}`;
+      this.notificationKind = 'error';
+    }).finally(() => {
+      this.showNotification = true;
+    })
   }
 }
 </script>

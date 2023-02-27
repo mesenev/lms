@@ -7,6 +7,10 @@ const testRoutes: Array<RouteConfig> = [
     path: '',
     name: 'TestView',
     component: TestView,
+    props: (route) => {
+      const testId = Number.parseInt(route.params.testId as string, 10);
+      return { testId, ...route.params };
+    },
   },
   {
     path: 'edit/',
