@@ -75,18 +75,18 @@ import view from '@carbon/icons-vue/es/view/32';
 export default class TestView extends NotificationMixinComponent {
   @Prop({ required: true }) testId!: number;
 
-  test: TestModel | null = null;
   testStore = testStore;
   userStore = userStore;
   changingVisibility = false;
 
-  async created() {
-    this.test = await this.testStore.fetchTestById(this.testId);
-  }
 
   get isStaff(): boolean {
     // return this.userStore.user.staff_for.includes(Number(this.test?.lesson));
     return true;
+  }
+
+  get test() {
+    return this.testStore.currentTest;
   }
 
   get hiddenIcon() {

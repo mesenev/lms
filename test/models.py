@@ -1,10 +1,11 @@
+import typing
+
 from django.db import models
+from django.contrib import admin
 from lesson.models import Lesson
 import pydantic
 from django_pydantic_field import SchemaField
 from users.models import User
-import typing
-from django.contrib import admin
 
 
 class Answer(pydantic.BaseModel):

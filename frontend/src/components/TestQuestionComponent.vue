@@ -1,7 +1,7 @@
 <template>
   <div class="question-container">
     <div class="question-header">
-      <cv-text-area v-model="question.question" class="question" placeholder="Вопрос"/>
+      <cv-text-area v-model="question.text" class="question" placeholder="Вопрос"/>
       <cv-dropdown
         v-model="question.answer_type"
         class="answer-type"
@@ -24,11 +24,11 @@
                     placeholder="Введите верный ответ" v-model="question.correct_answers[0]"/>
     </div>
     <div class="radio-container" v-if="radioType">
-      <div class="answers" id="radio" v-for="(answer, index) in question.answers" :key="index">
+      <div class="answers" id="radio" v-for="(answer, index) in question.all_answers" :key="index">
         <span>вариант ответа</span>
         <div class="answer-variant">
-          <cv-text-input v-model="question.answers[index]"/>
-          <component v-if="question.answers.length > 1" class="action-btn" :is="closeFilled24"
+          <cv-text-input v-model="question.all_answers[index]"/>
+          <component v-if="question.all_answers.length > 1" class="action-btn" :is="closeFilled24"
                      @click="deleteAnswer(answer)"/>
         </div>
       </div>
@@ -36,18 +36,18 @@
       <div class="answer-container">
         <span>Выберите верные варианты ответа</span>
         <cv-dropdown class="answer" v-model="question.correct_answers[0]">
-          <cv-dropdown-item :value="answer" v-for="answer in question.answers" :key="answer">
+          <cv-dropdown-item :value="answer" v-for="answer in question.all_answers" :key="answer">
             {{ answer }}
           </cv-dropdown-item>
         </cv-dropdown>
       </div>
     </div>
     <div class="checkbox-container radio-container" v-if="checkboxType">
-      <div class="answers" id="checkbox" v-for="(answer, index) in question.answers" :key="index">
+      <div class="answers" id="checkbox" v-for="(answer, index) in question.all_answers" :key="index">
         <span>вариант ответа</span>
         <div class="answer-variant">
-          <cv-text-input v-model="question.answers[index]"/>
-          <component v-if="question.answers.length > 1" class="action-btn" :is="closeFilled24"
+          <cv-text-input v-model="question.all_answers[index]"/>
+          <component v-if="question.all_answers.length > 1" class="action-btn" :is="closeFilled24"
                      @click="deleteAnswer(answer)"/>
         </div>
       </div>
@@ -77,7 +77,6 @@ import questionStore from "@/store/modules/question";
 
 @Component({ components: { trashCan24, closeFilled24 } })
 export default class TestQuestionComponent extends Vue {
-  @Prop({ required: true }) testId!: number;
   @Prop({ required: true }) _question!: QuestionModel;
   questionStore = questionStore;
   trashCan24 = trashCan24;
@@ -105,7 +104,7 @@ export default class TestQuestionComponent extends Vue {
   }
 
   get checkboxAnswers() {
-    return this.question.answers.map(item => {
+    return this.question.all_answers.map(item => {
       const nameVal = item.toLowerCase();
       return {
         name: nameVal,
@@ -118,15 +117,15 @@ export default class TestQuestionComponent extends Vue {
 
   answerTypeChange() {
     this.question.correct_answers = [''];
-    this.question.answers = [''];
+    this.question.all_answers = [''];
   }
 
   addAnswer() {
-    this.question.answers.push('');
+    this.question.all_answers.push('');
   }
 
   deleteAnswer(answer: string) {
-    this.question.answers = this.question.answers.filter(x => x !== answer)
+    this.question.all_answers = this.question.all_answers.filter(x => x != answer)
   }
 
   deleteQuestion() {

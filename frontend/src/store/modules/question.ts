@@ -9,16 +9,14 @@ class QuestionModule extends VuexModule {
 
   get newQuestion(): QuestionModel {
     return {
-      id: NaN,
-      question: '',
-      test: NaN,
+      text: '',
       description: '',
-      answer_type: '',
-      answers: [],
+      answer_type: 'input',
+      all_answers: [],
       correct_answers: [],
-      attachment_file: '',
-      points: NaN,
-    } as QuestionModel;
+      attachment_url: '',
+      points: 0,
+    } as QuestionModel
   }
   @Action
   async fetchQuestionsByTestId(id: number) {

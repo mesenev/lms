@@ -26,9 +26,9 @@
               <cv-date-picker kind="single" date-label="Дедлайн"/>
             </div>
           </div>
-          <div class="questions" v-for="question in testEdit.questions" :key="question.id">
+          <div class="questions" v-for="(question, index) in testEdit.questions" :key="index">
             <test-question-component :_question="question" :test-id="testEdit.id"
-                                     @delete-question="deleteQuestion(question.id)"/>
+                                     @delete-question="deleteQuestion(question)"/>
           </div>
           <div class="action-container">
             <div class="action-btns">
@@ -63,6 +63,8 @@ import videoAdd from "@carbon/icons-vue/lib/video--add/24";
 import image from "@carbon/icons-vue/lib/image/24";
 import attachment from "@carbon/icons-vue/lib/attachment/24";
 import _ from "lodash";
+import QuestionModel from "@/models/QuestionModel";
+import api from "@/store/services/api";
 
 @Component({
   components: {
@@ -88,16 +90,16 @@ export default class TestEditView extends NotificationMixinComponent {
   attachment = attachment;
   expanded = false;
 
-  _test: TestModel = { ...testStore.newTest };
-  testEdit = { ...this._test };
+  test: TestModel = { ...testStore.newTest };
+  testEdit = { ...this.test };
 
   async created() {
-    this._test = await this.testStore.fetchTestById(this.testId);
-    this.testEdit = _.cloneDeep(this._test);
+    this.test = await this.testStore.fetchTestById(this.testId);
+    this.testEdit = _.cloneDeep(this.test);
   }
 
   get isChanged() {
-    return !_.isEqual(this._test, this.testEdit);
+    return !_.isEqual(this.test, this.testEdit);
   }
 
   expand() {
@@ -106,18 +108,28 @@ export default class TestEditView extends NotificationMixinComponent {
 
   addQuestion() {
     const newQuestion = _.cloneDeep(this.questionStore.newQuestion);
-    newQuestion.id = this.testEdit.questions.length;
     this.testEdit.questions.push(newQuestion);
   }
 
-  deleteQuestion(id: number) {
+  deleteQuestion(question: QuestionModel) {
     if (this.testEdit.questions.length > 1) {
-      this.testEdit.questions = this.testEdit.questions.filter(x => x.id !== id);
+      this.testEdit.questions = this.testEdit.questions.filter(x => x !== question);
     }
   }
 
-  changeTest() {
-    return true;
+  async changeTest() {
+    await api.patch(`/api/test/${this.testId}/`, { ...this.testEdit, questions: this.testEdit.questions }).then(response => {
+      this.notificationKind = 'success';
+      this.notificationText = 'Тест успешно изменен';
+      this.testStore.changeCurrentTest(this.testEdit);
+      this.test = response.data;
+      this.testEdit = this.test;
+    }).catch(error => {
+      this.notificationText = `Что-то пошло не так: ${error.message}`;
+      this.notificationKind = 'error';
+    }).finally(() => {
+      this.showNotification = true;
+    })
   }
 }
 </script>
