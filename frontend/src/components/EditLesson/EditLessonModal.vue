@@ -6,7 +6,7 @@
     <cv-modal
       :primary-button-disabled="addButtonDisabled"
       :visible="modalVisible"
-      class="add_lesson_modal" :size="isTestsSelected ? 'large' : 'default'"
+      class="add_lesson_modal" :size="isExamsSelected ? 'large' : 'default'"
       @modal-hidden="modalHidden"
       @primary-click="primaryHandler">
       <template slot="label">{{ lesson.name }}</template>
@@ -17,7 +17,7 @@
                                       selected>
             Импортировать задачу из cats
           </cv-content-switcher-button>
-          <cv-content-switcher-button @click.native="setContentType('Tests')" owner-id="Tests">
+          <cv-content-switcher-button @click.native="setContentType('Exams')" owner-id="Exams">
             Создать тест
           </cv-content-switcher-button>
         </cv-content-switcher>
@@ -86,33 +86,33 @@
               </cv-radio-group>
             </div>
           </cv-content-switcher-content>
-          <cv-content-switcher-content owner-id="Tests">
+          <cv-content-switcher-content owner-id="Exams">
             <div :class="expanded ? 'expand-container expanded' : 'expand-container'">
               <div @click="expand" class="expand-container-head">
                 <p>Настройки теста</p>
                 <component class="expand-btn" :is="expanded ? chevronUp : chevronDown"/>
               </div>
               <div class="expand-fields">
-                <cv-dropdown :up="true" v-model="test.test_mode" class="testing-type-dropdown"
+                <cv-dropdown :up="true" v-model="exam.test_mode" class="testing-type-dropdown"
                              label="Способ тестирования"
                              placeholder="Выберите способ тестирования">
                   <cv-dropdown-item value="auto">Auto</cv-dropdown-item>
                   <cv-dropdown-item value="manual">Manual</cv-dropdown-item>
                   <cv-dropdown-item value="auto_and_manual">Auto & Manual</cv-dropdown-item>
                 </cv-dropdown>
-                <cv-text-input v-model="test.name" label="Название теста"/>
-                <cv-text-area v-model="test.description" label="Описание"/>
-<!--                <cv-date-picker kind="single" date-label="Дедлайн"/>-->
+                <cv-text-input v-model="exam.name" label="Название теста"/>
+                <cv-text-area v-model="exam.description" label="Описание"/>
+                <!--                <cv-date-picker kind="single" date-label="Дедлайн"/>-->
               </div>
             </div>
-            <div class="questions" v-for="(question, index) in test.questions" :key="index">
-              <test-question-component :_question="question" :test-id="test.id"
+            <div class="questions" v-for="(question, index) in exam.questions" :key="index">
+              <exam-question-component :_question="question"
                                        @delete-question="deleteQuestion(question)"/>
             </div>
             <div class="action-container">
               <div class="action-btns">
                 <component class="action-btn" :is="addAlt" @click="addQuestion"/>
-                <component class="action-btn" :is="image"/>
+                <component class="action-btn" :is="image24"/>
                 <component class="action-btn" :is="videoAdd"/>
                 <component class="action-btn" :is="attachment"/>
               </div>
@@ -125,7 +125,7 @@
           </cv-content-switcher-content>
         </section>
       </template>
-      <template slot="primary-button">{{ isTestsSelected ? 'Создать тест' : 'Добавить задачу' }}
+      <template slot="primary-button">{{ isExamsSelected ? 'Создать тест' : 'Добавить задачу' }}
       </template>
     </cv-modal>
   </div>
@@ -137,21 +137,21 @@ import CatsProblemModel from '@/models/CatsProblemModel';
 import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
 import problemStore from '@/store/modules/problem';
-import testStore from '@/store/modules/test';
+import examStore from '@/store/modules/exam';
 import questionStore from '@/store/modules/question';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import { Component, Prop } from 'vue-property-decorator';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import api from '@/store/services/api';
-import TestQuestionComponent from "@/components/TestQuestionComponent.vue";
+import ExamQuestionComponent from "@/components/ExamQuestionComponent.vue";
 import chevronUp from "@carbon/icons-vue/lib/chevron--up/24";
 import chevronDown from "@carbon/icons-vue/lib/chevron--down/24";
 import addAlt from "@carbon/icons-vue/lib/add--alt/24";
 import videoAdd from "@carbon/icons-vue/lib/video--add/24";
-import image from "@carbon/icons-vue/lib/image/24";
+import image24 from "@carbon/icons-vue/lib/image/24";
 import attachment from "@carbon/icons-vue/lib/attachment/24";
-import TestModel from "@/models/TestModel";
+import ExamModel from "@/models/ExamModel";
 import _ from 'lodash';
 import QuestionModel from "@/models/QuestionModel";
 
@@ -160,12 +160,12 @@ import QuestionModel from "@/models/QuestionModel";
   components: {
     AddAlt20,
     SubtractAlt20,
-    TestQuestionComponent,
+    ExamQuestionComponent,
     chevronUp,
     chevronDown,
     addAlt,
     videoAdd,
-    image,
+    image24,
     attachment,
   }
 })
@@ -190,15 +190,15 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
   chevronUp = chevronUp;
   chevronDown = chevronDown;
-  image = image;
+  image24 = image24;
   addAlt = addAlt;
   videoAdd = videoAdd;
   attachment = attachment;
 
   contentType = 'Problems';
-  testStore = testStore;
+  examStore = examStore;
   questionStore = questionStore;
-  test: TestModel = { ...testStore.newTest, lesson: this.lesson.id };
+  exam: ExamModel = { ...examStore.newExam, lesson: this.lesson.id };
   questionCount = 0;
   expanded = false;
 
@@ -209,7 +209,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
   async created() {
     if (!this.lesson.course) return
-    this.test = _.cloneDeep(this.test);
+    this.exam = _.cloneDeep(this.exam);
     this.addQuestion();
     await this.fetchCatsProblems()
   }
@@ -259,8 +259,8 @@ export default class EditLessonModal extends NotificationMixinComponent {
     this.contentType = type;
   }
 
-  get isTestsSelected() {
-    return this.contentType === 'Tests';
+  get isExamsSelected() {
+    return this.contentType === 'Exams';
   }
 
   get selectedIds() {
@@ -292,8 +292,8 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
 
   async primaryHandler() {
-    if (this.isTestsSelected)
-      await this.createTest();
+    if (this.isExamsSelected)
+      await this.createExam();
     else
       await this.addProblem();
   }
@@ -353,21 +353,21 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
   addQuestion() {
     this.questionCount++;
-    const newQuestion = _.cloneDeep({ ...this.questionStore.newQuestion, test: this.test.id });
-    this.test.questions.push(newQuestion);
+    const newQuestion = _.cloneDeep(this.questionStore.newQuestion);
+    this.exam.questions.push(newQuestion);
   }
 
   deleteQuestion(question: QuestionModel) {
-    if (this.test.questions.length > 1) {
-      this.test.questions = this.test.questions.filter(x => x !== question);
+    if (this.exam.questions.length > 1) {
+      this.exam.questions = this.exam.questions.filter(x => x !== question);
     }
   }
 
-  async createTest() {
-    this.test.questions.forEach((question) => {
-      this.test.points += question.points;
+  async createExam() {
+    this.exam.questions.forEach((question) => {
+      this.exam.points += question.points;
     })
-    await api.post('/api/test/', this.test).then(response => {
+    await api.post('/api/exam/', this.exam).then(response => {
       this.notificationKind = 'success';
       this.notificationText = 'Тест успешно создан';
     }).catch(error => {

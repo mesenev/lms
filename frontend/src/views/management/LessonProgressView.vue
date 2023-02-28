@@ -97,7 +97,7 @@ export default class LessonProgressView extends Vue {
     description: '',
     name: '',
     problems: [],
-    tests: [],
+    exams: [],
     materials: [],
     deadline: '',
     lessonContent: '',

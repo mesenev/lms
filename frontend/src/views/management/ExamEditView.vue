@@ -14,26 +14,26 @@
               <component class="expand-btn" :is="expanded ? chevronUp : chevronDown"/>
             </div>
             <div class="expand-fields">
-              <cv-dropdown v-model="testEdit.test_mode" class="testing-type-dropdown"
+              <cv-dropdown v-model="examEdit.test_mode" class="testing-type-dropdown"
                            label="Способ тестирования"
                            placeholder="Выберите способ тестирования">
                 <cv-dropdown-item value="auto">Auto</cv-dropdown-item>
                 <cv-dropdown-item value="manual">Manual</cv-dropdown-item>
                 <cv-dropdown-item value="auto_and_manual">Auto & Manual</cv-dropdown-item>
               </cv-dropdown>
-              <cv-text-input v-model="testEdit.name" label="Название теста"/>
-              <cv-text-area v-model="testEdit.description" label="Описание"/>
+              <cv-text-input v-model="examEdit.name" label="Название теста"/>
+              <cv-text-area v-model="examEdit.description" label="Описание"/>
               <!--              <cv-date-picker kind="single" date-label="Дедлайн"/>-->
             </div>
           </div>
-          <div class="questions" v-for="(question, index) in testEdit.questions" :key="index">
-            <test-question-component :_question="question" :test-id="testEdit.id"
+          <div class="questions" v-for="(question, index) in examEdit.questions" :key="index">
+            <test-question-component :_question="question" :test-id="examEdit.id"
                                      @delete-question="deleteQuestion(question)"/>
           </div>
           <div class="action-container">
             <div class="action-btns">
               <component class="action-btn" :is="addAlt" @click="addQuestion"/>
-              <component class="action-btn" :is="image"/>
+              <component class="action-btn" :is="image24"/>
               <component class="action-btn" :is="videoAdd"/>
               <component class="action-btn" :is="attachment"/>
             </div>
@@ -41,7 +41,7 @@
         </div>
         <div class="change-container">
           <div class="change">
-            <cv-button @click="changeTest" :disabled="!isChanged">Изменить</cv-button>
+            <cv-button @click="changeExam" :disabled="!isChanged">Изменить</cv-button>
           </div>
           <cv-inline-notification
             v-if="showNotification"
@@ -57,15 +57,15 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
-import TestQuestionComponent from "@/components/TestQuestionComponent.vue";
-import TestModel from "@/models/TestModel";
-import testStore from "@/store/modules/test";
+import TestQuestionComponent from "@/components/ExamQuestionComponent.vue";
+import ExamModel from "@/models/ExamModel";
+import examStore from "@/store/modules/exam";
 import questionStore from "@/store/modules/question";
 import chevronUp from "@carbon/icons-vue/lib/chevron--up/24";
 import chevronDown from "@carbon/icons-vue/lib/chevron--down/24";
 import addAlt from "@carbon/icons-vue/lib/add--alt/24";
 import videoAdd from "@carbon/icons-vue/lib/video--add/24";
-import image from "@carbon/icons-vue/lib/image/24";
+import image24 from "@carbon/icons-vue/lib/image/24";
 import attachment from "@carbon/icons-vue/lib/attachment/24";
 import _ from "lodash";
 import QuestionModel from "@/models/QuestionModel";
@@ -78,33 +78,33 @@ import api from "@/store/services/api";
     chevronDown,
     addAlt,
     videoAdd,
-    image,
+    image24,
     attachment,
   }
 })
-export default class TestEditView extends NotificationMixinComponent {
-  @Prop({ required: true }) testId!: number;
+export default class ExamEditView extends NotificationMixinComponent {
+  @Prop({ required: true }) examId!: number;
 
-  testStore = testStore;
+  examStore = examStore;
   questionStore = questionStore;
   chevronUp = chevronUp;
   chevronDown = chevronDown;
-  image = image;
+  image24 = image24;
   addAlt = addAlt;
   videoAdd = videoAdd;
   attachment = attachment;
   expanded = false;
 
-  test: TestModel = { ...testStore.newTest };
-  testEdit = { ...this.test };
+  exam: ExamModel = { ...examStore.newExam };
+  examEdit = { ...this.exam };
 
   async created() {
-    this.test = await this.testStore.fetchTestById(this.testId);
-    this.testEdit = _.cloneDeep(this.test);
+    this.exam = await this.examStore.fetchExamById(this.examId);
+    this.examEdit = _.cloneDeep(this.exam);
   }
 
   get isChanged() {
-    return !_.isEqual(this.test, this.testEdit);
+    return !_.isEqual(this.exam, this.examEdit);
   }
 
   expand() {
@@ -113,31 +113,31 @@ export default class TestEditView extends NotificationMixinComponent {
 
   addQuestion() {
     const newQuestion = _.cloneDeep(this.questionStore.newQuestion);
-    this.testEdit.questions.push(newQuestion);
+    this.examEdit.questions.push(newQuestion);
   }
 
   deleteQuestion(question: QuestionModel) {
-    if (this.testEdit.questions.length > 1) {
-      this.testEdit.questions = this.testEdit.questions.filter(x => x !== question);
+    if (this.examEdit.questions.length > 1) {
+      this.examEdit.questions = this.examEdit.questions.filter(x => x !== question);
     }
   }
 
-  async changeTest() {
-    this.testEdit.points = 0;
-    this.testEdit.questions.forEach((question) => {
-      this.testEdit.points += question.points;
+  async changeExam() {
+    this.examEdit.points = 0;
+    this.examEdit.questions.forEach((question) => {
+      this.examEdit.points += question.points;
     })
-    await api.patch(`/api/test/${this.testId}/`, {
-      ...this.testEdit,
-      questions: this.testEdit.questions
+    await api.patch(`/api/exam/${this.examId}/`, {
+      ...this.examEdit,
+      questions: this.examEdit.questions
     }).then(response => {
       this.notificationKind = 'success';
       this.notificationText = 'Тест успешно изменен';
-      this.testStore.changeCurrentTest(this.testEdit);
-      this.test = response.data;
-      this.testEdit = this.test;
+      this.examStore.changeCurrentExam(this.examEdit);
+      this.exam = response.data;
+      this.examEdit = this.exam;
     }).catch(error => {
-      this.testEdit.points = this.test.points;
+      this.examEdit.points = this.exam.points;
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.notificationKind = 'error';
     }).finally(() => {

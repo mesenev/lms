@@ -26,7 +26,7 @@ router.register('courseprogress', CourseProgressViewSet, basename='courseprogres
 router.register('courselink', LinkViewSet, basename='courselink')
 router.register('logevents', LogEventViewSet, basename='logevent')
 router.register('cats_account', CatsAccountViewSet, basename='cats_account')
-router.register('test', ExamViewSet, basename='exam')
+router.register('exam', ExamViewSet, basename='exam')
 router.register('solution', ExamSolutionViewSet, basename='exam_solution')
 
 urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

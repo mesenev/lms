@@ -48,7 +48,7 @@
       </cv-header-menu-item>
     </cv-header-nav>
     <cv-header-nav
-      v-if="isStaff && lessonSelected && !problemSelected && !materialSelected && !testSelected">
+      v-if="isStaff && lessonSelected && !problemSelected && !materialSelected && !examSelected">
       <cv-header-menu-item
         :to="{ name: 'lesson-edit', params: { lessonId: this.$route.params.lessonId } }"
       >
@@ -62,9 +62,9 @@
         Редактировать задачу
       </cv-header-menu-item>
     </cv-header-nav>
-    <cv-header-nav v-if="isStaff && testSelected">
+    <cv-header-nav v-if="isStaff && examSelected">
       <cv-header-menu-item
-        :to="{ name: 'test-edit', params: { testId: this.$route.params.testId } }"
+        :to="{ name: 'exam-edit', params: { examId: this.$route.params.examId } }"
       >
         Редактировать тест
       </cv-header-menu-item>
@@ -112,7 +112,7 @@
               Редактировать курс
             </cv-header-menu-item>
             <cv-header-menu-item
-              v-if="isStaff && lessonSelected && !problemSelected && !materialSelected && !testSelected"
+              v-if="isStaff && lessonSelected && !problemSelected && !materialSelected && !examSelected"
               :to="{ name: 'lesson-edit', params: { lessonId: this.$route.params.lessonId } }"
             >
               Редактировать урок
@@ -124,7 +124,7 @@
               Редактировать задачу
             </cv-header-menu-item>
             <cv-header-menu-item
-              :to="{ name: 'test-edit', params: { testId: this.$route.params.testId } }"
+              :to="{ name: 'exam-edit', params: { examId: this.$route.params.examId } }"
             >
               Редактировать тест
             </cv-header-menu-item>
@@ -271,8 +271,8 @@ export default class LmsHeader extends Vue {
     return this.$route.params.hasOwnProperty('problemId') && this.$route.params['problemId'] != null;
   }
 
-  get testSelected(): boolean {
-    return this.$route.params.hasOwnProperty('testId') && this.$route.params['testId'] != null;
+  get examSelected(): boolean {
+    return this.$route.params.hasOwnProperty('examId') && this.$route.params['examId'] != null;
   }
 
   get materialSelected(): boolean {
