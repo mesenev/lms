@@ -17,7 +17,11 @@
       <lms-breadcrumb-item
         v-if="examSelected.selected"
         :model="examStore.currentExam"
-        page-view="TestView"/>
+        page-view="ExamView"/>
+      <lms-breadcrumb-item
+        v-if="examEditSelected.selected"
+        :model="examEditSelected.value"
+        page-view="exam-edit"/>
       <lms-breadcrumb-item
         v-if="problemSelected.selected"
         :model="problemStore.currentProblem"
@@ -86,6 +90,16 @@ export default class LmsBreadcrumb extends Vue {
 
   get examSelected() {
     return this.isSelected('examId');
+  }
+
+  get examEditSelected() {
+    let selected = false;
+    let value = null;
+    if (this.$route.name === 'exam-edit') {
+      selected = true;
+      value = { id: this.$route.params['examId'], name: 'Редактирование теста' };
+    }
+    return { selected, value };
   }
 
   get courseEditSelected() {
