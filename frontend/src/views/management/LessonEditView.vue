@@ -36,6 +36,7 @@
         </div>
         <div class="lesson-buttons">
           <EditLessonModal @update-problem-list="updateTaskList($event)"
+                           @update-exam-list="updateExamList($event)"
                            :lesson="lessonEdit"
                            class="edit--lesson-props"/>
           <EditLessonMaterialsModal @update-material-delete="updateMaterialDelete($event)"
@@ -199,6 +200,12 @@ export default class LessonEditView extends NotificationMixinComponent {
       this.lessonEdit.problems.push(element as ProblemModel)
     })
     this.problemStore.setProblems({[this.lessonId]: this.lessonEdit.problems});
+  }
+
+  updateExamList(new_exam: ExamModel) {
+    this.lessonEdit = {...this.lesson};
+    this.lessonEdit.exams.push(new_exam);
+    this.examStore.setExams({[this.lessonId]: this.lessonEdit.exams});
   }
 
   updateProblemDelete(deleted_problem_id: number) {
