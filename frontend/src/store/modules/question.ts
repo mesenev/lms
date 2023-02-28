@@ -1,4 +1,4 @@
-import { Action, getModule, Module, Mutation, VuexModule } from "vuex-module-decorators";
+import { getModule, Module, Mutation, VuexModule } from "vuex-module-decorators";
 import store from "@/store";
 import QuestionModel from "@/models/QuestionModel";
 import { Dictionary } from "vue-router/types/router";
@@ -18,10 +18,7 @@ class QuestionModule extends VuexModule {
       points: 0,
     } as QuestionModel
   }
-  @Action
-  async fetchQuestionsByTestId(id: number) {
-    return this.questions[id];
-  }
+
   @Mutation
   setQuestions(payload: Dictionary<QuestionModel[]>) {
     this.questions = {...this.questions, ...payload};

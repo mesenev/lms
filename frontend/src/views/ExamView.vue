@@ -2,31 +2,31 @@
   <div class="bx--grid">
     <div class="bx--row header-container">
       <div class="bx--offset-lg-2 main-title">
-        <h1 v-if="test && !loading"> {{ test.name }} </h1>
+        <h1 v-if="exam && !loading"> {{ exam.name }} </h1>
         <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
         <div class="info-container">
            <div class="description-container">
-            <span v-if="!loading && test" class="lesson-description">
-               {{ test.description }}
+            <span v-if="!loading && exam" class="lesson-description">
+               {{ exam.description }}
             </span>
             <cv-skeleton-text v-else width="'35%'"/>
           </div>
           <div class="test-info">
             <span>Тест</span>
             <span>
-              Макс. балл <strong> {{ test.points }} </strong>
+              Макс. балл <strong> {{ exam.points }} </strong>
             </span>
             <span>
-              Режим тестирования: <strong> {{ test.test_mode }} </strong>
+              Режим тестирования: <strong> {{ exam.test_mode }} </strong>
             </span>
             <div v-if="isStaff" class="visibility">
-              <cv-button-skeleton v-if="changingVisibility || !this.test" kind="ghost"/>
+              <cv-button-skeleton v-if="changingVisibility || !this.exam" kind="ghost"/>
               <cv-button v-else
                          class="test-hide-button"
                          :icon="hiddenIcon"
                          kind="ghost"
-                         @click="changeLessonVisibility">
-                {{ (test.is_hidden) ? "Открыть тест" : "Скрыть тест" }}
+                         @click="changeExamVisibility">
+                {{ (exam.is_hidden) ? "Открыть тест" : "Скрыть тест" }}
               </cv-button>
             </div>
           </div>
@@ -36,7 +36,7 @@
     <cv-row class="main-items" justify="center">
       <cv-column :lg="{'span' : 8, 'offset' : 2}">
         <div v-if="!loading" class="test-container">
-          <div class="question-container" v-for="(question, index) in test.questions" :key="index">
+          <div class="question-container" v-for="(question, index) in exam.questions" :key="index">
             <h4 class="question-title"> {{ question.text }} </h4>
             <p class="question-description">{{ question.description }}</p>
             <cv-radio-group class="answers" :vertical="true" v-if="isQuestionRadioType(question)">
@@ -55,7 +55,7 @@
         </div>
         <div v-if="!loading" class="submit-container">
           <div class="question-container submit">
-            <cv-button @click="submitTest" :disabled="flag">Отправить</cv-button>
+            <cv-button @click="submitExam" :disabled="flag">Отправить</cv-button>
           </div>
           <cv-inline-notification
             v-if="showNotification"
@@ -72,17 +72,17 @@
 <script lang="ts">
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import { Component, Prop } from "vue-property-decorator";
-import testStore from '@/store/modules/test';
+import examStore from '@/store/modules/exam';
 import userStore from '@/store/modules/user';
 import QuestionModel, { ANSWER_TYPE } from "@/models/QuestionModel";
 import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
 
 @Component({ components: {} })
-export default class TestView extends NotificationMixinComponent {
-  @Prop({ required: true }) testId!: number;
+export default class ExamView extends NotificationMixinComponent {
+  @Prop({ required: true }) examId!: number;
 
-  testStore = testStore;
+  examStore = examStore;
   userStore = userStore;
   changingVisibility = false;
   loading = true;
@@ -97,18 +97,18 @@ export default class TestView extends NotificationMixinComponent {
     return true;
   }
 
-  get test() {
-    return this.testStore.currentTest;
+  get exam() {
+    return this.examStore.currentExam;
   }
 
   get hiddenIcon() {
-    return (this.test?.is_hidden) ? viewOff : view;
+    return (this.exam?.is_hidden) ? viewOff : view;
   }
 
-  async changeLessonVisibility() {
+  async changeExamVisibility() {
     this.changingVisibility = true;
-    await this.testStore.patchTest(
-      { id: this.testId, is_hidden: !this.test?.is_hidden },
+    await this.examStore.patchExam(
+      { id: this.examId, is_hidden: !this.exam?.is_hidden },
     );
     this.changingVisibility = false;
   }
@@ -131,7 +131,7 @@ export default class TestView extends NotificationMixinComponent {
 
   flag = false;
 
-  submitTest() {
+  submitExam() {
     this.flag = true;
     this.notificationKind = 'success';
     this.notificationText = 'Тест отправлен на проверку.'

@@ -6,8 +6,8 @@ import MaterialEditView from '@/views/management/MaterialEditView.vue';
 import MaterialView from '@/views/MaterialView.vue';
 import ProblemViewLayout from '@/views/ProblemViewLayout.vue';
 import { RouteConfig } from 'vue-router';
-import testRoutes from "@/router/test";
-import TestViewLayout from "@/views/TestViewLayout.vue";
+import examRoutes from "@/router/exam";
+import ExamViewLayout from "@/views/ExamViewLayout.vue";
 
 const lessonRoutes: Array<RouteConfig> = [
   {
@@ -31,14 +31,14 @@ const lessonRoutes: Array<RouteConfig> = [
     },
   },
   {
-    path: 'test/:testId',
-    component: TestViewLayout,
+    path: 'exam/:examId',
+    component: ExamViewLayout,
     children: [
-      ...testRoutes,
+      ...examRoutes,
     ],
     props: (route) => {
-      const testId = Number.parseInt(route.params.testId as string, 10);
-      return { testId, ...route.params };
+      const examId = Number.parseInt(route.params.examId as string, 10);
+      return { examId, ...route.params };
     },
   },
   {
