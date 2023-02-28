@@ -370,6 +370,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
     await api.post('/api/exam/', this.exam).then(response => {
       this.notificationKind = 'success';
       this.notificationText = 'Тест успешно создан';
+      this.$emit('update-exam-list', response.data as ExamModel);
     }).catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.notificationKind = 'error';

@@ -85,7 +85,7 @@ export default class LmsBreadcrumb extends Vue {
   }
 
   get examSelected() {
-    return this.isSelected('testId');
+    return this.isSelected('examId');
   }
 
   get courseEditSelected() {
