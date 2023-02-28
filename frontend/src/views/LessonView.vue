@@ -65,7 +65,7 @@
           <div class="tests">
             <h4 class="classwork-title title">Тесты</h4>
             <div v-if="!loading">
-              <test-list-component :tests-list="tests"/>
+              <exam-list-component :exams-list="exams"/>
             </div>
             <div v-else>
               <cv-accordion-skeleton/>
@@ -114,22 +114,22 @@ import lessonStore from '@/store/modules/lesson';
 import materialStore from '@/store/modules/material';
 import problemStore from '@/store/modules/problem';
 import userStore from '@/store/modules/user';
-import testStore from '@/store/modules/test';
+import examStore from '@/store/modules/exam';
 import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import EmptyListComponent from "@/components/EmptyListComponent.vue";
-import TestListComponent from "@/components/lists/TestListComponent.vue";
-import TestModel from "@/models/TestModel";
+import ExamModel from "@/models/ExamModel";
+import ExamListComponent from "@/components/lists/ExamListComponent.vue";
 
-@Component({ components: { TestListComponent, MaterialListComponent, ProblemListComponent, EmptyListComponent } })
+@Component({ components: { ExamListComponent, MaterialListComponent, ProblemListComponent, EmptyListComponent } })
 export default class LessonView extends Vue {
   @Prop({ required: true }) lessonId!: number;
   lessonStore = lessonStore;
   problemStore = problemStore;
   userStore = userStore;
   materialStore = materialStore;
-  testStore = testStore;
+  examStore = examStore;
   loading = true;
   changingVisibility = false;
   emptyProblemsText = '';
@@ -140,12 +140,12 @@ export default class LessonView extends Vue {
     this.emptyMaterialsText = 'Похоже, доступные материалы отсутствуют.';
     await this.problemStore.fetchProblemsByLessonId(this.lessonId);
     await this.materialStore.fetchMaterialsByLessonId(this.lessonId);
-    await this.testStore.fetchTestsByLessonId(this.lessonId);
+    await this.examStore.fetchExamsByLessonId(this.lessonId);
     this.loading = false;
   }
 
   get isProblemsEmpty() {
-    if (this.problemStore.problemsByLesson[this.lessonId].length === 0 && this.tests.length === 0) {
+    if (this.problemStore.problemsByLesson[this.lessonId].length === 0 && this.exams.length === 0) {
       return true;
     }
   }
@@ -195,8 +195,8 @@ export default class LessonView extends Vue {
     return this.problemStore.problemsByLesson[this.lessonId].filter(x => x.type === 'EX');
   }
 
-  get tests(): Array<TestModel> {
-    return this.testStore.testsByLesson[this.lessonId];
+  get exams(): Array<ExamModel> {
+    return this.examStore.examsByLesson[this.lessonId];
   }
 
   async changeLessonVisibility() {
