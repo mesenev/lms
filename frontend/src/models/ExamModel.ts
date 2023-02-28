@@ -1,7 +1,7 @@
 import QuestionModel from "@/models/QuestionModel";
 import { BaseModel } from "@/models/BaseModel";
 
-export default interface TestModel extends BaseModel {
+export default interface ExamModel extends BaseModel {
   lesson: number;
   description: string | null;
   questions: Array<QuestionModel>;

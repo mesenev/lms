@@ -15,8 +15,8 @@
         page-view="LessonView"
       />
       <lms-breadcrumb-item
-        v-if="testSelected.selected"
-        :model="testStore.currentTest"
+        v-if="examSelected.selected"
+        :model="examStore.currentExam"
         page-view="TestView"/>
       <lms-breadcrumb-item
         v-if="problemSelected.selected"
@@ -49,7 +49,7 @@ import courseStore from '@/store/modules/course';
 import lessonStore from '@/store/modules/lesson';
 import materialStore from '@/store/modules/material';
 import problemStore from '@/store/modules/problem';
-import testStore from '@/store/modules/test';
+import examStore from '@/store/modules/exam';
 import { Component, Vue } from "vue-property-decorator";
 
 @Component({ components: { LmsBreadcrumbItem } })
@@ -58,7 +58,7 @@ export default class LmsBreadcrumb extends Vue {
   lessonStore = lessonStore;
   courseStore = courseStore;
   materialStore = materialStore;
-  testStore = testStore;
+  examStore = examStore;
 
   private isSelected(param: string) {
     const selected = this.$route.params.hasOwnProperty(param) && !!this.$route.params[param];
@@ -84,7 +84,7 @@ export default class LmsBreadcrumb extends Vue {
     return this.isSelected('materialId');
   }
 
-  get testSelected() {
+  get examSelected() {
     return this.isSelected('testId');
   }
 

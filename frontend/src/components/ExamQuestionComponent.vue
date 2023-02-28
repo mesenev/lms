@@ -76,7 +76,7 @@ import QuestionModel, { ANSWER_TYPE } from "@/models/QuestionModel";
 import questionStore from "@/store/modules/question";
 
 @Component({ components: { trashCan24, closeFilled24 } })
-export default class TestQuestionComponent extends Vue {
+export default class ExamQuestionComponent extends Vue {
   @Prop({ required: true }) _question!: QuestionModel;
   questionStore = questionStore;
   trashCan24 = trashCan24;

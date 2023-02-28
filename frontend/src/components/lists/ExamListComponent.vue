@@ -1,9 +1,9 @@
 <template>
   <div>
-    <router-link :to="openTest(test)" class="list-element" v-for="test in testsList" :key="test.id">
+    <router-link :to="openExam(exam)" class="list-element" v-for="exam in examsList" :key="exam.id">
       <div class="content-wrapper">
         <div class="title-wrapper">
-          <h5 class="list-element--title"> {{ test.name }} </h5>
+          <h5 class="list-element--title"> {{ exam.name }} </h5>
         </div>
       </div>
     </router-link>
@@ -11,18 +11,18 @@
 </template>
 
 <script lang="ts">
-import TestModel from "@/models/TestModel";
+import ExamModel from "@/models/ExamModel";
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import testStore from "@/store/modules/test"
+import examStore from "@/store/modules/exam"
 
 @Component({ components: {} })
-export default class TestListComponent extends Vue {
-  @Prop({ required: true }) testsList!: Array<TestModel>;
+export default class ExamListComponent extends Vue {
+  @Prop({ required: true }) examsList!: Array<ExamModel>;
 
-  testStore = testStore;
+  examStore = examStore;
 
-  openTest(test: TestModel) {
-    return { name: 'TestView', params: { testId: test.id.toString() } };
+  openExam(exam: ExamModel) {
+    return { name: 'ExamView', params: { examId: exam.id.toString() } };
   }
 }
 </script>

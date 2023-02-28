@@ -106,9 +106,9 @@
             <h4 v-else class="empty-tasks">Задания отсутствуют</h4>
           </cv-content-switcher-content>
           <cv-content-switcher-content owner-id="Test">
-            <div v-if="getTests.length > 0">
+            <div v-if="getExams.length > 0">
               <div v-if="!fetchingLesson" class="extrawork">
-                <test-list-component :tests-list="getTests"/>
+                <exam-list-component :exams-list="getExams"/>
               </div>
               <div v-else>
                 <cv-accordion-skeleton/>
@@ -135,16 +135,16 @@ import router from '@/router';
 import lessonStore from '@/store/modules/lesson';
 import materialStore from '@/store/modules/material';
 import problemStore from '@/store/modules/problem';
-import testStore from '@/store/modules/test';
+import examStore from '@/store/modules/exam';
 import api from '@/store/services/api';
 import _ from 'lodash';
 import {Component, Prop} from 'vue-property-decorator';
-import TestModel from "@/models/TestModel";
-import TestListComponent from "@/components/lists/TestListComponent.vue";
+import ExamModel from "@/models/ExamModel";
+import ExamListComponent from "@/components/lists/ExamListComponent.vue";
 
 
 @Component({components: {
-    TestListComponent,
+    ExamListComponent,
     EditLessonMaterialsModal, EditLessonModal, ProblemListComponent}})
 export default class LessonEditView extends NotificationMixinComponent {
 
@@ -152,7 +152,7 @@ export default class LessonEditView extends NotificationMixinComponent {
   store = lessonStore;
   materialStore = materialStore;
   problemStore = problemStore;
-  testStore = testStore;
+  examStore = examStore;
   fetchingLesson = true;
   lesson: LessonModel = this.store.getNewLesson;
   lessonEdit: LessonModel = {...this.lesson};
@@ -163,7 +163,7 @@ export default class LessonEditView extends NotificationMixinComponent {
     if (this.lessonId) {
       this.lesson = this.store.currentLesson as LessonModel;
       await this.materialStore.fetchMaterialsByLessonId(this.lesson.id);
-      await this.testStore.fetchTestsByLessonId(this.lesson.id);
+      await this.examStore.fetchExamsByLessonId(this.lesson.id);
     }
     this.lessonEdit = {...this.lesson};
     this.fetchingLesson = false;
@@ -220,8 +220,8 @@ export default class LessonEditView extends NotificationMixinComponent {
     return this.lessonEdit.problems.filter(x => x.type === 'EX');
   }
 
-  get getTests(): Array<TestModel> {
-    return this.lessonEdit.tests;
+  get getExams(): Array<ExamModel> {
+    return this.lessonEdit.exams;
   }
 
   searchByTutorial(problems: Array<ProblemModel | CatsProblemModel>):
