@@ -1,17 +1,16 @@
 import subprocess
 
 
-def build_message(code):
-    if code:
-        return 'composition fails to build. Aborting.'
-    return 'composition build successful.'
+def build_composition():
+    def build_message(code):
+        if code:
+            return 'composition fails to build. Aborting.'
+        return 'composition build successful.'
 
-
-def build_backend():
     print('building docker composition')
     exec_code = subprocess.run(
         [
-            "docker-compose",
+            "docker", "compose",
             "-f",
             ".docker/docker-compose.prod.yml",
             "build"

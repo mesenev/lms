@@ -13,8 +13,14 @@ urlpatterns = [
     # path('api/edit-profile/', views.edit_profile, name='edit_profile'),
     # path('api/teachersbymail/<int:course_id>/<str:email>/', views.find_teacher_by_email, name='find_teacher'),
     # path('api/assignteacher/<int:course_id>/', views.assign_teacher, name='assign_teacher'),
-
+    path('api/password_reset/request_token', views.RequestTokenAPIView.as_view(),
+         name="reset_password_token_request"),
+    path('api/password_reset/with_token', views.ChangePasswordWithTokenAPIView.as_view(),
+         name="password_reset_with_token"),
+    path('api/password_reset/verify_token', views.VerifyTokenExists.as_view(),
+         name="verify_token_exists"),
     path('api/auth/', include('djoser.urls')),
     path('api/auth/', include('djoser.urls.jwt')),
     path('api/auth/', include('djoser.urls.authtoken')),
+
 ]

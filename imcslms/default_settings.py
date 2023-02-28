@@ -181,3 +181,8 @@ ANONYMOUS = 'anonymous'
 GROUPS = [TEACHER, STUDENT, ANONYMOUS]
 
 USER_SESSION_FLAG = getattr(settings, "SESSION_FROM_USER", "SESSION")
+
+TOKEN_EXPIRY_TIME = 12
+
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

@@ -4,8 +4,8 @@ import subprocess
 
 def build_message(code):
     if code:
-        return f'<b>npm run test:unit</b> failed'
-    return f'<b>npm run test:unit</b> was successful!'
+        return f'npm run test:unit failed'
+    return f'npm run test:unit was successful!'
 
 
 def test_frontend():
