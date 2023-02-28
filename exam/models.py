@@ -7,15 +7,15 @@ from users.models import User
 from pydantic import validate_arguments
 
 
-class Answer(pydantic.BaseModel):
-    text: str
-    file_url: str
+class QuestionAnswer(pydantic.BaseModel):
+    question_index: int = 0
+    given_ansewr: list[str] = []
 
 
 class Question(pydantic.BaseModel):
     text: str
     description: str = ''
-    correct_answers: list[str] = []
+    correct_answers: list[str] = ['', '']
     all_answers: list[str] = []
     answer_type: str
     attachment_url: str = ''
@@ -28,6 +28,7 @@ class ExaminationForm(models.Model):
         ('manual', 'Manual only testing'),
         ('auto_and_manual', 'Manual then automated testing')
     ]
+
     name = models.CharField(max_length=500)
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, related_name='exams', null=True)
     description = models.TextField(default='')
@@ -49,12 +50,12 @@ class ExaminationForm(models.Model):
 class ExamSolution(models.Model):
 
     SOLUTION_STATUS = [('await', 'AWAIT VERIFICATION'), ('verified', 'VERIFIED')]
-
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='exam_solutions', null=False)
     exam = models.ForeignKey(ExaminationForm, on_delete=models.CASCADE, related_name='exam_solutions', null=False)
-    answers: list[str] = SchemaField(default=[])
+    answers: list[QuestionAnswer] = SchemaField(default=[])
     score = models.IntegerField()
     status = models.CharField(max_length=30, choices=SOLUTION_STATUS, default='AWAIT VERIFICATION')
 
 
 admin.site.register(ExaminationForm)
+admin.site.register(ExamSolution)
