@@ -14,7 +14,6 @@ class ExamSerializer(serializers.ModelSerializer):
 
 class ExamSolutionSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
-    name = serializers.CharField()
 
     class Meta:
         model = ExamSolution

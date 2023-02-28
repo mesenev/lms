@@ -7,15 +7,15 @@ from users.models import User
 from pydantic import validate_arguments
 
 
-class QuestionAnswer(pydantic.BaseModel):
-    question_index: int = 0
-    given_ansewr: list[str] = []
+class UserAnswerToQuestion(pydantic.BaseModel):
+    question_index: int
+    submitted_answers: list[str] = []
 
 
 class Question(pydantic.BaseModel):
     text: str
     description: str = ''
-    correct_answers: list[str] = ['', '']
+    correct_answers: list[str] = []
     all_answers: list[str] = []
     answer_type: str
     attachment_url: str = ''
@@ -52,9 +52,18 @@ class ExamSolution(models.Model):
     SOLUTION_STATUS = [('await', 'AWAIT VERIFICATION'), ('verified', 'VERIFIED')]
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='exam_solutions', null=False)
     exam = models.ForeignKey(ExaminationForm, on_delete=models.CASCADE, related_name='exam_solutions', null=False)
-    answers: list[QuestionAnswer] = SchemaField(default=[])
+    user_answers = models.JSONField(default=[])
     score = models.IntegerField()
     status = models.CharField(max_length=30, choices=SOLUTION_STATUS, default='AWAIT VERIFICATION')
+    correct_questions_indexes = models.JSONField(default=[])
+
+    @classmethod
+    @validate_arguments
+    def create(cls, student, exam, user_anwers: list[UserAnswerToQuestion], score, status,
+               correct_questions_indexes:list[int]
+               ):
+        solution = cls(student, exam, user_anwers, score, status, correct_questions_indexes)
+        return solution
 
 
 admin.site.register(ExaminationForm)
