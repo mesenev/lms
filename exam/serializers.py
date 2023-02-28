@@ -1,21 +1,21 @@
 from rest_framework import serializers
-from test.models import Test, TestSolution, Question
+from exam.models import ExaminationForm, ExamSolution, Question
 from django_pydantic_field import SchemaField
 
 
-class TestSerializer(serializers.ModelSerializer):
+class ExamSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
     name = serializers.CharField()
 
     class Meta:
-        model = Test
+        model = ExaminationForm
         fields = '__all__'
 
 
-class TestSolutionSerializer(serializers.ModelSerializer):
+class ExamSolutionSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
     name = serializers.CharField()
 
     class Meta:
-        model = TestSolution
+        model = ExamSolution
         fields = '__all__'
