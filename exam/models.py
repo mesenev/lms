@@ -22,14 +22,14 @@ class Question(pydantic.BaseModel):
     points: int
 
 
-class Test(models.Model):
+class ExaminationForm(models.Model):
     TEST_MODE_TYPES = [
         ('auto', 'Automated only testing'),
         ('manual', 'Manual only testing'),
         ('auto_and_manual', 'Manual then automated testing')
     ]
     name = models.CharField(max_length=500)
-    lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, related_name='tests', null=True)
+    lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, related_name='exams', null=True)
     description = models.TextField(default='')
     questions = models.JSONField()
     points = models.IntegerField()
@@ -39,22 +39,22 @@ class Test(models.Model):
     @classmethod
     @validate_arguments
     def create(cls, name, lesson, description, questions: list[Question], points, is_hidden, test_mode):
-        test = cls(name, lesson, description, questions, points, is_hidden, test_mode)
-        return test
+        exam = cls(name, lesson, description, questions, points, is_hidden, test_mode)
+        return exam
 
     def __str__(self):
         return self.name
 
 
-class TestSolution(models.Model):
+class ExamSolution(models.Model):
 
     SOLUTION_STATUS = [('await', 'AWAIT VERIFICATION'), ('verified', 'VERIFIED')]
 
-    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='test_solutions', null=False)
-    test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='test_solutions', null=False)
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='exam_solutions', null=False)
+    exam = models.ForeignKey(ExaminationForm, on_delete=models.CASCADE, related_name='exam_solutions', null=False)
     answers: list[str] = SchemaField(default=[])
     score = models.IntegerField()
     status = models.CharField(max_length=30, choices=SOLUTION_STATUS, default='AWAIT VERIFICATION')
 
 
-admin.site.register(Test)
+admin.site.register(ExaminationForm)

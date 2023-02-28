@@ -1,9 +1,9 @@
 from rest_framework import viewsets, exceptions
 from users.permissions import CourseStaffOrReadOnlyForStudents
-from test.models import Test, TestSolution
+from exam.models import ExaminationForm, ExamSolution
 from django.db.models import Q
 from imcslms.default_settings import TEACHER
-from test.serializers import TestSerializer, TestSolutionSerializer
+from exam.serializers import ExamSerializer, ExamSolutionSerializer
 from model_bakery import baker
 from rest_framework.request import Request
 from rest_framework.views import APIView
@@ -16,14 +16,14 @@ class AddAttachmentToQuestion(APIView):
         pass
 
 
-class TestViewSet(viewsets.ModelViewSet):
-    serializer_class = TestSerializer
+class ExamViewSet(viewsets.ModelViewSet):
+    serializer_class = ExamSerializer
     permission_classes = [CourseStaffOrReadOnlyForStudents]
     filterset_fields = ['lesson_id', ]
 
     def get_queryset(self):
         user = self.request.user
-        return Test.objects.all()\
+        return ExaminationForm.objects.all()\
             .filter(
             (Q(lesson__course__in=user.student_for.all()))
             | Q(lesson__course__in=user.staff_for.all())
@@ -36,14 +36,14 @@ class TestViewSet(viewsets.ModelViewSet):
         raise exceptions.PermissionDenied
 
 
-class TestSolutionViewSet(viewsets.ModelViewSet):
-    serializer_class = TestSolutionSerializer
+class ExamSolutionViewSet(viewsets.ModelViewSet):
+    serializer_class = ExamSolutionSerializer
     permission_classes = [CourseStaffOrReadOnlyForStudents]
-    filterset_fields = ['test', ]
+    filterset_fields = ['exam', ]
 
     def get_queryset(self):
         user = self.request.user
-        return TestSolution.objects.all().filter(
+        return ExamSolution.objects.all().filter(
             (Q(test__is_hidden=False)
              & Q(test__lesson__course__in=user.student_for.all())
              )
