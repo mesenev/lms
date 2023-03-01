@@ -38,7 +38,7 @@ class ExamViewSet(viewsets.ModelViewSet):
 
 class ExamSolutionViewSet(viewsets.ModelViewSet):
     serializer_class = ExamSolutionSerializer
-    permission_classes = [CourseStaffOrReadOnlyForStudents]
+    #permission_classes = [CourseStaffOrReadOnlyForStudents]
     filterset_fields = ['exam', ]
 
     def get_queryset(self):
@@ -60,7 +60,7 @@ class ExamSolutionViewSet(viewsets.ModelViewSet):
         request = serializer.context['request']
         validated_data = serializer.validated_data
         if validated_data['exam'].test_mode == 'manual':
-            serializer.save(student=request.user, status=ExamSolution.SOLUTION_STATUS[0], score=0)
+            serializer.save(student=request.user, status=ExamSolution.SOLUTION_STATUS[0][1], score=0)
             return
 
         questions = validated_data['exam'].questions
@@ -72,7 +72,7 @@ class ExamSolutionViewSet(viewsets.ModelViewSet):
             if answer['submitted_answers'] == current_question['correct_answers']:
                 current_score += questions[answer['question_index']]['points']
                 correct_questions.append(answer['question_index'])
-        serializer.save(student=request.user, status=ExamSolution.SOLUTION_STATUS[1], score=current_score,
+        serializer.save(student=request.user, status=ExamSolution.SOLUTION_STATUS[1][1], score=current_score,
                         correct_questions_indexes=correct_questions)
         return
 
