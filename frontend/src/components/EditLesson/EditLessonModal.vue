@@ -199,7 +199,6 @@ export default class EditLessonModal extends NotificationMixinComponent {
   examStore = examStore;
   questionStore = questionStore;
   exam: ExamModel = { ...examStore.newExam, lesson: this.lesson.id };
-  questionCount = 0;
   expanded = false;
 
 
@@ -352,8 +351,10 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
 
   addQuestion() {
-    this.questionCount++;
-    const newQuestion = _.cloneDeep(this.questionStore.newQuestion);
+    const newQuestion = _.cloneDeep({
+      ...this.questionStore.newQuestion,
+      index: this.exam.questions.length
+    });
     this.exam.questions.push(newQuestion);
   }
 

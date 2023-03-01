@@ -64,7 +64,7 @@ class ExamSolutionViewSet(viewsets.ModelViewSet):
             return
 
         questions = validated_data['exam'].questions
-        question_answers = validated_data['answers']
+        question_answers = validated_data['user_answers']
         current_score = 0
         correct_questions = []
         for answer in question_answers:
