@@ -49,7 +49,7 @@ class ExaminationForm(models.Model):
 
 class ExamSolution(models.Model):
 
-    SOLUTION_STATUS = [('await', 'AWAIT VERIFICATION'), ('verified', 'VERIFIED')]
+    SOLUTION_STATUS = [('AWAIT VERIFICATION', 'await'), ('VERIFIED', 'verified')]
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='exam_solutions', null=False)
     exam = models.ForeignKey(ExaminationForm, on_delete=models.CASCADE, related_name='exam_solutions', null=False)
     user_answers = models.JSONField(default=[])
