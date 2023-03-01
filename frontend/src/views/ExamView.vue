@@ -40,22 +40,31 @@
             <h4 class="question-title"> {{ question.text }} </h4>
             <p class="question-description">{{ question.description }}</p>
             <cv-radio-group class="answers" :vertical="true" v-if="isQuestionRadioType(question)">
-              <cv-radio-button v-for="(answer, id) in question.all_answers" :key="id" :name="id"
-                               :label="answer" value="1" :disabled="flag"/>
+              <cv-radio-button v-model="userAnswers[question.index].submitted_answers[0]"
+                               v-for="(answer, id) in question.all_answers" :key="id" :name="index"
+                               :label="answer" :value="answer"
+                               :disabled="isTestSubmitted"/>
             </cv-radio-group>
             <div class="answers-checkbox" v-else-if="isQuestionCheckboxType(question)">
-              <cv-checkbox v-for="(answer, id) in question.all_answers" :key="id" value="1"
-                           :label="answer" :disabled="flag"/>
+              <cv-checkbox v-model="userAnswers[question.index].submitted_answers"
+                           v-for="(answer, id) in question.all_answers" :key="id"
+                           :value="answer"
+                           :label="answer" :disabled="isTestSubmitted"/>
             </div>
-            <cv-text-input v-else-if="isQuestionInputType(question)" placeholder="Введите ответ"
-                           :disabled="flag"/>
-            <cv-text-area v-else-if="isQuestionTextType(question)" placeholder="Введите ответ"
-                          :disabled="flag"/>
+            <cv-text-input v-model="userAnswers[question.index].submitted_answers[0]"
+                           v-else-if="isQuestionInputType(question)" placeholder="Введите ответ"
+                           :disabled="isTestSubmitted"/>
+            <cv-text-area v-model="userAnswers[question.index].submitted_answers[0]"
+                          v-else-if="isQuestionTextType(question)" placeholder="Введите ответ"
+                          :disabled="isTestSubmitted"/>
           </div>
         </div>
         <div v-if="!loading" class="submit-container">
           <div class="question-container submit">
-            <cv-button @click="submitExam" :disabled="flag">Отправить</cv-button>
+            <cv-button v-if="!submitting" @click="submitExam" :disabled="isTestSubmitted">
+              Отправить
+            </cv-button>
+            <cv-button-skeleton v-else/>
           </div>
           <cv-inline-notification
             v-if="showNotification"
@@ -77,6 +86,8 @@ import userStore from '@/store/modules/user';
 import QuestionModel, { ANSWER_TYPE } from "@/models/QuestionModel";
 import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
+import api from "@/store/services/api";
+import { Dictionary } from "vue-router/types/router";
 
 @Component({ components: {} })
 export default class ExamView extends NotificationMixinComponent {
@@ -86,9 +97,17 @@ export default class ExamView extends NotificationMixinComponent {
   userStore = userStore;
   changingVisibility = false;
   loading = true;
+  isTestSubmitted = false;
+  submitting = false;
+
+  userAnswers: Dictionary<{ question_index: number; submitted_answers: Array<string> }> = {};
 
 
   async created() {
+    this.exam?.questions.forEach((question) => {
+      this.userAnswers[question.index] = { question_index: question.index, submitted_answers: [] };
+    })
+    this.userAnswers = { ...this.userAnswers };
     this.loading = false;
   }
 
@@ -128,13 +147,25 @@ export default class ExamView extends NotificationMixinComponent {
     return question.answer_type === ANSWER_TYPE.CHECKBOXES;
   }
 
-  flag = false;
-
-  submitExam() {
-    this.flag = true;
-    this.notificationKind = 'success';
-    this.notificationText = 'Тест отправлен на проверку.'
-    this.showNotification = true;
+  async submitExam() {
+    this.submitting = true;
+    await api.post('/api/solution/', {
+      user_answers: Object.values(this.userAnswers),
+      score: 0,
+      correct_questions_indexes: [],
+      student: userStore.user.id,
+      exam: this.exam?.id,
+    }).then(() => {
+      this.notificationKind = 'success';
+      this.notificationText = "Тест отправлен на проверку";
+      this.isTestSubmitted = true;
+    }).catch(error => {
+      this.notificationKind = 'error';
+      this.notificationText = `Что-то пошло не так: ${error.message}`;
+    }).finally(() => {
+      this.showNotification = true;
+      this.submitting = false;
+    });
   }
 }
 </script>
