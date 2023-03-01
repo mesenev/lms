@@ -1,10 +1,9 @@
 from rest_framework import viewsets, exceptions
 from users.permissions import CourseStaffOrReadOnlyForStudents
-from exam.models import ExaminationForm, ExamSolution, Question, UserAnswerToQuestion
+from exam.models import ExaminationForm, ExamSolution, AnswerTypes
 from django.db.models import Q
 from imcslms.default_settings import TEACHER
 from exam.serializers import ExamSerializer, ExamSolutionSerializer
-from model_bakery import baker
 from rest_framework.request import Request
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -69,7 +68,7 @@ class ExamSolutionViewSet(viewsets.ModelViewSet):
         correct_questions = []
         for answer in question_answers:
             current_question = questions[answer['question_index']]
-            if answer['submitted_answers'] == current_question['correct_answers']:
+            if set(answer['submitted_answers']) == set(current_question['correct_answers']):
                 current_score += questions[answer['question_index']]['points']
                 correct_questions.append(answer['question_index'])
         serializer.save(student=request.user, status=ExamSolution.SOLUTION_STATUS[1][1], score=current_score,
