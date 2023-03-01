@@ -46,7 +46,7 @@
           <cv-inline-notification
             v-if="showNotification"
             @close="() => showNotification=false"
-            kind="error"
+            :kind="notificationKind"
             :sub-title="notificationText"/>
         </div>
       </cv-column>
