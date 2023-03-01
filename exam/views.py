@@ -76,5 +76,13 @@ class ExamSolutionViewSet(viewsets.ModelViewSet):
                         correct_questions_indexes=correct_questions)
         return
 
+    def update(self, request, *args, **kwargs):
+        request_data = request.data
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
     def filter_queryset(self, queryset):
         return super().filter_queryset(queryset)
