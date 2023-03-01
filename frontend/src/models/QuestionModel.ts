@@ -1,4 +1,5 @@
 export default interface QuestionModel {
+  index: number;
   text: string;
   description: string | null;
   answer_type: string;

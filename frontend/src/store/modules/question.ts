@@ -9,6 +9,7 @@ class QuestionModule extends VuexModule {
 
   get newQuestion(): QuestionModel {
     return {
+      index: 0,
       text: '',
       description: '',
       answer_type: 'input',

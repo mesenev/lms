@@ -199,7 +199,6 @@ export default class EditLessonModal extends NotificationMixinComponent {
   examStore = examStore;
   questionStore = questionStore;
   exam: ExamModel = { ...examStore.newExam, lesson: this.lesson.id };
-  questionCount = 0;
   expanded = false;
 
 
@@ -352,8 +351,10 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
 
   addQuestion() {
-    this.questionCount++;
-    const newQuestion = _.cloneDeep(this.questionStore.newQuestion);
+    const newQuestion = _.cloneDeep({
+      ...this.questionStore.newQuestion,
+      index: this.exam.questions.length
+    });
     this.exam.questions.push(newQuestion);
   }
 
@@ -370,6 +371,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
     await api.post('/api/exam/', this.exam).then(response => {
       this.notificationKind = 'success';
       this.notificationText = 'Тест успешно создан';
+      this.$emit('update-exam-list', response.data as ExamModel);
     }).catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.notificationKind = 'error';

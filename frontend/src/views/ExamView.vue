@@ -5,12 +5,6 @@
         <h1 v-if="exam && !loading"> {{ exam.name }} </h1>
         <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
         <div class="info-container">
-           <div class="description-container">
-            <span v-if="!loading && exam" class="lesson-description">
-               {{ exam.description }}
-            </span>
-            <cv-skeleton-text v-else width="'35%'"/>
-          </div>
           <div class="test-info">
             <span>Тест</span>
             <span>
@@ -29,6 +23,12 @@
                 {{ (exam.is_hidden) ? "Открыть тест" : "Скрыть тест" }}
               </cv-button>
             </div>
+          </div>
+          <div class="description-container">
+            <span v-if="!loading && exam" class="lesson-description">
+               {{ exam.description }}
+            </span>
+            <cv-skeleton-text v-else width="'35%'"/>
           </div>
         </div>
       </div>
@@ -93,8 +93,7 @@ export default class ExamView extends NotificationMixinComponent {
   }
 
   get isStaff(): boolean {
-    // return this.userStore.user.staff_for.includes(Number(this.test?.lesson));
-    return true;
+    return this.userStore.user.staff_for.includes(Number(this.exam?.lesson));
   }
 
   get exam() {
@@ -189,8 +188,14 @@ span
 .answers
   margin-left 1rem
 
+  /deep/ .bx--radio-button-group
+    gap 1.5rem
+
 .answers-checkbox
   margin-left 1rem
+
+  /deep/ .bx--form-item.bx--checkbox-wrapper:not(:last-of-type)
+    margin-bottom 1.5rem
 
 .cv-text-input
   margin-left 1rem
