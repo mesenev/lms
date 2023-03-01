@@ -25,7 +25,7 @@ class ExamViewSet(viewsets.ModelViewSet):
         user = self.request.user
         return ExaminationForm.objects.all()\
             .filter(
-            (Q(lesson__course__in=user.student_for.all()))
+            (Q(is_hidden=False) & Q(lesson__course__in=user.student_for.all()))
             | Q(lesson__course__in=user.staff_for.all())
             | Q(lesson__course__in=user.author_for.all())
         )

@@ -160,7 +160,7 @@ export default class ExamView extends NotificationMixinComponent {
       this.notificationText = "Тест отправлен на проверку";
       this.isTestSubmitted = true;
     }).catch(error => {
-      this.notificationKind = 'success';
+      this.notificationKind = 'error';
       this.notificationText = `Что-то пошло не так: ${error.message}`;
     }).finally(() => {
       this.showNotification = true;

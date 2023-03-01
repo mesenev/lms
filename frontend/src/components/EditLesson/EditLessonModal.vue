@@ -25,7 +25,7 @@
           <cv-inline-notification
             v-if="showNotification"
             @close="() => showNotification=false"
-            kind="error"
+            :kind="notificationKind"
             :sub-title="notificationText"/>
           <span style="padding-top: 20px">Выберите способ тестирования</span>
           <cv-radio-group style="margin-top: 10px; padding-bottom: 20px">
@@ -120,7 +120,7 @@
             <cv-inline-notification
               v-if="showNotification"
               @close="() => showNotification=false"
-              kind="error"
+              :kind="notificationKind"
               :sub-title="notificationText"/>
           </cv-content-switcher-content>
         </section>
