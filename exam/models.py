@@ -5,6 +5,14 @@ import pydantic
 from django_pydantic_field import SchemaField
 from users.models import User
 from pydantic import validate_arguments
+from enum import Enum
+
+
+class AnswerTypes(str, Enum):
+    input = 'input'
+    text = 'text'
+    radio = 'radio'
+    checkbox = 'checkbox'
 
 
 class UserAnswerToQuestion(pydantic.BaseModel):
@@ -18,7 +26,7 @@ class Question(pydantic.BaseModel):
     description: str = ''
     correct_answers: list[str] = []
     all_answers: list[str] = []
-    answer_type: str
+    answer_type: AnswerTypes
     attachment_url: str = ''
     points: int
 
@@ -50,7 +58,7 @@ class ExaminationForm(models.Model):
 
 class ExamSolution(models.Model):
 
-    SOLUTION_STATUS = [('AWAIT VERIFICATION', 'await'), ('VERIFIED', 'verified')]
+    SOLUTION_STATUS = [('await', 'AWAIT VERIFICATION'), ('verified', 'VERIFIED')]
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='exam_solutions', null=False)
     exam = models.ForeignKey(ExaminationForm, on_delete=models.CASCADE, related_name='exam_solutions', null=False)
     user_answers = models.JSONField(default=[])
@@ -61,7 +69,7 @@ class ExamSolution(models.Model):
     @classmethod
     @validate_arguments
     def create(cls, student, exam, user_answers: list[UserAnswerToQuestion], score, status,
-               correct_questions_indexes:list[int]
+               correct_questions_indexes: list[int]
                ):
         solution = cls(student, exam, user_answers, score, status, correct_questions_indexes)
         return solution
