@@ -13,6 +13,7 @@ class UserAnswerToQuestion(pydantic.BaseModel):
 
 
 class Question(pydantic.BaseModel):
+    index: int = 0
     text: str
     description: str = ''
     correct_answers: list[str] = []
@@ -59,10 +60,10 @@ class ExamSolution(models.Model):
 
     @classmethod
     @validate_arguments
-    def create(cls, student, exam, user_anwers: list[UserAnswerToQuestion], score, status,
+    def create(cls, student, exam, user_answers: list[UserAnswerToQuestion], score, status,
                correct_questions_indexes:list[int]
                ):
-        solution = cls(student, exam, user_anwers, score, status, correct_questions_indexes)
+        solution = cls(student, exam, user_answers, score, status, correct_questions_indexes)
         return solution
 
 
