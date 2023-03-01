@@ -61,7 +61,7 @@ class ExamSolution(models.Model):
     @classmethod
     @validate_arguments
     def create(cls, student, exam, user_answers: list[UserAnswerToQuestion], score, status,
-               correct_questions_indexes:list[int]
+               correct_questions_indexes: list[int]
                ):
         solution = cls(student, exam, user_answers, score, status, correct_questions_indexes)
         return solution
