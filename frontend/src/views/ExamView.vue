@@ -148,7 +148,6 @@ export default class ExamView extends NotificationMixinComponent {
   }
 
   async submitExam() {
-    console.log(this.userAnswers);
     this.submitting = true;
     await api.post('/api/solution/', {
       user_answers: Object.values(this.userAnswers),
