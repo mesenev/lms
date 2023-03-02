@@ -23,6 +23,7 @@ from users.utils import *
 from rest_framework.request import Request
 
 
+
 def index(request, *args, **kwargs):
     return render(request, 'index.html')
 

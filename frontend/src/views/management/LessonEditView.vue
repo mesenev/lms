@@ -36,6 +36,7 @@
         </div>
         <div class="lesson-buttons">
           <EditLessonModal @update-problem-list="updateTaskList($event)"
+                           @update-exam-list="updateExamList($event)"
                            :lesson="lessonEdit"
                            class="edit--lesson-props"/>
           <EditLessonMaterialsModal @update-material-delete="updateMaterialDelete($event)"
@@ -54,6 +55,9 @@
           </cv-content-switcher-button>
           <cv-content-switcher-button class="type-of-task-tab" owner-id="EX">
             Доп. задания
+          </cv-content-switcher-button>
+          <cv-content-switcher-button class="type-of-task-tab" owner-id="Test">
+            Тесты
           </cv-content-switcher-button>
         </cv-content-switcher>
         <section class="content-task-list">
@@ -102,6 +106,17 @@
             </div>
             <h4 v-else class="empty-tasks">Задания отсутствуют</h4>
           </cv-content-switcher-content>
+          <cv-content-switcher-content owner-id="Test">
+            <div v-if="getExams.length > 0">
+              <div v-if="!fetchingLesson" class="extrawork">
+                <exam-list-component :exams-list="getExams"/>
+              </div>
+              <div v-else>
+                <cv-accordion-skeleton/>
+              </div>
+            </div>
+            <h4 v-else class="empty-tasks">Тесты отсутствуют</h4>
+          </cv-content-switcher-content>
         </section>
       </div>
     </div>
@@ -121,18 +136,24 @@ import router from '@/router';
 import lessonStore from '@/store/modules/lesson';
 import materialStore from '@/store/modules/material';
 import problemStore from '@/store/modules/problem';
+import examStore from '@/store/modules/exam';
 import api from '@/store/services/api';
 import _ from 'lodash';
 import {Component, Prop} from 'vue-property-decorator';
+import ExamModel from "@/models/ExamModel";
+import ExamListComponent from "@/components/lists/ExamListComponent.vue";
 
 
-@Component({components: {EditLessonMaterialsModal, EditLessonModal, ProblemListComponent}})
+@Component({components: {
+    ExamListComponent,
+    EditLessonMaterialsModal, EditLessonModal, ProblemListComponent}})
 export default class LessonEditView extends NotificationMixinComponent {
 
   @Prop({required: true}) lessonId!: number;
   store = lessonStore;
   materialStore = materialStore;
   problemStore = problemStore;
+  examStore = examStore;
   fetchingLesson = true;
   lesson: LessonModel = this.store.getNewLesson;
   lessonEdit: LessonModel = {...this.lesson};
@@ -142,7 +163,8 @@ export default class LessonEditView extends NotificationMixinComponent {
   async created() {
     if (this.lessonId) {
       this.lesson = this.store.currentLesson as LessonModel;
-      await this.materialStore.fetchMaterialsByLessonId(this.lesson.id)
+      await this.materialStore.fetchMaterialsByLessonId(this.lesson.id);
+      await this.examStore.fetchExamsByLessonId(this.lesson.id);
     }
     this.lessonEdit = {...this.lesson};
     this.fetchingLesson = false;
@@ -180,6 +202,12 @@ export default class LessonEditView extends NotificationMixinComponent {
     this.problemStore.setProblems({[this.lessonId]: this.lessonEdit.problems});
   }
 
+  updateExamList(new_exam: ExamModel) {
+    this.lessonEdit = {...this.lesson};
+    this.lessonEdit.exams.push(new_exam);
+    this.examStore.setExams({[this.lessonId]: this.lessonEdit.exams});
+  }
+
   updateProblemDelete(deleted_problem_id: number) {
     this.lessonEdit.problems = this.lessonEdit.problems
       .filter(x => x.id != deleted_problem_id);
@@ -197,6 +225,10 @@ export default class LessonEditView extends NotificationMixinComponent {
 
   get getExtrawork(): Array<ProblemModel | CatsProblemModel> {
     return this.lessonEdit.problems.filter(x => x.type === 'EX');
+  }
+
+  get getExams(): Array<ExamModel> {
+    return this.lessonEdit.exams;
   }
 
   searchByTutorial(problems: Array<ProblemModel | CatsProblemModel>):
@@ -219,7 +251,7 @@ export default class LessonEditView extends NotificationMixinComponent {
   margin 2rem
   max-width 23rem
 
-/deep/.bx--text-input
+.text_field /deep/ .bx--text-input
   background-color var(--cds-ui-background)
 
 .cv-date-picker >>> .bx--date-picker__input

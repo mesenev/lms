@@ -13,6 +13,7 @@ import VueRouter, { RouteConfig } from 'vue-router';
 import LoginView from '@/views/LoginView.vue';
 import token from "@/store/modules/token";
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
+import TestView from "@/views/TestView.vue";
 
 Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
