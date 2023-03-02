@@ -69,7 +69,8 @@ class ExamSolutionViewSet(viewsets.ModelViewSet):
                     (current_question['answer_type'] == AnswerTypes.text or current_question['answer_type'] ==
                      AnswerTypes.input):
                 continue
-            if set(answer['submitted_answers']) == set(current_question['correct_answers']):
+            if set(map(lambda ans: (ans.strip()).lower(),  answer['submitted_answers'])) ==\
+                    set(map(lambda ans: (ans.strip()).lower(), current_question['correct_answers'])):
                 current_score += questions[answer['question_index']]['points']
                 correct_questions.append(answer['question_index'])
 
