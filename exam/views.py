@@ -58,9 +58,6 @@ class ExamSolutionViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         request = serializer.context['request']
         validated_data = serializer.validated_data
-        if validated_data['exam'].test_mode == 'manual':
-            serializer.save(student=request.user, status=ExamSolution.SOLUTION_STATUS[0][1], score=0)
-            return
 
         questions = validated_data['exam'].questions
         question_answers = validated_data['user_answers']
@@ -68,9 +65,18 @@ class ExamSolutionViewSet(viewsets.ModelViewSet):
         correct_questions = []
         for answer in question_answers:
             current_question = questions[answer['question_index']]
+            if validated_data['exam'].test_mode == 'auto_and_manual' and \
+                    (current_question['answer_type'] == AnswerTypes.text or current_question['answer_type'] ==
+                     AnswerTypes.input):
+                continue
             if set(answer['submitted_answers']) == set(current_question['correct_answers']):
                 current_score += questions[answer['question_index']]['points']
                 correct_questions.append(answer['question_index'])
+
+        if validated_data['exam'].test_mode == 'manual' or validated_data['exam'].test_mode == 'auto_and_manual':
+            serializer.save(student=request.user, status=ExamSolution.SOLUTION_STATUS[0][1], score=0)
+            return
+
         serializer.save(student=request.user, status=ExamSolution.SOLUTION_STATUS[1][1], score=current_score,
                         correct_questions_indexes=correct_questions)
         return
