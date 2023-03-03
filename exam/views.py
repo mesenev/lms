@@ -37,8 +37,8 @@ class ExamViewSet(viewsets.ModelViewSet):
 
 class ExamSolutionViewSet(viewsets.ModelViewSet):
     serializer_class = ExamSolutionSerializer
-    #permission_classes = [CourseStaffOrReadOnlyForStudents]
-    filterset_fields = ['exam', ]
+    permission_classes = [CourseStaffOrReadOnlyForStudents]
+    filterset_fields = ['exam', 'student']
 
     def get_queryset(self):
         user = self.request.user
@@ -51,9 +51,7 @@ class ExamSolutionViewSet(viewsets.ModelViewSet):
         )
 
     def create(self, request, *args, **kwargs):
-        if request.user.groups.filter(name=TEACHER).exists():
-            return super().create(request, *args, **kwargs)
-        raise exceptions.PermissionDenied
+        return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         request = serializer.context['request']
