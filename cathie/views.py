@@ -85,7 +85,9 @@ class CatsContest(APIView):
 
     def get(self, request: Request):
         """Return list of CatsContents from cats"""
-        return Response(get_contests_from_cats(request.user.cats_account.cats_user_id))
+        if hasattr(request.user, 'cats_account'):
+            return Response(get_contests_from_cats(request.user.cats_account.cats_user_id))
+        return Response(status=404)
 
     def post(self, request):
         """Register user to the contest by [user id] and [logins to add]"""

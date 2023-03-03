@@ -32,11 +32,12 @@
           />
 
           <cv-combo-box
+            :disabled="!userStore.user.cats_account"
             :options="contestsFromCats"
             auto-filter
             auto-highlight
             class="cv-dropdown course--cats"
-            label="Введите название турнира"
+            :label="(!userStore.user.cats_account)? 'Привязать турнир можно только с действующим cats-аккаунтом':'Введите название турнира'"
             @change="setNewCatsId"
           >
           </cv-combo-box>
@@ -137,17 +138,20 @@ export default class CourseEditView extends Vue {
   contestsFromCats: ContestModel[] = [];
 
   async created() {
-    (await this.fetchContests()).forEach(value => {
-      this.contestsFromCats.push({
-        value: value.id.toString(),
-        label: value.name,
-        name: value.name
+    if (this.userStore.user.cats_account)
+      (await this.fetchContests()).forEach(value => {
+        this.contestsFromCats.push({
+          value: value.id.toString(),
+          label: value.name,
+          name: value.name
+        });
       });
-    });
+
     if (this.courseId === null) {
       this.fetchingCourse = false;
       return;
     }
+
     this.course = await this.store.fetchCourseById(this.courseId);
     this.courseEdit = { ...this.course };
     this.deChecks = this.courseEdit.de_options.split(',');
@@ -188,12 +192,12 @@ export default class CourseEditView extends Vue {
   async fetchContests(): Promise<CatsContestModel[]> {
     let answer = { data: {} };
     await api.get('/api/cats-contests/')
-        .then(response => {
-          answer = response;
-        })
-        .catch(error => {
-          console.log(error);
-        })
+      .then(response => {
+        answer = response;
+      })
+      .catch(error => {
+        console.log(error);
+      });
     return answer.data as CatsContestModel[];
   }
 
@@ -289,10 +293,10 @@ export default class CourseEditView extends Vue {
   background-color var(--cds-ui-01)
   padding var(--cds-spacing-05)
 
-  /deep/.bx--text-input
+  /deep/ .bx--text-input
     background-color var(--cds-ui-background)
 
-  /deep/.bx--list-box
+  /deep/ .bx--list-box
     background-color var(--cds-ui-background)
 
   .change-btn:not([disabled = disabled])

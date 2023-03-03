@@ -40,8 +40,6 @@ class ExaminationForm(models.Model):
 
     name = models.CharField(max_length=500)
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, related_name='exams', null=True)
-    students = models.ManyToManyField(User, related_name='exams')
-
     description = models.TextField(default='')
     questions = models.JSONField()
     points = models.IntegerField()

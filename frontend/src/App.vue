@@ -19,12 +19,9 @@
             </cv-link>
           </span>
         </div>
-        <span>
-          <cv-link href="https://t.me/+FBUuuC4qdvc1ZTIy">
-            Чат для обратной связи
-            <FaceWink/>
+          <cv-link class="layout-footer-link" href="https://t.me/+FBUuuC4qdvc1ZTIy">
+            <span><b>Чат для обратной связи</b></span>
           </cv-link>
-        </span>
       </div>
     </footer>
   </div>
@@ -36,13 +33,16 @@
 import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue';
 import LmsHeader from '@/components/LmsHeader.vue';
 import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
+import FaceWink from '@carbon/icons-vue/es/face--wink/16';
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { THEMES } from "@/utils/consts";
 import LoginView from "@/views/LoginView.vue";
 import tokenStore from "@/store/modules/token";
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
 
-@Component({ components: { ResetPasswordView, LoginView, LmsHeader, LmsBreadcrumb, LogoGithub } })
+@Component({ components: {
+  ResetPasswordView, LoginView, LmsHeader, LmsBreadcrumb, LogoGithub, FaceWink
+} })
 export default class App extends Vue {
   //TODO set transition and styles for loader
   @Watch('isLogin')
@@ -155,6 +155,9 @@ export default class App extends Vue {
     background-color #161616
     color var(--cds-text-05)
     font-size 0.7em
+
+    &-link
+      color var(--cds-text-05)
     &-label
       margin var(--cds-spacing-06) var(--cds-spacing-06)
   &-content
