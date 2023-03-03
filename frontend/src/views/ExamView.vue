@@ -1,7 +1,7 @@
 <template>
   <div class="bx--grid">
     <div class="bx--row header-container">
-      <div class="bx--offset-lg-2 main-title">
+      <div :class="{'bx--offset-lg': isStaff, 'bx--offset-lg-2': !isStaff}" class="main-title">
         <h1 v-if="exam && !loading"> {{ exam.name }} </h1>
         <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
         <div class="info-container">
@@ -34,10 +34,24 @@
       </div>
     </div>
     <cv-row class="main-items" justify="center">
-      <cv-column :lg="{'span' : 8, 'offset' : 2}">
-        <div v-if="!loading" class="test-container">
-          <div class="question-container" v-for="(question, index) in exam.questions" :key="index">
-            <h4 class="question-title"> {{ question.text }} </h4>
+      <cv-column :lg="isStaff ? {'span' : 8, 'offset' : 0} : {'span' : 8, 'offset': 2}">
+        <div v-if="!loading" class="test-container" :style="isStaff ? 'margin-left: 1rem' : ''">
+          <div class="question-container" :style="setVerdictBorder(question.index.toString())"
+               v-for="(question, index) in exam.questions"
+               :key="index">
+            <h4 class="question-header">
+              {{ question.text }}
+              <cv-radio-group v-if="isStaff" class="verdict-btns">
+                <cv-radio-button
+                  :checked="!studentSolution.correct_questions_indexes.includes(question.index)"
+                  @click="setVerdict(question.index, false)" label="✖" value="0"
+                  :name="'verdict ' + question.index"/>
+                <cv-radio-button
+                  :checked="studentSolution.correct_questions_indexes.includes(question.index)"
+                  @click="setVerdict(question.index, true)" label="✔" value="1"
+                  :name="'verdict ' + question.index"/>
+              </cv-radio-group>
+            </h4>
             <p class="question-description">{{ question.description }}</p>
             <cv-radio-group class="answers" :vertical="true" v-if="isQuestionRadioType(question)">
               <cv-radio-button v-model="userAnswers[question.index].submitted_answers[0]"
@@ -59,9 +73,9 @@
                           :disabled="isTestSubmitted"/>
           </div>
         </div>
-        <div v-if="!loading" class="submit-container">
+        <div v-if="!loading" class="submit-container" :style="isStaff ? 'margin-left: 1rem' : ''">
           <div class="question-container submit">
-            <cv-button v-if="!submitting" @click="submitExam" :disabled="isTestSubmitted">
+            <cv-button v-if="!submitting" @click="submitHandler" :disabled="!disableHandler">
               Отправить
             </cv-button>
             <cv-button-skeleton v-else/>
@@ -74,6 +88,30 @@
         </div>
         <cv-loading v-else/>
       </cv-column>
+      <cv-column v-if="isStaff">
+        <div class="item">
+          <cv-structured-list class="student-list" condensed selectable @change="changeStudent">
+            <template slot="headings">
+              <cv-structured-list-heading class="pupil-title">Список учеников
+              </cv-structured-list-heading>
+            </template>
+            >
+            <template slot="items">
+              <cv-structured-list-item
+                v-for="student in studentIds"
+                :key="student"
+                :checked="checkedStudent(student)"
+                :value="student.toString()"
+                class="student-list--item"
+                name="student">
+                <cv-structured-list-data>
+                  <user-component :user-id="student" class="student-list--item--user-component"/>
+                </cv-structured-list-data>
+              </cv-structured-list-item>
+            </template>
+          </cv-structured-list>
+        </div>
+      </cv-column>
     </cv-row>
   </div>
 </template>
@@ -82,32 +120,55 @@
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import { Component, Prop } from "vue-property-decorator";
 import examStore from '@/store/modules/exam';
+import solutionStore from '@/store/modules/solution';
 import userStore from '@/store/modules/user';
 import QuestionModel, { ANSWER_TYPE } from "@/models/QuestionModel";
 import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
 import api from "@/store/services/api";
 import { Dictionary } from "vue-router/types/router";
+import SolutionModel from "@/models/SolutionModel";
+import _ from "lodash";
+import UserComponent from "@/components/UserComponent.vue";
 
-@Component({ components: {} })
+@Component({ components: { UserComponent } })
 export default class ExamView extends NotificationMixinComponent {
   @Prop({ required: true }) examId!: number;
+  // @Prop({required: false}) solutionId!: number;
 
   examStore = examStore;
+  solutionStore = solutionStore;
   userStore = userStore;
   changingVisibility = false;
   loading = true;
   isTestSubmitted = false;
   submitting = false;
+  studentSolution: SolutionModel = { ...this.solutionStore.defaultSolution };
+  teacherSolution = { ...this.studentSolution };
+  solutionId = NaN;
 
   userAnswers: Dictionary<{ question_index: number; submitted_answers: Array<string> }> = {};
+
+  verdicts: Dictionary<{ question_index: number; verdict: boolean }> = {};
 
 
   async created() {
     this.exam?.questions.forEach((question) => {
       this.userAnswers[question.index] = { question_index: question.index, submitted_answers: [] };
+      this.verdicts[question.index] = { question_index: question.index, verdict: false };
     })
+    if (this.solutionId) {
+      this.studentSolution = await this.solutionStore.fetchSolutionById(this.solutionId);
+      this.teacherSolution = { ...this.studentSolution };
+      this.studentSolution.correct_questions_indexes.forEach((index) => {
+        this.verdicts[index] = { question_index: index, verdict: true };
+      })
+      this.studentSolution.user_answers.forEach((answer) => {
+        this.userAnswers[answer.question_index] = answer;
+      })
+    }
     this.userAnswers = { ...this.userAnswers };
+    this.verdicts = { ...this.verdicts };
     this.loading = false;
   }
 
@@ -121,6 +182,28 @@ export default class ExamView extends NotificationMixinComponent {
 
   get hiddenIcon() {
     return (this.exam?.is_hidden) ? viewOff : view;
+  }
+
+  setVerdict(question_index: number, verdict: boolean) {
+    if (this.isStaff) {
+      this.teacherSolution.correct_questions_indexes = this.teacherSolution.correct_questions_indexes
+        .filter(x => x !== question_index);
+      if (verdict)
+        this.teacherSolution.correct_questions_indexes.push(question_index);
+      this.verdicts[question_index.toString()] = { question_index, verdict };
+      this.verdicts = { ...this.verdicts };
+    }
+  }
+
+  setVerdictBorder(question_index: string) {
+    if (Object.keys(this.verdicts).includes(question_index) && this.isStaff) {
+      return this.verdicts[question_index].verdict ? 'border: 2px solid yellowgreen' : 'border: 2px solid red'
+    }
+    return 'border: 2px solid var(--cds-ui-01)';
+  }
+
+  get isSolutionChanged(): boolean {
+    return !_.isEqual(this.studentSolution.correct_questions_indexes, this.teacherSolution.correct_questions_indexes);
   }
 
   async changeExamVisibility() {
@@ -147,6 +230,20 @@ export default class ExamView extends NotificationMixinComponent {
     return question.answer_type === ANSWER_TYPE.CHECKBOXES;
   }
 
+  submitHandler() {
+    if (this.isStaff && !isNaN(this.solutionId)) {
+      this.submitSolution();
+    } else {
+      this.submitExam();
+    }
+  }
+
+  get disableHandler() {
+    if (this.isStaff)
+      return this.isSolutionChanged;
+    return true;
+  }
+
   async submitExam() {
     this.submitting = true;
     await api.post('/api/solution/', {
@@ -167,6 +264,29 @@ export default class ExamView extends NotificationMixinComponent {
       this.submitting = false;
     });
   }
+
+  async submitSolution() {
+    let points = 0;
+    this.teacherSolution.correct_questions_indexes.forEach((index) => {
+      this.exam?.questions.forEach((question) => {
+        if (question.index === index)
+          points += question.points;
+      })
+    })
+    await api.patch(`/api/solution/${this.solutionId}/`, {
+      correct_questions_indexes: this.teacherSolution.correct_questions_indexes,
+      score: points,
+    }).then(() => {
+      this.notificationKind = 'success';
+      this.notificationText = "Тест успешно оценен";
+      this.studentSolution = { ...this.teacherSolution };
+    }).catch(error => {
+      this.notificationKind = 'error';
+      this.notificationText = `Что-то пошло не так: ${error.message}`;
+    }).finally(() => {
+      this.showNotification = true;
+    });
+  }
 }
 </script>
 
@@ -177,6 +297,9 @@ h1
 
 span
   margin-left 0.5rem
+
+.main-title
+  margin-top 1rem
 
 .info-container
   display block
@@ -209,8 +332,13 @@ span
   padding 1rem
   width 70%
 
-.question-title
+.question-header
   margin-bottom 0.5rem
+  display flex
+  justify-content space-between
+
+.verdict-btns
+  max-width fit-content
 
 .question-description
   margin-left 0.5rem
@@ -251,5 +379,5 @@ span
 
 .submit
   width fit-content
-  margin-top 0.5rem
+  margin-top 1.5rem
 </style>

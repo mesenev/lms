@@ -85,7 +85,7 @@ class ExamSolutionViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         request_data = request.data
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request_data)
+        serializer = self.get_serializer(instance, data=request_data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
