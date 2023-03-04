@@ -1,6 +1,7 @@
 from rest_framework import permissions
 from course.models import Course
 from lesson.models import LessonContent, Attachment
+from exam.models import ExaminationForm, ExamSolution
 
 from rest_framework.permissions import IsAuthenticated
 
@@ -21,6 +22,10 @@ def object_to_course(obj):
         course = obj.problem.lesson.course
     if isinstance(obj, LessonContent):
         course = obj.lesson.course
+    if isinstance(obj, ExaminationForm):
+        course = obj.lesson.course
+    if isinstance(obj, ExamSolution):
+        course = obj.exam.lesson.course
     if isinstance(obj, Attachment):
         course = obj.material.lesson.course
     if hasattr(obj, 'course'):
@@ -29,6 +34,8 @@ def object_to_course(obj):
         course = obj.lesson.course
     if hasattr(obj, 'problem'):
         course = obj.problem.lesson.course
+    if hasattr(obj, 'exam'):
+        course = obj.exam.lesson.course
     if not course:
         raise Exception
     return course
