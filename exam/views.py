@@ -1,5 +1,5 @@
 from rest_framework import viewsets, exceptions
-from users.permissions import CourseStaffOrReadOnlyForStudents
+from users.permissions import CourseStaffOrAuthorReadOnly, CourseStaffOrReadOnlyForStudents
 from exam.models import ExaminationForm, ExamSolution, AnswerTypes
 from django.db.models import Q
 from imcslms.default_settings import TEACHER
@@ -37,17 +37,14 @@ class ExamViewSet(viewsets.ModelViewSet):
 
 class ExamSolutionViewSet(viewsets.ModelViewSet):
     serializer_class = ExamSolutionSerializer
-    permission_classes = [CourseStaffOrReadOnlyForStudents]
+    permission_classes = [CourseStaffOrAuthorReadOnly]
     filterset_fields = ['exam', 'student']
 
     def get_queryset(self):
         user = self.request.user
         return ExamSolution.objects.all().filter(
-            (Q(exam__is_hidden=False)
-             & Q(exam__lesson__course__in=user.student_for.all())
-             )
-            | Q(exam__lesson__course__in=user.staff_for.all())
-            | Q(exam__lesson__course__in=user.author_for.all())
+            Q(exam__lesson__course__in=user.staff_for.all())
+            | Q(exam__lesson__course__in=user.author_for.all()) | Q(student=user)
         )
 
     def create(self, request, *args, **kwargs):
