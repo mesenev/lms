@@ -63,7 +63,7 @@ class ExamSolution(models.Model):
     exam = models.ForeignKey(ExaminationForm, on_delete=models.CASCADE, related_name='exam_solutions', null=False)
     user_answers = models.JSONField(default=[])
     score = models.IntegerField()
-    status = models.CharField(max_length=30, choices=SOLUTION_STATUS, default='AWAIT VERIFICATION')
+    status = models.CharField(max_length=30, choices=SOLUTION_STATUS, default='await')
     correct_questions_indexes = models.JSONField(default=[])
 
     @classmethod
