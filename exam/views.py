@@ -47,12 +47,12 @@ class ExamSolutionViewSet(viewsets.ModelViewSet):
             | Q(exam__lesson__course__in=user.author_for.all()) | Q(student=user)
         )
 
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
     def perform_create(self, serializer):
         request = serializer.context['request']
         validated_data = serializer.validated_data
+
+        if ExamSolution.objects.all().filter(exam=validated_data['exam']).filter(student=request.user):
+            raise exceptions.APIException('attempt limit exceeded')
 
         questions = validated_data['exam'].questions
         question_answers = validated_data['user_answers']
