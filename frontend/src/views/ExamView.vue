@@ -165,9 +165,21 @@ export default class ExamView extends NotificationMixinComponent {
 
 
   async created() {
-    if (this.isStaff && this.solutionId) {
-      this.studentSolution = await this.solutionStore.fetchSolutionById(this.solutionId)
+    if (this.solutionId) {
+      if (this.isStaff)
+        this.studentSolution = await this.solutionStore.fetchSolutionById(this.solutionId);
       this.studentId = this.studentSolution.student;
+    } else if (!this.isStaff) {
+      try {
+        await this.solutionStore.fetchSolutionsByExamAndUser({
+          examId: this.exam?.id as number,
+          userId: this.userStore.user.id
+        }).then(response => {
+          this.studentSolution = { ...response[0] };
+        })
+      } catch (error) {
+        this.studentSolution = { ...this.solutionStore.defaultSolution };
+      }
     }
     await this.initFields();
     this.loading = false;
@@ -299,11 +311,15 @@ export default class ExamView extends NotificationMixinComponent {
   }
 
   submitHandler() {
-    if (this.isStaff && !this.solutionId) {
+    if (this.isStaff && this.solutionId) {
       this.submitSolution();
     } else {
       this.submitExam();
     }
+  }
+
+  get isStudentSolutionExist() {
+    return this.submittedSolutions.filter(x => x.student === this.userStore.user.id).length > 0;
   }
 
   get disableHandler() {
@@ -314,9 +330,9 @@ export default class ExamView extends NotificationMixinComponent {
 
   get disableField() {
     if (this.isStaff) {
-      return false;
+      return true;
     }
-    return this.isTestSubmitted || this.submittedSolutions.filter(x => x.student === this.userStore.user.id).length > 0;
+    return this.isTestSubmitted || this.isStudentSolutionExist;
   }
 
   async changeStudent(id: number) {

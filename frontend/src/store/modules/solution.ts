@@ -33,7 +33,7 @@ class SolutionModule extends VuexModule {
     let answer = {};
     await api.get('/api/solution/', {
       params: {
-        solution: payload.examId,
+        exam: payload.examId,
         user: payload.userId,
       }
     }).then(response => {
