@@ -7,9 +7,14 @@ const examRoutes: Array<RouteConfig> = [
     path: '',
     name: 'ExamView',
     component: ExamView,
+  },
+  {
+    path: 'solution/:solutionId',
+    name: 'ExamViewWithSolution',
+    component: ExamView,
     props: (route) => {
-      const examId = Number.parseInt(route.params.examId as string, 10);
-      return { examId, ...route.params };
+      const solutionId = Number.parseInt(route.params.solutionId as string, 10);
+      return { solutionId, ...route.params };
     },
   },
   {

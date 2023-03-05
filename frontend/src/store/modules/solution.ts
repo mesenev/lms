@@ -7,6 +7,10 @@ import api from "@/store/services/api";
 class SolutionModule extends VuexModule {
   _solutions: SolutionModel[] = [];
 
+  get solutions(): Array<SolutionModel> {
+    return this._solutions;
+  }
+
   get defaultSolution(): SolutionModel {
     return {
       id: NaN,
@@ -25,7 +29,7 @@ class SolutionModule extends VuexModule {
   }
 
   @Action
-  async fetchSolutionByExamAndUser(payload: { examId: number; userId: number }): Promise<SolutionModel[]> {
+  async fetchSolutionsByExamAndUser(payload: { examId: number; userId: number }): Promise<SolutionModel[]> {
     let answer = {};
     await api.get('/api/solution/', {
       params: {
@@ -42,12 +46,29 @@ class SolutionModule extends VuexModule {
   }
 
   @Action
+  async fetchSolutionsByExam(examId: number): Promise<SolutionModel[]> {
+    let answer = {};
+    await api.get('/api/solution/', {
+      params: {
+        exam: examId,
+      }
+    }).then(response => {
+      answer = response.data;
+      this.setSolutions(response.data);
+    }).catch(error => {
+      console.log(error);
+    });
+    return answer as Array<SolutionModel>;
+  }
+
+  @Action({rawError: true})
   async fetchSolutionById(id: number): Promise<SolutionModel> {
     let answer = {};
     await api.get(`/api/solution/${id}/`).then(response => {
       answer = response.data;
     }).catch(error => {
       console.log(error);
+      throw error;
     });
     return answer as SolutionModel;
   }

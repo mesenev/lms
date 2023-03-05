@@ -1,6 +1,6 @@
 <template>
   <div>
-    <router-link :to="openExam(exam)" class="list-element" v-for="exam in examsList" :key="exam.id">
+    <router-link :to="target(exam)" class="list-element" v-for="exam in examsList" :key="exam.id">
       <div class="content-wrapper">
         <div class="title-wrapper">
           <h5 class="list-element--title"> {{ exam.name }} </h5>
@@ -13,15 +13,24 @@
 <script lang="ts">
 import ExamModel from "@/models/ExamModel";
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import examStore from "@/store/modules/exam"
+import solutionStore from '@/store/modules/solution';
 
 @Component({ components: {} })
 export default class ExamListComponent extends Vue {
   @Prop({ required: true }) examsList!: Array<ExamModel>;
+  @Prop({ required: false }) isStaff!: boolean;
+  solutionStore = solutionStore;
 
-  examStore = examStore;
-
-  openExam(exam: ExamModel) {
+  target(exam: ExamModel) {
+    if (this.isStaff && this.solutionStore.solutions)
+      return {
+        name: 'ExamViewWithSolution', params: {
+          courseId: this.$route.params.courseId,
+          lessonId: this.$route.params.lessonId,
+          examId: exam.id.toString(),
+          solutionId: this.solutionStore.solutions[this.solutionStore.solutions.length - 1].id.toString(),
+        }
+      }
     return { name: 'ExamView', params: { examId: exam.id.toString() } };
   }
 }

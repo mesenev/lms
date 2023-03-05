@@ -11,6 +11,7 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import ExamModel from "@/models/ExamModel";
 import examStore from '@/store/modules/exam';
+import solutionStore from '@/store/modules/solution';
 
 @Component({components: {}})
 export default class ExamViewLayout extends Vue {
@@ -18,12 +19,14 @@ export default class ExamViewLayout extends Vue {
 
   exam: ExamModel | null = null;
   examStore = examStore;
+  solutionStore = solutionStore
 
   async created() {
+    console.log('layout');
     this.examStore.changeCurrentExam(null);
     this.exam = await this.examStore.fetchExamById(this.examId);
     this.examStore.changeCurrentExam(this.exam);
-    await this.examStore.fetchExamsByLessonId(this.exam.lesson);
+    this.solutionStore.setSolutions(await this.solutionStore.fetchSolutionsByExam(this.examId));
   }
 }
 </script>
