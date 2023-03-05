@@ -22,7 +22,6 @@ export default class ExamViewLayout extends Vue {
   solutionStore = solutionStore
 
   async created() {
-    console.log('layout');
     this.examStore.changeCurrentExam(null);
     this.exam = await this.examStore.fetchExamById(this.examId);
     this.examStore.changeCurrentExam(this.exam);

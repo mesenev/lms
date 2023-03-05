@@ -61,20 +61,20 @@
               <cv-radio-button v-model="userAnswers[question.index].submitted_answers[0]"
                                v-for="(answer, id) in question.all_answers" :key="id" :name="index"
                                :label="answer" :value="answer"
-                               :disabled="isTestSubmitted"/>
+                               :disabled="disableField"/>
             </cv-radio-group>
             <div class="answers-checkbox" v-else-if="isQuestionCheckboxType(question)">
               <cv-checkbox v-model="userAnswers[question.index].submitted_answers"
                            v-for="(answer, id) in question.all_answers" :key="id"
                            :value="answer"
-                           :label="answer" :disabled="isTestSubmitted"/>
+                           :label="answer" :disabled="disableField"/>
             </div>
             <cv-text-input v-model="userAnswers[question.index].submitted_answers[0]"
                            v-else-if="isQuestionInputType(question)" placeholder="Введите ответ"
-                           :disabled="isTestSubmitted"/>
+                           :disabled="disableField"/>
             <cv-text-area v-model="userAnswers[question.index].submitted_answers[0]"
                           v-else-if="isQuestionTextType(question)" placeholder="Введите ответ"
-                          :disabled="isTestSubmitted"/>
+                          :disabled="disableField"/>
           </div>
         </div>
         <div v-if="isStaff ? !loading && !solutionLoading : !loading" class="submit-container"
@@ -115,7 +115,8 @@
               </cv-structured-list-item>
             </template>
             <template v-else slot="items">
-              <empty-list-component class="empty-list" text="Решения отсутствуют" list-of="solutions"/>
+              <empty-list-component class="empty-list" text="Решения отсутствуют"
+                                    list-of="solutions"/>
             </template>
           </cv-structured-list>
         </div>
@@ -143,7 +144,7 @@ import EmptyListComponent from "@/components/EmptyListComponent.vue";
 
 @Component({ components: { EmptyListComponent, UserComponent } })
 export default class ExamView extends NotificationMixinComponent {
-  @Prop({required: false, default: null}) solutionIdProp!: number | null;
+  @Prop({ required: false, default: null }) solutionIdProp!: number | null;
 
   examStore = examStore;
   solutionStore = solutionStore;
@@ -308,7 +309,14 @@ export default class ExamView extends NotificationMixinComponent {
   get disableHandler() {
     if (this.isStaff)
       return this.isSolutionChanged;
-    return true;
+    return !this.disableField;
+  }
+
+  get disableField() {
+    if (this.isStaff) {
+      return false;
+    }
+    return this.isTestSubmitted || this.submittedSolutions.filter(x => x.student === this.userStore.user.id).length > 0;
   }
 
   async changeStudent(id: number) {
