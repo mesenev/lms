@@ -2,8 +2,11 @@
 # ex: set filetype=python:
 import os
 
+import dotenv
 from buildbot.plugins import *
 
+
+dotenv.load_dotenv('home/buildbot/buildbot.env')
 c = BuildmasterConfig = dict()
 c['buildbotNetUsageData'] = 'basic'
 repository_url = 'https://github.com/mesenev/lms.git'

@@ -4,7 +4,7 @@ import subprocess
 import dotenv
 
 
-def push_composition():
+def pull_composition():
     dotenv.load_dotenv('home/buildbot/buildbot.env')
 
     def build_message_registry_login(code):
@@ -12,10 +12,10 @@ def push_composition():
             return 'Failed to login to the registry.'
         return 'Registry login has been succeeded.'
 
-    def build_message_push(code):
+    def build_message_pull(code):
         if code:
-            return 'Composition images failed to push.'
-        return 'Composition images push to registry succeed.🐳'
+            return 'Composition images failed to pull.'
+        return 'Composition images pulled from registry succeed.'
 
     message = ""
     print("Login to docker registry")
@@ -28,17 +28,12 @@ def push_composition():
         ]).returncode
     message = build_message_registry_login(exec_code)
 
-    print('Push composition images to registry.')
-    subprocess.run([
-        "docker", "tag",
-        "registry.mesenev.ru/lms/backend:latest",
-        "registry.mesenev.ru/lms/backend:latest"
-    ])
+    print('Pull composition images to registry🐳')
     exec_code = subprocess.run(
         [
             "docker",
-            "push",
+            "pull",
             "registry.mesenev.ru/lms/backend:latest"
         ]).returncode
-    message = '\n'.join([message, build_message_push(exec_code)])
+    message = '\n'.join([message, build_message_pull(exec_code)])
     return exec_code, message
