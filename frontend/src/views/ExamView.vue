@@ -94,6 +94,18 @@
         <cv-loading v-else/>
       </cv-column>
       <cv-column v-if="isStaff">
+        <div v-if="!loading && solutionId" class="results-container">
+          <div v-if="!solutionLoading" class="results">
+            <span> Статус: <strong>{{ status }}</strong> </span>
+            <span>
+              Итоговый балл:
+              <strong>{{ finalScore }}</strong>
+              из
+              <strong>{{ exam.points }}</strong>
+            </span>
+          </div>
+          <cv-inline-loading v-else :active="true"/>
+        </div>
         <div v-if="!loading" class="item student-list-container">
           <cv-structured-list class="student-list" condensed selectable @change="changeStudent">
             <template slot="headings">
@@ -224,6 +236,20 @@ export default class ExamView extends NotificationMixinComponent {
 
   get exam() {
     return this.examStore.currentExam;
+  }
+
+  get finalScore() {
+    return this.exam?.questions
+      .filter(x => this.studentSolution.correct_questions_indexes.includes(x.index))
+      .map(x => x.points)
+      .reduce((a, b) => a + b, 0);
+  }
+
+  get status() {
+    console.log(this.studentSolution.status);
+    if (['AWAIT VERIFICATION', 'await'].includes(this.studentSolution.status))
+      return 'Ожидает проверки';
+    return 'Проверено';
   }
 
   get hiddenIcon() {
@@ -371,10 +397,12 @@ export default class ExamView extends NotificationMixinComponent {
     })
     await api.patch(`/api/solution/${this.solutionId}/`, {
       correct_questions_indexes: this.teacherSolution.correct_questions_indexes,
+      status: 'verified',
       score: points,
     }).then(() => {
       this.notificationKind = 'success';
       this.notificationText = "Тест успешно оценен";
+      this.teacherSolution.status = 'verified';
       this.studentSolution = { ...this.teacherSolution };
     }).catch(error => {
       this.notificationKind = 'error';
@@ -391,8 +419,12 @@ h1
   color var(--cds-ui-05)
   font-weight bold
 
-span
-  margin-left 0.5rem
+.test-info
+  span
+    margin-left 0.5rem
+
+  span:not(:first-of-type)
+    margin-left 1rem
 
 .main-title
   margin-top 1rem
@@ -415,6 +447,14 @@ span
 
 .visibility
   margin-left 1rem
+
+.results-container
+  padding 1rem
+  margin-bottom 0.5rem
+  background-color var(--cds-ui-01)
+  .results
+    display flex
+    justify-content space-between
 
 .student-list--item--user-component
   padding-left 1rem
