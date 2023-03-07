@@ -4,6 +4,7 @@ from lesson.models import Lesson, LessonContent, Attachment
 from problem.serializers import ProblemSerializer
 from rating.serializers import LessonProgressSerializer
 from users.serializers import DefaultUserSerializer
+from exam.serializers import ExamSerializer
 
 
 class AttachmentSerializer(serializers.ModelSerializer):
@@ -69,6 +70,7 @@ class LessonSerializer(serializers.ModelSerializer):
     problems = ProblemSerializer(many=True, read_only=True)
     materials = MaterialSerializer(many=True, read_only=True)
     progress = LessonProgressSerializer(many=True, read_only=True)
+    exams = ExamSerializer(many=True, read_only=True)
 
     def create(self, validated_data):
         if 'materials' in validated_data:
@@ -77,6 +79,8 @@ class LessonSerializer(serializers.ModelSerializer):
             del validated_data["problems"]
         if 'progress' in validated_data:
             del validated_data["progress"]
+        if 'exams' in validated_data:
+            del validated_data["exams"]
         request = self.context.get("request")
         user = request.user if request and hasattr(request, 'user') else None
         validated_data['scores'] = {'CW': 50, 'HW': 50, 'EX': 10}

@@ -2,105 +2,104 @@ version: "3.3"
 
 
 services:
-    nginx:
-        container_name: nginx
-        image: nginx:1.17-alpine
-        restart: on-failure
-        volumes:
-            - "./conf/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
-            - "./conf/nginx/common.conf:/etc/nginx/common.conf:ro"
-            - "./conf/nginx/server.conf:/etc/nginx/server.conf:ro"
-            -   type: volume
-                source: v-static
-                target: /application/static
-                read_only: true
-                volume:
-                    nocopy: true
-            -   type: volume
-                source: v-media
-                target: /application/media
-                read_only: true
-                volume:
-                    nocopy: true
-        networks:
-            - nginx-net
-        ports:
-            - "127.0.0.1:8000:80"
-        depends_on:
-            - backend
+  nginx:
+    container_name: nginx
+    image: nginx:alpine
+    restart: unless-stopped
+    volumes:
+      - "./conf/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
+      - "./conf/nginx/common.conf:/etc/nginx/common.conf:ro"
+      - "./conf/nginx/server.conf:/etc/nginx/server.conf:ro"
+      - type: volume
+        source: v-static
+        target: /application/static
+        read_only: true
+        volume:
+          nocopy: true
+      - type: volume
+        source: v-media
+        target: /application/media
+        read_only: true
+        volume:
+          nocopy: true
+    networks:
+      - nginx-net
+    ports:
+      - "127.0.0.1:8000:80"
+    depends_on:
+      - backend
 
-    database:
-        container_name: database
-        image: postgres:14
-        env_file:
-            - "./conf/common.env"
-        volumes:
-            - "./conf/postgres/postgresql.conf:/etc/postgresql/postgresql.conf"
-            - "v-database:/var/lib/postgresql/data"
-        networks:
-            - db-net
-        ports:
-            - "5432:5432"
+  database:
+    container_name: database
+    image: postgres:14
+    restart: unless-stopped
+    env_file:
+      - "./conf/common.env"
+    volumes:
+      - "./conf/postgres/postgresql.conf:/etc/postgresql/postgresql.conf"
+      - "v-database:/var/lib/postgresql/data"
+    networks:
+      - db-net
+    ports:
+      - "5432:5432"
 
-    backend:
-        container_name: backend
-        build:
-            context: ../.
-            dockerfile: ./.docker/Dockerfile
-        image: backend:latest
-        command: "sh /application/.docker/conf/gunicorn/django.sh"
-        volumes:
-            - v-media:/application/media
-            - v-static:/application/static
-        working_dir: /application
-        depends_on:
-            - database
-            - redis
-        env_file:
-            - "conf/common.env"
-            - "conf/server.env"
-        environment:
-            PYTHONUNBUFFERED: 1
-        expose:
-            - '8080'
-        networks:
-            - db-net
-            - nginx-net
+  backend:
+    container_name: backend
+    build:
+      context: ../.
+      dockerfile: ./.docker/Dockerfile
+    image: registry.mesenev.ru/lms/backend:latest
+    command: "sh /application/.docker/conf/gunicorn/django.sh"
+    restart: unless-stopped
+    volumes:
+      - v-media:/application/media
+      - v-static:/application/static
+    working_dir: /application
+    depends_on:
+      - database
+      - redis
+    env_file:
+      - "conf/common.env"
+      - "conf/server.env"
+    environment:
+      PYTHONUNBUFFERED: 1
+    expose:
+      - '8080'
+    networks:
+      - db-net
+      - nginx-net
 
 
-    redis:
-        container_name: redis
-        image: redis:5.0.6-alpine
-        networks:
-            - db-net
+  redis:
+    container_name: redis
+    image: redis:5.0.6-alpine
+    restart: unless-stopped
+    networks:
+      - db-net
 
-    beat:
-        container_name: beat
-        image: backend:latest
-        command: "sh .docker/conf/gunicorn/celery.sh"
-        env_file:
-            - "conf/common.env"
-            - "conf/server.env"
-        networks:
-            - db-net
-        ports:
-            - "7999:7999"
-        depends_on:
-            - database
-            - redis
-            - backend
+  beat:
+    container_name: beat
+    restart: unless-stopped
+    image: registry.mesenev.ru/lms/backend:latest
+    command: "sh .docker/conf/gunicorn/celery.sh"
+    env_file:
+      - "conf/common.env"
+      - "conf/server.env"
+    networks:
+      - db-net
+    ports:
+      - "7999:7999"
+    depends_on:
+      - database
+      - redis
+      - backend
 
 networks:
-    db-net:
-    nginx-net:
+  db-net:
+  nginx-net:
 
 volumes:
-    v-database:
-    v-redis:
-    v-static:
-    v-media:
-        driver: local
-        driver_opts:
-            type: 'none'
-            o: 'bind'
-            device: 'media'
+  v-database:
+  v-redis:
+  v-static:
+  v-media:

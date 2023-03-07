@@ -3,6 +3,8 @@ from django.db import models
 import os
 from course.models import Course
 from users.models import User
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 
 
 def attachment_file_name(instance, filename):
@@ -49,6 +51,11 @@ class Attachment(models.Model):
 
     def __str__(self):
         return self.name
+
+
+@receiver(pre_delete, sender=Attachment)
+def delete_file_hook(sender, instance, using, **kwargs):
+    instance.file_url.delete()
 
 
 admin.site.register(Attachment)

@@ -6,6 +6,8 @@ import MaterialEditView from '@/views/management/MaterialEditView.vue';
 import MaterialView from '@/views/MaterialView.vue';
 import ProblemViewLayout from '@/views/ProblemViewLayout.vue';
 import { RouteConfig } from 'vue-router';
+import examRoutes from "@/router/exam";
+import ExamViewLayout from "@/views/ExamViewLayout.vue";
 
 const lessonRoutes: Array<RouteConfig> = [
   {
@@ -26,6 +28,17 @@ const lessonRoutes: Array<RouteConfig> = [
     props: (route) => {
       const problemId = Number.parseInt(route.params.problemId as string, 10);
       return { problemId, ...route.params };
+    },
+  },
+  {
+    path: 'exam/:examId',
+    component: ExamViewLayout,
+    children: [
+      ...examRoutes,
+    ],
+    props: (route) => {
+      const examId = Number.parseInt(route.params.examId as string, 10);
+      return { examId, ...route.params };
     },
   },
   {

@@ -386,7 +386,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
   height 82%
 
 .wrapper-for_controll-overflow-list
-  height 100%
+  height calc(491px)
   overflow scroll
   overflow-x hidden
   padding 0 0.5rem

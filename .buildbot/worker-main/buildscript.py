@@ -15,7 +15,7 @@ steps = [
     chdir('frontend'),
     ws.build_frontend,
     chdir('..'),
-    ws.build_backend,
+    ws.build_composition,
     ws.test_backend,
     ws.deploy_backend,
 ]

@@ -10,7 +10,7 @@ def build_message(code):
 def test_backend():
     exec_code = subprocess.run(
         [
-            'docker-compose',
+            "docker", "compose",
             '-f',
             ".docker/docker-compose.prod.yml",
             'run',

@@ -15,8 +15,9 @@ steps = [
     chdir('frontend'),
     ws.build_frontend,
     chdir('..'),
-    ws.build_backend,
+    ws.build_composition,
     ws.test_backend,
+    ws.push_composition,
 ]
 
 if __name__ == '__main__':

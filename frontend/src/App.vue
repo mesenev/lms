@@ -1,6 +1,6 @@
 <template>
   <cv-loading v-if="isLoading" overlay style="background: white"/>
-  <div v-else-if="!isLoading && isLogin" :class="current_theme" class="layout">
+  <div v-else-if="isLogin" :class="current_theme" class="layout">
     <lms-header @toggle-theme="toggleTheme($event)" class="layout-header"/>
     <main class="layout-content">
       <lms-breadcrumb class="main--breadcrumb"/>
@@ -19,36 +19,41 @@
             </cv-link>
           </span>
         </div>
-        <span>
-          <cv-link href="https://t.me/+FBUuuC4qdvc1ZTIy">
-            Чат для обратной связи
-            <FaceWink/>
+          <cv-link class="layout-footer-link" href="https://t.me/+FBUuuC4qdvc1ZTIy">
+            <span><b>Чат для обратной связи</b></span>
           </cv-link>
-        </span>
       </div>
     </footer>
   </div>
-  <LoginView v-else></LoginView>
+  <reset-password-view v-else-if="isResetPassword"></reset-password-view>
+  <LoginView v-else-if="shouldRedirectToLogin"></LoginView>
 </template>
 
 <script lang="ts">
 import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue';
 import LmsHeader from '@/components/LmsHeader.vue';
 import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
+import FaceWink from '@carbon/icons-vue/es/face--wink/16';
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { THEMES } from "@/utils/consts";
 import LoginView from "@/views/LoginView.vue";
 import tokenStore from "@/store/modules/token";
+import ResetPasswordView from "@/views/ResetPasswordView.vue";
 
-@Component({ components: { LoginView, LmsHeader, LmsBreadcrumb, LogoGithub } })
+@Component({ components: {
+  ResetPasswordView, LoginView, LmsHeader, LmsBreadcrumb, LogoGithub, FaceWink
+} })
 export default class App extends Vue {
   //TODO set transition and styles for loader
   @Watch('isLogin')
-  onIsLoginChanged(new_val: boolean) {
+  onIsLoginChanged(new_val: boolean, old_val: boolean) {
+    console.log(new_val, old_val)
     if (new_val) {
-      this.$router.push(((this.$route.query.nextUrl) ?? "/") as string);
+        this.$router.push(((this.$route.query.nextUrl) ?? "/") as string);
     } else {
-      this.$router.push('/login');
+      if (this.shouldRedirectToLogin) {
+        this.$router.push('/login');
+      }
     }
   }
 
@@ -65,6 +70,14 @@ export default class App extends Vue {
 
   get isLogin() {
     return tokenStore.isAuthenticated;
+  }
+
+  get isResetPassword() {
+    return this.$route.name === 'ResetPasswordView';
+  }
+
+  get shouldRedirectToLogin() {
+    return !this.isLogin && !this.isResetPassword;
   }
 
   async created() {
@@ -142,6 +155,9 @@ export default class App extends Vue {
     background-color #161616
     color var(--cds-text-05)
     font-size 0.7em
+
+    &-link
+      color var(--cds-text-05)
     &-label
       margin var(--cds-spacing-06) var(--cds-spacing-06)
   &-content

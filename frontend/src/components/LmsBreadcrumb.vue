@@ -15,6 +15,14 @@
         page-view="LessonView"
       />
       <lms-breadcrumb-item
+        v-if="examSelected.selected"
+        :model="examStore.currentExam"
+        page-view="ExamView"/>
+      <lms-breadcrumb-item
+        v-if="examEditSelected.selected"
+        :model="examEditSelected.value"
+        page-view="exam-edit"/>
+      <lms-breadcrumb-item
         v-if="problemSelected.selected"
         :model="problemStore.currentProblem"
         page-view="ProblemView"
@@ -45,6 +53,7 @@ import courseStore from '@/store/modules/course';
 import lessonStore from '@/store/modules/lesson';
 import materialStore from '@/store/modules/material';
 import problemStore from '@/store/modules/problem';
+import examStore from '@/store/modules/exam';
 import { Component, Vue } from "vue-property-decorator";
 
 @Component({ components: { LmsBreadcrumbItem } })
@@ -53,6 +62,7 @@ export default class LmsBreadcrumb extends Vue {
   lessonStore = lessonStore;
   courseStore = courseStore;
   materialStore = materialStore;
+  examStore = examStore;
 
   private isSelected(param: string) {
     const selected = this.$route.params.hasOwnProperty(param) && !!this.$route.params[param];
@@ -76,6 +86,20 @@ export default class LmsBreadcrumb extends Vue {
 
   get materialSelected() {
     return this.isSelected('materialId');
+  }
+
+  get examSelected() {
+    return this.isSelected('examId');
+  }
+
+  get examEditSelected() {
+    let selected = false;
+    let value = null;
+    if (this.$route.name === 'exam-edit') {
+      selected = true;
+      value = { id: this.$route.params['examId'], name: 'Редактирование теста' };
+    }
+    return { selected, value };
   }
 
   get courseEditSelected() {
