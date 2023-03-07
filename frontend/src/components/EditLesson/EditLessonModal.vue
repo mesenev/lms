@@ -6,18 +6,18 @@
     <cv-modal
       :primary-button-disabled="addButtonDisabled"
       :visible="modalVisible"
-      class="add_lesson_modal" :size="isExamsSelected ? 'large' : 'default'"
+      class="add_lesson_modal" size="default"
       @modal-hidden="modalHidden"
       @primary-click="primaryHandler">
       <template slot="label">{{ lesson.name }}</template>
       <template slot="title">
         Добавить задание
         <cv-content-switcher class="switcher" @selected="actionSelected">
-          <cv-content-switcher-button @click.native="setContentType('Problems')" owner-id="Problems"
+          <cv-content-switcher-button owner-id="Problems"
                                       selected>
             Импортировать задачу из cats
           </cv-content-switcher-button>
-          <cv-content-switcher-button @click.native="setContentType('Exams')" owner-id="Exams">
+          <cv-content-switcher-button owner-id="Exams">
             Создать тест
           </cv-content-switcher-button>
         </cv-content-switcher>
@@ -87,34 +87,20 @@
             </div>
           </cv-content-switcher-content>
           <cv-content-switcher-content owner-id="Exams">
-            <div :class="expanded ? 'expand-container expanded' : 'expand-container'">
-              <div @click="expand" class="expand-container-head">
+            <div class="exam-container">
+              <div class="exam-container-head">
                 <p>Настройки теста</p>
-                <component class="expand-btn" :is="expanded ? chevronUp : chevronDown"/>
-              </div>
-              <div class="expand-fields">
-                <cv-dropdown :up="true" v-model="exam.test_mode" class="testing-type-dropdown"
+                <cv-dropdown v-model="exam.test_mode" class="testing-type-dropdown"
                              label="Способ тестирования"
-                             placeholder="Выберите способ тестирования">
+                             placeholder="Тестирование">
                   <cv-dropdown-item value="auto">Auto</cv-dropdown-item>
                   <cv-dropdown-item value="manual">Manual</cv-dropdown-item>
                   <cv-dropdown-item value="auto_and_manual">Auto & Manual</cv-dropdown-item>
                 </cv-dropdown>
+              </div>
+              <div class="exam-fields">
                 <cv-text-input v-model="exam.name" label="Название теста"/>
                 <cv-text-area v-model="exam.description" label="Описание"/>
-                <!--                <cv-date-picker kind="single" date-label="Дедлайн"/>-->
-              </div>
-            </div>
-            <div class="questions" v-for="(question, index) in exam.questions" :key="index">
-              <exam-question-component :_question="question"
-                                       @delete-question="deleteQuestion(question)"/>
-            </div>
-            <div class="action-container">
-              <div class="action-btns">
-                <component class="action-btn" :is="addAlt" @click="addQuestion"/>
-                <component class="action-btn" :is="image24"/>
-                <component class="action-btn" :is="videoAdd"/>
-                <component class="action-btn" :is="attachment"/>
               </div>
             </div>
             <cv-inline-notification
@@ -125,7 +111,8 @@
           </cv-content-switcher-content>
         </section>
       </template>
-      <template slot="primary-button">{{ isExamsSelected ? 'Создать тест' : 'Добавить задачу' }}
+      <template slot="primary-button">
+        {{ isExamsSelected ? 'Создать тест и перейти к редактированию' : 'Добавить задачу' }}
       </template>
     </cv-modal>
   </div>
@@ -145,15 +132,10 @@ import { Component, Prop } from 'vue-property-decorator';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import api from '@/store/services/api';
 import ExamQuestionComponent from "@/components/ExamQuestionComponent.vue";
-import chevronUp from "@carbon/icons-vue/lib/chevron--up/24";
-import chevronDown from "@carbon/icons-vue/lib/chevron--down/24";
-import addAlt from "@carbon/icons-vue/lib/add--alt/24";
-import videoAdd from "@carbon/icons-vue/lib/video--add/24";
-import image24 from "@carbon/icons-vue/lib/image/24";
-import attachment from "@carbon/icons-vue/lib/attachment/24";
 import ExamModel from "@/models/ExamModel";
 import _ from 'lodash';
 import QuestionModel from "@/models/QuestionModel";
+import router from "@/router";
 
 
 @Component({
@@ -161,12 +143,6 @@ import QuestionModel from "@/models/QuestionModel";
     AddAlt20,
     SubtractAlt20,
     ExamQuestionComponent,
-    chevronUp,
-    chevronDown,
-    addAlt,
-    videoAdd,
-    image24,
-    attachment,
   }
 })
 export default class EditLessonModal extends NotificationMixinComponent {
@@ -188,17 +164,10 @@ export default class EditLessonModal extends NotificationMixinComponent {
   problemType = '';
   loading = false;
 
-  chevronUp = chevronUp;
-  chevronDown = chevronDown;
-  image24 = image24;
-  addAlt = addAlt;
-  videoAdd = videoAdd;
-  attachment = attachment;
-
   contentType = 'Problems';
   examStore = examStore;
   questionStore = questionStore;
-  exam: ExamModel = { ...examStore.newExam, lesson: this.lesson.id };
+  exam: ExamModel = { ...this.examStore.newExam, lesson: this.lesson.id };
   expanded = false;
 
 
@@ -209,7 +178,6 @@ export default class EditLessonModal extends NotificationMixinComponent {
   async created() {
     if (!this.lesson.course) return
     this.exam = _.cloneDeep(this.exam);
-    this.addQuestion();
     await this.fetchCatsProblems()
   }
 
@@ -250,7 +218,8 @@ export default class EditLessonModal extends NotificationMixinComponent {
     this.modalVisible = false;
   }
 
-  actionSelected() {
+  actionSelected(type: string) {
+    this.setContentType(type);
     this.selectedNew = !this.selectedNew;
   }
 
@@ -346,24 +315,6 @@ export default class EditLessonModal extends NotificationMixinComponent {
     }
   }
 
-  expand() {
-    this.expanded = !this.expanded;
-  }
-
-  addQuestion() {
-    const newQuestion = _.cloneDeep({
-      ...this.questionStore.newQuestion,
-      index: this.exam.questions.length
-    });
-    this.exam.questions.push(newQuestion);
-  }
-
-  deleteQuestion(question: QuestionModel) {
-    if (this.exam.questions.length > 1) {
-      this.exam.questions = this.exam.questions.filter(x => x !== question);
-    }
-  }
-
   async createExam() {
     this.exam.questions.forEach((question) => {
       this.exam.points += question.points;
@@ -372,6 +323,9 @@ export default class EditLessonModal extends NotificationMixinComponent {
       this.notificationKind = 'success';
       this.notificationText = 'Тест успешно создан';
       this.$emit('update-exam-list', response.data as ExamModel);
+      router.replace(
+        { name: 'exam-edit', params: { examId: response.data.id.toString() } },
+      );
     }).catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.notificationKind = 'error';
@@ -426,31 +380,14 @@ export default class EditLessonModal extends NotificationMixinComponent {
 .add_lesson_modal .bx--btn--primary
   background-color var(--cds-ui-05)
 
-//.modal--content
-//  height 400px
-
 .problem-type-selection
   margin-top 2rem
 
-.expand-container-head
-  cursor pointer
-  display flex
-  align-items center
-  justify-content space-between
-  margin-bottom 1rem
-
-.expand-container
-  max-height 3.25rem
-  overflow hidden
-  transition all .3s ease
-  background var(--cds-ui-01)
-  padding 1rem
-
-.expand-container.expanded
-  max-height 500px
-
 .testing-type-dropdown
-  width 40%
+  /deep/ .bx--dropdown__wrapper.bx--list-box__wrapper
+    max-width 50%
+    align-self end
+
 
 /deep/ .bx--list-box__field
   display flex
@@ -459,24 +396,16 @@ export default class EditLessonModal extends NotificationMixinComponent {
   display flex
   justify-content end
 
-.expand-fields
+.exam-container
+  background-color var(--cds-ui-01)
+  padding 1rem
+
+.exam-container-head
+  display flex
+  justify-content space-between
+
+.exam-fields
   display flex
   flex-direction column
   gap 1rem
-
-.action-btns
-  background var(--cds-ui-01)
-  display flex
-  gap 1rem
-  border-radius 5px
-  margin-top 1rem
-  padding 1rem
-
-.action-btn
-  cursor pointer
-  transition ease-in-out 0.1s
-
-.action-btn:active
-  transform scale(0.9)
-
 </style>
