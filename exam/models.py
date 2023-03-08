@@ -14,6 +14,10 @@ class AnswerTypes(str, Enum):
     radio = 'radio'
     checkbox = 'checkbox'
 
+class AnswerVerdictTypes(str, Enum):
+    correct = 'correct'
+    incorrect = 'incorrect'
+    await_verification = 'await_verification'
 
 class UserAnswerToQuestion(pydantic.BaseModel):
     question_index: int
@@ -42,7 +46,7 @@ class ExaminationForm(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, related_name='exams', null=True)
     description = models.TextField(blank=True)
     questions = models.JSONField()
-    points = models.IntegerField()
+    max_points = models.IntegerField()
     is_hidden = models.BooleanField(default=True)
     test_mode = models.CharField(max_length=30, choices=TEST_MODE_TYPES, default=TEST_MODE_TYPES[0][0])
 
@@ -62,16 +66,16 @@ class ExamSolution(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='exam_solutions', null=False)
     exam = models.ForeignKey(ExaminationForm, on_delete=models.CASCADE, related_name='exam_solutions', null=False)
     user_answers = models.JSONField(default=[])
-    score = models.IntegerField()
+    solution_points = models.IntegerField()
     status = models.CharField(max_length=30, choices=SOLUTION_STATUS, default='await')
-    correct_questions_indexes = models.JSONField(default=[])
+    question_verdicts = models.JSONField(default=[])
 
     @classmethod
     @validate_arguments
     def create(cls, student, exam, user_answers: list[UserAnswerToQuestion], score, status,
-               correct_questions_indexes: list[int]
+               question_verdicts: dict[int, AnswerVerdictTypes]
                ):
-        solution = cls(student, exam, user_answers, score, status, correct_questions_indexes)
+        solution = cls(student, exam, user_answers, score, status, question_verdicts)
         return solution
 
 
