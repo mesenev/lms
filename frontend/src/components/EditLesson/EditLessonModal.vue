@@ -316,9 +316,6 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
 
   async createExam() {
-    this.exam.questions.forEach((question) => {
-      this.exam.points += question.points;
-    })
     await api.post('/api/exam/', this.exam).then(response => {
       this.notificationKind = 'success';
       this.notificationText = 'Тест успешно создан';

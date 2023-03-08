@@ -5,7 +5,7 @@ export default interface ExamModel extends BaseModel {
   lesson: number;
   description: string | null;
   questions: Array<QuestionModel>;
-  points: number;
+  max_points: number;
   test_mode: string;
   is_hidden: boolean;
 }

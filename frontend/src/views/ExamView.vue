@@ -8,7 +8,7 @@
           <div class="test-info" v-if="!loading && exam">
             <span>Тест</span>
             <span>
-              Макс. балл <strong> {{ exam.points }} </strong>
+              Макс. балл <strong> {{ exam.max_points }} </strong>
             </span>
             <span>
               Режим тестирования: <strong> {{ exam.test_mode }} </strong>
@@ -47,11 +47,11 @@
               {{ question.text }}
               <cv-radio-group v-if="isStaff && solutionId" class="verdict-btns">
                 <cv-radio-button
-                  :checked="!studentSolution.correct_questions_indexes.includes(question.index)"
+                  :checked="studentSolution.question_verdicts[question.index] === 'incorrect'"
                   @click="setVerdict(question.index, false)" label="✖" value="0"
                   :name="'verdict ' + question.index"/>
                 <cv-radio-button
-                  :checked="studentSolution.correct_questions_indexes.includes(question.index)"
+                  :checked="studentSolution.question_verdicts[question.index] === 'correct'"
                   @click="setVerdict(question.index, true)" label="✔" value="1"
                   :name="'verdict ' + question.index"/>
               </cv-radio-group>
@@ -99,9 +99,9 @@
             <span> Статус: <strong>{{ status }}</strong> </span>
             <span>
               Итоговый балл:
-              <strong>{{ finalScore }}</strong>
+              <strong>{{ finalPoints }}</strong>
               из
-              <strong>{{ exam.points }}</strong>
+              <strong>{{ exam.max_points }}</strong>
             </span>
           </div>
           <cv-inline-loading v-else :active="true"/>
@@ -203,10 +203,7 @@ export default class ExamView extends NotificationMixinComponent {
       this.verdicts[question.index] = { question_index: question.index, verdict: false };
     })
     if (this.studentSolution.id) {
-      this.teacherSolution = { ...this.studentSolution };
-      this.studentSolution.correct_questions_indexes.forEach((index) => {
-        this.verdicts[index] = { question_index: index, verdict: true };
-      })
+      this.teacherSolution = _.cloneDeep(this.studentSolution);
       this.studentSolution.user_answers.forEach((answer) => {
         this.userAnswers[answer.question_index] = answer;
       })
@@ -227,7 +224,7 @@ export default class ExamView extends NotificationMixinComponent {
   }
 
   get isStaff(): boolean {
-    return this.userStore.user.staff_for.includes(Number(this.exam?.lesson));
+    return this.userStore.user.staff_for.includes(Number(this.$route.params.courseId));
   }
 
   get submittedSolutions(): Array<SolutionModel> {
@@ -238,15 +235,14 @@ export default class ExamView extends NotificationMixinComponent {
     return this.examStore.currentExam;
   }
 
-  get finalScore() {
+  get finalPoints() {
     return this.exam?.questions
-      .filter(x => this.studentSolution.correct_questions_indexes.includes(x.index))
+      .filter(x => this.studentSolution.question_verdicts[x.index] === 'correct')
       .map(x => x.points)
       .reduce((a, b) => a + b, 0);
   }
 
   get status() {
-    console.log(this.studentSolution.status);
     if (['AWAIT VERIFICATION', 'await'].includes(this.studentSolution.status))
       return 'Ожидает проверки';
     return 'Проверено';
@@ -256,26 +252,44 @@ export default class ExamView extends NotificationMixinComponent {
     return (this.exam?.is_hidden) ? viewOff : view;
   }
 
-  setVerdict(question_index: number, verdict: boolean) {
+  get isSolutionChanged(): boolean {
+    return !_.isEqual(this.studentSolution.question_verdicts, this.teacherSolution.question_verdicts);
+  }
+
+  get isStudentSolutionExist() {
+    return this.submittedSolutions.filter(x => x.student === this.userStore.user.id).length > 0;
+  }
+
+  get disableHandler() {
+    if (this.isStaff)
+      return this.isSolutionChanged;
+    return !this.disableField;
+  }
+
+  get disableField() {
     if (this.isStaff) {
-      this.teacherSolution.correct_questions_indexes = this.teacherSolution.correct_questions_indexes
-        .filter(x => x !== question_index);
-      if (verdict)
-        this.teacherSolution.correct_questions_indexes.push(question_index);
-      this.verdicts[question_index.toString()] = { question_index, verdict };
-      this.verdicts = { ...this.verdicts };
+      return true;
+    }
+    return this.isTestSubmitted || this.isStudentSolutionExist;
+  }
+
+  setVerdict(question_index: number, question_verdict: boolean) {
+    if (this.isStaff) {
+      this.teacherSolution.question_verdicts[question_index] = question_verdict ? 'correct' : 'incorrect';
     }
   }
 
   setVerdictBorder(question_index: string) {
-    if (Object.keys(this.verdicts).includes(question_index) && this.isStaff && this.solutionId) {
-      return this.verdicts[question_index].verdict ? 'border: 2px solid yellowgreen' : 'border: 2px solid red'
+    const CORRECT_BORDER = 'border: 2px solid yellowgreen';
+    const INCORRECT_BORDER = 'border: 2px solid red';
+    const AWAIT_BORDER = 'border: 2px solid var(--cds-ui-01)';
+    if (this.isStaff && this.solutionId) {
+      if (this.teacherSolution.question_verdicts[question_index] === 'correct')
+        return CORRECT_BORDER;
+      if (this.teacherSolution.question_verdicts[question_index] === 'incorrect')
+        return INCORRECT_BORDER;
     }
-    return 'border: 2px solid var(--cds-ui-01)';
-  }
-
-  get isSolutionChanged(): boolean {
-    return !_.isEqual(this.studentSolution.correct_questions_indexes, this.teacherSolution.correct_questions_indexes);
+    return AWAIT_BORDER;
   }
 
   async changeExamVisibility() {
@@ -344,23 +358,6 @@ export default class ExamView extends NotificationMixinComponent {
     }
   }
 
-  get isStudentSolutionExist() {
-    return this.submittedSolutions.filter(x => x.student === this.userStore.user.id).length > 0;
-  }
-
-  get disableHandler() {
-    if (this.isStaff)
-      return this.isSolutionChanged;
-    return !this.disableField;
-  }
-
-  get disableField() {
-    if (this.isStaff) {
-      return true;
-    }
-    return this.isTestSubmitted || this.isStudentSolutionExist;
-  }
-
   async changeStudent(id: number) {
     this.studentId = Number(id);
     this.changeCurrentSolution(this.submittedSolutions.filter(x => x.student === Number(id))[0].id);
@@ -370,8 +367,7 @@ export default class ExamView extends NotificationMixinComponent {
     this.submitting = true;
     await api.post('/api/solution/', {
       user_answers: Object.values(this.userAnswers),
-      score: 0,
-      correct_questions_indexes: [],
+      solution_points: 0,
       student: userStore.user.id,
       exam: this.exam?.id,
     }).then(() => {
@@ -388,17 +384,14 @@ export default class ExamView extends NotificationMixinComponent {
   }
 
   async submitSolution() {
-    let points = 0;
-    this.teacherSolution.correct_questions_indexes.forEach((index) => {
-      this.exam?.questions.forEach((question) => {
-        if (question.index === index)
-          points += question.points;
-      })
-    })
+    const points = this.exam?.questions
+      .filter(x => this.studentSolution.question_verdicts[x.index] === 'correct')
+      .map(x => x.points)
+      .reduce((a, b) => a + b, 0);
     await api.patch(`/api/solution/${this.solutionId}/`, {
-      correct_questions_indexes: this.teacherSolution.correct_questions_indexes,
+      question_verdicts: this.teacherSolution.question_verdicts,
       status: 'verified',
-      score: points,
+      solution_points: points,
     }).then(() => {
       this.notificationKind = 'success';
       this.notificationText = "Тест успешно оценен";
@@ -452,6 +445,7 @@ h1
   padding 1rem
   margin-bottom 0.5rem
   background-color var(--cds-ui-01)
+
   .results
     display flex
     justify-content space-between

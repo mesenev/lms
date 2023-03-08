@@ -111,7 +111,7 @@ export default class ExamEditView extends NotificationMixinComponent {
       this.exam.questions.push(
         _.cloneDeep({
           ...this.questionStore.newQuestion,
-          index: this.exam.questions.length ? Math.max(...this.exam.questions.map(question => question.index)) : 0,
+          index: 0,
         })
       )
     }
@@ -130,7 +130,7 @@ export default class ExamEditView extends NotificationMixinComponent {
   addQuestion() {
     const newQuestion = _.cloneDeep({
       ...this.questionStore.newQuestion,
-      index: this.exam.questions.length ? Math.max(...this.exam.questions.map(question => question.index)) : 0,
+      index: this.exam.questions.length ? Math.max(...this.exam.questions.map(question => question.index + 1)) : 0,
     });
     this.examEdit.questions.push(newQuestion);
   }
@@ -142,9 +142,9 @@ export default class ExamEditView extends NotificationMixinComponent {
   }
 
   async changeExam() {
-    this.examEdit.points = 0;
+    this.examEdit.max_points = 0;
     this.examEdit.questions.forEach((question) => {
-      this.examEdit.points += question.points;
+      this.examEdit.max_points += question.points;
     })
     await api.patch(`/api/exam/${this.examId}/`, {
       ...this.examEdit,
@@ -156,7 +156,7 @@ export default class ExamEditView extends NotificationMixinComponent {
       this.exam = response.data;
       this.examEdit = this.exam;
     }).catch(error => {
-      this.examEdit.points = this.exam.points;
+      this.examEdit.max_points = this.exam.max_points;
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.notificationKind = 'error';
     }).finally(() => {

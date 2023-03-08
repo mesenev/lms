@@ -22,7 +22,7 @@ class ExamViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return ExaminationForm.objects.all()\
+        return ExaminationForm.objects.all() \
             .filter(
             (Q(is_hidden=False) & Q(lesson__course__in=user.student_for.all()))
             | Q(lesson__course__in=user.staff_for.all())
@@ -56,16 +56,15 @@ class ExamSolutionViewSet(viewsets.ModelViewSet):
 
         questions = validated_data['exam'].questions
         question_answers = validated_data['user_answers']
-        current_score = 0
+        current_points = 0
         verdict = {}
 
         if validated_data['exam'].test_mode == 'manual':
             for answer in question_answers:
                 verdict[answer['question_index']] = AnswerVerdictTypes.await_verification
-            serializer.save(student=request.user, status=ExamSolution.SOLUTION_STATUS[0][1], score=0,
+            serializer.save(student=request.user, status=ExamSolution.SOLUTION_STATUS[0][1], solution_points=0,
                             question_verdicts=verdict)
             return
-
 
         for answer in question_answers:
             current_question = questions[answer['question_index']]
@@ -74,19 +73,20 @@ class ExamSolutionViewSet(viewsets.ModelViewSet):
                      AnswerTypes.input):
                 verdict[current_question['index']] = AnswerVerdictTypes.await_verification
                 continue
-            if set(answer['submitted_answers']) ==\
+            if set(answer['submitted_answers']) == \
                     set(current_question['correct_answers']):
-                current_score += questions[answer['question_index']]['points']
+                current_points += questions[answer['question_index']]['points']
                 verdict[answer['question_index']] = AnswerVerdictTypes.correct
             else:
                 verdict[answer['question_index']] = AnswerVerdictTypes.incorrect
 
         if validated_data['exam'].test_mode == 'auto_and_manual':
-            serializer.save(student=request.user, status=ExamSolution.SOLUTION_STATUS[0][1], score=current_score,
+            serializer.save(student=request.user, status=ExamSolution.SOLUTION_STATUS[0][1],
+                            solution_points=current_points,
                             question_verdicts=verdict)
             return
 
-        serializer.save(student=request.user, status=ExamSolution.SOLUTION_STATUS[1][1], score=current_score,
+        serializer.save(student=request.user, status=ExamSolution.SOLUTION_STATUS[1][1], solution_points=current_points,
                         question_verdicts=verdict)
         return
 

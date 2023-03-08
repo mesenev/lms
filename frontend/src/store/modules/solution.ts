@@ -17,9 +17,9 @@ class SolutionModule extends VuexModule {
       exam: NaN,
       student: NaN,
       user_answers: [],
-      score: NaN,
+      solution_points: NaN,
       status: 'await',
-      correct_questions_indexes: [],
+      question_verdicts: {},
     };
   }
 
@@ -61,7 +61,7 @@ class SolutionModule extends VuexModule {
     return answer as Array<SolutionModel>;
   }
 
-  @Action({rawError: true})
+  @Action({ rawError: true })
   async fetchSolutionById(id: number): Promise<SolutionModel> {
     let answer = {};
     await api.get(`/api/solution/${id}/`).then(response => {
