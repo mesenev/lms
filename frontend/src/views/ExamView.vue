@@ -41,7 +41,7 @@
              class="test-container"
              :style="isStaff ? 'margin-left: 1rem' : ''">
           <div class="question-container" :style="setVerdictBorder(question.index.toString())"
-               v-for="(question, index) in exam.questions"
+               v-for="(question, index) in questions"
                :key="index">
             <h4 class="question-header">
               {{ question.text }}
@@ -225,6 +225,13 @@ export default class ExamView extends NotificationMixinComponent {
 
   get isStaff(): boolean {
     return this.userStore.user.staff_for.includes(Number(this.$route.params.courseId));
+  }
+
+  get questions() {
+    if (this.isStaff && this.solutionId && this.exam?.test_mode === 'auto_and_manual') {
+      return this.exam?.questions.filter(x => this.studentSolution.question_verdicts[x.index] === 'await_verification')
+    }
+    return this.exam?.questions;
   }
 
   get submittedSolutions(): Array<SolutionModel> {
