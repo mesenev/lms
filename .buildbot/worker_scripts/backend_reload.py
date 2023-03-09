@@ -1,7 +1,7 @@
-import os
 import subprocess
 
 import dotenv
+
 
 def reload_backend():
     dotenv.load_dotenv('/home/buildbot/buildbot.env')
@@ -22,15 +22,15 @@ def reload_backend():
         return exec_code, message
     print('making a migration')
     exec_code = subprocess.run([
-            "docker", "compose",
-            "-f",
-            ".docker/docker-compose.prod.yml",
-            "exec",
-            "-T",
-            "backend",
-            "sh", "-c",
-            "python manage.py migrate --noinput",
-        ]).returncode
+        "docker", "compose",
+        "-f",
+        ".docker/docker-compose.prod.yml",
+        "exec",
+        "-T",
+        "backend",
+        "sh", "-c",
+        "python manage.py migrate --noinput",
+    ]).returncode
     message = '\n'.join([message, 'migrations failed.' if exec_code else 'migrations applied successfully'])
 
     if exec_code:
