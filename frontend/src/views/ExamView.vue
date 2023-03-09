@@ -40,6 +40,20 @@
         <div v-if="isStaff ? !loading && !solutionLoading : !loading"
              class="test-container"
              :style="isStaff ? 'margin-left: 1rem' : ''">
+          <div v-if="!isStaff && isExamVerified" class="student-results question-container">
+            <div class="results">
+              <span v-if="incorrectAnswers > 0"> Неверных ответов: <strong>{{
+                  incorrectAnswers
+                }}</strong> </span>
+              <span v-else> Все ответы даны верно! </span>
+              <span>
+                Итоговый балл:
+                <strong>{{ finalPoints }}</strong>
+                из
+                <strong>{{ exam.max_points }}</strong>
+              </span>
+            </div>
+          </div>
           <div class="question-container" :style="setVerdictBorder(question.index.toString())"
                v-for="(question, index) in questions"
                :key="index">
@@ -164,7 +178,7 @@ export default class ExamView extends NotificationMixinComponent {
   changingVisibility = false;
   loading = true;
   solutionLoading = false;
-  isTestSubmitted = false;
+  isExamSubmitted = false;
   submitting = false;
   studentSolution: SolutionModel = { ...this.solutionStore.defaultSolution };
   teacherSolution = { ...this.studentSolution };
@@ -228,8 +242,15 @@ export default class ExamView extends NotificationMixinComponent {
   }
 
   get questions() {
-    if (this.isStaff && this.solutionId && this.exam?.test_mode === 'auto_and_manual') {
-      return this.exam?.questions.filter(x => this.studentSolution.question_verdicts[x.index] === 'await_verification')
+    if (this.isStaff &&
+      this.solutionId &&
+      this.exam?.test_mode === 'auto_and_manual' &&
+      this.exam?.questions
+        .filter(x => this.studentSolution.question_verdicts[x.index] === 'await_verification').length
+    )
+    {
+      return this.exam?.questions
+        .filter(x => this.studentSolution.question_verdicts[x.index] === 'await_verification');
     }
     return this.exam?.questions;
   }
@@ -255,6 +276,14 @@ export default class ExamView extends NotificationMixinComponent {
     return 'Проверено';
   }
 
+  get isExamVerified() {
+    return ['VERIFIED', 'verified'].includes(this.studentSolution.status);
+  }
+
+  get incorrectAnswers() {
+    return Object.values(this.studentSolution.question_verdicts).filter(x => x === 'incorrect').length;
+  }
+
   get hiddenIcon() {
     return (this.exam?.is_hidden) ? viewOff : view;
   }
@@ -277,7 +306,7 @@ export default class ExamView extends NotificationMixinComponent {
     if (this.isStaff) {
       return true;
     }
-    return this.isTestSubmitted || this.isStudentSolutionExist;
+    return this.isExamSubmitted || this.isStudentSolutionExist;
   }
 
   setVerdict(question_index: number, question_verdict: boolean) {
@@ -380,7 +409,11 @@ export default class ExamView extends NotificationMixinComponent {
     }).then(() => {
       this.notificationKind = 'success';
       this.notificationText = "Тест отправлен на проверку";
-      this.isTestSubmitted = true;
+      this.isExamSubmitted = true;
+      this.solutionStore.fetchSolutionsByExamAndUser({
+        examId: this.exam?.id as number,
+        userId: userStore.user.id
+      }).then(response => this.studentSolution = { ...response[0] });
     }).catch(error => {
       this.notificationKind = 'error';
       this.notificationText = `Что-то пошло не так: ${error.message}`;
@@ -449,13 +482,18 @@ h1
   margin-left 1rem
 
 .results-container
+  color var(--cds-ui-05)
   padding 1rem
   margin-bottom 0.5rem
   background-color var(--cds-ui-01)
 
-  .results
-    display flex
-    justify-content space-between
+.results
+  display flex
+  justify-content space-between
+
+.student-results
+  border 1px solid var(--cds-ui-05)
+  margin-bottom 0.5rem
 
 .student-list--item--user-component
   padding-left 1rem
@@ -523,8 +561,9 @@ h1
   gap 1rem
   flex-direction row
   width 60%
-
-.submit
-  width fit-content
   margin-top 1.5rem
+
+  .submit
+    width fit-content
+
 </style>
