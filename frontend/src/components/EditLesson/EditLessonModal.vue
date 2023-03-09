@@ -238,12 +238,10 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
 
   get addButtonDisabled() {
-    // debugger;
-    if (this.selectedNew)
-      return false;
+    if (this.isExamsSelected)
+      return !this.exam.test_mode || !this.exam.name;
     else
-      return (!this.selected.length || this.selectedNew) || !this.problemType
-        || !this.testingMode || this.loading;
+      return !this.selected.length || !this.problemType || !this.testingMode || this.loading;
   }
 
   get selectedCatsProblems() {
