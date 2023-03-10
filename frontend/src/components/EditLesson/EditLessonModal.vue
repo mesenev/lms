@@ -313,11 +313,12 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
 
   async createExam() {
-    await api.post('/api/exam/', this.exam).then(response => {
+    await api.post('/api/exam/', this.exam).then(async response => {
       this.notificationKind = 'success';
       this.notificationText = 'Тест успешно создан';
       this.$emit('update-exam-list', response.data as ExamModel);
-      router.replace(
+      await this.modalHidden();
+      await router.push(
         { name: 'exam-edit', params: { examId: response.data.id.toString() } },
       );
     }).catch(error => {
