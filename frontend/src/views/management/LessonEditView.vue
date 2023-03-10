@@ -109,7 +109,11 @@
           <cv-content-switcher-content owner-id="Test">
             <div v-if="getExams.length > 0">
               <div v-if="!fetchingLesson" class="extrawork">
-                <exam-list-component :exams-list="getExams"/>
+                <exam-list-component
+                  :exams-list="getExams"
+                  :is-staff="true"
+                  :is-editing="true"
+                  @update-exam-delete="updateExamDelete($event)"/>
               </div>
               <div v-else>
                 <cv-accordion-skeleton/>
@@ -213,6 +217,13 @@ export default class LessonEditView extends NotificationMixinComponent {
       .filter(x => x.id != deleted_problem_id);
     this.lesson.problems = this.lessonEdit.problems;
     this.problemStore.setProblems({[this.lessonId]: this.lessonEdit.problems});
+  }
+
+  updateExamDelete(delete_exam_id: number) {
+    this.lessonEdit.exams = this.lessonEdit.exams
+      .filter(x => x.id != delete_exam_id);
+    this.lesson.exams = this.lessonEdit.exams;
+    this.examStore.setExams({[this.lessonId]: this.lessonEdit.exams});
   }
 
   updateMaterialDelete() {
