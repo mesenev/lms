@@ -91,8 +91,7 @@
               <div class="exam-container-head">
                 <p>Настройки теста</p>
                 <cv-dropdown v-model="exam.test_mode" class="testing-type-dropdown"
-                             label="Способ тестирования"
-                             placeholder="Тестирование">
+                             label="Способ тестирования">
                   <cv-dropdown-item value="auto">Auto</cv-dropdown-item>
                   <cv-dropdown-item value="manual">Manual</cv-dropdown-item>
                   <cv-dropdown-item value="auto_and_manual">Auto & Manual</cv-dropdown-item>

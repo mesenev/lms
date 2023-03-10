@@ -5,7 +5,12 @@
         <h1 v-if="exam && !loading"> {{ exam.name }} </h1>
         <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
         <div v-if="exam && !loading" class="info-container">
-          <div class="test-info" v-if="!loading && exam">
+          <div v-if="exam.description" class="description-container">
+            <span class="lesson-description">
+               {{ exam.description }}
+            </span>
+          </div>
+          <div class="test-info">
             <span>Тест</span>
             <span>
               Макс. балл <strong> {{ exam.max_points }} </strong>
@@ -24,22 +29,15 @@
               </cv-button>
             </div>
           </div>
-          <cv-skeleton-text v-else width="'35%'"/>
-          <div class="description-container">
-            <span class="lesson-description">
-               {{ exam.description }}
-            </span>
-          </div>
         </div>
         <cv-skeleton-text v-else :heading="false" :paragraph="true" :line-count="2" width="70%"/>
       </div>
     </div>
-    <cv-row class="main-items" justify="center">
+    <cv-row :class="isStaff ? 'main-items' : 'header-container'">
       <cv-column :style="loading || solutionLoading ? 'text-align: -webkit-center' : ''"
-                 :lg="isStaff ? {'span' : 8, 'offset' : 0} : {'span' : 8, 'offset': 2}">
+                 :lg="isStaff ? {'span' : 8, 'offset' : 0} : {'offset': 2}">
         <div v-if="isStaff ? !loading && !solutionLoading : !loading"
-             class="test-container"
-             :style="isStaff ? 'margin-left: 1rem' : ''">
+             class="test-container">
           <div v-if="!isStaff && isExamVerified" class="student-results question-container">
             <div class="results">
               <span v-if="incorrectAnswers > 0"> Неверных ответов: <strong>{{
@@ -91,9 +89,8 @@
                           :disabled="disableField"/>
           </div>
         </div>
-        <div v-if="isStaff ? !loading && !solutionLoading : !loading" class="submit-container"
-             :style="isStaff ? 'margin-left: 1rem' : ''">
-          <div class="question-container submit">
+        <div v-if="isStaff ? !loading && !solutionLoading : !loading" class="submit-container">
+          <div class="submit">
             <cv-button v-if="!submitting" @click="submitHandler" :disabled="!disableHandler">
               Отправить
             </cv-button>
@@ -121,12 +118,12 @@
           <cv-inline-loading v-else :active="true"/>
         </div>
         <div v-if="!loading" class="item student-list-container">
-          <cv-structured-list class="student-list" condensed selectable @change="changeStudent">
+          <cv-structured-list v-if="submittedSolutions.length" class="student-list" condensed selectable @change="changeStudent">
             <template slot="headings">
               <cv-structured-list-heading class="pupil-title">Список учеников
               </cv-structured-list-heading>
             </template>
-            <template slot="items" v-if="submittedSolutions.length">
+            <template slot="items">
               <cv-structured-list-item
                 v-for="solution in submittedSolutions"
                 :key="solution.id"
@@ -140,11 +137,9 @@
                 </cv-structured-list-data>
               </cv-structured-list-item>
             </template>
-            <template v-else slot="items">
-              <empty-list-component class="empty-list" text="Решения отсутствуют"
-                                    list-of="solutions"/>
-            </template>
           </cv-structured-list>
+          <empty-list-component v-else class="empty-list" text="Решения отсутствуют"
+                                    list-of="solutions"/>
         </div>
         <cv-skeleton-text v-else :heading="false" width="70%" :line-count="5" :paragraph="true"/>
       </cv-column>
@@ -466,14 +461,14 @@ h1
   display block
 
 .description-container
-  max-width 60%
+  max-width 45rem
   word-break break-word
-  background-color var(--cds-ui-01)
+  color var(--cds-text-02)
   margin-top 0.5rem
-  padding 1rem
+  padding 0.5rem
 
 .test-info
-  color var(--cds-ui-04)
+  color var(--cds-text-05)
   margin-top 0.5rem
   display inline-flex
   align-items center
@@ -507,12 +502,14 @@ h1
   display flex
   flex-direction column
   gap 1rem
+  max-width 45rem
+  padding-left 1rem
+  padding-right 1rem
 
 .question-container
   background-color var(--cds-ui-01)
   border-radius 5px
   padding 1rem
-  width 70%
 
 .question-header
   margin-bottom 0.5rem
@@ -554,6 +551,8 @@ h1
   border 1px solid var(--cds-ui-05)
 
 .empty-list
+  padding-top 1rem
+  padding-bottom 1rem
   text-align center
 
 .submit-container
@@ -562,6 +561,7 @@ h1
   flex-direction row
   width 60%
   margin-top 1.5rem
+  padding-left 1rem
 
   .submit
     width fit-content
