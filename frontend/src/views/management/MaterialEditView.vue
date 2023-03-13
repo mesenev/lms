@@ -54,7 +54,7 @@
       <div class="preview-container bx--col-lg-6">
         <h4 class="title" v-if="materialEdit.name.length > 0"> {{ materialEdit.name }} </h4>
         <h4 v-else>Введите название материала</h4>
-        <vue-markdown :source="materialEdit.content" html="false" class="markdown"/>
+        <vue-markdown :source="materialEdit.content" :html="false" class="markdown"/>
       </div>
     </div>
   </div>
