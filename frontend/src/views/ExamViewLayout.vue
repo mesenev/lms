@@ -25,6 +25,7 @@ export default class ExamViewLayout extends Vue {
     this.examStore.changeCurrentExam(null);
     this.exam = await this.examStore.fetchExamById(this.examId);
     this.examStore.changeCurrentExam(this.exam);
+    await this.examStore.fetchExamsByLessonId(this.exam.lesson);
     this.solutionStore.setSolutions(await this.solutionStore.fetchSolutionsByExam(this.examId));
   }
 }

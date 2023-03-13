@@ -5,10 +5,15 @@
         <h1 v-if="exam && !loading"> {{ exam.name }} </h1>
         <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
         <div v-if="exam && !loading" class="info-container">
-          <div class="test-info" v-if="!loading && exam">
+          <div v-if="exam.description" class="description-container">
+            <span class="lesson-description">
+               {{ exam.description }}
+            </span>
+          </div>
+          <div class="test-info">
             <span>Тест</span>
             <span>
-              Макс. балл <strong> {{ exam.points }} </strong>
+              Макс. балл <strong> {{ exam.max_points }} </strong>
             </span>
             <span>
               Режим тестирования: <strong> {{ exam.test_mode }} </strong>
@@ -24,34 +29,41 @@
               </cv-button>
             </div>
           </div>
-          <cv-skeleton-text v-else width="'35%'"/>
-          <div class="description-container">
-            <span class="lesson-description">
-               {{ exam.description }}
-            </span>
-          </div>
         </div>
         <cv-skeleton-text v-else :heading="false" :paragraph="true" :line-count="2" width="70%"/>
       </div>
     </div>
-    <cv-row class="main-items" justify="center">
+    <cv-row :class="isStaff ? 'main-items' : 'header-container'">
       <cv-column :style="loading || solutionLoading ? 'text-align: -webkit-center' : ''"
-                 :lg="isStaff ? {'span' : 8, 'offset' : 0} : {'span' : 8, 'offset': 2}">
+                 :lg="isStaff ? {'span' : 8, 'offset' : 0} : {'offset': 2}">
         <div v-if="isStaff ? !loading && !solutionLoading : !loading"
-             class="test-container"
-             :style="isStaff ? 'margin-left: 1rem' : ''">
+             class="test-container">
+          <div v-if="!isStaff && isExamVerified" class="student-results question-container">
+            <div class="results">
+              <span v-if="incorrectAnswers > 0"> Неверных ответов: <strong>{{
+                  incorrectAnswers
+                }}</strong> </span>
+              <span v-else> Все ответы даны верно! </span>
+              <span>
+                Итоговый балл:
+                <strong>{{ finalPoints }}</strong>
+                из
+                <strong>{{ exam.max_points }}</strong>
+              </span>
+            </div>
+          </div>
           <div class="question-container" :style="setVerdictBorder(question.index.toString())"
-               v-for="(question, index) in exam.questions"
+               v-for="(question, index) in questions"
                :key="index">
             <h4 class="question-header">
               {{ question.text }}
               <cv-radio-group v-if="isStaff && solutionId" class="verdict-btns">
                 <cv-radio-button
-                  :checked="!studentSolution.correct_questions_indexes.includes(question.index)"
+                  :checked="studentSolution.question_verdicts[question.index] === 'incorrect'"
                   @click="setVerdict(question.index, false)" label="✖" value="0"
                   :name="'verdict ' + question.index"/>
                 <cv-radio-button
-                  :checked="studentSolution.correct_questions_indexes.includes(question.index)"
+                  :checked="studentSolution.question_verdicts[question.index] === 'correct'"
                   @click="setVerdict(question.index, true)" label="✔" value="1"
                   :name="'verdict ' + question.index"/>
               </cv-radio-group>
@@ -77,9 +89,8 @@
                           :disabled="disableField"/>
           </div>
         </div>
-        <div v-if="isStaff ? !loading && !solutionLoading : !loading" class="submit-container"
-             :style="isStaff ? 'margin-left: 1rem' : ''">
-          <div class="question-container submit">
+        <div v-if="isStaff ? !loading && !solutionLoading : !loading" class="submit-container">
+          <div class="submit">
             <cv-button v-if="!submitting" @click="submitHandler" :disabled="!disableHandler">
               Отправить
             </cv-button>
@@ -94,13 +105,25 @@
         <cv-loading v-else/>
       </cv-column>
       <cv-column v-if="isStaff">
+        <div v-if="!loading && solutionId" class="results-container">
+          <div v-if="!solutionLoading" class="results">
+            <span> Статус: <strong>{{ status }}</strong> </span>
+            <span>
+              Итоговый балл:
+              <strong>{{ finalPoints }}</strong>
+              из
+              <strong>{{ exam.max_points }}</strong>
+            </span>
+          </div>
+          <cv-inline-loading v-else :active="true"/>
+        </div>
         <div v-if="!loading" class="item student-list-container">
-          <cv-structured-list class="student-list" condensed selectable @change="changeStudent">
+          <cv-structured-list v-if="submittedSolutions.length" class="student-list" condensed selectable @change="changeStudent">
             <template slot="headings">
               <cv-structured-list-heading class="pupil-title">Список учеников
               </cv-structured-list-heading>
             </template>
-            <template slot="items" v-if="submittedSolutions.length">
+            <template slot="items">
               <cv-structured-list-item
                 v-for="solution in submittedSolutions"
                 :key="solution.id"
@@ -114,11 +137,9 @@
                 </cv-structured-list-data>
               </cv-structured-list-item>
             </template>
-            <template v-else slot="items">
-              <empty-list-component class="empty-list" text="Решения отсутствуют"
-                                    list-of="solutions"/>
-            </template>
           </cv-structured-list>
+          <empty-list-component v-else class="empty-list" text="Решения отсутствуют"
+                                    list-of="solutions"/>
         </div>
         <cv-skeleton-text v-else :heading="false" width="70%" :line-count="5" :paragraph="true"/>
       </cv-column>
@@ -152,7 +173,7 @@ export default class ExamView extends NotificationMixinComponent {
   changingVisibility = false;
   loading = true;
   solutionLoading = false;
-  isTestSubmitted = false;
+  isExamSubmitted = false;
   submitting = false;
   studentSolution: SolutionModel = { ...this.solutionStore.defaultSolution };
   teacherSolution = { ...this.studentSolution };
@@ -191,10 +212,7 @@ export default class ExamView extends NotificationMixinComponent {
       this.verdicts[question.index] = { question_index: question.index, verdict: false };
     })
     if (this.studentSolution.id) {
-      this.teacherSolution = { ...this.studentSolution };
-      this.studentSolution.correct_questions_indexes.forEach((index) => {
-        this.verdicts[index] = { question_index: index, verdict: true };
-      })
+      this.teacherSolution = _.cloneDeep(this.studentSolution);
       this.studentSolution.user_answers.forEach((answer) => {
         this.userAnswers[answer.question_index] = answer;
       })
@@ -215,7 +233,21 @@ export default class ExamView extends NotificationMixinComponent {
   }
 
   get isStaff(): boolean {
-    return this.userStore.user.staff_for.includes(Number(this.exam?.lesson));
+    return this.userStore.user.staff_for.includes(Number(this.$route.params.courseId));
+  }
+
+  get questions() {
+    if (this.isStaff &&
+      this.solutionId &&
+      this.exam?.test_mode === 'auto_and_manual' &&
+      this.exam?.questions
+        .filter(x => this.studentSolution.question_verdicts[x.index] === 'await_verification').length
+    )
+    {
+      return this.exam?.questions
+        .filter(x => this.studentSolution.question_verdicts[x.index] === 'await_verification');
+    }
+    return this.exam?.questions;
   }
 
   get submittedSolutions(): Array<SolutionModel> {
@@ -226,30 +258,69 @@ export default class ExamView extends NotificationMixinComponent {
     return this.examStore.currentExam;
   }
 
+  get finalPoints() {
+    return this.exam?.questions
+      .filter(x => this.studentSolution.question_verdicts[x.index] === 'correct')
+      .map(x => x.points)
+      .reduce((a, b) => a + b, 0);
+  }
+
+  get status() {
+    if (['AWAIT VERIFICATION', 'await'].includes(this.studentSolution.status))
+      return 'Ожидает проверки';
+    return 'Проверено';
+  }
+
+  get isExamVerified() {
+    return ['VERIFIED', 'verified'].includes(this.studentSolution.status);
+  }
+
+  get incorrectAnswers() {
+    return Object.values(this.studentSolution.question_verdicts).filter(x => x === 'incorrect').length;
+  }
+
   get hiddenIcon() {
     return (this.exam?.is_hidden) ? viewOff : view;
   }
 
-  setVerdict(question_index: number, verdict: boolean) {
+  get isSolutionChanged(): boolean {
+    return !_.isEqual(this.studentSolution.question_verdicts, this.teacherSolution.question_verdicts);
+  }
+
+  get isStudentSolutionExist() {
+    return this.submittedSolutions.filter(x => x.student === this.userStore.user.id).length > 0;
+  }
+
+  get disableHandler() {
+    if (this.isStaff)
+      return this.isSolutionChanged;
+    return !this.disableField;
+  }
+
+  get disableField() {
     if (this.isStaff) {
-      this.teacherSolution.correct_questions_indexes = this.teacherSolution.correct_questions_indexes
-        .filter(x => x !== question_index);
-      if (verdict)
-        this.teacherSolution.correct_questions_indexes.push(question_index);
-      this.verdicts[question_index.toString()] = { question_index, verdict };
-      this.verdicts = { ...this.verdicts };
+      return true;
+    }
+    return this.isExamSubmitted || this.isStudentSolutionExist;
+  }
+
+  setVerdict(question_index: number, question_verdict: boolean) {
+    if (this.isStaff) {
+      this.teacherSolution.question_verdicts[question_index] = question_verdict ? 'correct' : 'incorrect';
     }
   }
 
   setVerdictBorder(question_index: string) {
-    if (Object.keys(this.verdicts).includes(question_index) && this.isStaff && this.solutionId) {
-      return this.verdicts[question_index].verdict ? 'border: 2px solid yellowgreen' : 'border: 2px solid red'
+    const CORRECT_BORDER = 'border: 2px solid yellowgreen';
+    const INCORRECT_BORDER = 'border: 2px solid red';
+    const AWAIT_BORDER = 'border: 2px solid var(--cds-ui-01)';
+    if (this.isStaff && this.solutionId) {
+      if (this.teacherSolution.question_verdicts[question_index] === 'correct')
+        return CORRECT_BORDER;
+      if (this.teacherSolution.question_verdicts[question_index] === 'incorrect')
+        return INCORRECT_BORDER;
     }
-    return 'border: 2px solid var(--cds-ui-01)';
-  }
-
-  get isSolutionChanged(): boolean {
-    return !_.isEqual(this.studentSolution.correct_questions_indexes, this.teacherSolution.correct_questions_indexes);
+    return AWAIT_BORDER;
   }
 
   async changeExamVisibility() {
@@ -318,23 +389,6 @@ export default class ExamView extends NotificationMixinComponent {
     }
   }
 
-  get isStudentSolutionExist() {
-    return this.submittedSolutions.filter(x => x.student === this.userStore.user.id).length > 0;
-  }
-
-  get disableHandler() {
-    if (this.isStaff)
-      return this.isSolutionChanged;
-    return !this.disableField;
-  }
-
-  get disableField() {
-    if (this.isStaff) {
-      return true;
-    }
-    return this.isTestSubmitted || this.isStudentSolutionExist;
-  }
-
   async changeStudent(id: number) {
     this.studentId = Number(id);
     this.changeCurrentSolution(this.submittedSolutions.filter(x => x.student === Number(id))[0].id);
@@ -344,14 +398,17 @@ export default class ExamView extends NotificationMixinComponent {
     this.submitting = true;
     await api.post('/api/solution/', {
       user_answers: Object.values(this.userAnswers),
-      score: 0,
-      correct_questions_indexes: [],
+      solution_points: 0,
       student: userStore.user.id,
       exam: this.exam?.id,
     }).then(() => {
       this.notificationKind = 'success';
       this.notificationText = "Тест отправлен на проверку";
-      this.isTestSubmitted = true;
+      this.isExamSubmitted = true;
+      this.solutionStore.fetchSolutionsByExamAndUser({
+        examId: this.exam?.id as number,
+        userId: userStore.user.id
+      }).then(response => this.studentSolution = { ...response[0] });
     }).catch(error => {
       this.notificationKind = 'error';
       this.notificationText = `Что-то пошло не так: ${error.message}`;
@@ -362,19 +419,18 @@ export default class ExamView extends NotificationMixinComponent {
   }
 
   async submitSolution() {
-    let points = 0;
-    this.teacherSolution.correct_questions_indexes.forEach((index) => {
-      this.exam?.questions.forEach((question) => {
-        if (question.index === index)
-          points += question.points;
-      })
-    })
+    const points = this.exam?.questions
+      .filter(x => this.studentSolution.question_verdicts[x.index] === 'correct')
+      .map(x => x.points)
+      .reduce((a, b) => a + b, 0);
     await api.patch(`/api/solution/${this.solutionId}/`, {
-      correct_questions_indexes: this.teacherSolution.correct_questions_indexes,
-      score: points,
+      question_verdicts: this.teacherSolution.question_verdicts,
+      status: 'verified',
+      solution_points: points,
     }).then(() => {
       this.notificationKind = 'success';
       this.notificationText = "Тест успешно оценен";
+      this.teacherSolution.status = 'verified';
       this.studentSolution = { ...this.teacherSolution };
     }).catch(error => {
       this.notificationKind = 'error';
@@ -391,8 +447,12 @@ h1
   color var(--cds-ui-05)
   font-weight bold
 
-span
-  margin-left 0.5rem
+.test-info
+  span
+    margin-left 0.5rem
+
+  span:not(:first-of-type)
+    margin-left 1rem
 
 .main-title
   margin-top 1rem
@@ -401,20 +461,34 @@ span
   display block
 
 .description-container
-  max-width 60%
+  max-width 45rem
   word-break break-word
-  background-color var(--cds-ui-01)
+  color var(--cds-text-02)
   margin-top 0.5rem
-  padding 1rem
+  padding 0.5rem
 
 .test-info
-  color var(--cds-ui-04)
+  color var(--cds-text-05)
   margin-top 0.5rem
   display inline-flex
   align-items center
 
 .visibility
   margin-left 1rem
+
+.results-container
+  color var(--cds-ui-05)
+  padding 1rem
+  margin-bottom 0.5rem
+  background-color var(--cds-ui-01)
+
+.results
+  display flex
+  justify-content space-between
+
+.student-results
+  border 1px solid var(--cds-ui-05)
+  margin-bottom 0.5rem
 
 .student-list--item--user-component
   padding-left 1rem
@@ -428,12 +502,14 @@ span
   display flex
   flex-direction column
   gap 1rem
+  max-width 45rem
+  padding-left 1rem
+  padding-right 1rem
 
 .question-container
   background-color var(--cds-ui-01)
   border-radius 5px
   padding 1rem
-  width 70%
 
 .question-header
   margin-bottom 0.5rem
@@ -475,6 +551,8 @@ span
   border 1px solid var(--cds-ui-05)
 
 .empty-list
+  padding-top 1rem
+  padding-bottom 1rem
   text-align center
 
 .submit-container
@@ -482,8 +560,10 @@ span
   gap 1rem
   flex-direction row
   width 60%
-
-.submit
-  width fit-content
   margin-top 1.5rem
+  padding-left 1rem
+
+  .submit
+    width fit-content
+
 </style>

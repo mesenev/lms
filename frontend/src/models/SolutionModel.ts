@@ -1,14 +1,16 @@
+import { Dictionary } from "vue-router/types/router";
+
 export default interface SolutionModel {
   id: number;
   exam: number;
   student: number;
-  user_answers: Array<{question_index: number; submitted_answers: Array<string>}>;
-  score: number;
+  user_answers: Array<{ question_index: number; submitted_answers: Array<string> }>;
+  solution_points: number;
   status: string;
-  correct_questions_indexes: Array<number>;
+  question_verdicts: Dictionary<string>;
 }
 
 export const SOLUTION_STATUS = {
   AWAIT_VERIFICATION: 'await',
   VERIFIED: 'verified',
-}
+};

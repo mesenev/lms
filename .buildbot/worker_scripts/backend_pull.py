@@ -5,7 +5,7 @@ import dotenv
 
 
 def pull_composition():
-    dotenv.load_dotenv('home/buildbot/buildbot.env')
+    dotenv.load_dotenv('/home/buildbot/buildbot.env')
 
     def build_message_registry_login(code):
         if code:

@@ -47,7 +47,6 @@ export default class App extends Vue {
   //TODO set transition and styles for loader
   @Watch('isLogin')
   onIsLoginChanged(new_val: boolean, old_val: boolean) {
-    console.log(new_val, old_val)
     if (new_val) {
         this.$router.push(((this.$route.query.nextUrl) ?? "/") as string);
     } else {

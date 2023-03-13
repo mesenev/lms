@@ -18,7 +18,7 @@ class ExamModule extends VuexModule {
       lesson: NaN,
       description: '',
       questions: [],
-      points: 0,
+      max_points: 0,
       test_mode: '',
       is_hidden: true,
     } as ExamModel;

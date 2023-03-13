@@ -5,7 +5,7 @@
         <h1>Редактирование теста</h1>
       </div>
     </div>
-    <cv-row class="main-items" justify="center">
+    <cv-row v-if="!loading" class="main-items" justify="center">
       <cv-column :lg="{'span' : 8, 'offset' : 2}">
         <div class="test-container">
           <div :class="expanded ? 'expand-container expanded' : 'expand-container'">
@@ -33,9 +33,9 @@
           <div class="action-container">
             <div class="action-btns">
               <component class="action-btn" :is="addAlt" @click="addQuestion"/>
-              <component class="action-btn" :is="image24"/>
-              <component class="action-btn" :is="videoAdd"/>
-              <component class="action-btn" :is="attachment"/>
+              <!--              <component class="action-btn" :is="image24"/>-->
+              <!--              <component class="action-btn" :is="videoAdd"/>-->
+              <!--              <component class="action-btn" :is="attachment"/>-->
             </div>
           </div>
         </div>
@@ -51,6 +51,11 @@
         </div>
       </cv-column>
     </cv-row>
+    <div v-else class="bx--row">
+      <div class="bx--offset-lg-2">
+        <cv-loading/>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -94,13 +99,24 @@ export default class ExamEditView extends NotificationMixinComponent {
   videoAdd = videoAdd;
   attachment = attachment;
   expanded = false;
+  loading = false;
 
   exam: ExamModel = { ...examStore.newExam };
   examEdit = { ...this.exam };
 
   async created() {
+    this.loading = true;
     this.exam = await this.examStore.fetchExamById(this.examId);
+    if (!this.exam.questions.length) {
+      this.exam.questions.push(
+        _.cloneDeep({
+          ...this.questionStore.newQuestion,
+          index: 0,
+        })
+      )
+    }
     this.examEdit = _.cloneDeep(this.exam);
+    this.loading = false;
   }
 
   get isChanged() {
@@ -114,7 +130,7 @@ export default class ExamEditView extends NotificationMixinComponent {
   addQuestion() {
     const newQuestion = _.cloneDeep({
       ...this.questionStore.newQuestion,
-      index: this.examEdit.questions.length
+      index: this.exam.questions.length > 0 ? Math.max(...this.exam.questions.map(question => question.index)) + 1 : 0,
     });
     this.examEdit.questions.push(newQuestion);
   }
@@ -126,9 +142,9 @@ export default class ExamEditView extends NotificationMixinComponent {
   }
 
   async changeExam() {
-    this.examEdit.points = 0;
+    this.examEdit.max_points = 0;
     this.examEdit.questions.forEach((question) => {
-      this.examEdit.points += question.points;
+      this.examEdit.max_points += question.points;
     })
     await api.patch(`/api/exam/${this.examId}/`, {
       ...this.examEdit,
@@ -140,7 +156,7 @@ export default class ExamEditView extends NotificationMixinComponent {
       this.exam = response.data;
       this.examEdit = this.exam;
     }).catch(error => {
-      this.examEdit.points = this.exam.points;
+      this.examEdit.max_points = this.exam.max_points;
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.notificationKind = 'error';
     }).finally(() => {
@@ -173,9 +189,6 @@ export default class ExamEditView extends NotificationMixinComponent {
 
 .testing-type-dropdown
   width 40%
-
-.testing-type-dropdown /deep/ .bx--list-box__menu
-  max-height 5rem
 
 span
   margin-bottom 0.25rem

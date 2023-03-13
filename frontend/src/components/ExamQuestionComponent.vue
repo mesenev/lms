@@ -81,7 +81,7 @@ export default class ExamQuestionComponent extends Vue {
   questionStore = questionStore;
   trashCan24 = trashCan24;
   closeFilled24 = closeFilled24;
-  question = { ...questionStore.newQuestion };
+  question = { ...this.questionStore.newQuestion };
 
   async created() {
     this.question = this._question;
@@ -155,7 +155,7 @@ export default class ExamQuestionComponent extends Vue {
   display none
 
 .answer-type /deep/ .bx--dropdown__wrapper.bx--list-box__wrapper
-  max-width 40%
+  max-width 50%
 
 /deep/ .bx--list-box__field
   display flex
