@@ -1,161 +1,274 @@
 <template>
   <div class="bx--grid">
-    <div class="bx--row header"><h1>Редактирование задачи</h1></div>
-    <div v-if="showNotification" class="bx--row">
-      <cv-inline-notification
-        :kind="notificationKind"
-        :sub-title="notificationText"
-        @close="() => showNotification = false"
-      />
+    <div class="bx--row header">
+      <h1 class="main-title">Редактирование материала</h1>
     </div>
-    <div class="bx--row">
-      <div class="bx--col-lg-7 items">
-        <cv-skeleton-text
-          v-if="loading"
-          :line-count="6"
-          :paragraph="true"
-          :width="'80%'"/>
-        <div v-else>
-          <cv-text-input v-model.trim="problemEdit.name" label="Название"/>
-          <cv-text-area v-model.trim="problemEdit.description" label="Описание"/>
-          <div>
-            <br>
-            <cv-multi-select
-              v-model="deChecks"
-              :options="deOptions"
-              class="course--de"
-              label="Выберите среды разработки"
-              title="Доступные среды для отправки решений"
-              @change="deChanged">
-              <template slot="helper-text">
-                <cv-tooltip tip="При пустом списке будет использованы настройки курса"/>
+    <cv-loading v-if="loading"/>
+    <div v-else class="bx--row content">
+      <div class="edit-container-wrapper bx--col-lg-5">
+        <confirm-modal :modal-trigger="confirmModalTrigger"
+                       :text="approvedText"
+                       :approve-handler="deleteAttachment"/>
+        <div class="edit-container">
+          <cv-inline-notification
+            v-if="showNotification"
+            :kind="notificationKind"
+            :sub-title="notificationText"
+            @close="hideSuccess"
+          />
+          <cv-text-input label="Заголовок"
+                         type="text"
+                         v-model="materialEdit.name"/>
+          <cv-text-area label="Содержимое"
+                        class="text-area"
+                        v-model="materialEdit.content">
+          </cv-text-area>
+          <p class="attachments-list-label">Вложения</p>
+          <div class="attachments-list-container">
+            <cv-structured-list class="attachments-list">
+              <template slot="items">
+                <cv-structured-list-item class="attachments-list-item"
+                                         v-for="element in this.currentAttachments"
+                                         :key="element.id">
+                  <attachments-component-list :attachment="element"
+                                              @show-confirm-modal="showConfirmModal">
+                  </attachments-component-list>
+                </cv-structured-list-item>
               </template>
-            </cv-multi-select>
+            </cv-structured-list>
+          </div>
+          <input type="file"
+                 id="files_input"
+                 ref="files"
+                 multiple
+                 :disabled="attachmentLoading"
+                 @change="uploadFiles($event.target.files)"/>
+          <div class="change__btn">
+            <cv-button :disabled="canChangeMaterial"
+                       @click="ChangeMaterial">
+              Изменить
+            </cv-button>
           </div>
         </div>
-        <span style="padding-top: 20px">Выберите способ тестирования</span>
-            <cv-radio-group style="margin-top: 10px; padding-bottom: 20px">
-
-              <cv-radio-button @change = modChanged
-                               name="group-1"
-                               label="автоматическое"
-                               value="auto"
-                               v-model="testingMode"
-              />
-              <cv-radio-button @change = modChanged
-                               name="group-1"
-                               label="ручное"
-                               value="manual"
-                               v-model="testingMode"
-              />
-              <cv-radio-button @change = modChanged
-                               name="group-1"
-                               label="автоматическое и ручное"
-                               value="auto_and_manual"
-                               v-model="testingMode"
-              />
-
-            </cv-radio-group>
-        <cv-button-skeleton v-if="problemUpdating"/>
-        <cv-button
-          v-else :disabled="!isChanged || loading"
-          class="finishButton"
-          v-on:click="updateProblem">
-          Обновить задачу
-        </cv-button>
-
       </div>
-      <div class="bx--col-lg-1"></div>
-      <div class="bx--col-lg-7 items">
-        <h4>cats версия задачи</h4>
-        <cv-skeleton-text
-          v-if="catsProblemLoading || catsProblem"
-          :line-count="6"
-          :paragraph="true"
-          :width="'80%'"/>
-        <CatsProblemComponent v-else :catsProblem="catsProblem"/>
+      <div class="preview-container bx--col-lg-6">
+        <h4 class="title" v-if="materialEdit.name.length > 0"> {{ materialEdit.name }} </h4>
+        <h4 v-else>Введите название материала</h4>
+        <vue-markdown :source="materialEdit.content" html="false" class="markdown"/>
       </div>
     </div>
   </div>
 </template>
 
+
 <script lang="ts">
-import CatsProblemComponent from '@/components/EditProblem/CatsProblemComponent.vue';
-import Problem from '@/components/lists/ProblemListComponent.vue';
-import CatsProblemModel from '@/models/CatsProblemModel';
-import ProblemModel from '@/models/ProblemModel';
-import problemStore from "@/store/modules/problem";
+import MaterialModel from '@/models/MaterialModel';
+import materialStore from '@/store/modules/material';
 import _ from 'lodash';
-import { Component, Prop, Vue } from 'vue-property-decorator';
-@Component({ components: { Problem, CatsProblemComponent } })
-export default class ProblemEditView extends Vue {
-  private store = problemStore;
-  @Prop() problemId!: number;
-  problem = { ...this.store.getNewProblem };
-  problemEdit = { ...this.store.getNewProblem };
-  loading = true;
-  catsProblemLoading = true;
-  catsProblem: CatsProblemModel | null = null;
+import VueMarkdown from 'vue-markdown'
+import Vue from 'vue';
+import { Component, Prop } from 'vue-property-decorator';
+import api from '@/store/services/api';
+import AttachmentModel from "@/models/Attachment";
+import AttachmentsComponentList from '@/components/lists/AttachmentsComponentList.vue';
+import ConfirmModal from "@/components/ConfirmModal.vue";
+
+@Component({ components: { VueMarkdown, AttachmentsComponentList, ConfirmModal } })
+export default class MaterialEditView extends Vue {
+  @Prop() materialId!: number;
+  private materialStore = materialStore;
+  material: MaterialModel = {
+    id: NaN,
+    lesson: NaN,
+    name: '',
+    content_type: '',
+    content: '',
+    is_teacher_only: false,
+  }
+
+  materialEdit: MaterialModel = { ...this.material }
+  showNotification = false;
   notificationKind = 'success';
   notificationText = '';
-  showNotification = false;
-  problemUpdating = false;
-  testingMode = '';
-  deChecks: string[] = [];
-  deOptions =  [
-  {
-    value: '3', label: 'Cross-platform C/C++ compiler',
-    name: 'Cross-platform C/C++ compiler', disabled: false,
-  },
-  {
-    value: '681949', label: 'Python 3.8.1',
-    name: 'Python 3.8.1', disabled: false,
-  },
-];
-  deChanged() {
-    this.problemEdit = { ...this.problemEdit, de_options: this.deChecks.sort().join(',') };
+  loading = true;
+  confirmModalTrigger = false;
+  approvedText = '';
+  deletingAttachmentId: number | null = null;
+  attachmentLoading = false;
+
+  hideSuccess() {
+    this.showNotification = false;
   }
-  modChanged(){
-    this.problemEdit = { ...this.problemEdit, test_mode: this.testingMode }
-  }
-  get isChanged(): boolean {
-    return !_.isEqual(this.problem, this.problemEdit);
-  }
+
   async created() {
-    this.loading = true;
-    this.problem = await this.store.fetchProblemById(this.problemId);
-    this.problemEdit = { ...this.problem };
-    this.deChecks = this.problemEdit.de_options.split(',');
+    const material = await this.materialStore.fetchMaterialById(this.materialId);
+    await this.materialStore.fetchAttachmentsByMaterialId(this.materialId);
+    if (material) {
+      this.materialStore.setCurrentMaterial(material);
+      this.material = this.materialStore.currentMaterial;
+      this.materialEdit = _.cloneDeep(this.material)
+    }
     this.loading = false;
-    this.catsProblem = await this.store.fetchCatsProblemById(this.problem.cats_id)
-    this.testingMode = this.problemEdit.test_mode;
-    this.catsProblemLoading = false;
   }
-  updateProblem(): void {
-    this.problemUpdating = true;
-    const request = this.store.patchProblem(this.problemEdit);
-    request.then(response => {
-      this.notificationKind = 'success';
-      this.notificationText = 'Задача успешно обновлена'
-      this.problem = response.data;
-      this.problemEdit = { ...this.problem };
-    });
-    request.catch(error => {
-      this.notificationText = `Что-то пошло не так: ${error.message}`;
-      this.notificationKind = 'error';
-    })
-    request.finally(() => {
-      this.showNotification = true;
-      this.problemUpdating = false;
-    });
+
+  async uploadFiles(fileList: File[]) {
+    this.attachmentLoading = true;
+    for (const element of fileList) {
+      const fd = new FormData();
+      fd.append('id', '-1')
+      fd.append('name', element.name)
+      fd.append('material', this.material.id.toString())
+      fd.append('file_url', element)
+      fd.append('file_format', element.type)
+      await this.materialStore.createAttachment(fd).catch(error => {
+        this.notificationKind = 'error';
+        this.notificationText = `Что-то пошло не так: ${error.message}`;
+        this.showNotification = true;
+      })
+    }
+    await this.updateAttachments();
+    const input = window.document.getElementById('files_input') as HTMLInputElement
+    input.value = '';
+    this.attachmentLoading = false;
+  }
+
+  get currentMaterial(): MaterialModel {
+    return this.material;
+  }
+
+  get currentAttachments(): Array<AttachmentModel> {
+    return this.materialStore.currentAttachments;
+  }
+
+  get isMaterialEmpty(): boolean {
+    return this.materialEdit.name.length === 0 || this.materialEdit.content.length === 0;
+  }
+
+  get canChangeMaterial(): boolean {
+    return _.isEqual(this.currentMaterial, this.materialEdit) || this.isMaterialEmpty
+  }
+
+  showConfirmModal(deletingAttachment: AttachmentModel) {
+    this.deletingAttachmentId = deletingAttachment.id;
+    this.approvedText = `Удалить вложение: ${deletingAttachment.name}`;
+    this.confirmModalTrigger = !this.confirmModalTrigger;
+  }
+
+  async ChangeMaterial() {
+    await api.patch(`/api/material/${this.materialEdit.id}/`, this.materialEdit)
+      .then(() => {
+        this.notificationKind = 'success';
+        this.notificationText = 'Материалы успешно изменены';
+        this.updateMaterials(this.material, this.materialEdit);
+        this.material = this.materialEdit;
+        this.materialStore.setCurrentMaterial(this.material);
+      })
+      .catch(error => {
+        this.notificationText = `Что-то пошло не так: ${error.message}`;
+        this.notificationKind = 'error';
+      })
+      .finally(() => this.showNotification = true);
+  }
+
+  async deleteAttachment() {
+    if (!this.deletingAttachmentId)
+      throw Error;
+    await this.materialStore.deleteAttachment(this.deletingAttachmentId)
+      .catch(error => {
+        this.notificationKind = 'error';
+        this.notificationText = `Что-то пошло не так: ${error.message}`
+        this.showNotification = true;
+      })
+  }
+
+  async updateAttachments() {
+    await this.materialStore.fetchAttachmentsByMaterialId(this.materialId);
+  }
+
+  async updateMaterials(oldMaterial: MaterialModel, newMaterial: MaterialModel) {
+    let materials = await this.materialStore.fetchMaterialsByLessonId(oldMaterial.lesson);
+    materials = materials.filter(x => x.id !== oldMaterial.id);
+    materials.push(newMaterial);
+    materials.sort((a, b) => a.id - b.id);
+    this.materialStore.setMaterials({ [newMaterial.lesson]: materials });
   }
 }
 </script>
 
 <style scoped lang="stylus">
-.items
-  background-color var(--cds-ui-02)
-.header
-  padding-bottom 1.5rem
-  padding-top 1rem
+.bx--col-lg-5
+  margin-left 20px
+
+.preview-container
+  padding 1rem
+  color var(--cds-text-01)
+  background-color var(--cds-ui-01)
+  border 2px black solid
+
+.markdown
+  overflow-wrap break-word
+  margin-top 10px
+  overflow-y auto
+  max-height 40rem
+
+.title
+  overflow-wrap break-word
+
+.edit-container-wrapper
+  margin-top 2rem
+  margin-bottom 2rem
+  min-height 400px
+
+.edit-container
+  padding 1rem
+  background-color var(--cds-ui-01)
+
+/deep/.bx--text-input
+  background-color var(--cds-ui-background)
+
+.text-area >>> .bx--text-area
+  background-color var(--cds-ui-background)
+  min-height 13rem
+  resize none
+  margin-bottom 10px
+
+#files_input
+  color var(--cds-text-01)
+
+.change__btn
+  display flex
+  justify-content flex-end
+
+.text-area
+  font-size: 14px
+  font-family: "Monaco", courier, monospace
+  margin-top 15px
+
+.attachments-list-label
+  font-size var(--cds-label-01-font-size, 0.75rem)
+  font-weight var(--cds-label-01-font-weight, 400)
+  line-height var(--cds-label-01-line-height, 1.34)
+  letter-spacing var(--cds-label-01-letter-spacing, 0.32px)
+  display: inline-block
+  margin-bottom 0.5rem
+  color: var(--cds-text-02, #525252)
+  vertical-align baseline
+
+.attachments-list-container
+  overflow auto
+  max-height 200px
+  margin-bottom 0.5rem
+
+.attachments-list
+  margin-top 1px
+  margin-bottom 0
+
+.attachments-list-item
+  border-right 1px solid var(--cds-ui-03)
+  border-left 1px solid var(--cds-ui-03)
+
+code {
+  color: #f66;
+}
+
 </style>
