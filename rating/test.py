@@ -40,7 +40,9 @@ class CourseProgressTests(MainSetup):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        url = reverse('courseprogress-detail', kwargs=dict(pk=2))
+        instance = CourseProgress.objects.filter(course_id=course.id).first()
+
+        url = reverse('courseprogress-detail', kwargs=dict(pk=instance.id))
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
