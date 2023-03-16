@@ -172,13 +172,11 @@ export default class CourseView extends Vue {
 <style scoped lang="stylus">
 .description-container
   display flex
-  margin-top var(--cds-spacing-05)
-
-.course-description
-  max-width 40rem
+  max-width 70%
   word-break break-word
-  background-color var(--cds-ui-01)
-  padding 1rem
+  color var(--cds-text-02)
+  font-weight var(--cds-display-02-font-weight)
+  margin-top var(--cds-spacing-03)
 
 .items
   padding-top 1rem
