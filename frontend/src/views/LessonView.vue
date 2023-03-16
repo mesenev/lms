@@ -48,7 +48,7 @@
               <h4 class="classwork-title title">Дополнительные задания</h4>
               <problem-list-component :task-list="extrawork"/>
             </div>
-            <div class="tests">
+            <div v-if="exams.length > 0" class="tests">
               <h4 class="classwork-title title">Тесты</h4>
               <exam-list-component :exams-list="exams"/>
             </div>
