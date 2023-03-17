@@ -4,6 +4,7 @@ from course.models import Course
 from users.models import User
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
+from lesson.storages import private_storage
 
 
 def attachment_file_name(instance, filename):
@@ -34,7 +35,7 @@ class LessonContent(models.Model):
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=500)
     content_type = models.CharField(max_length=5, choices=CONTENT_TYPE, blank=True, null=True)
-    content = models.TextField()
+    content = models.FileField(storage=private_storage)
     is_teacher_only = models.BooleanField(default=False)
 
     def __str__(self):

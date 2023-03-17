@@ -1,5 +1,6 @@
 from rest_framework import serializers
-
+from lesson.storages import gen_hash_name
+from django.core.files.base import ContentFile
 from lesson.models import Lesson, LessonContent, Attachment
 from problem.serializers import ProblemSerializer
 from rating.serializers import LessonProgressSerializer
@@ -41,8 +42,13 @@ class MaterialSerializer(serializers.Serializer):
     is_teacher_only = serializers.BooleanField()
 
     def update(self, instance, validated_data):
+        print('UPDATE: ', instance)
         instance.name = validated_data.get('name', instance.name)
-        instance.content = validated_data.get('content', instance.content)
+
+        if validated_data.get('content'):
+            self._change_content(validated_data.get('content'))
+
+
         instance.author = validated_data.get('author', instance.author)
         instance.is_teacher_only = validated_data.get('is_teacher_only', instance.is_teacher_only)
         instance.save()
@@ -51,7 +57,30 @@ class MaterialSerializer(serializers.Serializer):
     def create(self, validated_data):
         request = self.context.get("request")
         user = request.user if request and hasattr(request, 'user') else None
-        return LessonContent.objects.create(**validated_data, **{'author': user})
+        content = validated_data.get('content')
+        validated_data.pop('content')
+        lesson_material = LessonContent.objects.create(**validated_data, **{'author': user})
+        lesson_material.content.save(gen_hash_name(content) + '.txt', ContentFile(content), save=True)
+        print(lesson_material)
+        return lesson_material
+
+    @staticmethod
+    def _get_file_content(instance):
+        if not instance.content.name:
+            return ""
+
+        with instance.content.file.open('r') as temp:
+            return temp.read()
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        if instance is not None:
+            rep["content"] = self._get_file_content(instance)
+        return rep
+
+    def _change_content(self, content):
+        with self.instance.content.open("w") as temp:
+            temp.write(content)
 
     class Meta:
         model = LessonContent
