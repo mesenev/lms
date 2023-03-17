@@ -17,7 +17,7 @@
             class="text_field"
             label="Название урока"
             v-model.trim="lessonEdit.name"/>
-          <cv-text-input
+          <cv-text-area
             class="text_field"
             label="Описание урока"
             v-model.trim="lessonEdit.description"/>
@@ -45,7 +45,7 @@
         </div>
       </div>
 
-      <div class="bx--col-lg-5 bx--col-md-4">
+      <div class="bx--col-lg-6 bx--col-md-4">
         <cv-content-switcher>
           <cv-content-switcher-button class="type-of-task-tab" owner-id="CW" selected>
             Классная работа
@@ -194,10 +194,6 @@ export default class LessonEditView extends NotificationMixinComponent {
     request.finally(() => this.showNotification = true);
   }
 
-  get getClasswork(): Array<ProblemModel | CatsProblemModel> {
-    return this.lessonEdit.problems.filter(x => x.type === 'CW');
-  }
-
   updateTaskList(new_problems: Array<ProblemModel | CatsProblemModel>) {
     this.lessonEdit = {...this.lesson}
     new_problems.forEach(element => {
@@ -230,6 +226,10 @@ export default class LessonEditView extends NotificationMixinComponent {
     this.lesson.materials = this.lessonEdit.materials;
   }
 
+  get getClasswork(): Array<ProblemModel | CatsProblemModel> {
+    return this.lessonEdit.problems.filter(x => x.type === 'CW');
+  }
+
   get getHomework(): Array<ProblemModel | CatsProblemModel> {
     return this.lessonEdit.problems.filter(x => x.type === 'HW');
   }
@@ -259,10 +259,9 @@ export default class LessonEditView extends NotificationMixinComponent {
 
 <style scoped lang="stylus">
 .text_field
-  margin 2rem
-  max-width 23rem
+  margin 1rem 0 2rem 1rem
 
-.text_field /deep/ .bx--text-input
+.text_field /deep/ .bx--text-input, /deep/ .bx--text-area
   background-color var(--cds-ui-background)
 
 .cv-date-picker >>> .bx--date-picker__input
@@ -289,15 +288,15 @@ export default class LessonEditView extends NotificationMixinComponent {
   padding 1rem 1rem 0.5rem 1rem
 
 .classwork, .homework, .extrawork
-  max-height 300px
+  max-height 25rem
   overflow-y auto
   border var(--cds-ui-05) 1px solid
   margin: 20px 0
 
 .edit-content
   padding-top 1px
-  padding-right 20px
-  padding-bottom 20px
+  padding-right 1rem
+  padding-bottom 1rem
   background-color var(--cds-ui-01)
   max-width 27rem
 
@@ -335,10 +334,6 @@ export default class LessonEditView extends NotificationMixinComponent {
 
 .accordion /deep/ .bx--accordion__content
   padding-right 0
-
-.type-of-task-tab
-  background-color: var(--cds-active-secondary)
-  color: white
 
 .header
   color var(--cds-text-01)
