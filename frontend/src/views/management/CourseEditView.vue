@@ -17,6 +17,11 @@
       <div
         v-bind:class="(!isNewCourse)? 'bx--col-lg-5 bx--col-md-4  col-content':'bx--col-lg-6 col-content'">
         <div class="items">
+          <confirm-modal
+            ref="confirmModal"
+            :text="approvedText"
+            :approve-handler="deleteCourse"
+            :modal-trigger="confirmModalTrigger"/>
           <cv-inline-notification
             v-if="showNotification"
             :kind="notificationKind"
@@ -70,6 +75,14 @@
                 {{ isNewCourse ? 'Создать' : 'Изменить' }}
               </cv-button>
             </div>
+            <cv-button
+              style="margin-top: 1rem"
+              v-if="!isNewCourse && !fetchingCourse"
+              class="delete-btn"
+              @click="showConfirmModal"
+              kind="danger">
+              Удалить курс
+            </cv-button>
           </div>
         </div>
       </div>
@@ -107,10 +120,11 @@ import userStore from '@/store/modules/user';
 import api from '@/store/services/api';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import ConfirmModal from "@/components/ConfirmModal.vue";
 
 @Component({
   components: {
-    AddTeacherModal, EditCourseLessons, EditCourseModal, GenerateLinks,
+    ConfirmModal, AddTeacherModal, EditCourseLessons, EditCourseModal, GenerateLinks,
   },
 })
 export default class CourseEditView extends Vue {
@@ -122,6 +136,8 @@ export default class CourseEditView extends Vue {
   showNotification = false;
   notificationKind = 'success';
   notificationText = '';
+  approvedText = '';
+  confirmModalTrigger = false;
   course: CourseModel = { ...courseStore.newCourse };
   courseEdit = { ...this.course };
   deChecks: string[] = [];
@@ -164,6 +180,11 @@ export default class CourseEditView extends Vue {
 
   get isNewCourse(): boolean {
     return isNaN(this.courseEdit.id);
+  }
+
+  showConfirmModal() {
+    this.approvedText = `Удалить курс: ${this.courseEdit.name}`;
+    this.confirmModalTrigger = !this.confirmModalTrigger;
   }
 
   deChanged() {
@@ -224,6 +245,22 @@ export default class CourseEditView extends Vue {
       this.notificationKind = 'error';
     });
     request.finally(() => this.showNotification = true);
+  }
+
+  async deleteCourse() {
+    if (this.isNewCourse)
+      throw Error;
+    await api.delete(`/api/course/${this.courseEdit.id}/`)
+      .then(async () => {
+        this.store.setCourses(this.store.courses.filter(x => x.id != this.courseEdit.id));
+        await (this as any).$refs.confirmModal?.hideModal();
+        await this.$router.replace({name: 'Home', path: '/'});
+      })
+      .catch(error => {
+        this.notificationKind = 'error';
+        this.notificationText = `Что-то пошло не так: ${error.message}`;
+        this.showNotification = true;
+      })
   }
 }
 </script>
