@@ -7,7 +7,7 @@
     </div>
     <cv-row v-if="!loading" class="main-items" justify="center">
       <cv-column :lg="{'span' : 8, 'offset' : 2}">
-        <div class="test-container">
+        <div class="exam-container">
           <div :class="expanded ? 'expand-container expanded' : 'expand-container'">
             <div @click="expand" class="expand-container-head">
               <p>Настройки теста</p>
@@ -21,16 +21,36 @@
                 <cv-dropdown-item value="manual">Manual</cv-dropdown-item>
                 <cv-dropdown-item value="auto_and_manual">Auto & Manual</cv-dropdown-item>
               </cv-dropdown>
-              <cv-text-input v-model="examEdit.name" label="Название теста"/>
-              <cv-text-area v-model="examEdit.description" label="Описание"/>
+              <cv-text-input v-model.trim="examEdit.name" label="Название теста">
+                <template v-if="!examEdit.name.length" slot="invalid-message">
+                  {{ emptyFieldText }}
+                </template>
+              </cv-text-input>
+              <cv-text-area v-model="examEdit.description" label="Описание (опционально)"/>
               <!--              <cv-date-picker kind="single" date-label="Дедлайн"/>-->
             </div>
           </div>
           <div class="questions" v-for="(question, index) in examEdit.questions" :key="index">
-            <test-question-component :_question="question" :test-id="examEdit.id"
-                                     @delete-question="deleteQuestion(question)"/>
+            <test-question-component
+              @set-fields-empty="setFieldsEmpty($event.isEmpty, $event.question)"
+              :exam="examEdit" :_question="question" :test-id="examEdit.id"
+              :invalid-prop="invalidProp"
+              @delete-question="deleteQuestion(question)"/>
           </div>
           <div class="action-container">
+            <div class="change-container">
+              <div class="change">
+                <cv-button v-if="!isExamChanging" @click="changeExam" :disabled="!isChanged">
+                  Изменить
+                </cv-button>
+                <cv-button-skeleton v-else></cv-button-skeleton>
+              </div>
+              <cv-inline-notification
+                v-if="showNotification"
+                @close="() => showNotification=false"
+                :kind="notificationKind"
+                :sub-title="notificationText"/>
+            </div>
             <div class="action-btns">
               <component class="action-btn" :is="addAlt" @click="addQuestion"/>
               <!--              <component class="action-btn" :is="image24"/>-->
@@ -38,16 +58,6 @@
               <!--              <component class="action-btn" :is="attachment"/>-->
             </div>
           </div>
-        </div>
-        <div class="change-container">
-          <div class="change">
-            <cv-button @click="changeExam" :disabled="!isChanged">Изменить</cv-button>
-          </div>
-          <cv-inline-notification
-            v-if="showNotification"
-            @close="() => showNotification=false"
-            :kind="notificationKind"
-            :sub-title="notificationText"/>
         </div>
       </cv-column>
     </cv-row>
@@ -100,12 +110,17 @@ export default class ExamEditView extends NotificationMixinComponent {
   attachment = attachment;
   expanded = false;
   loading = false;
+  isExamChanging = false;
+  emptyFieldText = '';
+  invalidProp = false;
+  fieldsValid = new Set<number>();
 
   exam: ExamModel = { ...examStore.newExam };
   examEdit = { ...this.exam };
 
   async created() {
     this.loading = true;
+    this.emptyFieldText = 'Заполните поле!';
     this.exam = await this.examStore.fetchExamById(this.examId);
     if (!this.exam.questions.length) {
       this.exam.questions.push(
@@ -127,12 +142,20 @@ export default class ExamEditView extends NotificationMixinComponent {
     this.expanded = !this.expanded;
   }
 
+  setFieldsEmpty(isEmpty: boolean, question: number) {
+    isEmpty ? this.fieldsValid.add(question) : this.fieldsValid.delete(question);
+  }
+
   addQuestion() {
     const newQuestion = _.cloneDeep({
       ...this.questionStore.newQuestion,
       index: this.exam.questions.length > 0 ? Math.max(...this.exam.questions.map(question => question.index)) + 1 : 0,
     });
     this.examEdit.questions.push(newQuestion);
+    this.examEdit.questions.forEach(value => {
+      if (!value.text.length)
+        this.fieldsValid.add(value.index);
+    })
   }
 
   deleteQuestion(question: QuestionModel) {
@@ -142,6 +165,15 @@ export default class ExamEditView extends NotificationMixinComponent {
   }
 
   async changeExam() {
+    this.isExamChanging = true;
+    if (this.fieldsValid.size || !this.examEdit.name.length) {
+      this.notificationText = 'Проверьте правильность введенных данных';
+      this.notificationKind = 'error';
+      this.showNotification = true;
+      this.isExamChanging = false;
+      this.invalidProp = true;
+      return;
+    }
     this.examEdit.max_points = 0;
     this.examEdit.questions.forEach((question) => {
       this.examEdit.max_points += question.points;
@@ -152,15 +184,15 @@ export default class ExamEditView extends NotificationMixinComponent {
     }).then(response => {
       this.notificationKind = 'success';
       this.notificationText = 'Тест успешно изменен';
-      this.examStore.changeCurrentExam(this.examEdit);
       this.exam = response.data;
-      this.examEdit = this.exam;
+      this.examStore.changeCurrentExam(this.exam);
     }).catch(error => {
       this.examEdit.max_points = this.exam.max_points;
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.notificationKind = 'error';
     }).finally(() => {
       this.showNotification = true;
+      this.isExamChanging = false;
     })
   }
 }
@@ -169,6 +201,9 @@ export default class ExamEditView extends NotificationMixinComponent {
 <style scoped lang="stylus">
 .main-items
   color var(--cds-text-01)
+
+.exam-container
+  min-width 45rem
 
 .expand-container-head
   cursor pointer
@@ -218,7 +253,7 @@ span
 
 .action-container
   display flex
-  justify-content end
+  justify-content space-between
 
 .expand-fields
   display flex
@@ -230,7 +265,8 @@ span
   display flex
   gap 1rem
   border-radius 5px
-  margin-top 1rem
+  margin-top 0.5rem
+  align-self flex-start
   padding 1rem
 
 .action-btn

@@ -419,6 +419,7 @@ export default class ExamView extends NotificationMixinComponent {
   }
 
   async submitSolution() {
+    this.submitting = true;
     const points = this.exam?.questions
       .filter(x => this.studentSolution.question_verdicts[x.index] === 'correct')
       .map(x => x.points)
@@ -437,6 +438,7 @@ export default class ExamView extends NotificationMixinComponent {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
     }).finally(() => {
       this.showNotification = true;
+      this.submitting = false;
     });
   }
 }

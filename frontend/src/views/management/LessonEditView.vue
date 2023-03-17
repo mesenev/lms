@@ -46,7 +46,7 @@
       </div>
 
       <div class="bx--col-lg-5 bx--col-md-4">
-        <cv-content-switcher size="small">
+        <cv-content-switcher>
           <cv-content-switcher-button class="type-of-task-tab" owner-id="CW" selected>
             Классная работа
           </cv-content-switcher-button>
