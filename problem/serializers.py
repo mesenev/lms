@@ -4,7 +4,8 @@ from rest_framework.exceptions import ValidationError
 from lesson.models import Lesson
 from problem.models import Problem, Submit, ProblemStats, LogEvent
 from users.serializers import DefaultUserSerializer
-
+from lesson.storages import gen_hash_name
+from django.core.files.base import ContentFile
 
 class CatsResultField:
     pass
@@ -29,7 +30,25 @@ class SubmitSerializer(serializers.ModelSerializer):
         return instance
 
     def create(self, validated_data):
-        return Submit.objects.create(**validated_data)
+        content = validated_data.get('content')
+        validated_data.pop('content')
+        submit = Submit.objects.create(**validated_data)
+        submit.content.save(gen_hash_name(content) + '.txt', ContentFile(content), save=True)
+        return submit
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        if instance is not None:
+            rep["content"] = self._get_file_content(instance)
+        return rep
+
+    @staticmethod
+    def _get_file_content(instance):
+        if not instance.content.name:
+            return ""
+
+        with instance.content.file.open() as temp:
+            return temp.read()
 
     class Meta:
         model = Submit

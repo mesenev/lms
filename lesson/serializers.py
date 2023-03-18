@@ -61,7 +61,6 @@ class MaterialSerializer(serializers.Serializer):
         validated_data.pop('content')
         lesson_material = LessonContent.objects.create(**validated_data, **{'author': user})
         lesson_material.content.save(gen_hash_name(content) + '.txt', ContentFile(content), save=True)
-        print(lesson_material)
         return lesson_material
 
     @staticmethod
