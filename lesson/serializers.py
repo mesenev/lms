@@ -42,7 +42,6 @@ class MaterialSerializer(serializers.Serializer):
     is_teacher_only = serializers.BooleanField()
 
     def update(self, instance, validated_data):
-        print('UPDATE: ', instance)
         instance.name = validated_data.get('name', instance.name)
 
         if validated_data.get('content'):
