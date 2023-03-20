@@ -1,6 +1,5 @@
 from celery.utils.log import get_task_logger
 from django.core.mail import send_mail
-from django.urls import reverse
 
 from cathie.cats_api import cats_check_solution_status, cats_submit_solution
 from cathie.exceptions import CatsAnswerCodeException, CatsNormalErrorException
