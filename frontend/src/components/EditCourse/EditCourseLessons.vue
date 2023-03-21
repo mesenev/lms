@@ -2,26 +2,14 @@
   <div>
     <div class="main-lesson-container" v-if="course.lessons.length">
       <h4 class="lesson--list--title">Уроки</h4>
-      <cv-search label="Поиск"
-                 v-model="searchQueryForCourseLessons">
-      </cv-search>
-      <confirm-modal
-        class="confirm--modal"
-        :text="approvedText"
-        :modal-trigger="modalTrigger"
-        :approve-handler="deleteLesson"/>
+      <cv-search v-model="searchQueryForCourseLessons"/>
       <div class="lesson--list">
-        <cv-inline-notification
-          v-if="showNotification"
-          @close="() => showNotification=false"
-          kind="error"
-          :sub-title="notificationText"/>
         <cv-structured-list id="lessons">
           <template slot="items">
             <cv-structured-list-item class="lesson-card"
                                      v-for="lesson in courseLessons"
                                      :key="lesson.id">
-              <div class="lesson">
+              <div class="lesson" @click="toLesson(lesson)">
                 <div class="title">
                   <h5>{{ lesson.name }}</h5>
                   <cv-tag v-for="problem in lessonProblems(lesson)"
@@ -29,16 +17,6 @@
                           kind="red"
                           :label="problem">
                   </cv-tag>
-                </div>
-                <div class="icons">
-                  <component :is="TrashCan"
-                             class="icon"
-                             @click="showConfirmModal(lesson)">
-                  </component>
-                  <component :is="Settings"
-                             class="icon"
-                             @click="editLesson(lesson)">
-                  </component>
                 </div>
               </div>
             </cv-structured-list-item>
@@ -57,8 +35,6 @@ import searchByLessons from '@/common/searchByTutorial';
 import lessonStore from '@/store/modules/lesson';
 import CourseModel from '@/models/CourseModel';
 import LessonModel from '@/models/LessonModel';
-import Settings20 from '@carbon/icons-vue/es/settings/20';
-import TrashCan20 from '@carbon/icons-vue/es/trash-can/20';
 import {Component, Prop} from 'vue-property-decorator';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
@@ -67,20 +43,13 @@ import _ from "lodash";
 
 @Component({
   components: {
-    TrashCan20,
-    Settings20,
     ConfirmModal
   },
 })
 export default class EditCourseLessons extends NotificationMixinComponent {
   @Prop({required: true}) course!: CourseModel;
   lessonStore = lessonStore;
-  TrashCan = TrashCan20;
-  Settings = Settings20;
   searchQueryForCourseLessons = '';
-  deletingLessonId: number | null = null;
-  modalTrigger = false;
-  approvedText = '';
 
   get courseLessons(): LessonModel[] {
     return searchByLessons(this.searchQueryForCourseLessons, this.course.lessons)
@@ -99,28 +68,8 @@ export default class EditCourseLessons extends NotificationMixinComponent {
     return problems;
   }
 
-  showConfirmModal(deletingLesson: LessonModel) {
-    this.approvedText = `Удалить урок: ${deletingLesson.name}`;
-    this.deletingLessonId = deletingLesson.id;
-    this.modalTrigger = !this.modalTrigger;
-  }
-
-  editLesson(lesson: LessonModel) {
-    router.push({name: 'lesson-edit', params: {lessonId: lesson.id.toString()}});
-  }
-
-  async deleteLesson() {
-    if (!this.deletingLessonId)
-      throw Error;
-    await this.lessonStore.deleteLesson(this.deletingLessonId).then(() => {
-      this.course.lessons =
-        this.course.lessons.filter((x: LessonModel) => x.id != this.deletingLessonId);
-    }).catch(error => {
-      this.notificationKind = 'error';
-      this.notificationText = `Что-то пошло не так: ${error.message}`;
-      this.showNotification = true;
-    });
-    this.lessonStore.setLessons({[this.course.id]: this.course.lessons});
+  toLesson(lesson: LessonModel) {
+    router.push({name: 'LessonView', params: {lessonId: lesson.id.toString()}});
   }
 }
 </script>
@@ -175,6 +124,9 @@ export default class EditCourseLessons extends NotificationMixinComponent {
 
 .lesson-card:hover
   border-bottom 1px solid var(--cds-ui-05)
+  cursor pointer
+  /deep/ .bx--tag
+    cursor pointer
 
 .icons
   color var(--cds-inverse-02)
