@@ -35,10 +35,10 @@
           />
           <div class="action-btns">
             <cv-button kind="danger" @click="showConfirmModal(lessonEdit)">
-              Удалить урок
+              Удалить
             </cv-button>
             <cv-button :disabled="!isChanged" @click="createOrUpdate">
-              {{ isNewLesson ? 'Создать урок' : 'Изменить урок' }}
+              {{ isNewLesson ? 'Создать урок' : 'Изменить' }}
             </cv-button>
           </div>
         </div>
@@ -197,7 +197,7 @@ export default class LessonEditView extends NotificationMixinComponent {
       this.store.setLessons({ [this.lessonEdit.course]: curCourse.lessons });
       this.courseStore.changeCurrentCourse(curCourse);
       await this.$router.push(
-        {name: 'CourseView', params: {courseId: curCourse.id.toString()}}
+        { name: 'CourseView', params: { courseId: curCourse.id.toString() } }
       );
     }).catch(error => {
       this.notificationKind = 'error';

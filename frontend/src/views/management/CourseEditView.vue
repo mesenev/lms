@@ -1,9 +1,9 @@
 <template>
   <div class="bx--grid">
-    <div class="bx--row page--title">
+    <div class="bx--row header-container">
       <div>
         <h1 v-if="!fetchingCourse"
-            class="title">{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}
+            class="main-title">{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}
         </h1>
         <cv-skeleton-text
           v-else
@@ -51,7 +51,7 @@
             v-model.trim="courseEdit.name"
             class="course--name"
             label="Название курса"/>
-          <cv-text-input
+          <cv-text-area
             v-model.trim="courseEdit.description"
             class="course--description"
             label="Описание курса"/>
@@ -81,7 +81,7 @@
               class="delete-btn"
               @click="showConfirmModal"
               kind="danger">
-              Удалить курс
+              Удалить
             </cv-button>
           </div>
         </div>
@@ -254,7 +254,7 @@ export default class CourseEditView extends Vue {
       .then(async () => {
         this.store.setCourses(this.store.courses.filter(x => x.id != this.courseEdit.id));
         await (this as any).$refs.confirmModal?.hideModal();
-        await this.$router.replace({name: 'Home', path: '/'});
+        await this.$router.replace({ name: 'Home', path: '/' });
       })
       .catch(error => {
         this.notificationKind = 'error';
@@ -287,17 +287,8 @@ export default class CourseEditView extends Vue {
   overflow-wrap break-word
 
 .col-content
-  margin-top 1rem
   margin-right 1rem
-
-.main--content
-  margin-top 1rem
-
-.page--title
-  margin-top 1rem
-  display flex
-  flex-direction column
-  align-items flex-start
+  padding-left 0
 
 .lessons
   background-color var(--cds-ui-01)
@@ -321,16 +312,14 @@ export default class CourseEditView extends Vue {
 .manage-title
   margin-top 1rem
 
-.title
-  color var(--cds-text-01)
-  margin-left 3rem
-  margin-top 1rem
-
 .items
   background-color var(--cds-ui-01)
   padding var(--cds-spacing-05)
 
   /deep/ .bx--text-input
+    background-color var(--cds-ui-background)
+
+  /deep/ .bx--text-area
     background-color var(--cds-ui-background)
 
   /deep/ .bx--list-box
