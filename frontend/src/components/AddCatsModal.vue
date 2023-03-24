@@ -33,11 +33,13 @@
             class="input"
             type="password"
             label="Повторите пароль:"
-            v-model.trim="catsPasswordRepeat"
-          />
-          <span class="form__notification">Пароль для аккаунта не сохраняется
-            <cv-tooltip tip="Пароль используется исключительно для верификации аккаунта"/>
-          </span>
+            v-model.trim="catsPasswordRepeat">
+            <template slot="helper-text">
+              <span class="form__notification">Пароль для аккаунта не сохраняется
+              <cv-tooltip tip="Пароль используется исключительно для верификации аккаунта"/>
+              </span>
+            </template>
+          </cv-text-input>
         </div>
         <div class="btns">
           <cv-button-skeleton class="btn" v-if="transmittingData">Добавить</cv-button-skeleton>
@@ -118,9 +120,15 @@ export default class AddCatsModal extends NotificationMixinComponent {
 </script>
 
 <style scoped lang="stylus">
-.add_cats_modal /deep/ .bx--modal-container {
-  width: 25%;
-}
+.add_cats_modal
+  /deep/ .bx--modal-container
+    width: fit-content
+
+  /deep/ .bx--modal-content
+    padding 0 4rem 0 0
+    margin-left 1rem
+    margin-bottom 1rem
+    overflow hidden
 
 .btns
   float left;
@@ -130,9 +138,11 @@ export default class AddCatsModal extends NotificationMixinComponent {
   flex-direction row;
 
 .form__notification
+  display flex
+  align-items center
   font-size small
+  gap 0.5rem
   color var(--cds-text-02)
-  margin 1rem 0
 
 .input
   width 300px
