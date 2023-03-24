@@ -13,7 +13,7 @@
                    player-height="360"></youtube>
         </div>
         <div v-else class="less material-content">
-          <vue-markdown html="true" :source="currentMaterial.content" class="md-body"/>
+          <vue-markdown :html="true" :source="currentMaterial.content" class="md-body"/>
         </div>
       </div>
       <div class="bx--col-lg-3 bx--col-md-4">
