@@ -1,9 +1,9 @@
 <template>
   <div class="bx--grid">
-    <div class="bx--row page--title">
+    <div class="bx--row header-container">
       <div>
         <h1 v-if="!fetchingCourse"
-            class="title">{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}
+            class="main-title">{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}
         </h1>
         <cv-skeleton-text
           v-else
@@ -17,6 +17,11 @@
       <div
         v-bind:class="(!isNewCourse)? 'bx--col-lg-5 bx--col-md-4  col-content':'bx--col-lg-6 col-content'">
         <div class="items">
+          <confirm-modal
+            ref="confirmModal"
+            :text="approvedText"
+            :approve-handler="deleteCourse"
+            :modal-trigger="confirmModalTrigger"/>
           <cv-inline-notification
             v-if="showNotification"
             :kind="notificationKind"
@@ -46,7 +51,7 @@
             v-model.trim="courseEdit.name"
             class="course--name"
             label="Название курса"/>
-          <cv-text-input
+          <cv-text-area
             v-model.trim="courseEdit.description"
             class="course--description"
             label="Описание курса"/>
@@ -70,6 +75,14 @@
                 {{ isNewCourse ? 'Создать' : 'Изменить' }}
               </cv-button>
             </div>
+            <cv-button
+              style="margin-top: 1rem"
+              v-if="!isNewCourse && !fetchingCourse"
+              class="delete-btn"
+              @click="showConfirmModal"
+              kind="danger">
+              Удалить
+            </cv-button>
           </div>
         </div>
       </div>
@@ -107,10 +120,11 @@ import userStore from '@/store/modules/user';
 import api from '@/store/services/api';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import ConfirmModal from "@/components/ConfirmModal.vue";
 
 @Component({
   components: {
-    AddTeacherModal, EditCourseLessons, EditCourseModal, GenerateLinks,
+    ConfirmModal, AddTeacherModal, EditCourseLessons, EditCourseModal, GenerateLinks,
   },
 })
 export default class CourseEditView extends Vue {
@@ -122,6 +136,8 @@ export default class CourseEditView extends Vue {
   showNotification = false;
   notificationKind = 'success';
   notificationText = '';
+  approvedText = '';
+  confirmModalTrigger = false;
   course: CourseModel = { ...courseStore.newCourse };
   courseEdit = { ...this.course };
   deChecks: string[] = [];
@@ -164,6 +180,11 @@ export default class CourseEditView extends Vue {
 
   get isNewCourse(): boolean {
     return isNaN(this.courseEdit.id);
+  }
+
+  showConfirmModal() {
+    this.approvedText = `Удалить курс: ${this.courseEdit.name}`;
+    this.confirmModalTrigger = !this.confirmModalTrigger;
   }
 
   deChanged() {
@@ -225,6 +246,22 @@ export default class CourseEditView extends Vue {
     });
     request.finally(() => this.showNotification = true);
   }
+
+  async deleteCourse() {
+    if (this.isNewCourse)
+      throw Error;
+    await api.delete(`/api/course/${this.courseEdit.id}/`)
+      .then(async () => {
+        this.store.setCourses(this.store.courses.filter(x => x.id != this.courseEdit.id));
+        await (this as any).$refs.confirmModal?.hideModal();
+        await this.$router.replace({ name: 'Home', path: '/' });
+      })
+      .catch(error => {
+        this.notificationKind = 'error';
+        this.notificationText = `Что-то пошло не так: ${error.message}`;
+        this.showNotification = true;
+      })
+  }
 }
 </script>
 
@@ -250,17 +287,8 @@ export default class CourseEditView extends Vue {
   overflow-wrap break-word
 
 .col-content
-  margin-top 1rem
   margin-right 1rem
-
-.main--content
-  margin-top 1rem
-
-.page--title
-  margin-top 1rem
-  display flex
-  flex-direction column
-  align-items flex-start
+  padding-left 0
 
 .lessons
   background-color var(--cds-ui-01)
@@ -284,16 +312,14 @@ export default class CourseEditView extends Vue {
 .manage-title
   margin-top 1rem
 
-.title
-  color var(--cds-text-01)
-  margin-left 3rem
-  margin-top 1rem
-
 .items
   background-color var(--cds-ui-01)
   padding var(--cds-spacing-05)
 
   /deep/ .bx--text-input
+    background-color var(--cds-ui-background)
+
+  /deep/ .bx--text-area
     background-color var(--cds-ui-background)
 
   /deep/ .bx--list-box

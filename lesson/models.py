@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.db import models
-import os
 from course.models import Course
 from users.models import User
 from django.db.models.signals import pre_delete
@@ -8,7 +7,6 @@ from django.dispatch import receiver
 
 
 def attachment_file_name(instance, filename):
-    filename = f"lesson_material{os.path.splitext(filename)[0]}"
     return '/'.join(['attachments', filename])
 
 
@@ -47,7 +45,7 @@ class Attachment(models.Model):
     name = models.CharField(max_length=50)
     material = models.ForeignKey(LessonContent, on_delete=models.SET_NULL, related_name='attachments', null=True)
     file_url = models.FileField(upload_to=attachment_file_name)
-    file_format = models.CharField(max_length=50, default='')
+    file_format = models.CharField(max_length=100, default='')
 
     def __str__(self):
         return self.name

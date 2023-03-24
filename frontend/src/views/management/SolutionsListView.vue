@@ -1,10 +1,11 @@
 <template>
   <cv-grid>
-    <cv-row class="header">
-      <h1>Отправленные решения</h1>
+    <cv-row class="header-container">
+      <h1 class="main-title">Отправленные решения</h1>
     </cv-row>
     <cv-row>
-      <cv-column :lg="8" class="items">
+      <cv-data-table-skeleton style="width: 70%" v-if="createLoading" :columns="4" :rows="5"/>
+      <cv-column v-else-if="to_display.length" :lg="8" class="items">
         <cv-search label="label" placeholder="поиск"/>
         <cv-data-table
           ref="table"
@@ -18,29 +19,26 @@
           </template>
           <template v-else slot="data">
             <cv-data-table-row
-              v-for="(row, rowIndex) in to_display" :key="`${rowIndex}`" :value="`${rowIndex}`"
-            >
-
+              v-for="(row, rowIndex) in to_display"
+              :key="`${rowIndex}`"
+              :value="`${rowIndex}`">
               <cv-data-table-cell>
                 <cv-link :to="row[1]">{{ row[0] }}</cv-link>
               </cv-data-table-cell>
               <cv-data-table-cell>
                 <user-component :user-id="row[2]"></user-component>
               </cv-data-table-cell>
-
               <cv-data-table-cell>
                 <submit-status :submit="row[5]"></submit-status>
               </cv-data-table-cell>
-
               <cv-data-table-cell>
                 <cv-tag kind="blue" :label="row[4]"/>
               </cv-data-table-cell>
-
             </cv-data-table-row>
-
           </template>
         </cv-data-table>
       </cv-column>
+      <empty-list-component v-else class="empty-list" :text="emptyListText" list-of="submits"/>
     </cv-row>
   </cv-grid>
 </template>
@@ -55,10 +53,13 @@ import Save16 from '@carbon/icons-vue/es/save/16';
 import Download16 from '@carbon/icons-vue/es/download/16';
 import UserComponent from "@/components/UserComponent.vue";
 import SubmitStatus from "@/components/SubmitStatus.vue";
+import EmptyListComponent from "@/components/EmptyListComponent.vue";
 
-@Component({ components: { SubmitStatus, UserComponent, TrashCan16, Save16, Download16 } })
+@Component({ components: { EmptyListComponent, SubmitStatus, UserComponent, TrashCan16, Save16, Download16 } })
 export default class SolutionsListView extends Vue {
   @Prop() courseId!: number;
+  createLoading = false;
+  emptyListText = '';
   loading = false
   store = SubmitStore;
   submits_request: PaginatedList<SubmitModel> = { count: 0, results: [] };
@@ -77,7 +78,7 @@ export default class SolutionsListView extends Vue {
   }
 
   get_data_for_table(submit: SubmitModel) {
-    const mounth_data: {[key: string]: string} = {
+    const month_data: { [key: string]: string } = {
       '01': 'января',
       '02': 'февраля',
       '03': 'марта',
@@ -92,9 +93,9 @@ export default class SolutionsListView extends Vue {
       '12': 'декабря'
     }
     const problem_data: string = submit.problem.name;
-    const created_at_data: string = submit.created_at.slice(11, 16) + " "  +
-      submit.created_at.slice(8, 10)+ " " +
-      mounth_data[submit.created_at.slice(5, 7)];
+    const created_at_data: string = submit.created_at.slice(11, 16) + " " +
+      submit.created_at.slice(8, 10) + " " +
+      month_data[submit.created_at.slice(5, 7)];
 
     const href_to_submit = this.linkRoute(submit);
     return [problem_data, href_to_submit as unknown as string, submit.student as unknown as string,
@@ -126,7 +127,10 @@ export default class SolutionsListView extends Vue {
   }
 
   async created() {
-    //
+    this.createLoading = true;
+    await this.actionOnPagination({start: 0, page: 1, length: 1});
+    this.emptyListText = 'В данный момент решения отсутствуют';
+    this.createLoading = false;
   }
 
   async actionOnPagination(object: TablePagination) {
@@ -154,12 +158,13 @@ interface TablePagination {
 
 <style lang="stylus" scoped>
 .header
-  padding-bottom: 1.5rem
-  padding-top: 1rem
   color var(--cds-text-01)
 
-/deep/.bx--search-input
+/deep/ .bx--search-input
   background-color var(--cds-ui-background)
+
+.empty-list
+  margin-left 1.5rem
 
 .items
   background-color var(--cds-ui-01)

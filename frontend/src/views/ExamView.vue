@@ -6,7 +6,7 @@
         <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
         <div v-if="exam && !loading" class="info-container">
           <div v-if="exam.description" class="description-container">
-            <span class="lesson-description">
+            <span>
                {{ exam.description }}
             </span>
           </div>
@@ -419,6 +419,7 @@ export default class ExamView extends NotificationMixinComponent {
   }
 
   async submitSolution() {
+    this.submitting = true;
     const points = this.exam?.questions
       .filter(x => this.studentSolution.question_verdicts[x.index] === 'correct')
       .map(x => x.points)
@@ -437,6 +438,7 @@ export default class ExamView extends NotificationMixinComponent {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
     }).finally(() => {
       this.showNotification = true;
+      this.submitting = false;
     });
   }
 }
@@ -464,11 +466,13 @@ h1
   max-width 45rem
   word-break break-word
   color var(--cds-text-02)
+  font-weight var(--cds-display-02-font-weight);
   margin-top 0.5rem
   padding 0.5rem
 
 .test-info
   color var(--cds-text-05)
+  font-weight 500
   margin-top 0.5rem
   display inline-flex
   align-items center

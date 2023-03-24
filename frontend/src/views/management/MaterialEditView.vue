@@ -54,7 +54,7 @@
       <div class="preview-container bx--col-lg-6">
         <h4 class="title" v-if="materialEdit.name.length > 0"> {{ materialEdit.name }} </h4>
         <h4 v-else>Введите название материала</h4>
-        <vue-markdown :source="materialEdit.content" :html="false" class="markdown"/>
+        <vue-markdown :source="materialEdit.content" :html="true" class="markdown"/>
       </div>
     </div>
   </div>
@@ -156,11 +156,11 @@ export default class MaterialEditView extends Vue {
 
   async ChangeMaterial() {
     await api.patch(`/api/material/${this.materialEdit.id}/`, this.materialEdit)
-      .then(() => {
+      .then(response => {
         this.notificationKind = 'success';
         this.notificationText = 'Материалы успешно изменены';
         this.updateMaterials(this.material, this.materialEdit);
-        this.material = this.materialEdit;
+        this.material = response.data;
         this.materialStore.setCurrentMaterial(this.material);
       })
       .catch(error => {

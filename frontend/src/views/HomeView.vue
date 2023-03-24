@@ -6,10 +6,6 @@
       </div>
     </div>
     <div class=" bx--row">
-      <confirm-modal :text="approvedText"
-                     :approve-handler="deleteCourse"
-                     :modal-trigger="confirmModalTrigger">
-      </confirm-modal>
       <cv-inline-notification
         v-if="showNotification"
         @close="() => showNotification=false"
@@ -43,15 +39,12 @@
 <script lang="ts">
 import Course from '@/components/lists/CourseListComponent.vue';
 import courseStore from "@/store/modules/course";
-import Vue from 'vue';
 import Component from 'vue-class-component';
 import EmptyListComponent from "@/components/EmptyListComponent.vue";
-import ConfirmModal from "@/components/ConfirmModal.vue";
 import CourseModel from "@/models/CourseModel";
-import api from "@/store/services/api";
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 
-@Component({ components: { Course, EmptyListComponent, ConfirmModal } })
+@Component({ components: { Course, EmptyListComponent } })
 export default class HomeView extends NotificationMixinComponent {
   private store = courseStore;
   searchValue = "";
@@ -81,20 +74,6 @@ export default class HomeView extends NotificationMixinComponent {
     this.deletingCourseId = deletingCourse.id;
     this.approvedText = `Удалить курс: ${deletingCourse.name}`;
     this.confirmModalTrigger = !this.confirmModalTrigger;
-  }
-
-  async deleteCourse() {
-    if (!this.deletingCourseId)
-      throw Error;
-    await api.delete(`/api/course/${this.deletingCourseId}/`)
-      .then(() => {
-        this.store.setCourses(this.courses.filter(x => x.id !== this.deletingCourseId));
-      })
-      .catch(error => {
-        this.notificationKind = 'error';
-        this.notificationText = `Что-то пошло не так: ${error.message}`;
-        this.showNotification = true;
-      })
   }
 }
 </script>

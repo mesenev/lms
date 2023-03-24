@@ -27,44 +27,28 @@
             @close="() => showNotification=false"
             :kind="notificationKind"
             :sub-title="notificationText"/>
-          <span style="padding-top: 20px">Выберите способ тестирования</span>
-          <cv-radio-group style="margin-top: 10px; padding-bottom: 20px">
-
-            <cv-radio-button label="автоматическое"
-                             value="auto"
-                             v-model="testingMode"
-            />
-            <cv-radio-button label="ручное"
-                             value="manual"
-                             v-model="testingMode"
-            />
-            <cv-radio-button label="автоматическое и ручное"
-                             value="auto_and_manual"
-                             v-model="testingMode"
-            />
-          </cv-radio-group>
         </cv-content-switcher-content>
       </template>
       <template slot="content">
         <section class="modal--content">
           <cv-content-switcher-content owner-id="Problems">
             <div class="content-1">
-              <div>
-                <cv-data-table
-                  v-if="!fetchingCatsProblems" ref="table"
-                  v-model="selected" :columns="columns" :data="catsFilteredProblems"
-                  class="cats-problems-table" @search="onSearch">
-                  <template slot="batch-actions">
-                    <div></div>
-                  </template>
-                </cv-data-table>
-                <cv-data-table-skeleton v-else/>
-              </div>
-            </div>
-            <div class="content-2" hidden>
-              <cv-text-input v-model.trim="lesson.name" disabled label="Название урока"/>
-              <cv-text-input v-model.trim="currentProblem.name" label="Название задания"/>
-              <cv-text-input v-model.trim="currentProblem.description" label="Описание задания"/>
+              <div class="problem-type-selection">
+              <h5>Выберите способ тестирования</h5>
+              <cv-radio-group>
+                <cv-radio-button label="автоматическое"
+                                 value="auto"
+                                 v-model="testingMode"
+                />
+                <cv-radio-button label="ручное"
+                                 value="manual"
+                                 v-model="testingMode"
+                />
+                <cv-radio-button label="автоматическое и ручное"
+                                 value="auto_and_manual"
+                                 v-model="testingMode"
+                />
+              </cv-radio-group>
             </div>
             <div class="problem-type-selection">
               <h5>Тип задачи</h5>
@@ -84,6 +68,25 @@
                   label="Дополнительные задания"
                   name="group-1" value="EX"/>
               </cv-radio-group>
+            </div>
+              <div>
+                <cv-data-table
+                  v-if="!fetchingCatsProblems" ref="table"
+                  v-model="selected" :columns="columns" :data="catsFilteredProblems"
+                  :stickyHeader="true"
+                  class="cats-problems-table" :expanding-search="false"
+                  @search="onSearch">
+                  <template slot="batch-actions">
+                    <div></div>
+                  </template>
+                </cv-data-table>
+                <cv-data-table-skeleton v-else/>
+              </div>
+            </div>
+            <div class="content-2" hidden>
+              <cv-text-input v-model.trim="lesson.name" disabled label="Название урока"/>
+              <cv-text-input v-model.trim="currentProblem.name" label="Название задания"/>
+              <cv-text-input v-model.trim="currentProblem.description" label="Описание задания"/>
             </div>
           </cv-content-switcher-content>
           <cv-content-switcher-content owner-id="Exams">
@@ -149,7 +152,6 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
   problemStore = problemStore;
   currentProblem: ProblemModel = { ...this.problemStore.getNewProblem, lesson: this.lesson.id };
-  selectedNew = false;
   selected = [];
   columns = ['id', 'Название', 'Статус'];
 
@@ -218,12 +220,16 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
 
   actionSelected(type: string) {
+    this.hideNotification();
     this.setContentType(type);
-    this.selectedNew = !this.selectedNew;
   }
 
   setContentType(type: string) {
     this.contentType = type;
+  }
+
+  clearData() {
+    this.selected = [];
   }
 
   get isExamsSelected() {
@@ -240,7 +246,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
     if (this.isExamsSelected)
       return !this.exam.test_mode || !this.exam.name;
     else
-      return !this.selected.length || !this.problemType || !this.testingMode || this.loading;
+      return !this.selected.length || this.loading;
   }
 
   get selectedCatsProblems() {
@@ -270,10 +276,17 @@ export default class EditLessonModal extends NotificationMixinComponent {
       this.showNotification = true;
       throw new Error('add cats problems  -- course id not found!');
     }
-    if (this.selectedNew)
+    if (this.contentType !== 'Problems')
       return
     if (this.testingMode === '') {
+      this.notificationKind = 'error';
       this.notificationText = 'Выберите режим тестирования';
+      this.showNotification = true;
+      return
+    }
+    if (this.problemType === '') {
+      this.notificationKind = 'error';
+      this.notificationText = 'Выберите тип задачи';
       this.showNotification = true;
       return
     }
@@ -283,7 +296,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
       this.showNotification = true;
       return;
     }
-    if (!this.selectedNew) {
+    if (this.contentType === 'Problems') {
       this.loading = true;
       const data = this.selectedCatsProblems;
       const problemTypes = new Map<string, number>([['CW', 0], ['HW', 1], ['EX', 2]]);
@@ -300,6 +313,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
             });
             this.$emit("update-problem-list", newProblems as ProblemModel[]);
             this.modalHidden();
+            this.clearData();
             // await this.fetchCatsProblems();
           }
         }).catch(answer => {
@@ -337,6 +351,10 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
 /deep/ .bx--modal-content:focus
   outline none
+
+/deep/ .bx--modal-content
+  margin-bottom var(--cds-spacing-04)
+  padding-top 0
 
 .change-btn
   background-color var(--cds-interactive-02)
@@ -376,7 +394,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
   background-color var(--cds-ui-05)
 
 .problem-type-selection
-  margin-top 2rem
+  margin-bottom 1rem
 
 .testing-type-dropdown
   /deep/ .bx--dropdown__wrapper.bx--list-box__wrapper

@@ -6,7 +6,7 @@
         <cv-skeleton-text v-else :heading="true" class="main-title" width="'35%'"/>
         <div v-if="!loading && lesson" class="lesson-info">
           <span>
-            Дедлайн {{ lesson.deadline }}
+            Дедлайн: {{ lesson.deadline }}
           </span>
           <div v-if="isStaff">
             <cv-button-skeleton v-if="changingVisibility || !this.lesson" kind="ghost"/>
@@ -31,75 +31,61 @@
     <div class="bx--row lesson-content">
       <div :class="(isProblemsEmpty) ? 'empty-items bx--col-lg-6 bx--col-md-6'
       : 'items bx--col-lg-6 bx--col-md-6'">
-        <div v-if="isProblemsEmpty">
-          <empty-list-component list-of="problems" :text="emptyProblemsText"/>
-        </div>
-        <div v-else class="content-tasks-problems">
-          <div v-if="classwork.length > 0" class="classwork">
-            <h4 class="classwork-title title">Классная работа</h4>
-            <div v-if="!loading">
+        <div v-if="!loading">
+          <div v-if="isProblemsEmpty">
+            <empty-list-component list-of="problems" :text="emptyProblemsText"/>
+          </div>
+          <div v-else class="content-tasks-problems">
+            <div v-if="classwork.length > 0" class="classwork">
+              <h4 class="classwork-title title">Классная работа</h4>
               <problem-list-component :task-list="classwork"></problem-list-component>
             </div>
-            <div v-else>
-              <cv-accordion-skeleton/>
-            </div>
-          </div>
-          <div v-if="homework.length > 0" class="homework">
-            <h4 class="homework-title title">Домашняя работа</h4>
-            <div v-if="!loading">
+            <div v-if="homework.length > 0" class="homework">
+              <h4 class="homework-title title">Домашняя работа</h4>
               <problem-list-component :task-list="homework"/>
             </div>
-            <div v-else>
-              <cv-accordion-skeleton/>
-            </div>
-          </div>
-          <div v-if="extrawork.length > 0" class="extrawork">
-            <h4 class="classwork-title title">Дополнительные задания</h4>
-            <div v-if="!loading">
+            <div v-if="extrawork.length > 0" class="extrawork">
+              <h4 class="classwork-title title">Дополнительные задания</h4>
               <problem-list-component :task-list="extrawork"/>
             </div>
-            <div v-else>
-              <cv-accordion-skeleton/>
-            </div>
-          </div>
-          <div class="tests">
-            <h4 class="classwork-title title">Тесты</h4>
-            <div v-if="!loading">
+            <div v-if="exams.length > 0" class="tests">
+              <h4 class="classwork-title title">Тесты</h4>
               <exam-list-component :exams-list="exams"/>
             </div>
-            <div v-else>
-              <cv-accordion-skeleton/>
+          </div>
+        </div>
+        <cv-skeleton-text :paragraph="true" :line-count="5" v-else/>
+      </div>
+      <div
+        :class="(!loading && isMaterialsEmpty) ? ('bx--col-lg-4 bx--col-md-4 content-info-empty')
+         : ('bx--col-lg-4 bx--col-md-4 content-info')">
+        <div v-if="!loading">
+          <div v-if="isMaterialsEmpty" class="content-info-empty">
+            <empty-list-component :text="emptyMaterialsText" list-of="materials"/>
+          </div>
+          <div v-else>
+            <h2 class="content-info-title">Материалы</h2>
+            <div class="content-info-materials" v-if="!loading">
+              <cv-structured-list class="list">
+                <template slot="items">
+                  <cv-structured-list-item
+                    v-for="material in studentMaterials"
+                    :key="material.id">
+                    <material-list-component :material-prop="material"/>
+                  </cv-structured-list-item>
+                </template>
+                <template slot="items" v-if="isStaff">
+                  <cv-structured-list-item
+                    v-for="material in teacherMaterials"
+                    :key="material.id">
+                    <material-list-component :material-prop="material"/>
+                  </cv-structured-list-item>
+                </template>
+              </cv-structured-list>
             </div>
           </div>
         </div>
-      </div>
-      <div
-        :class="isMaterialsEmpty ? ('bx--col-lg-4 bx--col-md-4 content-info-empty')
-         : ('bx--col-lg-4 bx--col-md-4 content-info')">
-        <div v-if="isMaterialsEmpty" class="content-info-empty">
-          <empty-list-component :text="emptyMaterialsText" list-of="materials"/>
-        </div>
-        <div v-else>
-          <h2 class="content-info-title">Материалы</h2>
-          <div class="content-info-materials" v-if="!loading">
-            <cv-structured-list class="list">
-              <template slot="items">
-                <cv-structured-list-item
-                  v-for="material in studentMaterials"
-                  :key="material.id">
-                  <material-list-component :material-prop="material"/>
-                </cv-structured-list-item>
-              </template>
-              <template slot="items" v-if="isStaff">
-                <cv-structured-list-item
-                  v-for="material in teacherMaterials"
-                  :key="material.id">
-                  <material-list-component :material-prop="material"/>
-                </cv-structured-list-item>
-              </template>
-            </cv-structured-list>
-          </div>
-        </div>
+        <cv-skeleton-text :paragraph="true" :line-count="5" v-else/>
       </div>
     </div>
   </div>
@@ -122,7 +108,14 @@ import EmptyListComponent from "@/components/EmptyListComponent.vue";
 import ExamModel from "@/models/ExamModel";
 import ExamListComponent from "@/components/lists/ExamListComponent.vue";
 
-@Component({ components: { ExamListComponent, MaterialListComponent, ProblemListComponent, EmptyListComponent } })
+@Component({
+  components: {
+    ExamListComponent,
+    MaterialListComponent,
+    ProblemListComponent,
+    EmptyListComponent
+  }
+})
 export default class LessonView extends Vue {
   @Prop({ required: true }) lessonId!: number;
   lessonStore = lessonStore;
@@ -145,7 +138,7 @@ export default class LessonView extends Vue {
   }
 
   get isProblemsEmpty() {
-    if (this.problemStore.problemsByLesson[this.lessonId].length === 0 && this.exams.length === 0) {
+    if ((this.problems ?? []).length === 0 && (this.exams ?? []).length === 0) {
       return true;
     }
   }
@@ -183,6 +176,10 @@ export default class LessonView extends Vue {
     return this.lessonStore.currentLesson;
   }
 
+  get problems() {
+    return this.problemStore.problemsByLesson[this.lessonId];
+  }
+
   get classwork(): Array<ProblemModel> {
     return this.problemStore.problemsByLesson[this.lessonId].filter(x => x.type === 'CW');
   }
@@ -215,23 +212,19 @@ export default class LessonView extends Vue {
   display flex
   flex-direction row
   align-items center
-  margin-top .5rem
-  margin-left var(--cds-spacing-05)
+  padding-left 1rem
+  font-weight var(--cds-display-02-font-weight)
+  margin-top 1rem
+  color var(--cds-text-02)
   gap 2rem
 
 .description-container
-  display flex
-  flex-direction column
-  color var(--cds-ui-05)
-  margin-top var(--cds-spacing-05)
-  margin-bottom var(--cds-spacing-05)
-
-.lesson-description
-  width fit-content
-  max-width 40rem
+  max-width 70%
   word-break break-word
-  background-color var(--cds-ui-01)
-  padding 1rem
+  color var(--cds-text-02)
+  font-weight var(--cds-display-02-font-weight)
+  margin-top var(--cds-spacing-03)
+  padding-left 1rem
 
 .lesson-hide-button
   margin-left -1rem
@@ -282,7 +275,7 @@ export default class LessonView extends Vue {
     align-items center
 
 
-.classwork, .homework, extrawork
+.classwork, .homework, .extrawork
   margin-bottom 1rem
 
   &-title

@@ -69,7 +69,7 @@ class CatsAccountViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         auth = cats_user_login(request.data['login'], request.data['passwd'])
         cats_id = get_user_id(auth['sid'])
-        cats_account, is_created = CatsAccount.objects.get_or_create(user=request.user)
+        cats_account, is_created = CatsAccount.objects.get_or_create(user=request.user, cats_user_id=cats_id)
         _status = status.HTTP_201_CREATED if is_created else status.HTTP_202_ACCEPTED
         cats_account.username = request.data['login']
         cats_account.cats_user_id = cats_id
