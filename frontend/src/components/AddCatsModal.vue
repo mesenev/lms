@@ -99,7 +99,10 @@ export default class AddCatsModal extends NotificationMixinComponent {
         if (response.status === 202) {
           this.notificationText = 'Аккаунт успешно обновлён';
         }
-        this.updateUser();
+        this.userStore.receiveUser({
+          ...this.userStore.user,
+          cats_account: response.data.cats_id
+        });
         this.$emit('fetch-cats-account');
         this.showNotification = true;
       })
@@ -110,11 +113,6 @@ export default class AddCatsModal extends NotificationMixinComponent {
         console.error(error);
       })
     this.transmittingData = false;
-  }
-
-  async updateUser() {
-    const updatedUser = await this.userStore.fetchUserById(this.userStore.user.id);
-    this.userStore.receiveUser(updatedUser);
   }
 }
 </script>
