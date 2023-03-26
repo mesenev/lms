@@ -29,6 +29,8 @@
     <div class="buttons-block-wrapper">
       <div class="handlers bx--row buttons-container">
         <div class="submit-container">
+          <input type="file"
+                id="file_input">
           <cv-button
             v-if="!loading"
             :disabled="!canSubmit"
@@ -36,6 +38,7 @@
             v-on:click="confirmSubmit">
             Отправить решение
           </cv-button>
+
           <cv-button-skeleton v-else></cv-button-skeleton>
           <cv-link
             v-if="!this.cats_account"
@@ -204,9 +207,18 @@ export default class SubmitComponent extends NotificationMixinComponent {
   }
 
   confirmSubmit() {
+    const input = window.document.getElementById('file_input') as HTMLInputElement
+    if (input.files?.length && this.submitEdit.content){
+      this.notificationKind = 'error';
+      this.notificationText = `Отправьте либо только файл, либо только текст решения.`;
+      this.showNotification = true
+      return;
+    }
     this.submitEdit = {
       ...this.submitEdit,
     };
+
+
     api.post('/api/submit/', {
       ...this.submitEdit,
       'problem': this.problemStore.currentProblem?.id as number,
