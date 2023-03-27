@@ -111,7 +111,7 @@ class SubmitFilter(django_filters.FilterSet):
         fields = ['problem', 'student', 'status', 'cats_submit__is_sent', ]
 
     def course_filter(self, queryset, name, value):
-        return queryset.filter(lesson__course=value)
+        return queryset.filter(problem__lesson__course=value)
 
     def lesson_filter(self, queryset, name, value):
         return queryset.filter(**{f'problem__{name}': value})
