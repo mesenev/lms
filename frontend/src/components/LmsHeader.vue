@@ -178,7 +178,6 @@
                 Создать курс
               </cv-switcher-item-link>
             </cv-switcher-item>
-            <LoginAsUserModal/>
             <cv-switcher-item>
               <cv-switcher-item-link @click="logout"> Выйти</cv-switcher-item-link>
             </cv-switcher-item>
@@ -217,7 +216,7 @@
 
 <script lang="ts">
 import UserView from "@/components/UserComponent.vue";
-import LoginAsUserModal from "@/components/LoginAsUserModal.vue";
+// import LoginAsUserModal from "@/components/LoginAsUserModal.vue";
 import userStore from "@/store/modules/user";
 import AppSwitcher20 from '@carbon/icons-vue/es/app-switcher/20';
 import Notification20 from '@carbon/icons-vue/es/notification/20';
@@ -233,7 +232,7 @@ import { Watch } from "vue-property-decorator";
 @Component({
   components: {
     UserView,
-    LoginAsUserModal,
+    // LoginAsUserModal,
     Notification20,
     UserAvatar20,
     AppSwitcher20,

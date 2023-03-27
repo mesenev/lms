@@ -55,7 +55,7 @@ import NotificationMixinComponent from "@/components/common/NotificationMixinCom
 import userStore from "@/store/modules/user";
 import UserModel from "@/models/UserModel";
 import api from '@/store/services/api';
-
+//TODO: remove this component and move to /admin/ panel. tnx.
 
 @Component({ components: {} })
 export default class LoginAsUserModal extends NotificationMixinComponent {
