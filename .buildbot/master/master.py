@@ -46,13 +46,10 @@ deploy_factory.addStep(steps.ShellCommand(command=['python', '../buildscript.py'
 
 backup_factory = util.BuildFactory()
 backup_factory.addStep(steps.ShellCommand(command=[
-    'docker', 'run', '--rm', '--volumes-from', 'database',
-    '-v', f'/home/buildbot/database-backups/{datetime.now().strftime("%Y-%m-%d")}:/backup',
-    'alpine',
-    'tar', 'cvf',
-    f'/backup/{datetime.now().strftime("%H:%M:%S")}.tar', '/var/lib/postgresql/data'
+    'cp', '/home/buildbot/bb-lms/worker-backups/buildscript.py', '../buildscript.py'
 ]))
-backup_factory.addStep(steps.ShellCommand(command=[]))
+backup_factory.addStep(steps.ShellCommand(command=['python', '../buildscript.py']))
+
 
 c['builders'] = [
     util.BuilderConfig(name="lmsci", workernames=["lms-worker-main"], factory=main_factory),
