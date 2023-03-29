@@ -223,6 +223,8 @@ export default class LessonEditView extends NotificationMixinComponent {
           { name: 'lesson-edit', params: { lessonId: response.data.id.toString() } },
         );
       }
+      this.store.changeCurrentLesson({...response.data});
+      this.lesson = {...response.data};
     });
     request.catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
