@@ -151,14 +151,14 @@
 
     <template slot="right-panels">
       <cv-header-panel class="" id="account">
-        <UserView :userProp="user" class="user-view"/>
+        <UserView :userProp="userStore.user" class="user-view"/>
         <cv-switcher>
           <template>
             <cv-switcher-item>
               <cv-switcher-item-link
                 :to="{
                   name: 'profile-page',
-                  params:  { userId: this.user.id }
+                  params:  { userId: userStore.user.id }
                 }"
               >
                 Профиль
@@ -251,7 +251,7 @@ export default class LmsHeader extends Vue {
 
   current_theme = this.getTheme;
   themes = THEMES;
-  user = userStore.user;
+  userStore = userStore;
 
   async logout() {
     await tokenStore.logout();
@@ -283,7 +283,7 @@ export default class LmsHeader extends Vue {
   }
 
   get isStaff(): boolean {
-    return this.user.staff_for.includes(Number(this.$route.params.courseId));
+    return this.userStore.user.staff_for.includes(Number(this.$route.params.courseId));
   }
 }
 </script>
