@@ -239,6 +239,7 @@ export default class CourseEditView extends Vue {
       }
       this.course = { ...response.data };
       this.courseEdit = { ...this.course };
+      this.store.changeCurrentCourse({...response.data});
     });
     request.catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
