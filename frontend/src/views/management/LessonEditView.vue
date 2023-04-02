@@ -47,7 +47,7 @@
                            @update-exam-list="updateExamList($event)"
                            :lesson="lessonEdit"
                            class="edit--lesson-props"/>
-          <EditLessonMaterialsModal @update-material-delete="updateMaterialDelete($event)"
+          <EditLessonMaterialsModal @update-material-delete="updateMaterialDelete()"
                                     :lesson="lessonEdit"
                                     class="edit--lesson-props"/>
         </div>
@@ -223,8 +223,8 @@ export default class LessonEditView extends NotificationMixinComponent {
           { name: 'lesson-edit', params: { lessonId: response.data.id.toString() } },
         );
       }
-      this.store.changeCurrentLesson({...response.data});
-      this.lesson = {...response.data};
+      this.store.changeCurrentLesson({ ...response.data });
+      this.lesson = { ...response.data };
     });
     request.catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;

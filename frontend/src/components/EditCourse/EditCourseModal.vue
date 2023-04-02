@@ -14,10 +14,10 @@
       <template slot="title">
         Добавить урок
         <cv-content-switcher class="switcher" @selected="actionSelected">
-          <cv-content-switcher-button content-selector=".content-1" selected>
+          <cv-content-switcher-button owner-id="create-lesson" selected>
             Создать новый
           </cv-content-switcher-button>
-          <cv-content-switcher-button content-selector=".content-2">
+          <cv-content-switcher-button owner-id="select-lesson" :disabled="true">
             Выбрать из существующих
           </cv-content-switcher-button>
         </cv-content-switcher>
@@ -30,33 +30,47 @@
           :sub-title="notificationText"
         />
         <section class="modal--content">
-          <div class="content-1">
-            <cv-text-input label="Название курса" v-model.trim="course.name" disabled/>
-            <cv-text-input label="Автор" v-model.trim="course.author.username" disabled/>
-            <cv-text-input label="Название урока" v-model.trim="currentLesson.name"/>
-            <cv-text-input label="Описание урока" v-model.trim="currentLesson.description"/>
-            <span>Добавление к уроку материалов и задач доступно после создания урока</span>
-          </div>
-          <div class="content-2" hidden>
-            <div>
-              <cv-structured-list>
-                <template slot="items">
-                  <cv-search v-model="searchQueryForAllLessons"></cv-search>
-                  <cv-structured-list-item
-                    class="lesson-card"
-                    v-for="lesson in allLessons"
-                    :key="lesson.id">
-                    <LessonCard
-                      :lesson="lesson"
-                      :main-icon="AddAlt32"
-                      :change-main-icon="SubtractAlt32"
-                      :manipulation="chooseLesson">
-                    </LessonCard>
-                  </cv-structured-list-item>
+          <cv-content-switcher-content owner-id="create-lesson">
+            <div class="content-1">
+              <cv-text-input class="modal--content--input"
+                             label="Название курса" v-model.trim="course.name" disabled/>
+              <cv-text-input class="modal--content--input"
+                             label="Автор" v-model.trim="course.author.username" disabled/>
+              <cv-text-input class="modal--content--input"
+                             label="Название урока" v-model.trim="currentLesson.name">
+                <template slot="invalid-message" v-if="showInvalidMessage">
+                  {{ emptyInputInvalidText }}
                 </template>
-              </cv-structured-list>
+              </cv-text-input>
+              <cv-text-input class="modal--content--input"
+                             label="Описание урока" v-model.trim="currentLesson.description"/>
+              <span style="text-decoration-line: underline">
+              Добавление к уроку материалов и задач доступно после создания урока.
+            </span>
             </div>
-          </div>
+          </cv-content-switcher-content>
+          <cv-content-switcher-content owner-id="select-lesson">
+            <div class="content-2" hidden>
+              <div>
+                <cv-structured-list>
+                  <template slot="items">
+                    <cv-search v-model="searchQueryForAllLessons"></cv-search>
+                    <cv-structured-list-item
+                      class="lesson-card"
+                      v-for="lesson in allLessons"
+                      :key="lesson.id">
+                      <LessonCard
+                        :lesson="lesson"
+                        :main-icon="AddAlt32"
+                        :change-main-icon="SubtractAlt32"
+                        :manipulation="chooseLesson">
+                      </LessonCard>
+                    </cv-structured-list-item>
+                  </template>
+                </cv-structured-list>
+              </div>
+            </div>
+          </cv-content-switcher-content>
         </section>
       </template>
       <template slot="primary-button">
@@ -80,17 +94,17 @@ import lessonStore from '@/store/modules/lesson';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import api from '@/store/services/api'
-import {Component, Prop} from 'vue-property-decorator';
+import { Component, Prop, Watch } from 'vue-property-decorator';
 
-@Component({components: {LessonCard, AddAlt20, SubtractAlt20}})
+@Component({ components: { LessonCard, AddAlt20, SubtractAlt20 } })
 export default class EditCourseModal extends NotificationMixinComponent {
-  @Prop({required: true}) courseId!: number;
+  @Prop({ required: true }) courseId!: number;
 
   AddAlt32 = AddAlt20;
   SubtractAlt32 = SubtractAlt20;
   courseStore = courseStore;
   lessonStore = lessonStore;
-  currentLesson: LessonModel = {...this.lessonStore.getNewLesson, course: this.courseId};
+  currentLesson: LessonModel = { ...this.lessonStore.getNewLesson, course: this.courseId };
   fetchingLessons = true;
   selectedNew = true;
   creationLoader = false;
@@ -98,9 +112,11 @@ export default class EditCourseModal extends NotificationMixinComponent {
   lessons: LessonModel[] = [];
   modalVisible = false;
   searchQueryForAllLessons = '';
+  showInvalidMessage = false;
+  emptyInputInvalidText = 'Заполните поле!';
 
   get primaryButtonDisabled(): boolean {
-    return !this.lessons.length && !this.currentLesson.name || this.creationLoader;
+    return !this.lessons.length && this.creationLoader;
   }
 
   get course() {
@@ -123,7 +139,7 @@ export default class EditCourseModal extends NotificationMixinComponent {
   showModal() {
     this.modalVisible = true;
     this.showNotification = false;
-    this.currentLesson = {...this.lessonStore.getNewLesson, course: this.courseId};
+    this.currentLesson = { ...this.lessonStore.getNewLesson, course: this.courseId };
     this.creationLoader = false;
   }
 
@@ -131,8 +147,8 @@ export default class EditCourseModal extends NotificationMixinComponent {
     this.modalVisible = false;
   }
 
-  actionSelected() {
-    this.selectedNew = !this.selectedNew;
+  actionSelected(value: string) {
+    this.selectedNew = value === 'create-lesson';
   }
 
   get getSelected(): string {
@@ -146,19 +162,32 @@ export default class EditCourseModal extends NotificationMixinComponent {
     //
   }
 
-  async addLesson() {
+  addLesson() {
     if (this.selectedNew) {
+      if (!this.checkCorrectFields())
+        return;
       this.creationLoader = true;
-      await this.createNewLesson();
+      this.createNewLesson();
     }
   }
 
+  checkCorrectFields() {
+    this.showInvalidMessage = !this.currentLesson.name;
+    return this.currentLesson.name;
+  }
+
+  @Watch('currentLesson.name')
+  hideInvalidMessage() {
+    if (this.currentLesson.name)
+      this.showInvalidMessage = false;
+  }
+
   async createNewLesson() {
-    api.post('/api/lesson/', this.currentLesson)
+    await api.post('/api/lesson/', this.currentLesson)
       .then(response => {
         const course = this.courseStore.currentCourse as CourseModel;
         course.lessons.push(response.data as LessonModel);
-        this.lessonStore.setLessons({[course.id]: course.lessons});
+        this.lessonStore.setLessons({ [course.id]: course.lessons });
         this.modalHidden();
       })
       .catch(error => {
@@ -174,7 +203,7 @@ export default class EditCourseModal extends NotificationMixinComponent {
 </script>
 
 <style scoped lang="stylus">
-.bx--modal-content:focus
+/deep/ .bx--modal-content:focus
   outline none
 
 .lesson_list
@@ -185,6 +214,12 @@ export default class EditCourseModal extends NotificationMixinComponent {
 
 .switcher
   margin-bottom: 5px
+
+.modal--content--input
+  margin-bottom 1rem
+
+/deep/ .bx--modal-content
+  margin-bottom 0
 
 .add_lesson_modal .bx--modal-container
   height 75vh
