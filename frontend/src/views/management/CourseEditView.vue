@@ -30,12 +30,11 @@
           />
           <cv-text-input
             :disabled="true"
-            :value="`${courseEdit.author.first_name}
-             ${courseEdit.author.last_name}
-              (${courseEdit.author.username})`.trim()"
+            :value="`${author.first_name}
+             ${author.last_name}
+              (${author.username})`.trim()"
             label="Автор"
           />
-
 
           <cv-combo-box
             :disabled="!userStore.user.cats_account"
@@ -70,7 +69,7 @@
             v-else
             v-model.trim="courseEdit.description"
             class="course--description"
-            label="Описание курса" />
+            label="Описание курса"/>
 
           <cv-dropdown-skeleton
             v-if="fetchingCourse"
@@ -88,7 +87,7 @@
             <div v-else class="btns">
               <AddTeacherModal
                 v-if="!isNewCourse"
-                :courseId="courseId"
+                :courseId="course.id"
                 class="choose--teacher"/>
               <cv-button
                 :disabled="!isChanged"
@@ -107,19 +106,17 @@
           </div>
         </div>
       </div>
-      <div v-if="!isNewCourse" class="bx--col-lg-6 bx--col-md-6 col-content">
+      <div v-if="!isNewCourse && !fetchingCourse" class="bx--col-lg-6 bx--col-md-6 col-content">
         <div class="lessons">
           <EditCourseLessons
-            v-if="!isNewCourse && !fetchingCourse"
-            :course="store.currentCourse"
+            :course="currentCourse"
             class="course-props edit--course"/>
           <div class="lessons-modal">
             <GenerateLinks
-              :courseId="courseId"
+              :courseId="course.id"
               class="generate--link"/>
             <EditCourseModal
-              v-if="!isNewCourse && !fetchingCourse"
-              :course-id="store.currentCourse.id"
+              :course-id="course.id"
               class="course-props add--btn"/>
           </div>
         </div>
@@ -142,6 +139,7 @@ import api from '@/store/services/api';
 import _ from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import ConfirmModal from "@/components/ConfirmModal.vue";
+import { AuthorModel } from "@/models/UserModel";
 
 @Component({
   components: {
@@ -204,6 +202,14 @@ export default class CourseEditView extends Vue {
     return isNaN(this.courseEdit.id);
   }
 
+  get author() {
+    return this.course.author as AuthorModel;
+  }
+
+  get currentCourse() {
+    return this.store.currentCourse as CourseModel;
+  }
+
   showConfirmModal() {
     this.approvedText = `Удалить курс: ${this.courseEdit.name}`;
     this.confirmModalTrigger = !this.confirmModalTrigger;
@@ -261,7 +267,7 @@ export default class CourseEditView extends Vue {
       }
       this.course = { ...response.data };
       this.courseEdit = { ...this.course };
-      this.store.changeCurrentCourse({...response.data});
+      this.store.changeCurrentCourse({ ...response.data });
     });
     request.catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
