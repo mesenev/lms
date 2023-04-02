@@ -36,10 +36,14 @@
                                   class="tbody-element">
                 <div class="tbody-data">
                   <div class="marks">
-                    <cv-tag class="result-mark" :label="sum(row.progress[les.id]).toString()"/>
+                    <cv-tooltip tip="Результирующий балл">
+                      <cv-tag class="result-mark" :label="sum(row.progress[les.id]).toString()"/>
+                    </cv-tooltip>
                     <div v-for="(value, name) in row.progress[les.id]" :key="value+name"
                          class="mark">
-                      <cv-tag :label="Math.trunc(value).toString()" :kind="color(name)"/>
+                      <cv-tooltip :tip="`Балл за: ${name}`">
+                        <cv-tag :label="Math.trunc(value).toString()" :kind="color(name)"/>
+                      </cv-tooltip>
                     </div>
                   </div>
                   <div class="mark-checkbox">
