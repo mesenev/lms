@@ -432,7 +432,7 @@ export default class ExamView extends NotificationMixinComponent {
       this.notificationKind = 'success';
       this.notificationText = "Тест успешно оценен";
       this.teacherSolution.status = 'verified';
-      this.studentSolution = { ...this.teacherSolution };
+      this.studentSolution = _.cloneDeep(this.teacherSolution)
     }).catch(error => {
       this.notificationKind = 'error';
       this.notificationText = `Что-то пошло не так: ${error.message}`;
