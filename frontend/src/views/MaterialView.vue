@@ -147,4 +147,12 @@ export default class MaterialView extends Vue {
 
 code
   color: var(--color-b)
+
+
+</style>
+
+<style lang="sass">
+.md-body img
+  max-width: 100%
+  height: auto
 </style>
