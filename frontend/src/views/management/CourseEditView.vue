@@ -36,6 +36,7 @@
             label="Автор"
           />
 
+
           <cv-combo-box
             :disabled="!userStore.user.cats_account"
             :options="contestsFromCats"
@@ -47,15 +48,35 @@
           >
           </cv-combo-box>
 
+          <cv-skeleton-text
+            v-if="fetchingCourse"
+            :heading="true"
+            class="course--name"/>
           <cv-text-input
+            v-else
             v-model.trim="courseEdit.name"
             class="course--name"
-            label="Название курса"/>
+            label="Название курса">
+            <template slot="invalid-message" v-if="!courseEdit.name">
+              {{ emptyInputInvalidText }}
+            </template>
+          </cv-text-input>
+
+          <cv-skeleton-text
+            v-if="fetchingCourse"
+            :paragraph="true"
+            class="course--description"/>
           <cv-text-area
+            v-else
             v-model.trim="courseEdit.description"
             class="course--description"
-            label="Описание курса"/>
+            label="Описание курса" />
+
+          <cv-dropdown-skeleton
+            v-if="fetchingCourse"
+            :inline="true"/>
           <cv-multi-select
+            v-else
             v-model="deChecks"
             :options="deOptions"
             class="course--de"
@@ -137,6 +158,7 @@ export default class CourseEditView extends Vue {
   notificationKind = 'success';
   notificationText = '';
   approvedText = '';
+  emptyInputInvalidText = 'Заполните поле!'
   confirmModalTrigger = false;
   course: CourseModel = { ...courseStore.newCourse };
   courseEdit = { ...this.course };
