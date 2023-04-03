@@ -35,10 +35,10 @@
               <cv-text-input class="modal--content--input"
                              label="Название курса" v-model.trim="course.name" disabled/>
               <cv-text-input class="modal--content--input"
-                             label="Автор" v-model.trim="course.author.username" disabled/>
+                             label="Автор" v-model.trim="authorUsername" disabled/>
               <cv-text-input class="modal--content--input"
                              label="Название урока" v-model.trim="currentLesson.name">
-                <template slot="invalid-message" v-if="showInvalidMessage">
+                <template slot="invalid-message" v-if="showInvalidMessage && !currentLesson.name">
                   {{ emptyInputInvalidText }}
                 </template>
               </cv-text-input>
@@ -132,6 +132,10 @@ export default class EditCourseModal extends NotificationMixinComponent {
     return [];
   }
 
+  get authorUsername() {
+    return this.course.author?.username as string;
+  }
+
   async created() {
     //
   }
@@ -162,24 +166,18 @@ export default class EditCourseModal extends NotificationMixinComponent {
     //
   }
 
-  addLesson() {
+  async addLesson() {
     if (this.selectedNew) {
-      if (!this.checkCorrectFields())
+      this.checkCorrectFields();
+      if (this.showInvalidMessage)
         return;
       this.creationLoader = true;
-      this.createNewLesson();
+      await this.createNewLesson();
     }
   }
 
   checkCorrectFields() {
     this.showInvalidMessage = !this.currentLesson.name;
-    return this.currentLesson.name;
-  }
-
-  @Watch('currentLesson.name')
-  hideInvalidMessage() {
-    if (this.currentLesson.name)
-      this.showInvalidMessage = false;
   }
 
   async createNewLesson() {
