@@ -340,6 +340,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
 
   async createExam() {
+    this.loading = true;
     await api.post('/api/exam/', this.exam).then(async response => {
       this.notificationKind = 'success';
       this.notificationText = 'Тест успешно создан';
@@ -352,6 +353,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.notificationKind = 'error';
     }).finally(() => {
+      this.loading = false;
       this.showNotification = true;
     })
   }
