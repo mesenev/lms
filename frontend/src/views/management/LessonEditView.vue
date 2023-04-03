@@ -300,7 +300,7 @@ export default class LessonEditView extends NotificationMixinComponent {
 .text_field
   margin-bottom 2rem
 
-.text_field /deep/ .bx--text-input, /deep/ .bx--text-area
+.text_field /deep/ .bx--text-input, .text_field /deep/ .bx--text-area
   background-color var(--cds-ui-background)
 
 .cv-date-picker >>> .bx--date-picker__input

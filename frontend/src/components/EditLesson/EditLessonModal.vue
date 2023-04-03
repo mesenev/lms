@@ -34,41 +34,41 @@
           <cv-content-switcher-content owner-id="Problems">
             <div class="content-1">
               <div class="problem-type-selection">
-              <h5>Выберите способ тестирования</h5>
-              <cv-radio-group>
-                <cv-radio-button label="автоматическое"
-                                 value="auto"
-                                 v-model="testingMode"
-                />
-                <cv-radio-button label="ручное"
-                                 value="manual"
-                                 v-model="testingMode"
-                />
-                <cv-radio-button label="автоматическое и ручное"
-                                 value="auto_and_manual"
-                                 v-model="testingMode"
-                />
-              </cv-radio-group>
-            </div>
-            <div class="problem-type-selection">
-              <h5>Тип задачи</h5>
-              <cv-radio-group
-                @change="(newType) => this.problemType = newType"
-                :vertical="false">
-                <cv-radio-button
-                  v-model="problemType"
-                  label="Классная работа"
-                  name="group-1" value="CW"/>
-                <cv-radio-button
-                  v-model="problemType"
-                  label="Домашняя работа"
-                  name="group-1" value="HW"/>
-                <cv-radio-button
-                  v-model="problemType"
-                  label="Дополнительные задания"
-                  name="group-1" value="EX"/>
-              </cv-radio-group>
-            </div>
+                <h5>Выберите способ тестирования</h5>
+                <cv-radio-group>
+                  <cv-radio-button label="автоматическое"
+                                   value="auto"
+                                   v-model="testingMode"
+                  />
+                  <cv-radio-button label="ручное"
+                                   value="manual"
+                                   v-model="testingMode"
+                  />
+                  <cv-radio-button label="автоматическое и ручное"
+                                   value="auto_and_manual"
+                                   v-model="testingMode"
+                  />
+                </cv-radio-group>
+              </div>
+              <div class="problem-type-selection">
+                <h5>Тип задачи</h5>
+                <cv-radio-group
+                  @change="(newType) => this.problemType = newType"
+                  :vertical="false">
+                  <cv-radio-button
+                    v-model="problemType"
+                    label="Классная работа"
+                    name="group-1" value="CW"/>
+                  <cv-radio-button
+                    v-model="problemType"
+                    label="Домашняя работа"
+                    name="group-1" value="HW"/>
+                  <cv-radio-button
+                    v-model="problemType"
+                    label="Дополнительные задания"
+                    name="group-1" value="EX"/>
+                </cv-radio-group>
+              </div>
               <div>
                 <cv-data-table
                   v-if="!fetchingCatsProblems" ref="table"
@@ -94,14 +94,22 @@
               <div class="exam-container-head">
                 <p>Настройки теста</p>
                 <cv-dropdown v-model="exam.test_mode" class="testing-type-dropdown"
+                             placeholder="Выберите опцию"
                              label="Способ тестирования">
+                  <template slot="invalid-message" v-if="showInvalidMessage && !exam.test_mode">
+                    Выберите способ тестирования!
+                  </template>
                   <cv-dropdown-item value="auto">Auto</cv-dropdown-item>
                   <cv-dropdown-item value="manual">Manual</cv-dropdown-item>
                   <cv-dropdown-item value="auto_and_manual">Auto & Manual</cv-dropdown-item>
                 </cv-dropdown>
               </div>
               <div class="exam-fields">
-                <cv-text-input v-model="exam.name" label="Название теста"/>
+                <cv-text-input v-model="exam.name" label="Название теста">
+                  <template slot="invalid-message" v-if="!exam.name && showInvalidMessage">
+                    {{ emptyInputInvalidText }}
+                  </template>
+                </cv-text-input>
                 <cv-text-area v-model="exam.description" label="Описание"/>
               </div>
             </div>
@@ -127,7 +135,6 @@ import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
 import problemStore from '@/store/modules/problem';
 import examStore from '@/store/modules/exam';
-import questionStore from '@/store/modules/question';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import { Component, Prop } from 'vue-property-decorator';
@@ -136,7 +143,6 @@ import api from '@/store/services/api';
 import ExamQuestionComponent from "@/components/ExamQuestionComponent.vue";
 import ExamModel from "@/models/ExamModel";
 import _ from 'lodash';
-import QuestionModel from "@/models/QuestionModel";
 import router from "@/router";
 
 
@@ -167,9 +173,9 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
   contentType = 'Problems';
   examStore = examStore;
-  questionStore = questionStore;
   exam: ExamModel = { ...this.examStore.newExam, lesson: this.lesson.id };
-  expanded = false;
+  emptyInputInvalidText = 'Заполните поле!';
+  showInvalidMessage = false;
 
 
   get catsFilteredProblems() {
@@ -232,6 +238,10 @@ export default class EditLessonModal extends NotificationMixinComponent {
     this.selected = [];
   }
 
+  checkCorrectFields() {
+    this.showInvalidMessage = !this.exam.name || !this.exam.test_mode;
+  }
+
   get isExamsSelected() {
     return this.contentType === 'Exams';
   }
@@ -244,7 +254,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
   get addButtonDisabled() {
     if (this.isExamsSelected)
-      return !this.exam.test_mode || !this.exam.name;
+      return this.loading;
     else
       return !this.selected.length || this.loading;
   }
@@ -263,9 +273,12 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
 
   async primaryHandler() {
-    if (this.isExamsSelected)
+    if (this.isExamsSelected) {
+      this.checkCorrectFields();
+      if (this.showInvalidMessage)
+        return;
       await this.createExam();
-    else
+    } else
       await this.addProblem();
   }
 
@@ -355,6 +368,11 @@ export default class EditLessonModal extends NotificationMixinComponent {
 /deep/ .bx--modal-content
   margin-bottom var(--cds-spacing-04)
   padding-top 0
+
+/deep/ .bx--text-input,
+/deep/ .bx--text-area,
+/deep/ .bx--dropdown
+  background-color var(--cds-ui-background)
 
 .change-btn
   background-color var(--cds-interactive-02)
