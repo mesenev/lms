@@ -14,7 +14,7 @@
           <a v-if="!inAction"
              class="visibility-button icon"
              @click.prevent.stop="changeMaterialVisibility">
-            {{ this.material.is_teacher_only ? 'Материал для учителя' : 'Материал для студентов' }}
+            {{ this.material.is_teacher_only ? 'Открыть для студентов' : 'Скрыть от студентов' }}
           </a>
           <TrashCan24 class="icon" @click.prevent.stop="showConfirmModal"/>
         </div>
@@ -88,6 +88,7 @@ export default class MaterialListComponent extends Vue {
 
 .icon
   margin-right 0.5rem
+  margin-left 0.5rem
   cursor pointer
 
 .material-title
