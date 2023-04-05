@@ -50,6 +50,7 @@
                 >
                   <material-list-component :material-prop="material"
                                            :is-editing="true"
+                                           @modal-hidden="modalHidden"
                                            @show-confirm-modal="showConfirmModal($event)"/>
                 </cv-structured-list-item>
               </template>

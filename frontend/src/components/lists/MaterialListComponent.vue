@@ -39,9 +39,10 @@ export default class MaterialListComponent extends Vue {
   private materialStore = materialStore;
   inAction = false;
 
-  openMaterial(): void {
+  async openMaterial() {
     this.materialStore.setCurrentMaterial(this.material);
-    router.push({ name: 'MaterialView', params: { materialId: this.material.id.toString() } });
+    await this.$emit('modal-hidden');
+    await router.push({ name: 'MaterialView', params: { materialId: this.material.id.toString() } });
   }
 
   showConfirmModal() {
