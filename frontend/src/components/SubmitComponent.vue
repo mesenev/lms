@@ -89,7 +89,6 @@ import submitStore from '@/store/modules/submit';
 import userStore from '@/store/modules/user';
 import { AxiosError, AxiosResponse } from 'axios';
 import api from '@/store/services/api'
-import _ from 'lodash';
 import { de_options } from '@/utils/consts';
 import { Component, Prop, Watch } from 'vue-property-decorator';
 
@@ -131,10 +130,11 @@ export default class SubmitComponent extends NotificationMixinComponent {
   }
 
   get canSubmit(): boolean {
-    return this.submitEdit.content?.length !== 0
-        && this.isChanged
-        && this.submitEdit.de_id.length !== 0
-        && this.cats_account;
+    // return this.submitEdit.content?.length !== 0
+    //    && this.isChanged
+    //    && this.submitEdit.de_id.length !== 0
+    //    && this.cats_account;
+    return true
   }
 
   get cats_account(): boolean {
@@ -211,16 +211,20 @@ export default class SubmitComponent extends NotificationMixinComponent {
     if (input.files?.length && this.submitEdit.content){
       this.notificationKind = 'error';
       this.notificationText = `Отправьте либо только файл, либо только текст решения.`;
-      this.showNotification = true
+      this.showNotification = true;
       return;
     }
+
     this.submitEdit = {
-      ...this.submitEdit,
-    };
+      ...this.submitEdit
+    }
 
-
-    api.post('/api/submit/', {
-      ...this.submitEdit,
+    if (input.files?.length){
+      const file_reader = new FileReader()
+      file_reader.onload = (event) => {
+        this.submitEdit.content = event.target?.result as string
+        api.post('/api/submit/', {
+      ...this.submitEdit, 'content': this.submitEdit.content,
       'problem': this.problemStore.currentProblem?.id as number,
     }).then((response: AxiosResponse<SubmitModel>) => {
       this.submitStore.addSubmitToArray(response.data);
@@ -235,6 +239,30 @@ export default class SubmitComponent extends NotificationMixinComponent {
       this.notificationKind = 'error';
       this.notificationText = `Что-то пошло не так ${error.message}`;
     }).finally(() => this.showNotification = true);
+      }
+      file_reader.readAsText(input.files[0]);
+      return
+    }
+    api.post('/api/submit/', {
+      ...this.submitEdit, 'content': this.submitEdit.content,
+      'problem': this.problemStore.currentProblem?.id as number,
+    }).then((response: AxiosResponse<SubmitModel>) => {
+      this.submitStore.addSubmitToArray(response.data);
+      this.$emit('submit-created', { id: response.data.id.toString() });
+      this.submit = { ...response.data };
+      this.submitEdit = { ...this.submit };
+      this.problem.last_submit = this.submit;
+      this.problemStore.changeCurrentProblem(this.problem)
+      this.notificationKind = 'success';
+      this.notificationText = 'Попытка отправлена';
+    }).catch((error: AxiosError) => {
+      this.notificationKind = 'error';
+      this.notificationText = `Что-то пошло не так ${error.message}`;
+    }).finally(() => this.showNotification = true);
+
+
+    console.log('CONTENT', this.submitEdit)
+    console.log('CONTENT SPLIT', _.cloneDeep(this.submitEdit))
   }
 
 }

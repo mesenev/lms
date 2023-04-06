@@ -33,6 +33,7 @@ class SubmitSerializer(serializers.ModelSerializer):
         content = validated_data.get('content')
         validated_data.pop('content')
         submit = Submit.objects.create(**validated_data)
+        print('CREATE!!!!!!!!!!!!!!!!!')
         submit.content.save(gen_hash_name(content) + '.txt', ContentFile(content), save=True)
         return submit
 
