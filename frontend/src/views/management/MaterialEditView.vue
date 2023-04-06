@@ -1,14 +1,23 @@
 <template>
   <div class="bx--grid">
-    <div class="bx--row header">
+    <div class="bx--row header-container">
       <h1 class="main-title">Редактирование материала</h1>
+      <cv-button-skeleton v-if="changingVisibility || loading" kind="ghost"/>
+      <cv-button v-else
+                 class="material-hide-button"
+                 :icon="hiddenIcon"
+                 kind="ghost"
+                 @click="changeMaterialVisibility">
+        {{ (currentMaterial.is_teacher_only) ?
+        "Открыть материал для студентов" : "Скрыть материал от студентов" }}
+      </cv-button>
     </div>
     <cv-loading v-if="loading"/>
     <div v-else class="bx--row content">
       <div class="edit-container-wrapper bx--col-lg-5">
         <confirm-modal :modal-trigger="confirmModalTrigger"
                        :text="approvedText"
-                       :approve-handler="deleteAttachment"/>
+                       :approve-handler="deleteHandler"/>
         <div class="edit-container">
           <cv-inline-notification
             v-if="showNotification"
@@ -43,7 +52,10 @@
                  multiple
                  :disabled="attachmentLoading"
                  @change="uploadFiles($event.target.files)"/>
-          <div class="change__btn">
+          <div class="action-btns">
+            <cv-button kind="danger" @click="showConfirmModal(material)">
+              Удалить
+            </cv-button>
             <cv-button :disabled="canChangeMaterial"
                        @click="ChangeMaterial">
               Изменить
@@ -72,6 +84,9 @@ import api from '@/store/services/api';
 import AttachmentModel from "@/models/Attachment";
 import AttachmentsComponentList from '@/components/lists/AttachmentsComponentList.vue';
 import ConfirmModal from "@/components/ConfirmModal.vue";
+import router from "@/router";
+import viewOff from '@carbon/icons-vue/es/view--off/32';
+import view from '@carbon/icons-vue/es/view/32';
 
 @Component({ components: { VueMarkdown, AttachmentsComponentList, ConfirmModal } })
 export default class MaterialEditView extends Vue {
@@ -93,8 +108,9 @@ export default class MaterialEditView extends Vue {
   loading = true;
   confirmModalTrigger = false;
   approvedText = '';
-  deletingAttachmentId: number | null = null;
+  deletingValueId: number | null = null;
   attachmentLoading = false;
+  changingVisibility = false;
 
   hideSuccess() {
     this.showNotification = false;
@@ -105,6 +121,7 @@ export default class MaterialEditView extends Vue {
     await this.materialStore.fetchAttachmentsByMaterialId(this.materialId);
     if (material) {
       this.materialStore.setCurrentMaterial(material);
+      await this.materialStore.fetchMaterialsByLessonId(material.lesson);
       this.material = this.materialStore.currentMaterial;
       this.materialEdit = _.cloneDeep(this.material)
     }
@@ -133,7 +150,7 @@ export default class MaterialEditView extends Vue {
   }
 
   get currentMaterial(): MaterialModel {
-    return this.material;
+    return this.materialStore.currentMaterial;
   }
 
   get currentAttachments(): Array<AttachmentModel> {
@@ -148,10 +165,33 @@ export default class MaterialEditView extends Vue {
     return _.isEqual(this.currentMaterial, this.materialEdit) || this.isMaterialEmpty
   }
 
-  showConfirmModal(deletingAttachment: AttachmentModel) {
-    this.deletingAttachmentId = deletingAttachment.id;
-    this.approvedText = `Удалить вложение: ${deletingAttachment.name}`;
+  get hiddenIcon() {
+    return (this.currentMaterial.is_teacher_only) ? viewOff : view;
+  }
+
+  determineIsAttachmentOrMaterial(model: AttachmentModel | MaterialModel): model is AttachmentModel {
+    return (model as AttachmentModel).file_url !== undefined;
+  }
+
+  showConfirmModal(deletingValue: AttachmentModel | MaterialModel) {
+    let deletingText = 'Удалить материал: ';
+    if (this.determineIsAttachmentOrMaterial(deletingValue)) {
+      deletingText = 'Удалить вложение: ';
+    }
+    this.deletingValueId = deletingValue.id;
+    this.approvedText = `${deletingText}${deletingValue.name}`;
     this.confirmModalTrigger = !this.confirmModalTrigger;
+  }
+
+  async changeMaterialVisibility() {
+    this.changingVisibility = true;
+    await this.materialStore.patchMaterialVisibility({
+      is_teacher_only: !this.currentMaterial.is_teacher_only,
+      id: this.currentMaterial.id
+    }).then(() => {
+      this.materialEdit.is_teacher_only = this.currentMaterial.is_teacher_only;
+    })
+    this.changingVisibility = false;
   }
 
   async ChangeMaterial() {
@@ -170,13 +210,35 @@ export default class MaterialEditView extends Vue {
       .finally(() => this.showNotification = true);
   }
 
+  async deleteHandler() {
+    if (this.approvedText.includes('материал')) {
+      await this.deleteMaterial();
+    } else {
+      await this.deleteAttachment();
+    }
+  }
+
   async deleteAttachment() {
-    if (!this.deletingAttachmentId)
+    if (!this.deletingValueId)
       throw Error;
-    await this.materialStore.deleteAttachment(this.deletingAttachmentId)
+    await this.materialStore.deleteAttachment(this.deletingValueId)
       .catch(error => {
         this.notificationKind = 'error';
         this.notificationText = `Что-то пошло не так: ${error.message}`
+        this.showNotification = true;
+      })
+  }
+
+  async deleteMaterial() {
+    if (!this.deletingValueId)
+      throw Error;
+    await api.delete(`/api/material/${this.deletingValueId}/`)
+      .then(() => {
+        router.push({ name: 'LessonView', params: { lessonId: this.material.lesson.toString() } })
+      })
+      .catch(error => {
+        this.notificationKind = 'error';
+        this.notificationText = `Что-то пошло не так: ${error.message}`;
         this.showNotification = true;
       })
   }
@@ -196,8 +258,8 @@ export default class MaterialEditView extends Vue {
 </script>
 
 <style scoped lang="stylus">
-.bx--col-lg-5
-  margin-left 20px
+.material-hide-button
+  margin-left 1rem
 
 .preview-container
   padding 1rem
@@ -223,7 +285,7 @@ export default class MaterialEditView extends Vue {
   padding 1rem
   background-color var(--cds-ui-01)
 
-/deep/.bx--text-input
+/deep/ .bx--text-input
   background-color var(--cds-ui-background)
 
 .text-area >>> .bx--text-area
@@ -235,9 +297,10 @@ export default class MaterialEditView extends Vue {
 #files_input
   color var(--cds-text-01)
 
-.change__btn
+.action-btns
   display flex
-  justify-content flex-end
+  justify-content space-between
+  margin-top 1rem
 
 .text-area
   font-size: 14px

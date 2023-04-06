@@ -11,12 +11,7 @@
           </p>
         </div>
         <div class="action-buttons" v-if="isEditing">
-          <a v-if="!inAction"
-             class="visibility-button icon"
-             @click.prevent.stop="changeMaterialVisibility">
-            {{ this.material.is_teacher_only ? 'Открыть для студентов' : 'Скрыть от студентов' }}
-          </a>
-          <TrashCan24 class="icon" @click.prevent.stop="showConfirmModal"/>
+
         </div>
       </div>
     </div>
@@ -43,19 +38,6 @@ export default class MaterialListComponent extends Vue {
     this.materialStore.setCurrentMaterial(this.material);
     await this.$emit('modal-hidden');
     await router.push({ name: 'MaterialView', params: { materialId: this.material.id.toString() } });
-  }
-
-  showConfirmModal() {
-    this.$emit('show-confirm-modal', this.material);
-  }
-
-  async changeMaterialVisibility() {
-    this.inAction = true;
-    await this.materialStore.patchMaterialVisibility({
-      is_teacher_only: !this.materialProp.is_teacher_only,
-      id: this.materialProp.id
-    });
-    this.inAction = false;
   }
 
   get material(): MaterialModel {

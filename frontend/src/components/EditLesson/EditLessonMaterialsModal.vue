@@ -3,10 +3,6 @@
     <cv-button class="change-btn" @click="showModal">
       Материалы
     </cv-button>
-    <confirm-modal :modal-trigger="confirmModalTrigger"
-                   :text="approvedText"
-                   :approve-handler="deleteMaterial"
-                   @show-modal="showModal"/>
     <cv-modal size="default"
               class="add_lesson_modal"
               :visible="modalVisible"
@@ -64,8 +60,7 @@
                 >
                   <material-list-component :material-prop="material"
                                            :is-editing="true"
-                                           @modal-hidden="modalHidden"
-                                           @show-confirm-modal="showConfirmModal($event)"/>
+                                           @modal-hidden="modalHidden"/>
                 </cv-structured-list-item>
               </template>
             </cv-structured-list>
@@ -118,9 +113,6 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
   invalidMessageVisible = false;
   invalidMessage = 'Материал с таким названием уже существует!';
   emptyInvalidMessage = 'Заполните поле!';
-  deletingMaterialId: number | null = null;
-  approvedText = '';
-  confirmModalTrigger = false;
   emptyMaterialsListText = 'Добавьте новый материал.';
 
   showModal() {
@@ -135,13 +127,6 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
   invalidMessageHidden() {
     if (this.areSameMaterialNames(this.currentMaterial.name))
       this.invalidMessageVisible = false;
-  }
-
-  showConfirmModal(deletingMaterial: MaterialModel) {
-    this.deletingMaterialId = deletingMaterial.id;
-    this.approvedText = `Удалить материал: ${deletingMaterial.name}`;
-    this.modalHidden();
-    this.confirmModalTrigger = !this.confirmModalTrigger;
   }
 
   async addMaterial() {
@@ -175,24 +160,6 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
     request.finally(() => {
       this.invalidMessageHidden();
     })
-  }
-
-  async deleteMaterial() {
-    if (!this.deletingMaterialId)
-      throw Error;
-    await api.delete(`/api/material/${this.deletingMaterialId}/`)
-      .then(() => {
-        this.lesson.materials = this.lesson.materials.filter(x => x.id != this.deletingMaterialId);
-        this.materialStore.setMaterials({ [this.lesson.id]: this.lesson.materials });
-      })
-      .catch(error => {
-        this.notificationKind = 'error';
-        this.notificationText = `Что-то пошло не так: ${error.message}`;
-        this.showNotification = true;
-      }).finally(() => {
-        this.showModal();
-        this.$emit('update-material-delete');
-      })
   }
 
   get isButtonDisabled() {
