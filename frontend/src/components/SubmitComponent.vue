@@ -143,7 +143,6 @@ export default class SubmitComponent extends NotificationMixinComponent {
     if (input.files?.length) {
       this.file_content = await this.readFileAsync(input.files[0]) as string
     }
-    console.log('FILE CONTENT', this.file_content)
   }
 
   get isRejectDisabled() {
