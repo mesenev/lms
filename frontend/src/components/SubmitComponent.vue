@@ -91,6 +91,7 @@ import { AxiosError, AxiosResponse } from 'axios';
 import api from '@/store/services/api'
 import { de_options } from '@/utils/consts';
 import { Component, Prop, Watch } from 'vue-property-decorator';
+import _ from 'lodash';
 
 
 @Component({
@@ -259,10 +260,6 @@ export default class SubmitComponent extends NotificationMixinComponent {
       this.notificationKind = 'error';
       this.notificationText = `Что-то пошло не так ${error.message}`;
     }).finally(() => this.showNotification = true);
-
-
-    console.log('CONTENT', this.submitEdit)
-    console.log('CONTENT SPLIT', _.cloneDeep(this.submitEdit))
   }
 
 }
