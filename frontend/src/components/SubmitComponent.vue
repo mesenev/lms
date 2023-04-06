@@ -154,11 +154,10 @@ export default class SubmitComponent extends NotificationMixinComponent {
   }
 
   get canSubmit(): boolean {
-     return ((this.submitEdit.content?.length !== 0
-        && this.isChanged
+     return (((this.submitEdit.content?.length !== 0
+        && this.isChanged) || (this.file_content.length != 0))
         && this.submitEdit.de_id.length !== 0
-        && this.cats_account) || (this.file_content.length != 0 && this.cats_account &&
-       this.submitEdit.de_id.length !== 0)) && !(this.file_content.length != 0 &&
+        && this.cats_account) && !(this.file_content.length != 0 &&
        this.submitEdit.content?.length !== 0);
 
   }
@@ -209,6 +208,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
         ? { ...this.submit, status: status }
         :{ ...this.submitStore.defaultSubmit };
 
+
     api.patch(`/api/submit/${this.submitEdit.id}/`, this.submitEdit)
         .then((response: AxiosResponse<SubmitModel>) => {
           this.submitStore.changeSubmitStatus(response.data);
@@ -236,6 +236,10 @@ export default class SubmitComponent extends NotificationMixinComponent {
 
     this.submitEdit = {
       ...this.submitEdit
+    }
+
+    if ( this.file_content.length != 0 ){
+      this.submitEdit.content = this.file_content
     }
 
     api.post('/api/submit/', {
