@@ -71,14 +71,14 @@
                   <cv-structured-list-item
                     v-for="material in studentMaterials"
                     :key="material.id">
-                    <material-list-component :material-prop="material"/>
+                    <material-list-component :material-prop="material" :is-staff="isStaff"/>
                   </cv-structured-list-item>
                 </template>
                 <template slot="items" v-if="isStaff">
                   <cv-structured-list-item
                     v-for="material in teacherMaterials"
                     :key="material.id">
-                    <material-list-component :material-prop="material"/>
+                    <material-list-component :material-prop="material" :is-staff="isStaff"/>
                   </cv-structured-list-item>
                 </template>
               </cv-structured-list>

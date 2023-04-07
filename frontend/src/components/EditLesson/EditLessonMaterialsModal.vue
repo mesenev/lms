@@ -43,7 +43,9 @@
             </cv-dropdown>
           </div>
           <br>
-          <p class="materials-info"> Добавление содержимого в материал доступно после создания. </p>
+          <p class="materials-info">
+            Добавление содержимого в материал доступно в редактировании.
+          </p>
           <h5 class="materials-title" v-if="materials.length">Материалы урока:</h5>
           <cv-inline-notification
             v-if="showNotification"
@@ -59,7 +61,7 @@
                   :key="material.id"
                 >
                   <material-list-component :material-prop="material"
-                                           :is-editing="true"
+                                           :is-staff="isStaff"
                                            @modal-hidden="modalHidden"/>
                 </cv-structured-list-item>
               </template>
@@ -87,6 +89,7 @@ import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import api from '@/store/services/api'
 import { Component, Prop } from 'vue-property-decorator';
 import materialStore from '@/store/modules/material';
+import userStore from '@/store/modules/user';
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import EmptyListComponent from "@/components/EmptyListComponent.vue";
@@ -105,6 +108,7 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
   AddAlt32 = AddAlt20;
   SubtractAlt32 = SubtractAlt20;
   materialStore = materialStore;
+  userStore = userStore;
   currentMaterial: MaterialModel = { ...this.materialStore.getNewMaterial, lesson: this.lesson.id };
   creationLoader = false;
   material: Array<MaterialModel> = [];
@@ -146,7 +150,8 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
   }
 
   async createNewMaterial() {
-    this.currentMaterial.content = "### материал"
+    if (this.currentMaterial.content_type === 'text')
+      this.currentMaterial.content = "### материал"
     const request = api.post('/api/material/', this.currentMaterial);
     request.then(response => {
       this.lesson.materials.push(response.data as MaterialModel);
@@ -160,6 +165,10 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
     request.finally(() => {
       this.invalidMessageHidden();
     })
+  }
+
+  get isStaff() {
+    return this.userStore.user.staff_for.includes(Number(this.$route.params.courseId));
   }
 
   get isButtonDisabled() {

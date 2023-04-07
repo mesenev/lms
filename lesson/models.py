@@ -34,7 +34,7 @@ class LessonContent(models.Model):
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=500)
     content_type = models.CharField(max_length=5, choices=CONTENT_TYPE, blank=True, null=True)
-    content = models.TextField()
+    content = models.TextField(blank=True)
     is_teacher_only = models.BooleanField(default=False)
 
     def __str__(self):
