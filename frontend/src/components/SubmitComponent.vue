@@ -29,8 +29,11 @@
     <div class="buttons-block-wrapper">
       <div class="handlers bx--row buttons-container">
         <div class="submit-container">
-          <input type="file"
+          <div class="input-file-container">
+            <input type="file"
                 id="file_input" @change="handleFileUpload()">
+            <component class="trash-icon icon" :is="TrashCan" @click.prevent.stop="deleteFile"/>
+          </div>
           <cv-button
             v-if="!loading"
             :disabled="!canSubmit"
@@ -92,6 +95,7 @@ import api from '@/store/services/api'
 import { de_options } from '@/utils/consts';
 import { Component, Prop, Watch } from 'vue-property-decorator';
 import _ from 'lodash';
+import TrashCan from '@carbon/icons-vue/es/trash-can/20';
 
 
 @Component({
@@ -118,9 +122,18 @@ export default class SubmitComponent extends NotificationMixinComponent {
   submitEdit: SubmitModel = { ...this.submitStore.defaultSubmit };
   loading = true;
   file_content = '';
+  TrashCan = TrashCan;
 
   get isChanged(): boolean {
     return !_.isEqual(this.submit, this.submitEdit);
+  }
+
+  deleteFile(){
+    const input = window.document.getElementById('file_input') as HTMLInputElement
+    if (input.files?.length) {
+      input.value = '';
+      this.file_content = '';
+    }
   }
 
   readFileAsync(file: File){
@@ -154,6 +167,17 @@ export default class SubmitComponent extends NotificationMixinComponent {
   }
 
   get canSubmit(): boolean {
+
+    if (this.file_content.length != 0 &&
+       this.submitEdit.content?.length !== 0){
+      this.notificationKind = 'error';
+      this.notificationText = `Отправьте либо текст решения либо файл`;
+      this.showNotification = true;
+    }
+    else {
+      this.showNotification = false;
+    }
+
      return (((this.submitEdit.content?.length !== 0
         && this.isChanged) || (this.file_content.length != 0))
         && this.submitEdit.de_id.length !== 0
@@ -347,6 +371,14 @@ export default class SubmitComponent extends NotificationMixinComponent {
     padding 0.5rem
     align-items center
     vertical-align center
+
+.input-file-container
+    display flex
+    align-items center
+
+  input
+    width: 80%
+
 
 .handlers-staff
   display flex
