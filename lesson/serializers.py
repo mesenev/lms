@@ -45,6 +45,7 @@ class MaterialSerializer(serializers.Serializer):
         instance.content = validated_data.get('content', instance.content)
         instance.author = validated_data.get('author', instance.author)
         instance.is_teacher_only = validated_data.get('is_teacher_only', instance.is_teacher_only)
+        instance.content_type = validated_data.get('content_type', instance.content_type)
         instance.save()
         return instance
 

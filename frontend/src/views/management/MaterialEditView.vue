@@ -2,15 +2,19 @@
   <div class="bx--grid">
     <div class="bx--row header-container">
       <h1 class="main-title">Редактирование материала</h1>
-      <cv-button-skeleton v-if="changingVisibility || loading" kind="ghost"/>
-      <cv-button v-else
-                 class="material-hide-button"
-                 :icon="hiddenIcon"
-                 kind="ghost"
-                 @click="changeMaterialVisibility">
-        {{ (currentMaterial.is_teacher_only) ?
-        "Открыть материал для студентов" : "Скрыть материал от студентов" }}
-      </cv-button>
+      <div class="material-hide-button-container">
+        <cv-button-skeleton v-if="changingVisibility || loading" kind="ghost"/>
+        <cv-button v-else
+                   class="material-hide-button"
+                   :icon="hiddenIcon"
+                   kind="ghost"
+                   @click="changeMaterialVisibility">
+          {{
+            (currentMaterial.is_teacher_only) ?
+              "Открыть материал для студентов" : "Скрыть материал от студентов"
+          }}
+        </cv-button>
+      </div>
     </div>
     <cv-loading v-if="loading"/>
     <div v-else class="bx--row content">
@@ -25,13 +29,32 @@
             :sub-title="notificationText"
             @close="hideSuccess"
           />
-          <cv-text-input label="Заголовок"
-                         type="text"
-                         v-model="materialEdit.name"/>
-          <cv-text-area label="Содержимое"
+          <div class="edit-container-header">
+            <cv-text-input label="Заголовок"
+                           type="text"
+                           v-model="materialEdit.name"/>
+            <cv-dropdown class="material-type-dropdown"
+                         @change="changeMaterialContent"
+                         placeholder="Выберите тип"
+                         label="Тип материала"
+                         v-model="materialEdit.content_type">
+              <cv-dropdown-item value="text">Текст</cv-dropdown-item>
+              <cv-dropdown-item value="url">Ссылка</cv-dropdown-item>
+              <cv-dropdown-item value="video">Видео</cv-dropdown-item>
+            </cv-dropdown>
+          </div>
+          <cv-text-area v-if="isTextType"
+                        label="Содержимое"
                         class="text-area"
-                        v-model="materialEdit.content">
-          </cv-text-area>
+                        v-model="materialEdit.content"/>
+          <cv-text-input v-if="isUrlType"
+                         placeholder="Вставьте ссылку"
+                         label="Ссылка"
+                         v-model="materialEdit.content"/>
+          <cv-text-input v-if="isVideoType"
+                         placeholder="Вставьте ссылку на видео или добавьте вложение"
+                         label="Видео"
+                         v-model="materialEdit.content"/>
           <p class="attachments-list-label">Вложения</p>
           <div class="attachments-list-container">
             <cv-structured-list class="attachments-list">
@@ -66,7 +89,10 @@
       <div class="preview-container bx--col-lg-6">
         <h4 class="title" v-if="materialEdit.name.length > 0"> {{ materialEdit.name }} </h4>
         <h4 v-else>Введите название материала</h4>
-        <vue-markdown :source="materialEdit.content" :html="true" class="markdown"/>
+        <youtube v-if="isVideoType && isYoutubeFormat" :video-id="youtubeUrl"
+                 ref="youtube"
+                 player-width="100%"/>
+        <vue-markdown v-else :source="materialEdit.content" :html="true" class="markdown"/>
       </div>
     </div>
   </div>
@@ -87,6 +113,10 @@ import ConfirmModal from "@/components/ConfirmModal.vue";
 import router from "@/router";
 import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
+import VueYouTubeEmbed from "vue-youtube-embed";
+import { getIdFromURL } from "vue-youtube-embed";
+
+Vue.use(VueYouTubeEmbed);
 
 @Component({ components: { VueMarkdown, AttachmentsComponentList, ConfirmModal } })
 export default class MaterialEditView extends Vue {
@@ -161,6 +191,26 @@ export default class MaterialEditView extends Vue {
     return this.materialEdit.name.length === 0 || this.materialEdit.content.length === 0;
   }
 
+  get isTextType() {
+    return this.materialEdit.content_type === 'text';
+  }
+
+  get isUrlType() {
+    return this.materialEdit.content_type === 'url';
+  }
+
+  get isVideoType() {
+    return this.materialEdit.content_type === 'video';
+  }
+
+  get isYoutubeFormat() {
+    return this.materialEdit.content.includes('https://www.youtube.com/');
+  }
+
+  get youtubeUrl() {
+    return getIdFromURL(this.materialEdit.content);
+  }
+
   get canChangeMaterial(): boolean {
     return _.isEqual(this.currentMaterial, this.materialEdit) || this.isMaterialEmpty
   }
@@ -181,6 +231,14 @@ export default class MaterialEditView extends Vue {
     this.deletingValueId = deletingValue.id;
     this.approvedText = `${deletingText}${deletingValue.name}`;
     this.confirmModalTrigger = !this.confirmModalTrigger;
+  }
+
+  changeMaterialContent() {
+    if (this.isTextType) {
+      this.materialEdit.content = '### материал';
+    } else {
+      this.materialEdit.content = '';
+    }
   }
 
   async changeMaterialVisibility() {
@@ -258,7 +316,7 @@ export default class MaterialEditView extends Vue {
 </script>
 
 <style scoped lang="stylus">
-.material-hide-button
+.material-hide-button-container
   margin-left 1rem
 
 .preview-container
@@ -276,23 +334,43 @@ export default class MaterialEditView extends Vue {
 .title
   overflow-wrap break-word
 
-.edit-container-wrapper
-  margin-top 2rem
-  margin-bottom 2rem
-  min-height 400px
+.content
+  margin-top 1rem
 
 .edit-container
   padding 1rem
   background-color var(--cds-ui-01)
 
+.edit-container-header
+  display flex
+  gap 1rem
+  justify-content space-between
+
+.cv-text-input
+  /deep/ .bx--label
+    margin-top 2px
+
+.material-type-dropdown
+  max-width 10rem
+
+  /deep/ .bx--dropdown
+    background-color var(--cds-ui-background)
+
+  /deep/ .bx--dropdown__wrapper.bx--list-box__wrapper
+    align-self end
+
+/deep/ .bx--list-box__field
+  display flex
+
 /deep/ .bx--text-input
+  margin-bottom 1rem
   background-color var(--cds-ui-background)
 
 .text-area >>> .bx--text-area
   background-color var(--cds-ui-background)
   min-height 13rem
   resize none
-  margin-bottom 10px
+  margin-bottom 1rem
 
 #files_input
   color var(--cds-text-01)
@@ -301,11 +379,6 @@ export default class MaterialEditView extends Vue {
   display flex
   justify-content space-between
   margin-top 1rem
-
-.text-area
-  font-size: 14px
-  font-family: "Monaco", courier, monospace
-  margin-top 15px
 
 .attachments-list-label
   font-size var(--cds-label-01-font-size, 0.75rem)
@@ -321,6 +394,7 @@ export default class MaterialEditView extends Vue {
   overflow auto
   max-height 200px
   margin-bottom 0.5rem
+  color var(--cds-text-01)
 
 .attachments-list
   margin-top 1px
