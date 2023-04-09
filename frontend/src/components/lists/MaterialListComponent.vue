@@ -6,12 +6,12 @@
           <VideoChat24 v-if="this.materialProp.content_type === 'video'"
                        class="icon"/>
           <Document24 v-else class="icon"/>
-          <p :class="(material.is_teacher_only) ? 'material-title' : ''">
+          <p>
             {{ material.name }}
           </p>
         </div>
         <div class="action-buttons" v-if="isStaff">
-
+          <component :is="hiddenIcon" class="icon"/>
         </div>
       </div>
     </div>
@@ -27,6 +27,8 @@ import Settings24 from '@carbon/icons-vue/es/settings/24';
 import router from '@/router';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import materialStore from '@/store/modules/material';
+import viewOff from '@carbon/icons-vue/es/view--off/24';
+import view from '@carbon/icons-vue/es/view/24';
 
 @Component({ components: { Document24, VideoChat24, TrashCan24, Settings24 } })
 export default class MaterialListComponent extends Vue {
@@ -74,6 +76,10 @@ export default class MaterialListComponent extends Vue {
   addProtocolDomain() {
     if (!this.material.content.includes('https://') && !this.material.content.includes('http://'))
       this.material.content = 'https://' + this.material.content;
+  }
+
+  get hiddenIcon() {
+    return (this.material.is_teacher_only) ? viewOff : view;
   }
 
   get material(): MaterialModel {
