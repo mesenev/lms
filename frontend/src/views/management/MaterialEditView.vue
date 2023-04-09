@@ -257,7 +257,7 @@ export default class MaterialEditView extends Vue {
       .then(response => {
         this.notificationKind = 'success';
         this.notificationText = 'Материалы успешно изменены';
-        this.updateMaterials(this.material, this.materialEdit);
+        this.updateAfterChangeMaterials(this.material, this.materialEdit);
         this.material = response.data;
         this.materialStore.setCurrentMaterial(this.material);
       })
@@ -291,8 +291,12 @@ export default class MaterialEditView extends Vue {
     if (!this.deletingValueId)
       throw Error;
     await api.delete(`/api/material/${this.deletingValueId}/`)
-      .then(() => {
-        router.push({ name: 'LessonView', params: { lessonId: this.material.lesson.toString() } })
+      .then(async () => {
+        await this.updateAfterDeleteMaterials();
+        await router.push({
+          name: 'LessonView',
+          params: { lessonId: this.material.lesson.toString() }
+        })
       })
       .catch(error => {
         this.notificationKind = 'error';
@@ -305,7 +309,16 @@ export default class MaterialEditView extends Vue {
     await this.materialStore.fetchAttachmentsByMaterialId(this.materialId);
   }
 
-  async updateMaterials(oldMaterial: MaterialModel, newMaterial: MaterialModel) {
+  async updateAfterDeleteMaterials() {
+    const materials = await this.materialStore.fetchMaterialsByLessonId(this.currentMaterial.lesson);
+    this.materialStore.setMaterials({
+      [this.currentMaterial.lesson]: materials.filter(
+        x => x.id !== this.currentMaterial.id
+      )
+    });
+  }
+
+  async updateAfterChangeMaterials(oldMaterial: MaterialModel, newMaterial: MaterialModel) {
     let materials = await this.materialStore.fetchMaterialsByLessonId(oldMaterial.lesson);
     materials = materials.filter(x => x.id !== oldMaterial.id);
     materials.push(newMaterial);
