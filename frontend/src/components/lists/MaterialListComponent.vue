@@ -53,15 +53,26 @@ export default class MaterialListComponent extends Vue {
 
   openMaterialContent() {
     if (this.material.content_type === 'url') {
+      this.setContentUrl();
       this.addProtocolDomain();
-      open(this.material.content, '_blank');
+      open(this.material.content);
     } else {
       this.openMaterial();
     }
   }
 
+  setContentUrl() {
+    let contentUrl = this.material.content
+    if (contentUrl.includes('href="')) {
+      const subBegin = contentUrl.lastIndexOf('href="') + 6;
+      const subEnd = contentUrl.indexOf('">');
+      contentUrl = contentUrl.substring(subBegin, subEnd);
+    }
+    this.material.content = contentUrl;
+  }
+
   addProtocolDomain() {
-    if (!this.material.content.includes('https://'))
+    if (!this.material.content.includes('https://') && !this.material.content.includes('http://'))
       this.material.content = 'https://' + this.material.content;
   }
 
