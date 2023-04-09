@@ -247,6 +247,7 @@ export default class MaterialEditView extends Vue {
       is_teacher_only: !this.currentMaterial.is_teacher_only,
       id: this.currentMaterial.id
     }).then(() => {
+      this.updateAfterChangeMaterials(this.currentMaterial, this.currentMaterial);
       this.materialEdit.is_teacher_only = this.currentMaterial.is_teacher_only;
     })
     this.changingVisibility = false;
