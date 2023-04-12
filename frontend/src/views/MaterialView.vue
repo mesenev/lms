@@ -1,20 +1,22 @@
 <template>
   <cv-loading v-if="loading"></cv-loading>
   <div v-else class="bx--grid">
+    <div class="bx--row header-container">
+      <div class="main-title">
+        <h1>{{ currentMaterial.name }}</h1>
+      </div>
+    </div>
     <div class="bx--row">
-      <div class="bx--col-lg-9">
-        <div class="main-title">
-          <h2 class="material-title">{{ currentMaterial.name }}</h2>
-        </div>
-        <div v-if="isMaterialAVideo" class="video material-content-video">
-          <youtube v-if="currentMaterial.content" :video-id="youTubeGetID"
-                   ref="youtube"
-                   player-width="640"
-                   player-height="360"></youtube>
-        </div>
-        <div v-else class="less material-content">
-          <vue-markdown html="true" :source="currentMaterial.content" class="md-body"/>
-        </div>
+      <div v-if="isMaterialAVideo" class="material-content-video">
+        <youtube v-if="isYoutubeFormat"
+                 :video-id="youTubeGetID"
+                 ref="youtube"
+                 player-width="100%"
+                 player-height="540"/>
+        <vue-markdown v-else :html="true" :source="currentMaterial.content" class="md-body"/>
+      </div>
+      <div v-else class="less material-content">
+        <vue-markdown :html="true" :source="currentMaterial.content" class="md-body"/>
       </div>
       <div class="bx--col-lg-3 bx--col-md-4">
         <div class="other-materials-container">
@@ -79,6 +81,10 @@ export default class MaterialView extends Vue {
     return getIdFromURL(this.currentMaterial.content);
   }
 
+  get isYoutubeFormat() {
+    return this.currentMaterial.content.includes('https://www.youtube.com/');
+  }
+
   get isMaterialAVideo() {
     if (this.materialStore.currentMaterialType === 'video')
       return true;
@@ -101,7 +107,7 @@ export default class MaterialView extends Vue {
 </script>
 
 <style scoped lang="stylus">
-/deep/.bx--title
+/deep/ .bx--title
   background-color var(--cds-ui-background)
 
 .material-title
@@ -109,10 +115,10 @@ export default class MaterialView extends Vue {
   margin-top 2rem
 
 .material-content-video
-  min-height 20rem
-  min-width 980px
+  width 70%
 
 .material-content
+  width 70%
   min-height 20rem
 
 .less
@@ -122,7 +128,6 @@ export default class MaterialView extends Vue {
   padding var(--cds-spacing-05)
 
 .other-materials-container
-  margin-top 4rem
   min-height 22.5rem
   color var(--cds-text-01)
   background-color var(--cds-ui-background)
@@ -147,4 +152,12 @@ export default class MaterialView extends Vue {
 
 code
   color: var(--color-b)
+
+
+</style>
+
+<style lang="sass">
+.md-body img
+  max-width: 100%
+  height: auto
 </style>

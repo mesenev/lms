@@ -151,14 +151,14 @@
 
     <template slot="right-panels">
       <cv-header-panel class="" id="account">
-        <UserView :userProp="user" class="user-view"/>
+        <UserView :userProp="userStore.user" class="user-view"/>
         <cv-switcher>
           <template>
             <cv-switcher-item>
               <cv-switcher-item-link
                 :to="{
                   name: 'profile-page',
-                  params:  { userId: this.user.id }
+                  params:  { userId: userStore.user.id }
                 }"
               >
                 Профиль
@@ -178,7 +178,6 @@
                 Создать курс
               </cv-switcher-item-link>
             </cv-switcher-item>
-            <LoginAsUserModal/>
             <cv-switcher-item>
               <cv-switcher-item-link @click="logout"> Выйти</cv-switcher-item-link>
             </cv-switcher-item>
@@ -217,7 +216,7 @@
 
 <script lang="ts">
 import UserView from "@/components/UserComponent.vue";
-import LoginAsUserModal from "@/components/LoginAsUserModal.vue";
+// import LoginAsUserModal from "@/components/LoginAsUserModal.vue";
 import userStore from "@/store/modules/user";
 import AppSwitcher20 from '@carbon/icons-vue/es/app-switcher/20';
 import Notification20 from '@carbon/icons-vue/es/notification/20';
@@ -233,7 +232,7 @@ import { Watch } from "vue-property-decorator";
 @Component({
   components: {
     UserView,
-    LoginAsUserModal,
+    // LoginAsUserModal,
     Notification20,
     UserAvatar20,
     AppSwitcher20,
@@ -252,7 +251,7 @@ export default class LmsHeader extends Vue {
 
   current_theme = this.getTheme;
   themes = THEMES;
-  user = userStore.user;
+  userStore = userStore;
 
   async logout() {
     await tokenStore.logout();
@@ -284,7 +283,7 @@ export default class LmsHeader extends Vue {
   }
 
   get isStaff(): boolean {
-    return this.user.staff_for.includes(Number(this.$route.params.courseId));
+    return this.userStore.user.staff_for.includes(Number(this.$route.params.courseId));
   }
 }
 </script>

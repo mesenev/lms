@@ -3,10 +3,6 @@
     <cv-button class="change-btn" @click="showModal">
       Материалы
     </cv-button>
-    <confirm-modal :modal-trigger="confirmModalTrigger"
-                   :text="approvedText"
-                   :approve-handler="deleteMaterial"
-                   @show-modal="showModal"/>
     <cv-modal size="default"
               class="add_lesson_modal"
               :visible="modalVisible"
@@ -20,21 +16,37 @@
       </template>
       <template slot="content">
         <section class="modal--content">
-          <cv-text-input label="Название"
-                         @focus="invalidMessageHidden"
-                         v-model.trim="currentMaterial.name">
-            <template v-if="invalidMessageVisible" slot="invalid-message">
-              {{ invalidMessage }}
-            </template>
-          </cv-text-input>
-          <h5>Выберите тип материала:</h5>
-          <cv-radio-group :vertical=false>
-            <cv-radio-button v-model="currentMaterial.content_type" label="Текст" value="text"/>
-            <cv-radio-button v-model="currentMaterial.content_type" label="Ссылка" value="url"/>
-            <cv-radio-button v-model="currentMaterial.content_type" label="Видео" value="video"/>
-          </cv-radio-group>
+          <div class="materials-header">
+            <cv-text-input label="Название материала"
+                           @focus="invalidMessageHidden"
+                           v-model.trim="currentMaterial.name">
+              <template v-if="invalidMessageVisible && !currentMaterial.name"
+                        slot="invalid-message">
+                {{ emptyInvalidMessage }}
+              </template>
+              <template v-if="invalidMessageVisible && areSameMaterialNames(currentMaterial.name)"
+                        slot="invalid-message">
+                {{ invalidMessage }}
+              </template>
+            </cv-text-input>
+            <cv-dropdown class="material-type-dropdown"
+                         placeholder="Выберите тип"
+                         label="Тип материала"
+                         v-model="currentMaterial.content_type">
+              <cv-dropdown-item value="text">Текст</cv-dropdown-item>
+              <cv-dropdown-item value="url">Ссылка</cv-dropdown-item>
+              <cv-dropdown-item value="video">Видео</cv-dropdown-item>
+              <template slot="invalid-message"
+                        v-if="invalidMessageVisible && !currentMaterial.content_type">
+                {{ emptyInvalidMessage }}
+              </template>
+            </cv-dropdown>
+          </div>
           <br>
-          <h5 class="materials-title">Материалы урока:</h5>
+          <p class="materials-info">
+            Добавление содержимого в материал доступно в редактировании.
+          </p>
+          <h5 class="materials-title" v-if="materials.length">Материалы урока:</h5>
           <cv-inline-notification
             v-if="showNotification"
             @close="() => showNotification=false"
@@ -49,15 +61,16 @@
                   :key="material.id"
                 >
                   <material-list-component :material-prop="material"
-                                           :is-editing="true"
-                                           @show-confirm-modal="showConfirmModal($event)"/>
+                                           :is-staff="isStaff"
+                                           @modal-hidden="modalHidden"/>
                 </cv-structured-list-item>
               </template>
             </cv-structured-list>
           </div>
-          <p v-else class="empty-materials-list-title">
-            Список материалов пуст
-          </p>
+          <empty-list-component v-else
+                                class="empty-list"
+                                :text="emptyMaterialsListText"
+                                list-of="materials"/>
         </section>
       </template>
       <template slot="primary-button">
@@ -74,27 +87,37 @@ import MaterialModel from '@/models/MaterialModel';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import api from '@/store/services/api'
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop } from 'vue-property-decorator';
 import materialStore from '@/store/modules/material';
+import userStore from '@/store/modules/user';
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
+import EmptyListComponent from "@/components/EmptyListComponent.vue";
 
-@Component({ components: { AddAlt20, SubtractAlt20, MaterialListComponent, ConfirmModal } })
+@Component({
+  components: {
+    EmptyListComponent,
+    AddAlt20,
+    SubtractAlt20,
+    MaterialListComponent,
+    ConfirmModal
+  }
+})
 export default class EditLessonMaterialsModal extends NotificationMixinComponent {
   @Prop({ required: true }) lesson!: LessonModel;
   AddAlt32 = AddAlt20;
   SubtractAlt32 = SubtractAlt20;
   materialStore = materialStore;
+  userStore = userStore;
   currentMaterial: MaterialModel = { ...this.materialStore.getNewMaterial, lesson: this.lesson.id };
   creationLoader = false;
   material: Array<MaterialModel> = [];
   modalVisible = false;
   searchQueryForAllMaterials = '';
   invalidMessageVisible = false;
-  invalidMessage = '';
-  deletingMaterialId: number | null = null;
-  approvedText = '';
-  confirmModalTrigger = false;
+  invalidMessage = 'Материал с таким названием уже существует!';
+  emptyInvalidMessage = 'Заполните поле!';
+  emptyMaterialsListText = 'Добавьте новый материал.';
 
   showModal() {
     this.modalVisible = true;
@@ -106,25 +129,20 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
   }
 
   invalidMessageHidden() {
-    this.invalidMessageVisible = false;
-  }
-
-  showConfirmModal(deletingMaterial: MaterialModel) {
-    this.deletingMaterialId = deletingMaterial.id;
-    this.approvedText = `Удалить материал: ${deletingMaterial.name}`;
-    this.modalHidden();
-    this.confirmModalTrigger = !this.confirmModalTrigger;
+    if (this.areSameMaterialNames(this.currentMaterial.name))
+      this.invalidMessageVisible = false;
   }
 
   async addMaterial() {
-    if (this.areSameMaterialNames(this.currentMaterial.name)) {
-      this.creationLoader = true;
-      await this.createNewMaterial();
-      this.creationLoader = false;
-    } else {
-      this.invalidMessage = 'Материал с таким названием уже существует!';
+    if (this.areSameMaterialNames(this.currentMaterial.name)
+      || !this.currentMaterial.name
+      || !this.currentMaterial.content_type) {
       this.invalidMessageVisible = true;
+      return;
     }
+    this.creationLoader = true;
+    await this.createNewMaterial();
+    this.creationLoader = false;
     if (this.materials.every((l) => l.name)) {
       // this.lessons.forEach((lesson) => this.lessonStore.addLessonToCourse(lesson));
       // this.lessons = [];
@@ -132,7 +150,8 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
   }
 
   async createNewMaterial() {
-    this.currentMaterial.content = "### материал"
+    if (this.currentMaterial.content_type === 'text')
+      this.currentMaterial.content = "### материал"
     const request = api.post('/api/material/', this.currentMaterial);
     request.then(response => {
       this.lesson.materials.push(response.data as MaterialModel);
@@ -143,32 +162,21 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.showNotification = true;
     });
+    request.finally(() => {
+      this.invalidMessageHidden();
+    })
   }
 
-  async deleteMaterial() {
-    if (!this.deletingMaterialId)
-      throw Error;
-    await api.delete(`/api/material/${this.deletingMaterialId}/`)
-      .then(() => {
-        this.lesson.materials = this.lesson.materials.filter(x => x.id != this.deletingMaterialId);
-        this.materialStore.setMaterials({ [this.lesson.id]: this.lesson.materials });
-      })
-      .catch(error => {
-        this.notificationKind = 'error';
-        this.notificationText = `Что-то пошло не так: ${error.message}`;
-        this.showNotification = true;
-      }).finally(() => {
-        this.showModal();
-        this.$emit('update-material-delete');
-      })
+  get isStaff() {
+    return this.userStore.user.staff_for.includes(Number(this.$route.params.courseId));
   }
 
   get isButtonDisabled() {
-    return this.creationLoader || !this.currentMaterial.name
+    return this.creationLoader;
   }
 
   areSameMaterialNames(materialName: string) {
-    return this.materials.filter(material => material.name === materialName).length === 0;
+    return this.materials.filter(material => material.name === materialName).length != 0;
   }
 
   get materials(): Array<MaterialModel> {
@@ -195,6 +203,28 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
   &:hover
     border var(--cds-ui-01) 1px solid
 
+.materials-header
+  display flex
+  gap 1rem
+  justify-content space-between
+
+.cv-text-input
+  /deep/ .bx--label
+    margin-top 3px
+
+.material-type-dropdown
+  max-width 10rem
+
+  /deep/ .bx--dropdown__wrapper.bx--list-box__wrapper
+    align-self end
+
+/deep/ .bx--list-box__field
+  display flex
+
+.materials-info
+  margin-bottom 1rem
+  text-decoration-line underline
+
 .materials-title
   margin-bottom 0.5rem
 
@@ -204,6 +234,9 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
 
 .materials-list
   margin-bottom 0
+
+.empty-list
+  text-align center
 
 .lesson-card:hover
   border-bottom 1px solid var(--cds-ui-05)

@@ -33,8 +33,8 @@ export default class FileListComponent extends NotificationMixinComponent {
         this.attachment.name;
       markdown_file_string += '" width="" height="">';
     } else if (this.attachment.file_format.includes('video/')) {
-      markdown_file_string = '<video controls="controls"><source src="' + this.attachment.file_url
-        + ' "></video>'
+      markdown_file_string = '<video width="100%" controls="controls">' +
+        '<source src="' + this.attachment.file_url + ' "></video>';
     } else {
       markdown_file_string = '<a href="' + this.attachment.file_url + '">' + this.attachment.name
         + '</a>'

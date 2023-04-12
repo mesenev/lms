@@ -1,13 +1,32 @@
 <template>
   <div class="bx--grid">
     <cv-breadcrumb>
-        <cv-breadcrumb-item>
-          <router-link :to="{ path: '/', }">Список курсов</router-link>
-        </cv-breadcrumb-item>
+      <cv-breadcrumb-item>
+        <router-link :to="{ path: '/', }">Список курсов</router-link>
+      </cv-breadcrumb-item>
       <lms-breadcrumb-item
         v-if="courseSelected.selected"
         :model="courseStore.currentCourse"
         page-view="CourseView"
+      />
+      <lms-breadcrumb-item
+        v-if="courseProgressSelected.selected"
+        :model="courseProgressSelected.value"
+        :page-view="courseProgressSelected.pageView"/>
+      <lms-breadcrumb-item
+        v-if="courseScheduleSelected.selected"
+        :model="courseScheduleSelected.value"
+        :page-view="courseScheduleSelected.pageView"
+      />
+      <lms-breadcrumb-item
+        v-if="courseSolutionsListSelected.selected"
+        :model="courseSolutionsListSelected.value"
+        :page-view="courseSolutionsListSelected.pageView"
+      />
+      <lms-breadcrumb-item
+        v-if="profileSelected.selected"
+        :model="profileSelected.value"
+        page-view="profile-page"
       />
       <lms-breadcrumb-item
         v-if="lessonSelected.selected"
@@ -15,17 +34,33 @@
         page-view="LessonView"
       />
       <lms-breadcrumb-item
+        v-if="lessonProgressSelected.selected"
+        :model="lessonProgressSelected.value"
+        :page-view="lessonProgressSelected.pageView"
+      />
+      <lms-breadcrumb-item
         v-if="examSelected.selected"
         :model="examStore.currentExam"
         page-view="ExamView"/>
       <lms-breadcrumb-item
+        v-if="examSolutionSelected.selected"
+        :model="examSolutionSelected.value"
+        :page-view="examSolutionSelected.pageView"
+      />
+      <lms-breadcrumb-item
         v-if="examEditSelected.selected"
         :model="examEditSelected.value"
-        page-view="exam-edit"/>
+        :page-view="examEditSelected.pageView"
+      />
       <lms-breadcrumb-item
         v-if="problemSelected.selected"
         :model="problemStore.currentProblem"
         page-view="ProblemView"
+      />
+      <lms-breadcrumb-item
+        v-if="submitSelected.selected"
+        :model="submitSelected.value"
+        :page-view="submitSelected.pageView"
       />
       <lms-breadcrumb-item
         v-if="materialSelected.selected"
@@ -35,12 +70,22 @@
       <lms-breadcrumb-item
         v-if="courseEditSelected.selected"
         :model="courseEditSelected.value"
-        :page-view="courseEditSelected.page_view"
+        :page-view="courseEditSelected.pageView"
       />
       <lms-breadcrumb-item
         v-if="lessonEditSelected.selected"
         :model="lessonEditSelected.value"
-        page-view="lesson-edit"
+        :page-view="lessonEditSelected.pageView"
+      />
+      <lms-breadcrumb-item
+        v-if="problemEditSelected.selected"
+        :model="problemEditSelected.value"
+        :page-view="problemEditSelected.pageView"
+      />
+      <lms-breadcrumb-item
+        v-if="materialEditSelected.selected"
+        :model="materialEditSelected.value"
+        :page-view="materialEditSelected.pageView"
       />
     </cv-breadcrumb>
   </div>
@@ -72,6 +117,16 @@ export default class LmsBreadcrumb extends Vue {
     };
   }
 
+  selectedView(pageView: string, param: string, crumbName: string) {
+    let selected = false;
+    let value = null;
+    if (this.$route.name === pageView) {
+      selected = true;
+      value = { id: this.$route.params[param], name: crumbName };
+    }
+    return { selected, value, pageView };
+  }
+
   get courseSelected() {
     return this.isSelected('courseId');
   }
@@ -93,39 +148,107 @@ export default class LmsBreadcrumb extends Vue {
   }
 
   get examEditSelected() {
-    let selected = false;
-    let value = null;
-    if (this.$route.name === 'exam-edit') {
-      selected = true;
-      value = { id: this.$route.params['examId'], name: 'Редактирование теста' };
-    }
-    return { selected, value };
+    return this.selectedView(
+      'exam-edit',
+      'examId',
+      'Редактирование теста'
+    );
   }
 
   get courseEditSelected() {
-    let selected = false;
-    let value = null;
-    let page_view;
     if (this.$route.name === 'course-edit') {
-      page_view = this.$route.name;
-      selected = true;
-      value = { id: this.$route.params['courseId'], name: 'Редактирование курса' };
-    } else if (this.$route.name === 'course-add') {
-      page_view = this.$route.name;
-      selected = true;
-      value = { id: this.$route.params['courseId'], name: 'Создание курса' };
+      return this.selectedView(
+        'course-edit',
+        'courseId',
+        'Редактирование курса'
+      );
     }
-    return { selected, value, page_view };
+    return this.selectedView(
+      'course-add',
+      'courseId',
+      'Создание курса'
+    );
   }
 
   get lessonEditSelected() {
-    let selected = false;
-    let value = null;
-    if (this.$route.name === 'lesson-edit') {
-      selected = true;
-      value = { id: this.$route.params['lessonId'], name: 'Редактирование урока' };
-    }
-    return { selected, value };
+    return this.selectedView(
+      'lesson-edit',
+      'lessonId',
+      'Редактирование урока'
+    );
+  }
+
+  get profileSelected() {
+    return this.selectedView(
+      'profile-page',
+      'userId',
+      'Профиль'
+    );
+  }
+
+  get courseSolutionsListSelected() {
+    return this.selectedView(
+      'course-solutions-list',
+      'courseId',
+      'Отправленные решения'
+    );
+  }
+
+  get courseProgressSelected() {
+    return this.selectedView(
+      'course-progress',
+      'courseId',
+      'Успеваемость курса'
+    );
+  }
+
+  get courseScheduleSelected() {
+    return this.selectedView(
+      'course-calendar',
+      'courseId',
+      'Расписание занятий'
+    );
+  }
+
+  get lessonProgressSelected() {
+    return this.selectedView(
+      'lesson-progress',
+      'lessonId',
+      'Успеваемость урока'
+    );
+  }
+
+  get submitSelected() {
+    const submitId = this.$route.params['submitId'];
+    return this.selectedView(
+      'ProblemViewWithSubmit',
+      'submitId',
+      `Решение №${submitId}`
+    );
+  }
+
+  get examSolutionSelected() {
+    return this.selectedView(
+      'ExamViewWithSolution',
+      'solutionId',
+      'Решение'
+    );
+  }
+
+  get materialEditSelected() {
+    return this.selectedView(
+      'material-edit',
+      'materialId',
+      'Редактирование материала'
+    );
+  }
+
+  get problemEditSelected() {
+    return this.selectedView(
+      'problem-edit',
+      'problemId',
+      'Редактирование задачи'
+    );
   }
 
 }

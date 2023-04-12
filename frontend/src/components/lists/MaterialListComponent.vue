@@ -1,22 +1,17 @@
 <template>
   <cv-structured-list-data class="material-wrapper">
-    <div class="material-click" @click="openMaterial">
+    <div class="material-click" @click="openHandler">
       <div class="material-container">
         <div class="material">
           <VideoChat24 v-if="this.materialProp.content_type === 'video'"
                        class="icon"/>
           <Document24 v-else class="icon"/>
-          <p :class="(material.is_teacher_only) ? 'material-title' : ''">
+          <p>
             {{ material.name }}
           </p>
         </div>
-        <div class="action-buttons" v-if="isEditing">
-          <a v-if="!inAction"
-             class="visibility-button icon"
-             @click.prevent.stop="changeMaterialVisibility">
-            {{ this.material.is_teacher_only ? 'Материал для учителя' : 'Материал для студентов' }}
-          </a>
-          <TrashCan24 class="icon" @click.prevent.stop="showConfirmModal"/>
+        <div class="action-buttons" v-if="isStaff">
+          <component :is="hiddenIcon" class="icon"/>
         </div>
       </div>
     </div>
@@ -28,33 +23,63 @@ import MaterialModel from '@/models/MaterialModel';
 import Document24 from '@carbon/icons-vue/es/document/24';
 import VideoChat24 from '@carbon/icons-vue/es/video--chat/24';
 import TrashCan24 from '@carbon/icons-vue/es/trash-can/24';
+import Settings24 from '@carbon/icons-vue/es/settings/24';
 import router from '@/router';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import materialStore from '@/store/modules/material';
+import viewOff from '@carbon/icons-vue/es/view--off/24';
+import view from '@carbon/icons-vue/es/view/24';
 
-@Component({ components: { Document24, VideoChat24, TrashCan24 } })
+@Component({ components: { Document24, VideoChat24, TrashCan24, Settings24 } })
 export default class MaterialListComponent extends Vue {
   @Prop() materialProp!: MaterialModel;
-  @Prop({ required: false }) isEditing!: false | boolean;
+  @Prop({ required: false, default: false }) isStaff!: boolean;
   private materialStore = materialStore;
-  inAction = false;
 
-  openMaterial(): void {
+  async openMaterial() {
     this.materialStore.setCurrentMaterial(this.material);
-    router.push({ name: 'MaterialView', params: { materialId: this.material.id.toString() } });
-  }
-
-  showConfirmModal() {
-    this.$emit('show-confirm-modal', this.material);
-  }
-
-  async changeMaterialVisibility() {
-    this.inAction = true;
-    await this.materialStore.patchMaterialVisibility({
-      is_teacher_only: !this.materialProp.is_teacher_only,
-      id: this.materialProp.id
+    await this.$emit('modal-hidden');
+    await router.push({
+      name: 'MaterialView',
+      params: { materialId: this.material.id.toString() }
     });
-    this.inAction = false;
+  }
+
+  async openHandler() {
+    if (this.isStaff) {
+      await this.openMaterial();
+    } else {
+      this.openMaterialContent();
+    }
+  }
+
+  openMaterialContent() {
+    if (this.material.content_type === 'url') {
+      this.setContentUrl();
+      this.addProtocolDomain();
+      open(this.material.content);
+    } else {
+      this.openMaterial();
+    }
+  }
+
+  setContentUrl() {
+    let contentUrl = this.material.content
+    if (contentUrl.includes('href="')) {
+      const subBegin = contentUrl.lastIndexOf('href="') + 6;
+      const subEnd = contentUrl.indexOf('">');
+      contentUrl = contentUrl.substring(subBegin, subEnd);
+    }
+    this.material.content = contentUrl;
+  }
+
+  addProtocolDomain() {
+    if (!this.material.content.includes('https://') && !this.material.content.includes('http://'))
+      this.material.content = 'https://' + this.material.content;
+  }
+
+  get hiddenIcon() {
+    return (this.material.is_teacher_only) ? viewOff : view;
   }
 
   get material(): MaterialModel {
@@ -87,13 +112,10 @@ export default class MaterialListComponent extends Vue {
 
 .icon
   margin-right 0.5rem
+  margin-left 0.5rem
   cursor pointer
 
 .material-title
   font-style oblique
   text-decoration-line underline
-
-p
-  display inline-flex
-  cursor pointer
 </style>

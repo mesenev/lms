@@ -1,12 +1,12 @@
 # -*- python -*-
 # ex: set filetype=python:
 import os
+from datetime import datetime
 
-import dotenv
 from buildbot.plugins import *
+from dotenv import load_dotenv
 
-
-dotenv.load_dotenv('home/buildbot/buildbot.env')
+load_dotenv('/home/buildbot/buildbot.env')
 c = BuildmasterConfig = dict()
 c['buildbotNetUsageData'] = 'basic'
 repository_url = 'https://github.com/mesenev/lms.git'
@@ -15,6 +15,8 @@ c['workers'] = [
     worker.Worker("lms-worker-main", "pass"),
     worker.Worker("lms-worker-force", "pass"),
     worker.Worker("lms-worker-production", "pass"),
+    worker.Worker("lms-worker-deploy", "pass"),
+    worker.Worker("lms-worker-backup", "pass"),
 ]
 
 main_factory = util.BuildFactory()
@@ -36,17 +38,42 @@ production_factory.addStep(
     steps.ShellCommand(command=['cp', '/home/buildbot/prod_common.env', '.docker/conf/common.env']))
 production_factory.addStep(steps.ShellCommand(command=['python', '../buildscript.py']))
 
+deploy_factory = util.BuildFactory()
+deploy_factory.addStep(steps.ShellCommand(command=[
+    'cp', '/home/buildbot/bb-lms/worker-deploy/buildscript.py', '../buildscript.py'
+]))
+deploy_factory.addStep(steps.ShellCommand(command=['python', '../buildscript.py']))
+
+backup_factory = util.BuildFactory()
+backup_factory.addStep(steps.ShellCommand(command=[
+    'cp', '/home/buildbot/bb-lms/worker-backups/buildscript.py', '../buildscript.py'
+]))
+backup_factory.addStep(steps.ShellCommand(command=['python', '../buildscript.py']))
+
+
 c['builders'] = [
     util.BuilderConfig(name="lmsci", workernames=["lms-worker-main"], factory=main_factory),
     util.BuilderConfig(name="lmsforce", workernames=["lms-worker-force"], factory=main_factory),
     util.BuilderConfig(name="lmsprod", workernames=["lms-worker-production"], factory=production_factory),
+    util.BuilderConfig(name="lmsdeploy", workernames=["lms-worker-deploy"], factory=deploy_factory),
+    util.BuilderConfig(name="lmsbackup", workernames=["lms-worker-backup"], factory=backup_factory),
 ]
 
 c['protocols'] = {'pb': {'port': 9989}}
 c['change_source'] = [
-    changes.GitPoller(repository_url, workdir='/home/buildbot/workdir-develop', branches=['develop'], pollInterval=40),
-    changes.GitPoller(repository_url, workdir='/home/buildbot/workdir-master', branches=['master'], pollInterval=40),
+    changes.GitPoller(repository_url, workdir='/home/buildbot/workdir-develop', branches=True, pollInterval=40),
 ]
+
+prod_scheduler = schedulers.ForceScheduler(
+    name="master",
+    # change_filter=util.ChangeFilter(category='pull'),
+    builderNames=["lmsprod"]
+)
+deploy_scheduler = schedulers.Dependent(
+    name="deploy-production", upstream=prod_scheduler, builderNames=["lmsdeploy"]
+)
+backup_scheduler = schedulers.Periodic(
+    name="weekly", builderNames=["lmsbackup"], periodicBuildTimer=7 * 24 * 60 * 60)
 
 c['schedulers'] = [
     schedulers.SingleBranchScheduler(
@@ -54,13 +81,12 @@ c['schedulers'] = [
         treeStableTimer=5 * 60,
         change_filter=util.ChangeFilter(branch='develop'),
         builderNames=["lmsci"]),
-    schedulers.SingleBranchScheduler(
-        name="master",
-        change_filter=util.ChangeFilter(category='pull'),
-        builderNames=["lmsprod"]),
+    prod_scheduler,
+    deploy_scheduler,
+    backup_scheduler,
     schedulers.ForceScheduler(
         name="force",
-        builderNames=["lmsforce"])
+        builderNames=["lmsforce"]),
 ]
 
 c['title'] = "lms ci system"

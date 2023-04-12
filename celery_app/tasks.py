@@ -1,6 +1,5 @@
 from celery.utils.log import get_task_logger
 from django.core.mail import send_mail
-from django.urls import reverse
 
 from cathie.cats_api import cats_check_solution_status, cats_submit_solution
 from cathie.exceptions import CatsAnswerCodeException, CatsNormalErrorException
@@ -99,11 +98,13 @@ def update_submit_status():
 
 @app.task
 def send_email(token, email, hostname):
-    email_plaintext_message = f"""<b>Ссылка для восстановления пароля:</b>
+    email_plaintext_message = f"""
+    Ссылка для восстановления пароля: 
     {hostname.strip('/')}/reset?token={token}"""
+
     send_mail(
         "Password Reset for dvfu lms",
         email_plaintext_message,
-        "noreply@lms.ru",
+        "learn@dvfu.ru",
         [email]
     )

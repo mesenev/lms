@@ -38,7 +38,7 @@ class MaterialSerializer(serializers.Serializer):
     author = DefaultUserSerializer(required=False, read_only=True)
     name = serializers.CharField()
     content_type = serializers.CharField(allow_blank=True)
-    content = serializers.CharField()
+    content = serializers.CharField(allow_blank=True)
     is_teacher_only = serializers.BooleanField()
 
     def update(self, instance, validated_data):
@@ -50,6 +50,7 @@ class MaterialSerializer(serializers.Serializer):
 
         instance.author = validated_data.get('author', instance.author)
         instance.is_teacher_only = validated_data.get('is_teacher_only', instance.is_teacher_only)
+        instance.content_type = validated_data.get('content_type', instance.content_type)
         instance.save()
         return instance
 

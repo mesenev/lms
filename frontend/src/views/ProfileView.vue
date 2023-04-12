@@ -193,7 +193,7 @@ export default class ProfileView extends Vue {
 
 .bx--col
   margin 1%
-  background-color var(--cds-ui-background);
+  background-color var(--cds-ui-01);
 
 .info-btns
   margin-top 0

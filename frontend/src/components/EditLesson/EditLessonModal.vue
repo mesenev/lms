@@ -27,33 +27,55 @@
             @close="() => showNotification=false"
             :kind="notificationKind"
             :sub-title="notificationText"/>
-          <span style="padding-top: 20px">Выберите способ тестирования</span>
-          <cv-radio-group style="margin-top: 10px; padding-bottom: 20px">
-
-            <cv-radio-button label="автоматическое"
-                             value="auto"
-                             v-model="testingMode"
-            />
-            <cv-radio-button label="ручное"
-                             value="manual"
-                             v-model="testingMode"
-            />
-            <cv-radio-button label="автоматическое и ручное"
-                             value="auto_and_manual"
-                             v-model="testingMode"
-            />
-          </cv-radio-group>
         </cv-content-switcher-content>
       </template>
       <template slot="content">
         <section class="modal--content">
           <cv-content-switcher-content owner-id="Problems">
             <div class="content-1">
+              <div class="problem-type-selection">
+                <h5>Выберите способ тестирования</h5>
+                <cv-radio-group>
+                  <cv-radio-button label="автоматическое"
+                                   value="auto"
+                                   v-model="testingMode"
+                  />
+                  <cv-radio-button label="ручное"
+                                   value="manual"
+                                   v-model="testingMode"
+                  />
+                  <cv-radio-button label="автоматическое и ручное"
+                                   value="auto_and_manual"
+                                   v-model="testingMode"
+                  />
+                </cv-radio-group>
+              </div>
+              <div class="problem-type-selection">
+                <h5>Тип задачи</h5>
+                <cv-radio-group
+                  @change="(newType) => this.problemType = newType"
+                  :vertical="false">
+                  <cv-radio-button
+                    v-model="problemType"
+                    label="Классная работа"
+                    name="group-1" value="CW"/>
+                  <cv-radio-button
+                    v-model="problemType"
+                    label="Домашняя работа"
+                    name="group-1" value="HW"/>
+                  <cv-radio-button
+                    v-model="problemType"
+                    label="Дополнительные задания"
+                    name="group-1" value="EX"/>
+                </cv-radio-group>
+              </div>
               <div>
                 <cv-data-table
                   v-if="!fetchingCatsProblems" ref="table"
                   v-model="selected" :columns="columns" :data="catsFilteredProblems"
-                  class="cats-problems-table" @search="onSearch">
+                  :stickyHeader="true"
+                  class="cats-problems-table" :expanding-search="false"
+                  @search="onSearch">
                   <template slot="batch-actions">
                     <div></div>
                   </template>
@@ -66,39 +88,28 @@
               <cv-text-input v-model.trim="currentProblem.name" label="Название задания"/>
               <cv-text-input v-model.trim="currentProblem.description" label="Описание задания"/>
             </div>
-            <div class="problem-type-selection">
-              <h5>Тип задачи</h5>
-              <cv-radio-group
-                @change="(newType) => this.problemType = newType"
-                :vertical="false">
-                <cv-radio-button
-                  v-model="problemType"
-                  label="Классная работа"
-                  name="group-1" value="CW"/>
-                <cv-radio-button
-                  v-model="problemType"
-                  label="Домашняя работа"
-                  name="group-1" value="HW"/>
-                <cv-radio-button
-                  v-model="problemType"
-                  label="Дополнительные задания"
-                  name="group-1" value="EX"/>
-              </cv-radio-group>
-            </div>
           </cv-content-switcher-content>
           <cv-content-switcher-content owner-id="Exams">
             <div class="exam-container">
               <div class="exam-container-head">
                 <p>Настройки теста</p>
                 <cv-dropdown v-model="exam.test_mode" class="testing-type-dropdown"
+                             placeholder="Выберите опцию"
                              label="Способ тестирования">
+                  <template slot="invalid-message" v-if="showInvalidMessage && !exam.test_mode">
+                    Выберите способ тестирования!
+                  </template>
                   <cv-dropdown-item value="auto">Auto</cv-dropdown-item>
                   <cv-dropdown-item value="manual">Manual</cv-dropdown-item>
                   <cv-dropdown-item value="auto_and_manual">Auto & Manual</cv-dropdown-item>
                 </cv-dropdown>
               </div>
               <div class="exam-fields">
-                <cv-text-input v-model="exam.name" label="Название теста"/>
+                <cv-text-input v-model="exam.name" label="Название теста">
+                  <template slot="invalid-message" v-if="!exam.name && showInvalidMessage">
+                    {{ emptyInputInvalidText }}
+                  </template>
+                </cv-text-input>
                 <cv-text-area v-model="exam.description" label="Описание"/>
               </div>
             </div>
@@ -124,7 +135,6 @@ import LessonModel from '@/models/LessonModel';
 import ProblemModel from '@/models/ProblemModel';
 import problemStore from '@/store/modules/problem';
 import examStore from '@/store/modules/exam';
-import questionStore from '@/store/modules/question';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
 import { Component, Prop } from 'vue-property-decorator';
@@ -133,7 +143,6 @@ import api from '@/store/services/api';
 import ExamQuestionComponent from "@/components/ExamQuestionComponent.vue";
 import ExamModel from "@/models/ExamModel";
 import _ from 'lodash';
-import QuestionModel from "@/models/QuestionModel";
 import router from "@/router";
 
 
@@ -149,7 +158,6 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
   problemStore = problemStore;
   currentProblem: ProblemModel = { ...this.problemStore.getNewProblem, lesson: this.lesson.id };
-  selectedNew = false;
   selected = [];
   columns = ['id', 'Название', 'Статус'];
 
@@ -165,9 +173,9 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
   contentType = 'Problems';
   examStore = examStore;
-  questionStore = questionStore;
   exam: ExamModel = { ...this.examStore.newExam, lesson: this.lesson.id };
-  expanded = false;
+  emptyInputInvalidText = 'Заполните поле!';
+  showInvalidMessage = false;
 
 
   get catsFilteredProblems() {
@@ -218,12 +226,20 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
 
   actionSelected(type: string) {
+    this.hideNotification();
     this.setContentType(type);
-    this.selectedNew = !this.selectedNew;
   }
 
   setContentType(type: string) {
     this.contentType = type;
+  }
+
+  clearData() {
+    this.selected = [];
+  }
+
+  checkCorrectFields() {
+    this.showInvalidMessage = !this.exam.name || !this.exam.test_mode;
   }
 
   get isExamsSelected() {
@@ -238,9 +254,9 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
   get addButtonDisabled() {
     if (this.isExamsSelected)
-      return !this.exam.test_mode || !this.exam.name;
+      return this.loading;
     else
-      return !this.selected.length || !this.problemType || !this.testingMode || this.loading;
+      return !this.selected.length || this.loading;
   }
 
   get selectedCatsProblems() {
@@ -257,9 +273,12 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
 
   async primaryHandler() {
-    if (this.isExamsSelected)
+    if (this.isExamsSelected) {
+      this.checkCorrectFields();
+      if (this.showInvalidMessage)
+        return;
       await this.createExam();
-    else
+    } else
       await this.addProblem();
   }
 
@@ -270,10 +289,17 @@ export default class EditLessonModal extends NotificationMixinComponent {
       this.showNotification = true;
       throw new Error('add cats problems  -- course id not found!');
     }
-    if (this.selectedNew)
+    if (this.contentType !== 'Problems')
       return
     if (this.testingMode === '') {
+      this.notificationKind = 'error';
       this.notificationText = 'Выберите режим тестирования';
+      this.showNotification = true;
+      return
+    }
+    if (this.problemType === '') {
+      this.notificationKind = 'error';
+      this.notificationText = 'Выберите тип задачи';
       this.showNotification = true;
       return
     }
@@ -283,7 +309,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
       this.showNotification = true;
       return;
     }
-    if (!this.selectedNew) {
+    if (this.contentType === 'Problems') {
       this.loading = true;
       const data = this.selectedCatsProblems;
       const problemTypes = new Map<string, number>([['CW', 0], ['HW', 1], ['EX', 2]]);
@@ -300,6 +326,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
             });
             this.$emit("update-problem-list", newProblems as ProblemModel[]);
             this.modalHidden();
+            this.clearData();
             // await this.fetchCatsProblems();
           }
         }).catch(answer => {
@@ -313,6 +340,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
   }
 
   async createExam() {
+    this.loading = true;
     await api.post('/api/exam/', this.exam).then(async response => {
       this.notificationKind = 'success';
       this.notificationText = 'Тест успешно создан';
@@ -325,6 +353,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
       this.notificationKind = 'error';
     }).finally(() => {
+      this.loading = false;
       this.showNotification = true;
     })
   }
@@ -337,6 +366,15 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
 /deep/ .bx--modal-content:focus
   outline none
+
+/deep/ .bx--modal-content
+  margin-bottom var(--cds-spacing-04)
+  padding-top 0
+
+/deep/ .bx--text-input,
+/deep/ .bx--text-area,
+/deep/ .bx--dropdown
+  background-color var(--cds-ui-background)
 
 .change-btn
   background-color var(--cds-interactive-02)
@@ -376,7 +414,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
   background-color var(--cds-ui-05)
 
 .problem-type-selection
-  margin-top 2rem
+  margin-bottom 1rem
 
 .testing-type-dropdown
   /deep/ .bx--dropdown__wrapper.bx--list-box__wrapper

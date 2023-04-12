@@ -6,6 +6,11 @@
     <cv-loading v-if="fetchingLesson"/>
     <div v-else class="bx--row content">
       <div class="bx--col-lg-5 bx--col-md-5">
+        <confirm-modal
+          class="confirm--modal"
+          :text="approvedText"
+          :modal-trigger="modalTrigger"
+          :approve-handler="deleteLesson"/>
         <div class="edit-content">
           <cv-inline-notification
             v-if="showNotification"
@@ -17,7 +22,7 @@
             class="text_field"
             label="Название урока"
             v-model.trim="lessonEdit.name"/>
-          <cv-text-input
+          <cv-text-area
             class="text_field"
             label="Описание урока"
             v-model.trim="lessonEdit.description"/>
@@ -28,9 +33,12 @@
             date-label="Дедлайн"
             :cal-options=calOptions
           />
-          <div class="finishButton">
-            <cv-button :disabled="!isChanged" v-on:click="createOrUpdate">
-              {{ isNewLesson ? 'Создать урок' : 'Изменить урок' }}
+          <div class="action-btns">
+            <cv-button kind="danger" @click="showConfirmModal(lessonEdit)">
+              Удалить
+            </cv-button>
+            <cv-button :disabled="!isChanged" @click="createOrUpdate">
+              {{ isNewLesson ? 'Создать урок' : 'Изменить' }}
             </cv-button>
           </div>
         </div>
@@ -39,13 +47,13 @@
                            @update-exam-list="updateExamList($event)"
                            :lesson="lessonEdit"
                            class="edit--lesson-props"/>
-          <EditLessonMaterialsModal @update-material-delete="updateMaterialDelete($event)"
+          <EditLessonMaterialsModal @update-material-delete="updateMaterialDelete()"
                                     :lesson="lessonEdit"
                                     class="edit--lesson-props"/>
         </div>
       </div>
 
-      <div class="bx--col-lg-5 bx--col-md-4">
+      <div class="bx--col-lg-6 bx--col-md-4">
         <cv-content-switcher>
           <cv-content-switcher-button class="type-of-task-tab" owner-id="CW" selected>
             Классная работа
@@ -141,28 +149,36 @@ import lessonStore from '@/store/modules/lesson';
 import materialStore from '@/store/modules/material';
 import problemStore from '@/store/modules/problem';
 import examStore from '@/store/modules/exam';
+import courseStore from '@/store/modules/course';
 import api from '@/store/services/api';
 import _ from 'lodash';
-import {Component, Prop} from 'vue-property-decorator';
+import { Component, Prop } from 'vue-property-decorator';
 import ExamModel from "@/models/ExamModel";
 import ExamListComponent from "@/components/lists/ExamListComponent.vue";
+import ConfirmModal from "@/components/ConfirmModal.vue";
+import CourseModel from "@/models/CourseModel";
 
 
-@Component({components: {
+@Component({
+  components: {
     ExamListComponent,
-    EditLessonMaterialsModal, EditLessonModal, ProblemListComponent}})
+    EditLessonMaterialsModal, EditLessonModal, ProblemListComponent, ConfirmModal
+  }
+})
 export default class LessonEditView extends NotificationMixinComponent {
-
-  @Prop({required: true}) lessonId!: number;
+  @Prop({ required: true }) lessonId!: number;
   store = lessonStore;
   materialStore = materialStore;
   problemStore = problemStore;
+  courseStore = courseStore;
   examStore = examStore;
   fetchingLesson = true;
   lesson: LessonModel = this.store.getNewLesson;
-  lessonEdit: LessonModel = {...this.lesson};
-  calOptions = {dateFormat: 'Y-m-d'};
+  lessonEdit: LessonModel = { ...this.lesson };
+  calOptions = { dateFormat: 'Y-m-d' };
   query = '';
+  modalTrigger = false;
+  approvedText = '';
 
   async created() {
     if (this.lessonId) {
@@ -170,8 +186,29 @@ export default class LessonEditView extends NotificationMixinComponent {
       await this.materialStore.fetchMaterialsByLessonId(this.lesson.id);
       await this.examStore.fetchExamsByLessonId(this.lesson.id);
     }
-    this.lessonEdit = {...this.lesson};
+    this.lessonEdit = { ...this.lesson };
     this.fetchingLesson = false;
+  }
+
+  async deleteLesson() {
+    await this.store.deleteLesson(this.lessonEdit.id).then(async () => {
+      const curCourse = this.courseStore.currentCourse as CourseModel;
+      curCourse.lessons = curCourse.lessons.filter(x => x.id != this.lessonEdit.id);
+      this.store.setLessons({ [this.lessonEdit.course]: curCourse.lessons });
+      this.courseStore.changeCurrentCourse(curCourse);
+      await this.$router.push(
+        { name: 'CourseView', params: { courseId: curCourse.id.toString() } }
+      );
+    }).catch(error => {
+      this.notificationKind = 'error';
+      this.notificationText = `Что-то пошло не так: ${error.message}`;
+      this.showNotification = true;
+    });
+  }
+
+  showConfirmModal(deletingLesson: LessonModel) {
+    this.approvedText = `Удалить урок: ${deletingLesson.name}`;
+    this.modalTrigger = !this.modalTrigger;
   }
 
   createOrUpdate(): void {
@@ -183,9 +220,11 @@ export default class LessonEditView extends NotificationMixinComponent {
       this.notificationText = (this.lessonId) ? 'Урок успешно изменён' : 'Урок успешно создан';
       if (this.isNewLesson) {
         router.replace(
-          {name: 'lesson-edit', params: {lessonId: response.data.id.toString()}},
+          { name: 'lesson-edit', params: { lessonId: response.data.id.toString() } },
         );
       }
+      this.store.changeCurrentLesson({ ...response.data });
+      this.lesson = { ...response.data };
     });
     request.catch(error => {
       this.notificationText = `Что-то пошло не так: ${error.message}`;
@@ -194,40 +233,40 @@ export default class LessonEditView extends NotificationMixinComponent {
     request.finally(() => this.showNotification = true);
   }
 
-  get getClasswork(): Array<ProblemModel | CatsProblemModel> {
-    return this.lessonEdit.problems.filter(x => x.type === 'CW');
-  }
-
   updateTaskList(new_problems: Array<ProblemModel | CatsProblemModel>) {
-    this.lessonEdit = {...this.lesson}
+    this.lessonEdit = { ...this.lesson }
     new_problems.forEach(element => {
       this.lessonEdit.problems.push(element as ProblemModel)
     })
-    this.problemStore.setProblems({[this.lessonId]: this.lessonEdit.problems});
+    this.problemStore.setProblems({ [this.lessonId]: this.lessonEdit.problems });
   }
 
   updateExamList(new_exam: ExamModel) {
-    this.lessonEdit = {...this.lesson};
+    this.lessonEdit = { ...this.lesson };
     this.lessonEdit.exams.push(new_exam);
-    this.examStore.setExams({[this.lessonId]: this.lessonEdit.exams});
+    this.examStore.setExams({ [this.lessonId]: this.lessonEdit.exams });
   }
 
   updateProblemDelete(deleted_problem_id: number) {
     this.lessonEdit.problems = this.lessonEdit.problems
       .filter(x => x.id != deleted_problem_id);
     this.lesson.problems = this.lessonEdit.problems;
-    this.problemStore.setProblems({[this.lessonId]: this.lessonEdit.problems});
+    this.problemStore.setProblems({ [this.lessonId]: this.lessonEdit.problems });
   }
 
   updateExamDelete(delete_exam_id: number) {
     this.lessonEdit.exams = this.lessonEdit.exams
       .filter(x => x.id != delete_exam_id);
     this.lesson.exams = this.lessonEdit.exams;
-    this.examStore.setExams({[this.lessonId]: this.lessonEdit.exams});
+    this.examStore.setExams({ [this.lessonId]: this.lessonEdit.exams });
   }
 
   updateMaterialDelete() {
     this.lesson.materials = this.lessonEdit.materials;
+  }
+
+  get getClasswork(): Array<ProblemModel | CatsProblemModel> {
+    return this.lessonEdit.problems.filter(x => x.type === 'CW');
   }
 
   get getHomework(): Array<ProblemModel | CatsProblemModel> {
@@ -259,10 +298,9 @@ export default class LessonEditView extends NotificationMixinComponent {
 
 <style scoped lang="stylus">
 .text_field
-  margin 2rem
-  max-width 23rem
+  margin-bottom 2rem
 
-.text_field /deep/ .bx--text-input
+.text_field /deep/ .bx--text-input, .text_field /deep/ .bx--text-area
   background-color var(--cds-ui-background)
 
 .cv-date-picker >>> .bx--date-picker__input
@@ -289,15 +327,13 @@ export default class LessonEditView extends NotificationMixinComponent {
   padding 1rem 1rem 0.5rem 1rem
 
 .classwork, .homework, .extrawork
-  max-height 300px
+  max-height 25rem
   overflow-y auto
   border var(--cds-ui-05) 1px solid
   margin: 20px 0
 
 .edit-content
-  padding-top 1px
-  padding-right 20px
-  padding-bottom 20px
+  padding 1rem
   background-color var(--cds-ui-01)
   max-width 27rem
 
@@ -310,10 +346,10 @@ export default class LessonEditView extends NotificationMixinComponent {
   margin-top 25px
   margin-bottom 25px
 
-.finishButton
+.action-btns
   display flex
   flex-direction row
-  justify-content flex-end
+  justify-content space-between
 
 .search
   margin 10px 0
@@ -335,10 +371,6 @@ export default class LessonEditView extends NotificationMixinComponent {
 
 .accordion /deep/ .bx--accordion__content
   padding-right 0
-
-.type-of-task-tab
-  background-color: var(--cds-active-secondary)
-  color: white
 
 .header
   color var(--cds-text-01)

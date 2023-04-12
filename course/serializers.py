@@ -24,6 +24,7 @@ class CourseSerializer(DynamicFieldsModelSerializer):
     lessons = LessonShortSerializer(many=True, read_only=True)
     students = DefaultUserSerializer(many=True, required=False, read_only=True)
     cats_id = serializers.IntegerField(required=False, allow_null=True)
+    description = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     schedule = serializers.PrimaryKeyRelatedField(
         read_only=True, required=False
     )

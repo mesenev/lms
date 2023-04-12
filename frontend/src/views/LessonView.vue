@@ -6,7 +6,7 @@
         <cv-skeleton-text v-else :heading="true" class="main-title" width="'35%'"/>
         <div v-if="!loading && lesson" class="lesson-info">
           <span>
-            Дедлайн {{ lesson.deadline }}
+            Дедлайн: {{ lesson.deadline }}
           </span>
           <div v-if="isStaff">
             <cv-button-skeleton v-if="changingVisibility || !this.lesson" kind="ghost"/>
@@ -48,7 +48,7 @@
               <h4 class="classwork-title title">Дополнительные задания</h4>
               <problem-list-component :task-list="extrawork"/>
             </div>
-            <div class="tests">
+            <div v-if="exams.length > 0" class="tests">
               <h4 class="classwork-title title">Тесты</h4>
               <exam-list-component :exams-list="exams"/>
             </div>
@@ -71,14 +71,14 @@
                   <cv-structured-list-item
                     v-for="material in studentMaterials"
                     :key="material.id">
-                    <material-list-component :material-prop="material"/>
+                    <material-list-component :material-prop="material" :is-staff="isStaff"/>
                   </cv-structured-list-item>
                 </template>
                 <template slot="items" v-if="isStaff">
                   <cv-structured-list-item
                     v-for="material in teacherMaterials"
                     :key="material.id">
-                    <material-list-component :material-prop="material"/>
+                    <material-list-component :material-prop="material" :is-staff="isStaff"/>
                   </cv-structured-list-item>
                 </template>
               </cv-structured-list>
@@ -212,23 +212,19 @@ export default class LessonView extends Vue {
   display flex
   flex-direction row
   align-items center
-  margin-top .5rem
-  margin-left var(--cds-spacing-05)
+  padding-left 1rem
+  font-weight var(--cds-display-02-font-weight)
+  margin-top 1rem
+  color var(--cds-text-02)
   gap 2rem
 
 .description-container
-  display flex
-  flex-direction column
-  color var(--cds-ui-05)
-  margin-top var(--cds-spacing-05)
-  margin-bottom var(--cds-spacing-05)
-
-.lesson-description
-  width fit-content
-  max-width 40rem
+  max-width 70%
   word-break break-word
-  background-color var(--cds-ui-01)
-  padding 1rem
+  color var(--cds-text-02)
+  font-weight var(--cds-display-02-font-weight)
+  margin-top var(--cds-spacing-03)
+  padding-left 1rem
 
 .lesson-hide-button
   margin-left -1rem
