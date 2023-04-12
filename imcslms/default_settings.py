@@ -160,6 +160,7 @@ STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesSto
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = 'media'
+PRIVATE_MEDIA_ROOT = 'private_media'
 
 WEBPACK_DEV_SERVER = 'localhost:8080/static/'
 AUTH_USER_MODEL = 'users.User'

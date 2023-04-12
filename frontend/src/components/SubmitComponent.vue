@@ -29,6 +29,11 @@
     <div class="buttons-block-wrapper">
       <div class="handlers bx--row buttons-container">
         <div class="submit-container">
+          <div class="input-file-container">
+            <input type="file"
+                id="file_input" @change="handleFileUpload()">
+            <component class="trash-icon icon" :is="TrashCan" @click.prevent.stop="deleteFile"/>
+          </div>
           <cv-button
             v-if="!loading"
             :disabled="!canSubmit"
@@ -36,6 +41,7 @@
             v-on:click="confirmSubmit">
             Отправить решение
           </cv-button>
+
           <cv-button-skeleton v-else></cv-button-skeleton>
           <cv-link
             v-if="!this.cats_account"
@@ -86,9 +92,10 @@ import submitStore from '@/store/modules/submit';
 import userStore from '@/store/modules/user';
 import { AxiosError, AxiosResponse } from 'axios';
 import api from '@/store/services/api'
-import _ from 'lodash';
 import { de_options } from '@/utils/consts';
 import { Component, Prop, Watch } from 'vue-property-decorator';
+import _ from 'lodash';
+import TrashCan from '@carbon/icons-vue/es/trash-can/20';
 
 
 @Component({
@@ -114,9 +121,41 @@ export default class SubmitComponent extends NotificationMixinComponent {
   userStore = userStore;
   submitEdit: SubmitModel = { ...this.submitStore.defaultSubmit };
   loading = true;
+  file_content = '';
+  TrashCan = TrashCan;
 
   get isChanged(): boolean {
     return !_.isEqual(this.submit, this.submitEdit);
+  }
+
+  deleteFile(){
+    const input = window.document.getElementById('file_input') as HTMLInputElement
+    if (input.files?.length) {
+      input.value = '';
+      this.file_content = '';
+    }
+  }
+
+  readFileAsync(file: File){
+    return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      resolve(reader.result);
+    };
+
+    reader.onerror = reject;
+
+    reader.readAsText(file);
+  })
+  }
+
+  async handleFileUpload(){
+    const input = window.document.getElementById('file_input') as HTMLInputElement
+
+    if (input.files?.length) {
+      this.file_content = await this.readFileAsync(input.files[0]) as string
+    }
   }
 
   get isRejectDisabled() {
@@ -128,10 +167,23 @@ export default class SubmitComponent extends NotificationMixinComponent {
   }
 
   get canSubmit(): boolean {
-    return this.submitEdit.content?.length !== 0
-        && this.isChanged
+
+    if (this.file_content.length != 0 &&
+       this.submitEdit.content?.length !== 0){
+      this.notificationKind = 'error';
+      this.notificationText = `Отправьте либо текст решения либо файл`;
+      this.showNotification = true;
+    }
+    else {
+      this.showNotification = false;
+    }
+
+     return (((this.submitEdit.content?.length !== 0
+        && this.isChanged) || (this.file_content.length != 0))
         && this.submitEdit.de_id.length !== 0
-        && this.cats_account;
+        && this.cats_account) && !(this.file_content.length != 0 &&
+       this.submitEdit.content?.length !== 0);
+
   }
 
   get cats_account(): boolean {
@@ -180,6 +232,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
         ? { ...this.submit, status: status }
         :{ ...this.submitStore.defaultSubmit };
 
+
     api.patch(`/api/submit/${this.submitEdit.id}/`, this.submitEdit)
         .then((response: AxiosResponse<SubmitModel>) => {
           this.submitStore.changeSubmitStatus(response.data);
@@ -204,11 +257,17 @@ export default class SubmitComponent extends NotificationMixinComponent {
   }
 
   confirmSubmit() {
+
     this.submitEdit = {
-      ...this.submitEdit,
-    };
+      ...this.submitEdit
+    }
+
+    if ( this.file_content.length != 0 ){
+      this.submitEdit.content = this.file_content
+    }
+
     api.post('/api/submit/', {
-      ...this.submitEdit,
+      ...this.submitEdit, 'content': this.submitEdit.content,
       'problem': this.problemStore.currentProblem?.id as number,
     }).then((response: AxiosResponse<SubmitModel>) => {
       this.submitStore.addSubmitToArray(response.data);
@@ -312,6 +371,14 @@ export default class SubmitComponent extends NotificationMixinComponent {
     padding 0.5rem
     align-items center
     vertical-align center
+
+.input-file-container
+    display flex
+    align-items center
+
+  input
+    width: 80%
+
 
 .handlers-staff
   display flex

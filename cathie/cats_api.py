@@ -94,7 +94,7 @@ def cats_get_problems_from_contest(contest_id):
 
 
 def cats_get_problem_description_by_url(description_url):
-    url = f'{settings.CATS_URL}{description_url.lstrip("./")}'
+    url = f'{description_url.lstrip("./")}'
     # todo: remove it and use default headers instead
 
     request = requests.request(method='get', url=url, headers=headers)

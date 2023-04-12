@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.db import models
 from lesson.models import Lesson
 from users.models import User
+from lesson.storages import private_storage
 
 
 class ProblemManager(models.Manager):
@@ -90,7 +91,7 @@ class Submit(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     updated_by = models.ForeignKey(User, related_name='updated_submits', on_delete=models.SET_NULL, null=True)
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submits', null=False)
-    content = models.TextField()
+    content = models.FileField(storage=private_storage)
     status = models.CharField(max_length=2, choices=SUBMIT_STATUS, default='NP')
     de_id = models.CharField(max_length=12)
 

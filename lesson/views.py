@@ -53,10 +53,10 @@ class LessonViewSet(viewsets.ModelViewSet):
         problem_type = serializer.validated_data['problem_type']
         answer = list()
         for cats_problem in problem_data:
-            materials = cats_get_problem_description_by_url(cats_problem["text_url"])
+            materials = cats_get_problem_description_by_url('https://imcs.dvfu.ru/cats/'+cats_problem["text_url"])
             problem = Problem.objects.create(
                 lesson=lesson, author=request.user, name=cats_problem['name'],
-                cats_id=cats_problem['id'], cats_material_url=cats_problem["text_url"],
+                cats_id=cats_problem['id'], cats_material_url='https://imcs.dvfu.ru/cats/'+cats_problem["text_url"],
                 description=materials, test_mode=cats_problem['test_mode'],
                 type=Problem.PROBLEM_TYPES[problem_type][0]
             )

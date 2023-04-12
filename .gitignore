@@ -7,6 +7,7 @@ __pycache__/
 build/
 static/
 media/
+private_media/
 develop-eggs/
 dist/
 downloads/
