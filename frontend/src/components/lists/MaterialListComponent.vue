@@ -10,8 +10,9 @@
             {{ material.name }}
           </p>
         </div>
-        <div class="action-buttons" v-if="isStaff">
-          <component :is="hiddenIcon" class="icon"/>
+        <div class="action-buttons">
+          <component v-if="isStaff && showVisibility" :is="hiddenIcon" class="icon"/>
+          <Checked16 v-if="isSelected" class="icon"/>
         </div>
       </div>
     </div>
@@ -25,29 +26,42 @@ import VideoChat24 from '@carbon/icons-vue/es/video--chat/24';
 import TrashCan24 from '@carbon/icons-vue/es/trash-can/24';
 import LicenseGlobal24 from '@carbon/icons-vue/es/license--global/24';
 import Settings24 from '@carbon/icons-vue/es/settings/24';
+import Checked16 from '@carbon/icons-vue/es/checkmark--filled/16';
 import router from '@/router';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import materialStore from '@/store/modules/material';
 import viewOff from '@carbon/icons-vue/es/view--off/24';
 import view from '@carbon/icons-vue/es/view/24';
 
-@Component({ components: { Document24, VideoChat24, TrashCan24, Settings24, LicenseGlobal24 } })
+@Component({
+  components: {
+    Document24,
+    VideoChat24,
+    TrashCan24,
+    Settings24,
+    LicenseGlobal24,
+    Checked16
+  }
+})
 export default class MaterialListComponent extends Vue {
   @Prop() materialProp!: MaterialModel;
   @Prop({ required: false, default: false }) isStaff!: boolean;
+  @Prop({required: false, default: false}) isSelected!: boolean;
+  @Prop({required: false, default: false}) showVisibility!: boolean;
   private materialStore = materialStore;
 
   async openMaterial() {
     this.materialStore.setCurrentMaterial(this.material);
     await this.$emit('modal-hidden');
-    await router.push({
-      name: 'MaterialView',
-      params: { materialId: this.material.id.toString() }
-    });
+    if (!this.isCurrentMaterialSelected)
+      await router.push({
+        name: 'MaterialView',
+        params: { materialId: this.material.id.toString() }
+      });
   }
 
   async openHandler() {
-    if (this.isStaff) {
+    if (this.isStaff && !this.showVisibility) {
       await this.openMaterial();
     } else {
       this.openMaterialContent();
@@ -77,6 +91,11 @@ export default class MaterialListComponent extends Vue {
   addProtocolDomain() {
     if (!this.material.content.includes('https://') && !this.material.content.includes('http://'))
       this.material.content = 'https://' + this.material.content;
+  }
+
+  get isCurrentMaterialSelected() {
+    return this.$route.params.hasOwnProperty('materialId') &&
+      this.$route.params['materialId'] === this.material.id.toString();
   }
 
   get isVideo() {
