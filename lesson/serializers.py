@@ -6,7 +6,7 @@ from problem.serializers import ProblemSerializer
 from rating.serializers import LessonProgressSerializer
 from users.serializers import DefaultUserSerializer
 from exam.serializers import ExamSerializer
-
+from urllib.parse import urlparse
 
 class AttachmentSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
@@ -18,6 +18,11 @@ class AttachmentSerializer(serializers.ModelSerializer):
         attachment = Attachment.objects.create(**validated_data)
         attachment.save()
         return attachment
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['file_url'] = urlparse(representation['file_url']).path
+        return representation
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
