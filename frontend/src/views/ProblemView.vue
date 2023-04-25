@@ -64,7 +64,7 @@
           <submit-component
               v-if="problem"
               :is-staff="isStaff" :language-list="problem.language"
-              :submitId="submitId"
+              :submitId="submitId" :submit-status-trigger="submitStatusTrigger"
               class="solution-container--submit-component"
               @submit-created="(x) => changeCurrentSubmit(x.id)"/>
           <cv-loading v-else small/>
@@ -75,6 +75,7 @@
                 :problemId="problem.id" :selected-submit="submitId"
                 :studentId="studentId"
                 class="log--event--component"
+                @update-submit-status="() => updateSubmitStatus()"
                 @submit-selected="(x) => changeCurrentSubmit(x.id)"
                 @cats-answer="(x) => showCatsAnswerModal(x.id)"
             />
@@ -133,6 +134,8 @@ export default class ProblemView extends Vue {
   private catsResultSubmitId: number | null = null;
 
   private logEventComponentKey = 0;
+
+  submitStatusTrigger = 0;
 
   get lesson() {
     return this.lessonStore.currentLesson;
@@ -205,6 +208,10 @@ export default class ProblemView extends Vue {
         submitId: Number(id).toString(),
       },
     });
+  }
+
+  updateSubmitStatus() {
+    this.submitStatusTrigger += 1;
   }
 
   showCatsAnswerModal(id: number): void {

@@ -31,7 +31,7 @@
         <div class="submit-container">
           <div class="input-file-container">
             <input type="file"
-                id="file_input" @change="handleFileUpload()">
+                   id="file_input" @change="handleFileUpload()">
             <component class="trash-icon icon" :is="TrashCan" @click.prevent.stop="deleteFile"/>
           </div>
           <cv-button
@@ -73,13 +73,13 @@
         </div>
       </div>
     </div>
-      <cv-inline-notification
-          v-if="showNotification"
-          :kind="notificationKind"
-          :sub-title="notificationText"
-          class="notification"
-          @close="hideNotification"/>
-    </div>
+    <cv-inline-notification
+      v-if="showNotification"
+      :kind="notificationKind"
+      :sub-title="notificationText"
+      class="notification"
+      @close="hideNotification"/>
+  </div>
 </template>
 
 <script lang="ts">
@@ -114,6 +114,7 @@ import TrashCan from '@carbon/icons-vue/es/trash-can/20';
 })
 export default class SubmitComponent extends NotificationMixinComponent {
   @Prop({ required: true }) submitId!: number;
+  @Prop({ required: true }) submitStatusTrigger!: number;
   @Prop({ required: true }) isStaff!: boolean;
   submit: SubmitModel | null = null;
   submitStore = submitStore;
@@ -128,7 +129,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
     return !_.isEqual(this.submit, this.submitEdit);
   }
 
-  deleteFile(){
+  deleteFile() {
     const input = window.document.getElementById('file_input') as HTMLInputElement
     if (input.files?.length) {
       input.value = '';
@@ -136,21 +137,21 @@ export default class SubmitComponent extends NotificationMixinComponent {
     }
   }
 
-  readFileAsync(file: File){
+  readFileAsync(file: File) {
     return new Promise((resolve, reject) => {
-    const reader = new FileReader();
+      const reader = new FileReader();
 
-    reader.onload = () => {
-      resolve(reader.result);
-    };
+      reader.onload = () => {
+        resolve(reader.result);
+      };
 
-    reader.onerror = reject;
+      reader.onerror = reject;
 
-    reader.readAsText(file);
-  })
+      reader.readAsText(file);
+    })
   }
 
-  async handleFileUpload(){
+  async handleFileUpload() {
     const input = window.document.getElementById('file_input') as HTMLInputElement
 
     if (input.files?.length) {
@@ -169,20 +170,19 @@ export default class SubmitComponent extends NotificationMixinComponent {
   get canSubmit(): boolean {
 
     if (this.file_content.length != 0 &&
-       this.submitEdit.content?.length !== 0){
+      this.submitEdit.content?.length !== 0) {
       this.notificationKind = 'error';
       this.notificationText = `Отправьте либо текст решения либо файл`;
       this.showNotification = true;
-    }
-    else {
+    } else {
       this.showNotification = false;
     }
 
-     return (((this.submitEdit.content?.length !== 0
+    return (((this.submitEdit.content?.length !== 0
         && this.isChanged) || (this.file_content.length != 0))
-        && this.submitEdit.de_id.length !== 0
-        && this.cats_account) && !(this.file_content.length != 0 &&
-       this.submitEdit.content?.length !== 0);
+      && this.submitEdit.de_id.length !== 0
+      && this.cats_account) && !(this.file_content.length != 0 &&
+      this.submitEdit.content?.length !== 0);
 
   }
 
@@ -215,7 +215,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
     } else {
       this.submit = null;
     }
-    this.submitEdit = (this.submit) ? { ...this.submit }:{ ...this.submitStore.defaultSubmit };
+    this.submitEdit = (this.submit) ? { ...this.submit } : { ...this.submitStore.defaultSubmit };
     if (this.submitEdit.de_id === '' && this.deOptions.length === 1)
       this.submitEdit.de_id = this.deOptions[0].value;
     this.loading = false;
@@ -226,26 +226,34 @@ export default class SubmitComponent extends NotificationMixinComponent {
     this.updateSubmit();
   }
 
+  @Watch('submitStatusTrigger')
+  onSubmitStatusChanged() {
+    const currentSubmit = this.submitStore.submits.find(x => x.id === this.submitId);
+    if (!currentSubmit) {
+      return;
+    }
+    this.submit = currentSubmit;
+    this.submitEdit = { ...this.submit, content: this.submitEdit.content };
+  }
+
   patchSubmit(status: string) {
+    const newStatusSubmit = (this.submit)
+      ? { ...this.submit, status: status }
+      : { ...this.submitStore.defaultSubmit };
 
-    this.submitEdit = (this.submit)
-        ? { ...this.submit, status: status }
-        :{ ...this.submitStore.defaultSubmit };
-
-
-    api.patch(`/api/submit/${this.submitEdit.id}/`, this.submitEdit)
-        .then((response: AxiosResponse<SubmitModel>) => {
-          this.submitStore.changeSubmitStatus(response.data);
-          this.submit = { ...response.data };
-          this.submitEdit = { ...this.submit };
-          this.notificationKind = 'success';
-          this.notificationText = `Работа оценена: ${status}`;
-        })
-        .catch((error: AxiosError) => {
-          this.notificationKind = 'error';
-          this.notificationText = `Что-то пошло не так ${error.message}`
-        })
-        .finally(() => this.showNotification = true);
+    api.patch(`/api/submit/${this.submitEdit.id}/`, newStatusSubmit)
+      .then((response: AxiosResponse<SubmitModel>) => {
+        this.submitStore.changeSubmitStatus(response.data);
+        this.submit = { ...response.data };
+        this.submitEdit = { ...this.submit };
+        this.notificationKind = 'success';
+        this.notificationText = `Работа оценена: ${status}`;
+      })
+      .catch((error: AxiosError) => {
+        this.notificationKind = 'error';
+        this.notificationText = `Что-то пошло не так ${error.message}`
+      })
+      .finally(() => this.showNotification = true);
   }
 
   acceptSubmit() {
@@ -262,7 +270,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
       ...this.submitEdit
     }
 
-    if ( this.file_content.length != 0 ){
+    if (this.file_content.length != 0) {
       this.submitEdit.content = this.file_content
     }
 
@@ -373,11 +381,11 @@ export default class SubmitComponent extends NotificationMixinComponent {
     vertical-align center
 
 .input-file-container
-    display flex
-    align-items center
+  display flex
+  align-items center
 
-  input
-    width: 80%
+input
+  width: 80%
 
 
 .handlers-staff
@@ -407,7 +415,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
 .bx--dropdown
   border-bottom 0
 
-/deep/.bx--list-box__field
+/deep/ .bx--list-box__field
   display flex
 
   .bx--list-box__field, ui

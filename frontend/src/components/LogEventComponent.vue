@@ -74,6 +74,7 @@ import userStore from '@/store/modules/user';
 import TrashCan16 from '@carbon/icons-vue/es/trash-can/16';
 import Checkbox16 from '@carbon/icons-vue/es/checkbox--checked--filled/16';
 import logEventStore from '@/store/modules/logEvent';
+import submitStore from '@/store/modules/submit';
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 import { Component, Prop } from "vue-property-decorator";
 
@@ -97,6 +98,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
   @Prop({ required: true }) studentId!: number;
   @Prop({ required: false }) selectedSubmit?: number;
   userStore = userStore;
+  submitStore = submitStore;
   logEventStore = logEventStore;
   logEventTypes = logEventTypes;
   loading = true;
@@ -133,6 +135,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
     this.events.push((JSON.parse(event.data) as LogEventModel));
     this.events = [...this.events];
     this.$nextTick(this.scrollDown);
+    this.updateSubmitStatus((JSON.parse(event.data) as LogEventModel));
   }
 
   socketEventHandler(event: Event) {
@@ -228,6 +231,15 @@ export default class LogEventComponent extends NotificationMixinComponent {
     this.commentary = '';
     this.messageIsSending = false;
     this.offset += 1;
+  }
+
+  updateSubmitStatus(event: LogEventModel | undefined) {
+    if (event == undefined || event.type !== 'status_change') {
+      return;
+    }
+    const submitStatus = event.data.message?.includes('OK') ? 'OK' : 'WA';
+    this.submitStore.changeSubmitStatus({ id: event.submit as number, status: submitStatus });
+    this.$emit('update-submit-status');
   }
 
   picUrl(url: string): string {
