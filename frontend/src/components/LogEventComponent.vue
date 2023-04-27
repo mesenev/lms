@@ -416,7 +416,6 @@ span.event--date
 .btn
   &-send
     padding 0 1rem
-    max-width calc(100px)
 
 .space
   height 10px
