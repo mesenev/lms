@@ -56,7 +56,7 @@
             v-model.trim="courseEdit.name"
             class="course--name"
             label="Название курса">
-            <template slot="invalid-message" v-if="!courseEdit.name">
+            <template slot="invalid-message" v-if="showInvalidMessage && !courseEdit.name">
               {{ emptyInputInvalidText }}
             </template>
           </cv-text-input>
@@ -152,6 +152,7 @@ export default class CourseEditView extends Vue {
   fetchingCourse = true;
   store = courseStore;
   userStore = userStore;
+  showInvalidMessage = false;
   showNotification = false;
   notificationKind = 'success';
   notificationText = '';
@@ -210,6 +211,10 @@ export default class CourseEditView extends Vue {
     return this.store.currentCourse as CourseModel;
   }
 
+  checkCorrectFields() {
+    this.showInvalidMessage = !this.courseEdit.name;
+  }
+
   showConfirmModal() {
     this.approvedText = `Удалить курс: ${this.courseEdit.name}`;
     this.confirmModalTrigger = !this.confirmModalTrigger;
@@ -251,6 +256,9 @@ export default class CourseEditView extends Vue {
   }
 
   createOrUpdate(): void {
+    this.checkCorrectFields();
+    if (this.showInvalidMessage)
+      return;
     this.catsIdCheck();
     const request = (this.isNewCourse) ?
       api.post('/api/course/', this.courseEdit) :
