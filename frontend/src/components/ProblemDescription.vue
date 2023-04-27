@@ -15,10 +15,11 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 @Component({ components: {} })
 export default class ProblemDescription extends Vue {
   @Prop({ required: true }) problem!: ProblemModel;
-  description = '';
+  _description = '';
 
-  async created() {
-    this.description = this.problem.description.replaceAll('download/img', 'https://imcs.dvfu.ru/cats/static/download/img');
+  get description() {
+    this._description = this.problem.description.replaceAll('download/img', 'https://imcs.dvfu.ru/cats/static/download/img');
+    return this._description;
   }
 }
 </script>
