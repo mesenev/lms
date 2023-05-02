@@ -15,12 +15,12 @@ class UserTests(MainSetup):
 
     def test_user_change_avatar(self):
         self.test_setup()
-        small_gif = (
+        small_png = (
             b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x00\x00\x00\x21\xf9\x04'
             b'\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02'
             b'\x02\x4c\x01\x00\x3b'
         )
-        uploaded = SimpleUploadedFile('small.gif', small_gif, content_type='image/gif')
+        uploaded = SimpleUploadedFile('small.png', small_png, content_type='image/png')
         data = {'avatar_url': uploaded}
         response = self.client.post('/api/change-avatar/', data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
