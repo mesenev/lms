@@ -50,7 +50,7 @@ class MaterialModule extends VuexModule {
       name: '',
       content_type: '',
       content: '',
-      is_teacher_only: false,
+      is_teacher_only: true,
     };
   }
 

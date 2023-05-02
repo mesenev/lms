@@ -36,7 +36,7 @@ class LessonContent(models.Model):
     name = models.CharField(max_length=500)
     content_type = models.CharField(max_length=5, choices=CONTENT_TYPE, blank=True, null=True)
     content = models.FileField(storage=private_storage)
-    is_teacher_only = models.BooleanField(default=False)
+    is_teacher_only = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
