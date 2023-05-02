@@ -79,7 +79,8 @@ export default class EditAvatarModal extends Vue {
       this.notificationKind = 'success';
       this.notificationText = "Фото профиля успешно изменено!";
       this.showNotification = true;
-      this.user.avatar_url = response.data.message;
+      this.user.avatar_url = response.data.avatar;
+      this.user.thumbnail = response.data.thumbnail
       setTimeout(this.modalHidden, 2000);
     }).catch(error => {
       this.notificationKind = 'error';
