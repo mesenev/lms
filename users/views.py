@@ -47,7 +47,7 @@ class changeAvatar(APIView):
         user = request.user
         user.avatar_url = new_avatar
         user.save()
-        return Response({'code': 0, 'message': str(user.avatar_url.url)})
+        return Response({'code': 0, 'avatar': str(user.avatar_url.url), 'thumbnail': str(user.thumbnail.url) })
 
 
 class UsersViewSet(
