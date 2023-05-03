@@ -130,17 +130,18 @@ export default class CourseView extends Vue {
   get course(): CourseModel | null {
     return this.courseStore.currentCourse;
   }
-
+  //ToDo: Until there is normal schedule, students will see all lessons except hidden ones
   get filterLessons() {
     this.sortedCourseSchedule.map(lesson =>
       this.lessons.find(elem => elem.name === lesson.name))
       .filter(lesson => typeof lesson != "undefined");
     if (!this.isStaff) {
-      const sortedCourseSchedule = this.sortedCourseSchedule.filter(
-        lesson => lesson.name.toLowerCase().includes(this.searchValue.toLowerCase())
-      );
-      if (sortedCourseSchedule.length)
-        return sortedCourseSchedule;
+      return this.lessons;
+      // const sortedCourseSchedule = this.sortedCourseSchedule.filter(
+      //   lesson => lesson.name.toLowerCase().includes(this.searchValue.toLowerCase())
+      // );
+      // if (sortedCourseSchedule.length)
+      //   return sortedCourseSchedule;
     }
     return this.sortedCourseSchedule
   }
@@ -161,8 +162,9 @@ export default class CourseView extends Vue {
   }
 
   dateForLesson(lesson_id: number) {
-    return ((this.schedule as CourseScheduleModel)
-      .lessons.find(x => x.lesson_id === lesson_id) as ScheduleElement).date;
+    const lessonInSchedule = ((this.schedule as CourseScheduleModel)
+      .lessons.find(x => x.lesson_id === lesson_id) as ScheduleElement);
+    return lessonInSchedule == null ? null : lessonInSchedule.date;
   }
 
 }
