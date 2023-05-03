@@ -124,6 +124,7 @@
               Редактировать задачу
             </cv-header-menu-item>
             <cv-header-menu-item
+              v-if="isStaff && examSelected"
               :to="{ name: 'exam-edit', params: { examId: this.$route.params.examId } }"
             >
               Редактировать тест
