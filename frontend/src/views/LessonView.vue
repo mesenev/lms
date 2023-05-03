@@ -8,16 +8,6 @@
           <span>
             Дедлайн: {{ lesson.deadline }}
           </span>
-          <div v-if="isStaff">
-            <cv-button-skeleton v-if="changingVisibility || !this.lesson" kind="ghost"/>
-            <cv-button v-else
-                       class="lesson-hide-button"
-                       :icon="hiddenIcon"
-                       kind="ghost"
-                       v-on:click="changeLessonVisibility">
-              {{ (lesson.is_hidden) ? "Открыть урок" : "Скрыть урок" }}
-            </cv-button>
-          </div>
         </div>
         <cv-skeleton-text v-else width="'35%'"/>
         <div class="description-container">
@@ -105,8 +95,6 @@ import materialStore from '@/store/modules/material';
 import problemStore from '@/store/modules/problem';
 import userStore from '@/store/modules/user';
 import examStore from '@/store/modules/exam';
-import viewOff from '@carbon/icons-vue/es/view--off/32';
-import view from '@carbon/icons-vue/es/view/32';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import EmptyListComponent from "@/components/EmptyListComponent.vue";
 import ExamModel from "@/models/ExamModel";
@@ -128,7 +116,6 @@ export default class LessonView extends Vue {
   materialStore = materialStore;
   examStore = examStore;
   loading = true;
-  changingVisibility = false;
   emptyProblemsText = '';
   emptyMaterialsText = '';
 
@@ -155,10 +142,6 @@ export default class LessonView extends Vue {
 
   get isStaff(): boolean {
     return this.userStore.user.staff_for.includes(Number(this.lesson?.course));
-  }
-
-  get hiddenIcon() {
-    return (this.lesson?.is_hidden) ? viewOff : view;
   }
 
   //TODO: move materials in separate component
@@ -198,14 +181,6 @@ export default class LessonView extends Vue {
 
   get exams(): Array<ExamModel> {
     return this.examStore.examsByLesson[this.lessonId];
-  }
-
-  async changeLessonVisibility() {
-    this.changingVisibility = true;
-    await this.lessonStore.patchLesson(
-      { id: this.lessonId, is_hidden: !this.lesson?.is_hidden },
-    );
-    this.changingVisibility = false;
   }
 
 }

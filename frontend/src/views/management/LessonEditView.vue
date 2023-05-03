@@ -2,6 +2,17 @@
   <div class="bx--grid">
     <div class="bx--row header">
       <h1>{{ isNewLesson ? 'Создание урока' : 'Редактирование урока' }}</h1>
+      <div class="lesson-hide-button-container">
+        <cv-button-skeleton v-if="changingVisibility || !this.lesson" kind="ghost"
+                            class="lesson-hide-button"/>
+        <cv-button v-else
+                   class="lesson-hide-button"
+                   :icon="hiddenIcon"
+                   kind="ghost"
+                   v-on:click="changeLessonVisibility">
+          {{ (lesson.is_hidden) ? "Открыть урок" : "Скрыть урок" }}
+        </cv-button>
+      </div>
     </div>
     <cv-loading v-if="fetchingLesson"/>
     <div v-else class="bx--row content">
@@ -157,6 +168,8 @@ import ExamModel from "@/models/ExamModel";
 import ExamListComponent from "@/components/lists/ExamListComponent.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import CourseModel from "@/models/CourseModel";
+import viewOff from '@carbon/icons-vue/es/view--off/32';
+import view from '@carbon/icons-vue/es/view/32';
 
 
 @Component({
@@ -179,6 +192,7 @@ export default class LessonEditView extends NotificationMixinComponent {
   query = '';
   modalTrigger = false;
   approvedText = '';
+  changingVisibility = false;
 
   async created() {
     if (this.lessonId) {
@@ -233,6 +247,16 @@ export default class LessonEditView extends NotificationMixinComponent {
     request.finally(() => this.showNotification = true);
   }
 
+  async changeLessonVisibility() {
+    this.changingVisibility = true;
+    await this.store.patchLesson(
+      { id: this.lessonId, is_hidden: !this.lesson?.is_hidden },
+    );
+    this.lesson.is_hidden = !this.lesson.is_hidden;
+    this.lessonEdit.is_hidden = this.lesson.is_hidden;
+    this.changingVisibility = false;
+  }
+
   updateTaskList(new_problems: Array<ProblemModel | CatsProblemModel>) {
     this.lessonEdit = { ...this.lesson }
     new_problems.forEach(element => {
@@ -263,6 +287,10 @@ export default class LessonEditView extends NotificationMixinComponent {
 
   updateMaterialDelete() {
     this.lesson.materials = this.lessonEdit.materials;
+  }
+
+  get hiddenIcon() {
+    return (this.lesson?.is_hidden) ? viewOff : view;
   }
 
   get getClasswork(): Array<ProblemModel | CatsProblemModel> {
@@ -375,6 +403,9 @@ export default class LessonEditView extends NotificationMixinComponent {
 .header
   color var(--cds-text-01)
   display flex
-  flex-direction row
-  align-items baseline
+  flex-direction column
+  padding-bottom 1rem
+
+.lesson-hide-button
+  margin-left 1rem
 </style>
