@@ -80,7 +80,7 @@ export default class UserSubmitListComponent extends Vue {
   background-color var(--cds-ui-background)
   padding var(--cds-spacing-05)
   width 100%
-  min-height 300px
+  min-height 400px
 
 .user-component-container-main
   height 0
@@ -93,7 +93,7 @@ export default class UserSubmitListComponent extends Vue {
   color var(--cds-text-01)
   padding var(--cds-spacing-05)
   display flex
-  height 300px
+  height 400px
 
   &--wrapper
     align-self center

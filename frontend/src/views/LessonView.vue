@@ -241,6 +241,7 @@ export default class LessonView extends Vue {
 
 .content-info-materials
   max-height 300px
+  min-height 300px
   overflow auto
   margin-bottom 1rem
 
@@ -266,6 +267,13 @@ export default class LessonView extends Vue {
 
   &-info
     height 100%
+    margin-bottom 1rem
+
+    &-empty
+      margin-bottom 1rem
+      height 400px
+      display flex
+      align-items center
 
     &-title
       color var(--cds-text-01)
@@ -292,6 +300,8 @@ export default class LessonView extends Vue {
 
 .empty-items
   background-color var(--cds-ui-01)
+  display flex
+  align-items center
   padding-top 1rem
   margin-bottom 1rem
   margin-right 1rem

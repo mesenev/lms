@@ -198,6 +198,9 @@ export default class CourseView extends Vue {
   padding-left 0
   margin-bottom 1rem
 
+  /deep/ .bx--structured-list
+    margin-bottom 0
+
   /deep/ .submit-list-data
     background-color var(--cds-ui-01)
 
