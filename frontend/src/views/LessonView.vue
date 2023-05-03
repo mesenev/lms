@@ -240,6 +240,8 @@ export default class LessonView extends Vue {
   margin 1rem
 
 .content-info-materials
+  max-height 300px
+  overflow auto
   margin-bottom 1rem
 
 
