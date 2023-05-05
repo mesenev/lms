@@ -50,7 +50,7 @@
                   />
                 </cv-radio-group>
               </div>
-              <div class="problem-type-selection">
+              <div v-if="!lesson.is_control_work" class="problem-type-selection">
                 <h5>Тип задачи</h5>
                 <cv-radio-group
                   @change="(newType) => this.problemType = newType"
@@ -297,6 +297,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
       this.showNotification = true;
       return
     }
+    this.problemType = this.lesson.is_control_work ? 'CW': this.problemType;
     if (this.problemType === '') {
       this.notificationKind = 'error';
       this.notificationText = 'Выберите тип задачи';

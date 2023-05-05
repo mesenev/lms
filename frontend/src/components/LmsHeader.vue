@@ -55,6 +55,14 @@
         Редактировать урок
       </cv-header-menu-item>
     </cv-header-nav>
+    <cv-header-nav
+      v-if="isStaff && controlWorkSelected && !problemSelected && !materialSelected && !examSelected">
+      <cv-header-menu-item
+        :to="{ name: 'control-work-edit', params: { controlWorkId: this.$route.params.controlWorkId } }"
+      >
+        Редактировать контрольную
+      </cv-header-menu-item>
+    </cv-header-nav>
     <cv-header-nav v-if="isStaff && problemSelected">
       <cv-header-menu-item
         :to="{ name: 'problem-edit', params: { problemId: this.$route.params.problemId } }"
@@ -264,6 +272,10 @@ export default class LmsHeader extends Vue {
 
   get lessonSelected(): boolean {
     return this.$route.params.hasOwnProperty('lessonId') && this.$route.params['lessonId'] != null;
+  }
+
+  get controlWorkSelected(): boolean {
+    return this.$route.params.hasOwnProperty('controlWorkId') && this.$route.params['controlWorkId'] != null;
   }
 
   get problemSelected(): boolean {

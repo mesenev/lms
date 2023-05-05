@@ -63,6 +63,7 @@ class LessonModule extends VuexModule {
       progress: [],
       scores: {},
       is_hidden: true,
+      is_control_work: false,
     } as LessonModel;
   }
 
@@ -83,6 +84,7 @@ class LessonModule extends VuexModule {
 
   @Action
   async patchLesson(params: { is_hidden: boolean; id: number }) {
+
     let answer = { data: {} };
     await api.patch(`/api/lesson/${params.id}/`, { ...params })
       .then(response => answer = response)

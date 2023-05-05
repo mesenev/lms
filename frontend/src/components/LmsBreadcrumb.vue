@@ -34,6 +34,11 @@
         page-view="LessonView"
       />
       <lms-breadcrumb-item
+        v-if="controlWorkSelected.selected"
+        :model="lessonStore.currentLesson"
+        page-view="ControlWorkView"
+      />
+      <lms-breadcrumb-item
         v-if="lessonProgressSelected.selected"
         :model="lessonProgressSelected.value"
         :page-view="lessonProgressSelected.pageView"
@@ -133,6 +138,10 @@ export default class LmsBreadcrumb extends Vue {
 
   get lessonSelected() {
     return this.isSelected('lessonId');
+  }
+
+  get controlWorkSelected() {
+    return this.isSelected('controlWorkId');
   }
 
   get problemSelected() {

@@ -58,7 +58,8 @@ export default class LessonListComponent extends Vue {
   warningAltFilled = warningAltFilled;
 
   get openLesson() {
-    return { name: 'LessonView', params: { lessonId: this.lesson.id.toString() } };
+    return { name: !this.lesson.is_control_work ? 'LessonView' : 'ControlWorkView',
+      params: { controlWorkId: this.lesson.id.toString() } };
   }
 
   get lesson(): LessonModel {

@@ -1,7 +1,10 @@
 <template>
   <div class="bx--grid">
     <div class="bx--row header">
-      <h1>{{ isNewLesson ? 'Создание урока' : 'Редактирование урока' }}</h1>
+      <h1>
+        {{ isNewLesson ? ('Создание' + (!is_control_work ? 'урока' : ' контрольной'))
+        : 'Редактирование' +  (!is_control_work ? 'урока' : ' контрольной') }}
+      </h1>
     </div>
     <cv-loading v-if="fetchingLesson"/>
     <div v-else class="bx--row content">
@@ -52,8 +55,31 @@
                                     class="edit--lesson-props"/>
         </div>
       </div>
-
-      <div class="bx--col-lg-6 bx--col-md-4">
+      <div class="bx--col-lg-6 bx--col-md-4" v-if="is_control_work">
+        <cv-content-switcher>
+          <cv-content-switcher-button owner-id="tasks" selected>
+            Задания в контрольной
+          </cv-content-switcher-button>
+        </cv-content-switcher>
+        <section class="content-task-list">
+          <cv-content-switcher-content owner-id="tasks">
+            <div v-if="getAllTasks.length > 0">
+              <div v-if="!fetchingLesson" class="tasks">
+                <problem-list-component
+                  :is-editing="true"
+                  @update-problem-delete="updateProblemDelete($event)"
+                  :task-list="getClasswork">
+                </problem-list-component>
+              </div>
+              <div v-else>
+                <cv-accordion-skeleton/>
+              </div>
+            </div>
+            <h4 v-else class="empty-tasks">Задания отсутствуют</h4>
+          </cv-content-switcher-content>
+        </section>
+      </div>
+      <div v-else class="bx--col-lg-6 bx--col-md-4">
         <cv-content-switcher>
           <cv-content-switcher-button class="type-of-task-tab" owner-id="CW" selected>
             Классная работа
@@ -167,6 +193,7 @@ import CourseModel from "@/models/CourseModel";
 })
 export default class LessonEditView extends NotificationMixinComponent {
   @Prop({ required: true }) lessonId!: number;
+  @Prop({ required: false }) is_control_work!: boolean;
   store = lessonStore;
   materialStore = materialStore;
   problemStore = problemStore;
@@ -281,6 +308,10 @@ export default class LessonEditView extends NotificationMixinComponent {
     return this.lessonEdit.exams;
   }
 
+  get getAllTasks(): Array<ProblemModel | CatsProblemModel> {
+    return this.lessonEdit.problems
+  }
+
   searchByTutorial(problems: Array<ProblemModel | CatsProblemModel>):
     Array<ProblemModel | CatsProblemModel> {
     return searchByProblems(this.query, problems);
@@ -326,7 +357,7 @@ export default class LessonEditView extends NotificationMixinComponent {
 .work div
   padding 1rem 1rem 0.5rem 1rem
 
-.classwork, .homework, .extrawork
+.classwork, .homework, .extrawork .tasks
   max-height 25rem
   overflow-y auto
   border var(--cds-ui-05) 1px solid

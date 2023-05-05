@@ -13,6 +13,8 @@ import VueRouter, { RouteConfig } from 'vue-router';
 import LoginView from '@/views/LoginView.vue';
 import token from "@/store/modules/token";
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
+import controlWorkRoutes from "@/router/control_work";
+import ControlWorkView from "@/views/ControlWorkView.vue";
 
 Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
@@ -54,9 +56,20 @@ const routes: Array<RouteConfig> = [
         ],
         props: (route) => {
           const lessonId = Number.parseInt(route.params.lessonId as string, 10);
-          return {lessonId, ...route.params};
+          return { lessonId, ...route.params };
         },
       },
+      {
+        path: 'control_work/:controlWorkId',
+        component: LessonViewLayout,
+        children: [
+          ...controlWorkRoutes
+        ],
+        props: (route) => {
+          const controlWorkId = Number.parseInt(route.params.controlWorkId as string, 10);
+          return { controlWorkId, lessonId: controlWorkId, ...route.params };
+        },
+      }
     ],
   },
   {

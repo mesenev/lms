@@ -16,4 +16,5 @@ export default interface LessonModel extends BaseModel {
   progress: Array<UserProgress>;
   is_hidden: boolean;
   scores: Dictionary<number>;
+  is_control_work: boolean;
 }

@@ -104,6 +104,7 @@ export default class LessonProgressView extends Vue {
     is_hidden: true,
     progress: [],
     scores: {},
+    is_control_work: false
   };
   userStore = userStore;
   lessonStore = lessonStore;
