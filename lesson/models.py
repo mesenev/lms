@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.db import models
-from course.models import Course
-from users.models import User
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
+
+from course.models import Course
+from users.models import User
 
 
 def attachment_file_name(instance, filename):
@@ -18,6 +19,7 @@ class Lesson(models.Model):
     deadline = models.DateField(blank=True, null=True)
     is_hidden = models.BooleanField(default=True)
     scores = models.JSONField(null=False, default=dict)
+    is_control_work = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -54,6 +56,13 @@ class Attachment(models.Model):
 @receiver(pre_delete, sender=Attachment)
 def delete_file_hook(sender, instance, using, **kwargs):
     instance.file_url.delete()
+
+
+# class StudentControlWorkRelation():
+#   student
+#   lesson
+#   start_time
+#   end_time
 
 
 admin.site.register(Attachment)
