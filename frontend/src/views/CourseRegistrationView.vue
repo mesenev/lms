@@ -122,6 +122,7 @@ export default class CourseRegistrationView extends NotificationMixinComponent {
   padding-top: 1rem
 
 .links
+  color var(--cds-text-01)
   text-align: center
   display: flex
   justify-content: center
