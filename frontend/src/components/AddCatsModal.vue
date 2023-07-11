@@ -103,7 +103,7 @@ export default class AddCatsModal extends NotificationMixinComponent {
         }
         this.userStore.receiveUser({
           ...this.userStore.user,
-          cats_account: response.data.cats_id
+          cats_account: response.data.cats_user_id
         });
         this.$emit('fetch-cats-account');
         this.showNotification = true;
