@@ -195,7 +195,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
     if (!event.author)
       return;
     const user = await this.userStore.fetchUserById(event.author);
-    event.data.thumbnail = user.thumbnail;
+    event.data.thumbnail = this.picUrl(user.thumbnail);
   }
 
   elementClickHandler(element: LogEventModel): void {
@@ -221,7 +221,7 @@ export default class LogEventComponent extends NotificationMixinComponent {
     const newMessage: LogEventModel = {
       ...this.logEventStore.getNewLogEventMessage,
       problem: this.problemId, student: this.studentId,
-      data: { message: this.commentary },
+      data: { message: this.commentary, thumbnail: this.picUrl(this.userStore.user.thumbnail) },
     };
     await this.logEventStore.createLogEvent(newMessage);
     // if (answer !== undefined) {
