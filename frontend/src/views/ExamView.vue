@@ -120,7 +120,7 @@
         <div v-if="!loading" class="item student-list-container">
           <cv-structured-list v-if="submittedSolutions.length" class="student-list" condensed selectable @change="changeStudent">
             <template slot="headings">
-              <cv-structured-list-heading class="pupil-title">Список учеников
+              <cv-structured-list-heading class="pupil-title">Список Студентов
               </cv-structured-list-heading>
             </template>
             <template slot="items">

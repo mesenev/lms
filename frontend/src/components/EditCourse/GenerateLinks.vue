@@ -11,7 +11,7 @@
           <div class="input-link-container">
             <cv-number-input
               :light="false"
-              :label="'Выберите количество учеников курса'"
+              :label="'Выберите количество студентов курса'"
               :min="1"
               :step="1"
               v-model="counter"

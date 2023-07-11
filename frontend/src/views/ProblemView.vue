@@ -39,7 +39,7 @@
         <div class="item">
           <cv-structured-list class="student-list" condensed selectable @change="changeStudent">
             <template slot="headings">
-              <cv-structured-list-heading class="pupil-title">Список учеников
+              <cv-structured-list-heading class="pupil-title">Список студентов
               </cv-structured-list-heading>
             </template>
             >

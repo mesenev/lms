@@ -122,7 +122,7 @@ export default class LessonProgressView extends Vue {
         name: l.name,
       }
     ))
-    a.unshift({ id: -2, name: "Ученики" })
+    a.unshift({ id: -2, name: "Студенты" })
     a.push({ id: 0, name: "Рейтинг" })
     return a
   }
