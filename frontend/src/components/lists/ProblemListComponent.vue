@@ -107,6 +107,9 @@ export default class ProblemListComponent extends NotificationMixinComponent {
 .aw
   text-align right
 
-.accordion /deep/ .bx--accordion__content
-  padding-right 0
+.accordion
+  min-height 3rem
+  /deep/ .bx--accordion__content
+    padding-right 0
+
 </style>
