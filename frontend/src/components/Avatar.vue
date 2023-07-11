@@ -27,6 +27,7 @@ export default class Avatar extends Vue {
 
 <style scoped lang="stylus">
   .avatar
+    border 5px solid var(--cds-ui-01)
     object-fit:cover;
     border-radius: 150%;
 </style>

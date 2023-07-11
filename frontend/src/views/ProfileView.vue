@@ -1,7 +1,7 @@
 <template>
   <div v-if="!loading" class="bx--grid bx--grid--narrow">
-    <div class="bx--row header">
-      <h1 class="header-title"> {{ user.first_name + ' ' + user.last_name }}</h1>
+    <div class="bx--row header-container">
+      <h1 class="main-title"> Профиль </h1>
     </div>
     <div class="bx--row content">
       <div class="avatar-container">
@@ -38,6 +38,18 @@
           <div class="list">
             <cv-structured-list>
               <template slot="items">
+                <cv-structured-list-item>
+                  <cv-structured-list-data>Имя</cv-structured-list-data>
+                  <cv-structured-list-data>
+                    {{ user.first_name }}
+                  </cv-structured-list-data>
+                </cv-structured-list-item>
+                <cv-structured-list-item>
+                  <cv-structured-list-data>Фамилия</cv-structured-list-data>
+                  <cv-structured-list-data>
+                    {{ user.last_name }}
+                  </cv-structured-list-data>
+                </cv-structured-list-item>
                 <cv-structured-list-item>
                   <cv-structured-list-data>Учебная группа</cv-structured-list-data>
                   <cv-structured-list-data v-if="user.study_group">
@@ -166,18 +178,14 @@ export default class ProfileView extends Vue {
   padding-right 3rem
 
 .image
-  margin-top 2rem
-  border 1px solid rgba(0, 0, 0, 0.3)
-  border-radius 150%
+  margin-top 1rem
 
 .image-edit-icon
   margin-top 0.8rem
   text-align center
 
-.header-title
-  color var(--cds-text-01)
-  margin-left -2rem
-  margin-top 2rem
+.main-title
+  margin-bottom 0
 
 .courses-block
   margin 50px
@@ -192,7 +200,7 @@ export default class ProfileView extends Vue {
   font-weight bold
 
 .bx--col
-  margin 1%
+  margin 0 0 1rem 1rem
   background-color var(--cds-ui-01);
 
 .info-btns
