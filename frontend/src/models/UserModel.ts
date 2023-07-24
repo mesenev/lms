@@ -9,6 +9,7 @@ export default interface UserModel {
   thumbnail: string;
   email: string;
   cats_account: number|null;
+  current_control_work: number|null;
 }
 
 export interface AuthorModel extends UserModel {

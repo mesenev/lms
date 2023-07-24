@@ -1,6 +1,8 @@
 import { RouteConfig } from "vue-router";
 import ControlWorkView from "@/views/ControlWorkView.vue";
 import LessonEditView from "@/views/management/LessonEditView.vue";
+import ProblemViewLayout from "@/views/ProblemViewLayout.vue";
+import problemRoutes from "@/router/problem";
 
 const controlWorkRoutes: Array<RouteConfig> = [
   {
@@ -12,15 +14,17 @@ const controlWorkRoutes: Array<RouteConfig> = [
       return { ...route.params, controlWorkId, lessonId: controlWorkId };
     },
   },
-  // {
-  //   path: 'solution/:solutionId',
-  //   name: 'ExamViewWithSolution',
-  //   component: ControlWorkView,
-  //   props: (route) => {
-  //     const solutionId = Number.parseInt(route.params.solutionId as string, 10);
-  //     return { solutionId, ...route.params };
-  //   },
-  // },
+  {
+    path: 'problem/:problemId',
+    component: ProblemViewLayout,
+    children: [
+      ...problemRoutes,
+    ],
+    props: (route) => {
+      const problemId = Number.parseInt(route.params.problemId as string, 10);
+      return { problemId, ...route.params };
+    },
+  },
   {
     path: 'edit/',
     name: 'control-work-edit',

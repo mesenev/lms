@@ -19,7 +19,8 @@ class UserModule extends VuexModule {
     avatar_url: '',
     thumbnail: '',
     email: '',
-    cats_account: null
+    cats_account: null,
+    current_control_work: -1,
   }
 
   // storage for all fetched users associated with courseId
@@ -41,6 +42,10 @@ class UserModule extends VuexModule {
   @Mutation addStaffToArray(courseId: number) {
     this.user.staff_for.push(courseId);
     this.user.staff_for = [...this.user.staff_for];
+  }
+
+  @Mutation updateUserControlWork(control_work_id: number) {
+    this.user.current_control_work = control_work_id;
   }
 
   @Action

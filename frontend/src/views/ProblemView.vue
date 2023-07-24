@@ -197,6 +197,7 @@ export default class ProblemView extends Vue {
     this.submitId = Number(id);
     if (this.submitIdProp === Number(id))
       return;
+
     this.$router.push({
       name: 'ProblemViewWithSubmit', params: {
         courseId: this.$route.params.courseId,

@@ -1,6 +1,6 @@
 <template>
   <div v-if="!loading" class="problem-list-item">
-    <router-link class="list-element" :to="target()">
+    <router-link class="list-element" :to="target">
       <div class="problem-list-component--header">
         <h5 class="problem--title">{{ problem.name }}</h5>
         <div class="tags">
@@ -41,27 +41,37 @@ export default class StudentProblemListItemComponent extends Vue {
     this.loading = false;
   }
 
-  target() {
+  get target() {
+    let result = {};
+    const lessonId = this.$route.params.hasOwnProperty('lessonId') ?
+      { lessonId: this.$route.params.lessonId }:
+      { controlWorkId: this.$route.params.controlWorkId }
+    // route mapping depends on lessonId existence in $route.params
+    // if exists -> lessonId: this.$route.params.lessonId,
+    // else -> controlWorkId: this.$route.params.controlWorkId
+
     if (!!this.submit?.status) {
-      return {
+      result = {
         name: 'ProblemViewWithSubmit',
         params: {
           courseId: this.$route.params.courseId,
-          lessonId: this.$route.params.lessonId,
+          ...lessonId,
           problemId: this.problem.id.toString(),
           submitId: this.submit.id.toString(),
         }
       };
     } else {
-      return {
+      result = {
         name: 'ProblemView', params: {
           courseId: this.$route.params.courseId,
-          lessonId: this.$route.params.lessonId,
+          ...lessonId,
           problemId: this.problem.id.toString(),
         }
       };
+      console.log(this.$router.resolve(result))
+      console.log(result)
+      return result
     }
   }
-
 }
 </script>

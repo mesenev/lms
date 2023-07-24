@@ -1,5 +1,5 @@
 <template>
-  <div class="bx--grid">
+  <div v-if="isStaff || userStore.user.current_control_work === this.lesson.id" class="bx--grid">
     <div class="bx--row header-container">
       <div class="main-title">
         <h1 v-if="!loading && lesson" class=""> Контрольная работа: {{ lesson.name }} </h1>
@@ -8,17 +8,7 @@
           <span>
             Дедлайн: {{ lesson.deadline }}
           </span>
-          <div v-if="!isStaff">
-            <cv-button-skeleton v-if="!this.lesson" kind="ghost"/>
-            <cv-button v-else
-                       class="lesson-hide-button"
-                       :icon="sendAlt"
-                       kind="ghost"
-                       @click=";">
-              Начать контрольную
-            </cv-button>
-          </div>
-          <countdown-component v-if="!isStaff" end="2023-05-05 23:00:00"/>
+          <countdown-component v-if="!isStaff" end="2023-07-24 23:00:00"/>
           <div v-else>
             <cv-button-skeleton v-if="changingVisibility || !this.lesson" kind="ghost"/>
             <cv-button v-else
@@ -38,58 +28,78 @@
           <cv-skeleton-text v-else width="'35%'"/>
         </div>
       </div>
-    </div>
-    <div class="bx--row lesson-content">
-      <div :class="(isProblemsEmpty) ? 'empty-items bx--col-lg-6 bx--col-md-6'
+      <div class="bx--row lesson-content">
+        <div :class="(isProblemsEmpty) ? 'empty-items bx--col-lg-6 bx--col-md-6'
       : 'items bx--col-lg-6 bx--col-md-6'">
-        <div v-if="!loading">
-          <div v-if="isProblemsEmpty">
-            <empty-list-component list-of="problems" :text="emptyProblemsText"/>
-          </div>
-          <div v-else class="content-tasks-problems">
-            <div v-if="problems.length > 0" class="tasks">
-              <h4 class="tasks-title title">Задачи: </h4>
-              <problem-list-component :task-list="problems"></problem-list-component>
+          <div v-if="!loading">
+            <div v-if="isProblemsEmpty">
+              <empty-list-component list-of="problems" :text="emptyProblemsText"/>
             </div>
-            <div v-if="exams.length > 0" class="tests">
-              <h4 class="classwork-title title">Тесты</h4>
-              <exam-list-component :exams-list="exams"/>
+            <div v-else class="content-tasks-problems">
+              <div v-if="problems.length > 0" class="tasks">
+                <h4 class="tasks-title title">Задачи: </h4>
+                <problem-list-component :task-list="problems"></problem-list-component>
+              </div>
+              <div v-if="exams.length > 0" class="tests">
+                <h4 class="classwork-title title">Тесты</h4>
+                <exam-list-component :exams-list="exams"/>
+              </div>
             </div>
           </div>
+          <cv-skeleton-text :paragraph="true" :line-count="5" v-else/>
         </div>
-        <cv-skeleton-text :paragraph="true" :line-count="5" v-else/>
-      </div>
-      <div
-        :class="(!loading && isMaterialsEmpty) ? ('bx--col-lg-4 bx--col-md-4 content-info-empty')
+        <div
+          :class="(!loading && isMaterialsEmpty) ? ('bx--col-lg-4 bx--col-md-4 content-info-empty')
          : ('bx--col-lg-4 bx--col-md-4 content-info')">
-        <div v-if="!loading">
-          <div v-if="isMaterialsEmpty" class="content-info-empty">
-            <empty-list-component :text="emptyMaterialsText" list-of="materials"/>
-          </div>
-          <div v-else>
-            <h2 class="content-info-title">Материалы</h2>
-            <div class="content-info-materials" v-if="!loading">
-              <cv-structured-list class="list">
-                <template slot="items">
-                  <cv-structured-list-item
-                    v-for="material in studentMaterials"
-                    :key="material.id">
-                    <material-list-component :material-prop="material"/>
-                  </cv-structured-list-item>
-                </template>
-                <template slot="items" v-if="isStaff">
-                  <cv-structured-list-item
-                    v-for="material in teacherMaterials"
-                    :key="material.id">
-                    <material-list-component :material-prop="material"/>
-                  </cv-structured-list-item>
-                </template>
-              </cv-structured-list>
+          <div v-if="!loading">
+            <div v-if="isMaterialsEmpty" class="content-info-empty">
+              <empty-list-component :text="emptyMaterialsText" list-of="materials"/>
+            </div>
+            <div v-else>
+              <h2 class="content-info-title">Материалы</h2>
+              <div class="content-info-materials" v-if="!loading">
+                <cv-structured-list class="list">
+                  <template slot="items">
+                    <cv-structured-list-item
+                      v-for="material in studentMaterials"
+                      :key="material.id">
+                      <material-list-component :material-prop="material"/>
+                    </cv-structured-list-item>
+                  </template>
+                  <template slot="items" v-if="isStaff">
+                    <cv-structured-list-item
+                      v-for="material in teacherMaterials"
+                      :key="material.id">
+                      <material-list-component :material-prop="material"/>
+                    </cv-structured-list-item>
+                  </template>
+                </cv-structured-list>
+              </div>
             </div>
           </div>
+          <cv-skeleton-text :paragraph="true" :line-count="5" v-else/>
         </div>
-        <cv-skeleton-text :paragraph="true" :line-count="5" v-else/>
       </div>
+    </div>
+  </div>
+  <div v-else class="center-splash">
+    <div class="main-title">
+      <h1 v-if="!loading && lesson" class=""> Контрольная работа: {{ lesson.name }} </h1>
+      <cv-skeleton-text v-else :heading="true" class="main-title" width="'35%'"/>
+      <div v-if="!loading && lesson" class="lesson-info">
+          <span>
+            Дедлайн: {{ lesson.deadline }}
+          </span>
+      </div>
+    </div>
+    <div v-if="!isStaff">
+      <cv-button-skeleton v-if="!this.lesson" kind="ghost"/>
+      <cv-button v-else
+                 class="lesson-hide-button"
+                 :icon="sendAlt"
+                 @click=";">
+        Начать контрольную
+      </cv-button>
     </div>
   </div>
 </template>
@@ -292,4 +302,13 @@ export default class ControlWorkView extends Vue {
   padding-bottom 1rem
   margin-bottom 1rem
   margin-right 1rem
+
+.center-splash
+  height 100%
+  display flex
+  justify-self center
+  flex-direction column
+  justify-items center
+  align-items center
+  justify-content center
 </style>
