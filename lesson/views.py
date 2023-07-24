@@ -2,12 +2,15 @@ from django.db.models import Q
 from rest_framework import viewsets, exceptions, status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
+import users.models
 from cathie.cats_api import cats_get_problem_description_by_url
 from course.models import CourseSchedule
 from imcslms.default_settings import TEACHER
-from lesson.models import Lesson, LessonContent, Attachment
+from lesson.models import Lesson, LessonContent, Attachment, StudentControlWorkRelation
 from lesson.serializers import LessonSerializer, MaterialSerializer, LessonShortSerializer, AddCatsProblemSerializer, \
     AttachmentSerializer
 from problem.models import Problem
@@ -113,3 +116,27 @@ class AttachmentViewSet(viewsets.ModelViewSet):
 
     def filter_queryset(self, queryset):
         return super().filter_queryset(queryset)
+
+
+class ControlWorkApi(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        """Register student to control work"""
+        try:
+            control_work_id = request.data['control_work_id']
+            student_id = request.data['user_id']
+            control_work = Lesson.objects.get(pk=control_work_id)
+            student = users.models.User.objects.get(pk=student_id)
+        except Lesson.DoesNotExist or users.models.User.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        relation = StudentControlWorkRelation(student=student, control_work=control_work)
+        relation.save()
+
+    def get(self, request, user_id):
+        try:
+            control_work = StudentControlWorkRelation.objects.get(pk=user_id).control_work
+        except StudentControlWorkRelation.DoesNotExist:
+            control_work = None
+        return control_work

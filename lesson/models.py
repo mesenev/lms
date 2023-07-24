@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib import admin
 from django.db import models
 from django.db.models.signals import pre_delete
@@ -20,6 +22,7 @@ class Lesson(models.Model):
     is_hidden = models.BooleanField(default=True)
     scores = models.JSONField(null=False, default=dict)
     is_control_work = models.BooleanField(default=False)
+    duration = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -58,13 +61,23 @@ def delete_file_hook(sender, instance, using, **kwargs):
     instance.file_url.delete()
 
 
-# class StudentControlWorkRelation():
-#   student
-#   lesson
-#   start_time
-#   end_time
+class StudentControlWorkRelation(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, null=False, primary_key=True)
+    control_work = models.ForeignKey(Lesson, on_delete=models.CASCADE, null=False)
+    start_time = models.DateTimeField(editable=False)
+    end_time = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        if self.control_work.is_control_work and self.control_work.duration is not None:
+            self.start_time = datetime.datetime.now()
+            self.end_time = self.start_time + datetime.timedelta(seconds=self.control_work.duration)
+        return super(StudentControlWorkRelation, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"student {self.student} taking part in {self.control_work}"
 
 
 admin.site.register(Attachment)
 admin.site.register(Lesson)
 admin.site.register(LessonContent)
+admin.site.register(StudentControlWorkRelation)
