@@ -395,7 +395,9 @@ export default class LogEventComponent extends NotificationMixinComponent {
 
 
 .scrollable-solution-list
-  height 82%
+  height 100%
+  display flex
+  flex-direction column
 
 .wrapper-for_controll-overflow-list
   height calc(491px)
@@ -431,6 +433,8 @@ span.event--date
 
 <style lang="stylus">
 .wrapper-for_controll-overflow-list
+  flex 1
+
   .bx--structured-list-thead
     display none
 
