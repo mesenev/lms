@@ -1,0 +1,22 @@
+html, body {
+    height: 100%;
+}
+
+.main-title {
+    color: var(--cds-text-01);
+    margin-top: var(--cds-spacing-01);
+    margin-bottom: var(--cds-spacing-06);
+    margin-left: var(--cds-spacing-05);
+}
+
+.header-container {
+    display: flex;
+    flex-flow: column;
+    min-height: 90px;
+
+    .course-description {
+        padding-left: var(--cds-spacing-05);
+    }
+}
+
+@import 'vue-prism-editor/dist/prismeditor.min.css';
