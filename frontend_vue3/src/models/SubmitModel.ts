@@ -1,4 +1,4 @@
-export default interface SubmitModel {
+export interface SubmitModel {
   id: number;
   lesson: number;
   problem: { id: number; name: string };

@@ -1,5 +1,7 @@
 <template>
-  <div :class="current_theme" class="layout">
+  <cv-loading v-if="tokenStore.isLoading" overlay style="background: white"/>
+  <div v-else-if="tokenStore.isAuthenticated" :class="current_theme" class="layout">
+    <lms-header @toggle-theme="toggleTheme($event)" class="layout-header"/>
     <main class="layout-content">
       <transition name="fade" mode="out-in">
         <router-view/>
@@ -21,14 +23,24 @@
           </cv-link>
       </div>
     </footer>
+    хех
   </div>
 </template>
+
 
 <script lang="ts" setup>
 
 import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
 import FaceWink from '@carbon/icons-vue/es/face--wink/16';
 import { THEMES } from "@/utils/consts";
+
+import { useTokenStore } from "@/stores/modules/token";
+import LmsHeader from "@/components/LmsHeader.vue";
+
+import LoginView from "@/views/LoginView.vue";
+import ResetPasswordView from "@/views/ResetPasswordView.vue";
+
+const tokenStore = useTokenStore();
 
 </script>
 

@@ -6,7 +6,7 @@ export const TYPE_CATS_SUBMIT = 'cats_submit';
 export const TYPE_CATS_ERROR = 'cats_error';
 
 
-export default interface LogEventModel {
+export interface LogEventModel {
   id: number;
   problem: number;
   student: number;

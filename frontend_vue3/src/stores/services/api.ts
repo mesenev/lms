@@ -1,8 +1,8 @@
 import axios from "axios";
-import store from '@/store';
-import * as urls from '@/store/services/urls';
-import token from "@/store/modules/token";
-import router from '@/router/index'
+import * as urls from '@/stores/services/urls';
+import { useTokenStore } from "@/stores/modules/token";
+
+const tokenStore = useTokenStore()
 
 const BASE_URL = (process.env.NODE_ENV === "production")
   ? process.env.APPLICATION_URL : "http://localhost:8000";
@@ -20,7 +20,7 @@ api.interceptors.request.use(async config => {
     return config;
 
   if (!localStorage.getItem('refresh')) {
-    store.commit('token/rejectAuthentication');
+    tokenStore.rejectAuthentication()
     return config;
   }
 
@@ -46,7 +46,7 @@ api.interceptors.request.use(async config => {
       }
     ).catch(error => {
       localStorage.setItem('refresh', '');
-      store.commit('token/rejectAuthentication');
+      tokenStore.rejectAuthentication()
 
     });
 

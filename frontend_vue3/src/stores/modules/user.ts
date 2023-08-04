@@ -1,15 +1,16 @@
-import CourseModel from "@/models/CourseModel";
-import UserModel from '@/models/UserModel';
-import UserProgress from '@/models/UserProgress';
-import store from '@/store';
-import courseModule from '@/store/modules/course';
-import api from '@/store/services/api'
-import { Dictionary } from 'vue-router/types/router';
-import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators'
+import type { CourseModel } from "@/models/CourseModel";
+import type { UserModel } from '@/models/UserModel';
+import type { UserProgress } from '@/models/UserProgress';
+import { useCourseStore } from "@/stores/modules/course";
+import api from "@/stores/services/api";
+import {ref, computed} from "vue";
+import type { Ref } from 'vue';
+import { defineStore } from "pinia";
 
-@Module({ namespaced: true, name: 'user', store, dynamic: true })
-class UserModule extends VuexModule {
-  public user: UserModel = {
+const courseModule = useCourseStore()
+
+const useUserStore = defineStore('user', ()=>{
+    const user: Ref<UserModel> = ref({
     id: -1,
     username: '',
     first_name: '',
@@ -20,43 +21,39 @@ class UserModule extends VuexModule {
     thumbnail: '',
     email: '',
     cats_account: null
+  })
+  const currentCourseStudents: Ref<Dictionary<UserModel>> = ref({});
+  const cachedStudents:  Ref<Dictionary<UserModel>> = ref({});
+
+  function fetchStudentsMutation(data: Dictionary<UserModel> ) {
+    currentCourseStudents.value = data;
   }
 
-  // storage for all fetched users associated with courseId
-  currentCourseStudents: Dictionary<UserModel> = {};
-  cachedStudents: Dictionary<UserModel> = {};
-
-  @Mutation fetchStudentsMutation(data: Dictionary<UserModel>) {
-    this.currentCourseStudents = data;
+  function fetchCachedStudents(data: Dictionary<UserModel>) {
+    cachedStudents.value = data;
   }
 
-  @Mutation fetchCachedStudents(data: Dictionary<UserModel>) {
-    this.cachedStudents = data;
+  function receiveUser(received_user: UserModel) {
+    user.value = received_user
   }
 
-  @Mutation receiveUser(user: UserModel) {
-    this.user = user;
+  function addStaffToArray(courseId: number) {
+    user.value.staff_for.push(courseId);
+    user.value.staff_for = [...user.value.staff_for];
   }
 
-  @Mutation addStaffToArray(courseId: number) {
-    this.user.staff_for.push(courseId);
-    this.user.staff_for = [...this.user.staff_for];
-  }
-
-  @Action
-  async fetchStudentsByCourseId(courseId: number): Promise<Dictionary<UserModel>> {
+  async function fetchStudentsByCourseId(courseId: number): Promise<Dictionary<UserModel>> {
     const course: CourseModel = await courseModule.fetchCourseById(courseId);
     const answer = (course.students as UserModel[]).reduce<Dictionary<UserModel>>(
       (previousValue, currentValue) => {
         previousValue[currentValue.id] = currentValue;
         return previousValue;
       }, {});
-    this.fetchStudentsMutation({ ...this.currentCourseStudents, [courseId]: answer });
+    fetchStudentsMutation({ ...currentCourseStudents, [courseId]: answer });
     return answer;
   }
 
-  @Action
-  async fetchStudentsProgressByLessonId(): Promise<Array<UserProgress>> {
+  async function fetchStudentsProgressByLessonId(): Promise<Array<UserProgress>> {
     let data = {data: {}}
     await api.get('/api/lessonprogress/').then(response => data = response)
       .catch(error => {
@@ -65,24 +62,22 @@ class UserModule extends VuexModule {
     return data.data as Array<UserProgress>;
   }
 
-  @Action
-  async fetchUserById(userId: number): Promise<UserModel> {
+  async function fetchUserById(userId: number): Promise<UserModel> {
     let data = { data: {} }
     if (userId in this.currentCourseStudents)
       return this.currentCourseStudents[userId];
     if (userId in this.cachedStudents)
-      return this.cachedStudents[userId];
+      return cachedStudents[userId];
     await api.get(`/api/users/${userId}/`).then(response => data = response)
       .catch(error => {
         console.log(error);
       });
-    this.fetchCachedStudents({ ...this.cachedStudents, [userId]: data.data as UserModel });
+    fetchCachedStudents({ ...cachedStudents, [userId]: data.data as UserModel });
 
     return data.data as UserModel;
   }
 
-  @Action
-  async fetchUserFromSession(): Promise<UserModel> {
+  async function fetchUserFromSession(): Promise<UserModel> {
     let data = { data: {}}
     await api.get('/api/sessionuser').then(response => data = response)
       .catch(error => {
@@ -90,6 +85,12 @@ class UserModule extends VuexModule {
       });
     return data.data as UserModel;
   }
-}
 
-export default getModule(UserModule);
+  return { currentCourseStudents, cachedStudents, fetchStudentsMutation, fetchCachedStudents,
+  receiveUser, addStaffToArray, fetchStudentsByCourseId, fetchStudentsProgressByLessonId,
+      fetchUserById, fetchUserFromSession
+  }
+
+})
+
+export default useUserStore

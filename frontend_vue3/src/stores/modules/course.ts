@@ -1,76 +1,75 @@
-import CourseModel from 'src/stores/models/CourseModel';
-import CourseScheduleModel from 'src/stores/models/ScheduleModel';
-import { ref, computed } from 'vue'
+import type { CourseModel } from "@/models/CourseModel";
+import type { CourseScheduleModel } from "@/models/ScheduleModel";
+import { ref, computed } from 'vue';
+import type { Ref } from 'vue';
 import { defineStore } from 'pinia'
-import userStore from 'src/stores/modules/user';
-import api from 'src/stores/services/api'
+import api from '@/stores/services/api'
+import useUserStore from "@/stores/modules/user";
 
-@Module({ namespaced: true, name: 'course', store, dynamic: true })
-class CourseModule extends VuexModule {
-  currentCourse: CourseModel | null = null;
-  courses: Array<CourseModel> = [];
 
-  get is_staff() {
-    if (!this.currentCourse)
-      return false;
-    return userStore.user.staff_for.includes(this.currentCourse.id);
-  }
+const userStore = useUserStore()
 
-  get newCourse(): CourseModel {
-    return {
-      id: NaN, name: '', author: userStore.user, cats_id: null, lessons: [],
+export const useCourseStore = defineStore('course', () => {
+
+    const currentCourse: Ref<CourseModel | null> = ref(null);
+    const courses: Ref<Array<CourseModel>> = ref([]);
+
+    const is_staff = computed( ()=>{
+        if (!this.currentCourse)
+            return false;
+        return userStore.user.staff_for.includes(this.currentCourse.id);
+    });
+
+    const newCourse = computed(() =>{
+        return {
+            id: NaN, name: '', author: userStore.user, cats_id: null, lessons: [],
       completed: false, description: '', students: [], schedule: null, de_options: "",
-    };
-  }
+        }
+    });
 
-  @Mutation
-  setCourses(payload: Array<CourseModel>) {
-    this.courses = payload;
-  }
+    function setCourses(payload: Array<CourseModel>) {
+        courses.value = payload;
+    }
 
-  @Mutation
-  changeCurrentCourse(payload: CourseModel | null) {
-    this.currentCourse = payload;
-  }
+    function changeCurrentCourse(payload: CourseModel | null) {
+        currentCourse.value = payload;
+    }
 
-  @Action
-  async fetchUserCourses() {
-    await api.get('/api/course/user_courses/')
-      .then(response => {
-        this.setCourses(response.data);
-      })
-      .catch(error => {
-        console.log(error);
-      })
-  }
+    async function fetchUserCourses() {
+        await api.get('/api/course/user_courses/')
+        .then(response => {
+            setCourses(response.data);
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    }
 
-  @Action
-  async fetchCourseById(id: number): Promise<CourseModel> {
-    let answer = { data: {} };
-    await api.get(`/api/course/${id}/`)
-      .then(response => answer = response)
-      .catch(error => {
-        console.log(error);
-      })
-    return answer.data as CourseModel;
-  }
+    async function fetchCourseById(id: number): Promise<CourseModel> {
+        let answer = { data: {} };
+        await api.get(`/api/course/${id}/`)
+        .then(response => answer = response)
+        .catch(error => {
+            console.log(error);
+        })
+        return answer.data as CourseModel;
+    }
 
-  @Mutation
-  addCourseToArray(element: CourseModel) {
-    this.courses.push(element);
-    this.courses = [...this.courses];
-  }
+    function addCourseToArray(element: CourseModel) {
+        courses.value.push(element);
+        courses.value = [...this.courses];
+    }
 
-  @Action
-  async fetchCourseScheduleByCourseId(id: number): Promise<CourseScheduleModel> {
-    let answer = { data: {} };
-    await api.get(`/api/course-schedule/by-course/${id}/`)
-      .then(response => answer = response)
-      .catch(error => {
-        console.log(error);
-      })
-    return answer.data as CourseScheduleModel;
-  }
-}
+    async function fetchCourseScheduleByCourseId(id: number): Promise<CourseScheduleModel> {
+        let answer = { data: {} };
+        await api.get(`/api/course-schedule/by-course/${id}/`)
+        .then(response => answer = response)
+        .catch(error => {
+            console.log(error);
+        })
+        return answer.data as CourseScheduleModel;
+    }
 
-export default getModule(CourseModule);
+    return { currentCourse, courses, is_staff, newCourse, setCourses, changeCurrentCourse,
+    fetchUserCourses, fetchCourseById, addCourseToArray, fetchCourseScheduleByCourseId }
+})

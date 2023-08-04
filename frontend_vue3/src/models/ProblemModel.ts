@@ -1,5 +1,5 @@
-import { BaseModel } from '@/models/BaseModel';
-import SubmitModel from '@/models/SubmitModel';
+import type { BaseModel } from "@/models/BaseModel.ts";
+import type { SubmitModel }  from '@/models/SubmitModel';
 
 
 export interface ProblemStatsModel {
@@ -8,7 +8,7 @@ export interface ProblemStatsModel {
   red: number;
 }
 
-export default interface ProblemModel extends BaseModel {
+export interface ProblemModel extends BaseModel {
   lesson: number;
   type: string;
   description: string;

@@ -1,6 +1,6 @@
-import MaterialModel from "@/models/MaterialModel";
+import type { MaterialModel } from "@/models/MaterialModel";
 
-export default interface AttachmentModel {
+export interface AttachmentModel {
   id: number;
   name: string;
   material: number;
