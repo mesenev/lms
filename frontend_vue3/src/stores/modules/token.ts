@@ -4,9 +4,10 @@ import * as urls from '@/stores/services/urls';
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 
-const userStore = useUserStore()
 
 export const useTokenStore = defineStore('token', () => {
+
+  const userStore = useUserStore()
 
   const loading = ref(false);
   const authentication = ref(false);

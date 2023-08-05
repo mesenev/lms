@@ -7,9 +7,11 @@ import {ref, computed} from "vue";
 import type { Ref } from 'vue';
 import { defineStore } from "pinia";
 
-const courseModule = useCourseStore()
 
 const useUserStore = defineStore('user', ()=>{
+
+    const courseModule = useCourseStore()
+
     const user: Ref<UserModel> = ref({
     id: -1,
     username: '',

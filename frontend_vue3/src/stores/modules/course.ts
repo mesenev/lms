@@ -7,9 +7,9 @@ import api from '@/stores/services/api'
 import useUserStore from "@/stores/modules/user";
 
 
-const userStore = useUserStore()
-
 export const useCourseStore = defineStore('course', () => {
+
+    const userStore = useUserStore()
 
     const currentCourse: Ref<CourseModel | null> = ref(null);
     const courses: Ref<Array<CourseModel>> = ref([]);

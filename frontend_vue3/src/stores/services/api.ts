@@ -2,8 +2,6 @@ import axios from "axios";
 import * as urls from '@/stores/services/urls';
 import { useTokenStore } from "@/stores/modules/token";
 
-const tokenStore = useTokenStore()
-
 const BASE_URL = (process.env.NODE_ENV === "production")
   ? process.env.APPLICATION_URL : "http://localhost:8000";
 
@@ -16,6 +14,9 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(async config => {
+
+  const tokenStore = useTokenStore();
+
   if (config.url == urls.OBTAIN_TOKEN_URL)
     return config;
 
