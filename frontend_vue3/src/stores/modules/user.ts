@@ -88,7 +88,7 @@ const useUserStore = defineStore('user', ()=>{
     return data.data as UserModel;
   }
 
-  return { currentCourseStudents, cachedStudents, fetchStudentsMutation, fetchCachedStudents,
+  return { user, currentCourseStudents, cachedStudents, fetchStudentsMutation, fetchCachedStudents,
   receiveUser, addStaffToArray, fetchStudentsByCourseId, fetchStudentsProgressByLessonId,
       fetchUserById, fetchUserFromSession
   }

@@ -1,8 +1,9 @@
 <template>
   <cv-loading v-if="tokenStore.isLoading" overlay style="background: white"/>
-  <div v-else-if="tokenStore.isAuthenticated" :class="current_theme" class="layout">
+  <div v-else-if="tokenStore.isLogin" :class="current_theme" class="layout">
     <lms-header @toggle-theme="toggleTheme($event)" class="layout-header"/>
     <main class="layout-content">
+      <lms-breadcrumb class="main--breadcrumb"/>
       <transition name="fade" mode="out-in">
         <router-view/>
       </transition>
@@ -21,10 +22,12 @@
           <cv-link class="layout-footer-link" href="https://t.me/+FBUuuC4qdvc1ZTIy">
             <span><b>Чат для обратной связи</b></span>
           </cv-link>
+        s
       </div>
     </footer>
-    хех
   </div>
+  <reset-password-view v-else-if="isResetPassword"></reset-password-view>
+  <LoginView v-else-if="shouldRedirectToLogin"></LoginView>
 </template>
 
 
@@ -39,8 +42,23 @@ import LmsHeader from "@/components/LmsHeader.vue";
 
 import LoginView from "@/views/LoginView.vue";
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
+import { useRoute } from 'vue-router'
+import { computed } from "vue";
+
 
 const tokenStore = useTokenStore();
+const route = useRoute();
+tokenStore.setupTokenStore();
+
+
+const isResetPassword = computed(() => {
+    return route.name === 'ResetPasswordView';
+  })
+
+const shouldRedirectToLogin = computed(() => {
+    //return !tokenStore.isLogin && !isResetPassword;
+    return true;
+  })
 
 </script>
 

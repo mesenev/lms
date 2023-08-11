@@ -12,8 +12,9 @@ export const useTokenStore = defineStore('token', () => {
   const loading = ref(false);
   const authentication = ref(false);
 
-  const isLoading = computed(() => { return loading })
-  const isAuthenticated = computed(() => { return authentication })
+  const isLoading = computed(() => { return loading.value })
+  const isLogin = computed(() => { return authentication.value })
+
 
 
   async function login(payload: { username: string; password: string}) {
@@ -33,7 +34,7 @@ export const useTokenStore = defineStore('token', () => {
       await api.get(urls.PROTECTED_USER_DATA_URL).then(
           (response: { data: any; }) => {
           userStore.receiveUser(response.data);
-          this.acceptAuthentication();
+          acceptAuthentication();
         }
       )
     }
@@ -41,15 +42,18 @@ export const useTokenStore = defineStore('token', () => {
 
   async function setupTokenStore() {
     if (String(localStorage.getItem('access')))
-      this.setIsLoading();
+      setIsLoading();
+      console.log(isLoading.value)
       await api.get(urls.PROTECTED_USER_DATA_URL).then(
           (response: { data: any; }) => {
           userStore.receiveUser(response.data);
-          this.acceptAuthentication();
+          acceptAuthentication();
         }).catch(error => {
         console.log(error);
       });
-      this.denyIsLoading();
+      denyIsLoading();
+      console.log(isLoading.value)
+
   }
 
   async function logout() {
@@ -59,7 +63,7 @@ export const useTokenStore = defineStore('token', () => {
     ).then((response: any) => {
       localStorage.setItem('access', '');
       localStorage.setItem('refresh', '');
-      this.rejectAuthentication();
+      rejectAuthentication();
     });
   }
 
@@ -79,7 +83,7 @@ export const useTokenStore = defineStore('token', () => {
     loading.value = false;
   }
 
-  return { loading, authentication, isLoading, isAuthenticated, login, setupTokenStore, logout,
+  return { loading, authentication, isLoading, isLogin, login, setupTokenStore, logout,
       acceptAuthentication, rejectAuthentication, setIsLoading, denyIsLoading }
 })
 

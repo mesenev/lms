@@ -31,42 +31,11 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Component } from 'vue-property-decorator';
-import tokenStore from "@/store/modules/token";
+<script lang="ts" setup>
+import { useTokenStore } from "@/stores/modules/token";
 import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
 
-@Component({ components: {} })
-export default class LoginView extends NotificationMixinComponent {
-  login = '';
-  password = '';
-  tokenStore = tokenStore;
 
-  async authorization() {
-    if (!this.login || !this.password) {
-      this.notificationText = `Пожалуйста заполните все поля`;
-      this.notificationKind = 'error';
-      this.showNotification = true;
-      return;
-    }
-    await this.tokenStore.login({
-      username: this.login,
-      password: this.password,
-    }).catch(error => {
-      if (error.response.status == 401) {
-
-        this.notificationText = `Неверные логин или пароль`;
-        this.notificationKind = 'error';
-        this.showNotification = true;
-      } else {
-        this.notificationText = `Ошибка получения данных`;
-        this.notificationKind = 'error';
-        this.showNotification = true;
-      }
-    });
-
-  }
-}
 </script>
 
 <style lang="stylus" scoped>
