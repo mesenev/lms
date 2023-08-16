@@ -1,40 +1,69 @@
 <template>
   <div class="shell-login">
     <cv-form @submit.prevent="authorization" class="login">
-        <cv-inline-notification
+      <cv-inline-notification
           @close="hideNotification"
           v-if="showNotification"
           :kind="notificationKind"
           :sub-title="notificationText">
-        </cv-inline-notification>
+      </cv-inline-notification>
 
       <h3 class="form-header">Авторизация</h3>
       <cv-text-input
-        class="log-form"
-        label="Логин"
-        placeholder="Введите свой логин"
-        v-model="login">
+          class="log-form"
+          label="Логин"
+          placeholder="Введите свой логин"
+          v-model="login">
       </cv-text-input>
       <cv-text-input
-        class="pass-form"
-        type="password"
-        label="Пароль"
-        placeholder="Введите свой пароль"
-        v-model="password"
+          class="pass-form"
+          type="password"
+          label="Пароль"
+          placeholder="Введите свой пароль"
+          v-model="password"
       >
       </cv-text-input>
       <router-link :to="{ name: 'ResetPasswordView' }">Забыли пароль?</router-link>
       <div class="submit-btn">
-        <cv-button @click="authorization">Войти</cv-button>
+        <cv-button type="submit" @click="authorization">Войти</cv-button>
       </div>
     </cv-form>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useTokenStore } from "@/stores/modules/token";
-import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
+import {useTokenStore} from "@/stores/modules/token";
+import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
+import {ref} from "vue";
 
+const {notificationText, notificationKind, showNotification, hideNotification} = useNotificationMixin();
+const login = ref('');
+const password = ref('');
+const tokenStore = useTokenStore();
+
+function authorization() {
+  if (!login.value || !password.value) {
+    console.log('ERROR');
+    notificationText.value = `Пожалуйста заполните все поля`;
+    notificationKind.value = 'error';
+    showNotification.value = true;
+    return;
+  }
+  tokenStore.login({
+    username: login.value,
+    password: password.value,
+  }).catch(error => {
+    if (error.response.status == 401) {
+      notificationText.value = `Неверные логин или пароль`;
+      notificationKind.value = 'error';
+      showNotification.value = true;
+    } else {
+      notificationText.value = `Ошибка получения данных`;
+      notificationKind.value = 'error';
+      showNotification.value = true;
+    }
+  });
+}
 
 </script>
 

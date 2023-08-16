@@ -15,9 +15,9 @@ export const useCourseStore = defineStore('course', () => {
     const courses: Ref<Array<CourseModel>> = ref([]);
 
     const is_staff = computed( ()=>{
-        if (!this.currentCourse)
+        if (!currentCourse.value)
             return false;
-        return userStore.user.staff_for.includes(this.currentCourse.id);
+        return userStore.user.staff_for.includes(currentCourse.value?.id);
     });
 
     const newCourse = computed(() =>{
@@ -57,7 +57,7 @@ export const useCourseStore = defineStore('course', () => {
 
     function addCourseToArray(element: CourseModel) {
         courses.value.push(element);
-        courses.value = [...this.courses];
+        courses.value = [...courses.value];
     }
 
     async function fetchCourseScheduleByCourseId(id: number): Promise<CourseScheduleModel> {
@@ -73,3 +73,5 @@ export const useCourseStore = defineStore('course', () => {
     return { currentCourse, courses, is_staff, newCourse, setCourses, changeCurrentCourse,
     fetchUserCourses, fetchCourseById, addCourseToArray, fetchCourseScheduleByCourseId }
 })
+
+export default useCourseStore;

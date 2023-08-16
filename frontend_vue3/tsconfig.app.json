@@ -12,6 +12,8 @@
   ],
   "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {
+    "moduleResolution": "node",
+    "types": ["node"],
     "composite": true,
     "baseUrl": ".",
     "paths": {

@@ -1,12 +1,11 @@
 <template>
-  <cv-loading v-if="tokenStore.isLoading" overlay style="background: white"/>
+  <!--  <cv-loading v-if="tokenStore.isLoading" overlay style="background: white"/>-->
+  <p v-if="tokenStore.isLoading">loading</p>
   <div v-else-if="tokenStore.isLogin" :class="current_theme" class="layout">
     <lms-header @toggle-theme="toggleTheme($event)" class="layout-header"/>
     <main class="layout-content">
-      <lms-breadcrumb class="main--breadcrumb"/>
-      <transition name="fade" mode="out-in">
-        <router-view/>
-      </transition>
+      <!--      <lms-breadcrumb class="main&#45;&#45;breadcrumb"/>-->
+      <router-view/>
     </main>
     <footer class="layout-footer">
       <div class="layout-footer-label">
@@ -19,10 +18,9 @@
             </cv-link>
           </span>
         </div>
-          <cv-link class="layout-footer-link" href="https://t.me/+FBUuuC4qdvc1ZTIy">
-            <span><b>Чат для обратной связи</b></span>
-          </cv-link>
-        s
+        <cv-link class="layout-footer-link" href="https://t.me/+FBUuuC4qdvc1ZTIy">
+          <span><b>Чат для обратной связи</b></span>
+        </cv-link>
       </div>
     </footer>
   </div>
@@ -35,30 +33,36 @@
 
 import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
 import FaceWink from '@carbon/icons-vue/es/face--wink/16';
-import { THEMES } from "@/utils/consts";
+import {THEMES} from "@/utils/consts";
 
-import { useTokenStore } from "@/stores/modules/token";
+import {useTokenStore} from "@/stores/modules/token";
 import LmsHeader from "@/components/LmsHeader.vue";
 
 import LoginView from "@/views/LoginView.vue";
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
-import { useRoute } from 'vue-router'
-import { computed } from "vue";
+import {useRoute} from 'vue-router'
+import {computed, ref, watch} from "vue";
 
 
 const tokenStore = useTokenStore();
 const route = useRoute();
 tokenStore.setupTokenStore();
 
+const current_theme = ref(localStorage.getItem('theme') || THEMES.g10);
+
+function toggleTheme(theme: string) {
+  current_theme.value = theme;
+  localStorage.setItem('theme', theme);
+}
 
 const isResetPassword = computed(() => {
-    return route.name === 'ResetPasswordView';
-  })
+  return route.name === 'ResetPasswordView';
+})
 
 const shouldRedirectToLogin = computed(() => {
-    //return !tokenStore.isLogin && !isResetPassword;
-    return true;
-  })
+  return !tokenStore.isLogin && !isResetPassword.value;
+})
+
 
 </script>
 
@@ -121,11 +125,14 @@ const shouldRedirectToLogin = computed(() => {
   height: 100%
   display flex
   flex-flow column
+
   &-content
     padding-bottom var(--cds-spacing-05)
     margin-top: 3rem;
+
   &-header, &-footer
     flex-shrink 0
+
   &-footer
     min-height 100px
     background-color #161616
@@ -134,8 +141,10 @@ const shouldRedirectToLogin = computed(() => {
 
     &-link
       color var(--cds-text-05)
+
     &-label
       margin var(--cds-spacing-06) var(--cds-spacing-06)
+
   &-content
     flex-grow 1
     width: 100%

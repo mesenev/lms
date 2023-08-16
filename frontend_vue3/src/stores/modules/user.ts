@@ -51,7 +51,7 @@ const useUserStore = defineStore('user', ()=>{
         previousValue[currentValue.id] = currentValue;
         return previousValue;
       }, {});
-    fetchStudentsMutation({ ...currentCourseStudents, [courseId]: answer });
+    fetchStudentsMutation({ ...currentCourseStudents.value, [courseId]: answer });
     return answer;
   }
 
@@ -66,15 +66,15 @@ const useUserStore = defineStore('user', ()=>{
 
   async function fetchUserById(userId: number): Promise<UserModel> {
     let data = { data: {} }
-    if (userId in this.currentCourseStudents)
-      return this.currentCourseStudents[userId];
-    if (userId in this.cachedStudents)
-      return cachedStudents[userId];
+    if (userId in currentCourseStudents.value)
+      return currentCourseStudents.value[userId];
+    if (userId in cachedStudents.value)
+      return cachedStudents.value[userId];
     await api.get(`/api/users/${userId}/`).then(response => data = response)
       .catch(error => {
         console.log(error);
       });
-    fetchCachedStudents({ ...cachedStudents, [userId]: data.data as UserModel });
+    fetchCachedStudents({ ...cachedStudents.value, [userId]: data.data as UserModel });
 
     return data.data as UserModel;
   }

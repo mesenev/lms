@@ -25,7 +25,7 @@ api.interceptors.request.use(async config => {
     return config;
   }
 
-  if ((localStorage.getItem('access')))
+  if (localStorage.getItem('access'))
     await axios.post(
       urls.VERIFY_TOKEN_URL,
       { token: (localStorage.getItem('access')) }

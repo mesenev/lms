@@ -34,7 +34,7 @@
       </cv-header-menu-item>
     </cv-header-nav>
     <cv-header-nav
-      v-if="isStaff && lessonSelected && !problemSelected && !materialSelected && !examSelected">
+        v-if="isStaff && lessonSelected && !problemSelected && !materialSelected && !examSelected">
       <cv-header-menu-item
       >
         Редактировать урок
@@ -59,42 +59,42 @@
       </cv-header-menu-item>
     </cv-header-nav>
 
-    <template slot="left-panels">
+    <template v-slot:left-panels>
       <cv-side-nav id="side-nav" fixed>
         <cv-side-nav-items>
           <cv-header-side-nav-items>
             <cv-header-menu-item
-              v-if="courseSelected"
+                v-if="courseSelected"
             >
               Решения
             </cv-header-menu-item>
             <cv-header-menu-item
-              v-if="isStaff && courseSelected"
+                v-if="isStaff && courseSelected"
             >
               Успеваемость
             </cv-header-menu-item>
             <cv-header-menu-item
-              v-if="lessonSelected"
+                v-if="lessonSelected"
             >
               Успеваемость урока
             </cv-header-menu-item>
             <cv-header-menu-item
-              v-if="isStaff && courseSelected"
+                v-if="isStaff && courseSelected"
             >
               Календарь
             </cv-header-menu-item>
             <cv-header-menu-item
-              v-if="isStaff && courseSelected && !lessonSelected && !problemSelected"
+                v-if="isStaff && courseSelected && !lessonSelected && !problemSelected"
             >
               Редактировать курс
             </cv-header-menu-item>
             <cv-header-menu-item
-              v-if="isStaff && lessonSelected && !problemSelected && !materialSelected && !examSelected"
+                v-if="isStaff && lessonSelected && !problemSelected && !materialSelected && !examSelected"
             >
               Редактировать урок
             </cv-header-menu-item>
             <cv-header-menu-item
-              v-if="isStaff && problemSelected"
+                v-if="isStaff && problemSelected"
             >
               Редактировать задачу
             </cv-header-menu-item>
@@ -103,7 +103,7 @@
               Редактировать тест
             </cv-header-menu-item>
             <cv-header-menu-item
-              v-if="isStaff && materialSelected"
+                v-if="isStaff && materialSelected"
             >
               Редактировать материалы
             </cv-header-menu-item>
@@ -111,7 +111,7 @@
         </cv-side-nav-items>
       </cv-side-nav>
     </template>
-    <template slot="header-global">
+    <template v-slot:header-global>
       <cv-header-global-action aria-label="Notifications"
                                aria-controls="notifications">
         <notification-20/>
@@ -122,9 +122,9 @@
       </cv-header-global-action>
     </template>
 
-    <template slot="right-panels">
+    <template v-slot:right-panels>
       <cv-header-panel class="" id="account">
-        <UserView :userProp="userStore.user" class="user-view"/>
+        <!--        <UserView :userProp="userStore.user" class="user-view"/>-->
         <cv-switcher>
           <template>
             <cv-switcher-item>
@@ -144,39 +144,40 @@
                 Создать курс
               </cv-switcher-item-link>
             </cv-switcher-item>
-            <cv-switcher-item>
-              <cv-switcher-item-link @click="logout"> Выйти</cv-switcher-item-link>
-            </cv-switcher-item>
+            <!--            <cv-switcher-item>-->
+            <!--              <cv-switcher-item-link @click="logout"> Выйти</cv-switcher-item-link>-->
+            <!--            </cv-switcher-item>-->
           </template>
         </cv-switcher>
+        <cv-button @click="logout">Выйти</cv-button>
         <cv-toggle class="toggle-theme" label="Тема" value="" v-model="current_theme">
           <template slot="text-left">
             <component :is="iconLight"></component>
           </template>
-          <template slot="text-right">
+          <template v-slot:text-right>
             <component :is="iconDark"></component>
           </template>
         </cv-toggle>
       </cv-header-panel>
     </template>
 
-    <template slot="right-panels">
-      <cv-header-panel class="" id="notifications">
-        <span class="acc_text">Оповещения</span>
-        <cv-switcher>
-          <template>
-            <cv-switcher-item>
-              <cv-switcher-item-link to="/">
-                <cv-toast-notification
-                  caption="текст оповещения"
-                  kind="info"
-                  title="тестовое уведомление"/>
-              </cv-switcher-item-link>
-            </cv-switcher-item>
-          </template>
-        </cv-switcher>
-      </cv-header-panel>
-    </template>
+    <!--    <template slot="right-panels">-->
+    <!--      <cv-header-panel class="" id="notifications">-->
+    <!--        <span class="acc_text">Оповещения</span>-->
+    <!--        <cv-switcher>-->
+    <!--          <template>-->
+    <!--            <cv-switcher-item>-->
+    <!--              <cv-switcher-item-link to="/">-->
+    <!--                <cv-toast-notification-->
+    <!--                  caption="текст оповещения"-->
+    <!--                  kind="info"-->
+    <!--                  title="тестовое уведомление"/>-->
+    <!--              </cv-switcher-item-link>-->
+    <!--            </cv-switcher-item>-->
+    <!--          </template>-->
+    <!--        </cv-switcher>-->
+    <!--      </cv-header-panel>-->
+    <!--    </template>-->
   </cv-header>
 </template>
 
@@ -189,57 +190,54 @@ import Notification20 from '@carbon/icons-vue/es/notification/20';
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
 import Light20 from '@carbon/icons-vue/es/light/20'
 import Asleep20 from '@carbon/icons-vue/es/asleep/20'
-import { useTokenStore } from "@/stores/modules/token";
-import { THEMES } from '@/utils/consts'
-import { useRoute } from 'vue-router'
-import { computed } from "vue";
+import {useTokenStore} from "@/stores/modules/token";
+import {THEMES} from '@/utils/consts'
+import {useRoute} from 'vue-router'
+import {computed} from "vue";
 
-function changeTheme() {
-   this.$emit("toggle-theme", this.current_theme ? THEMES.g90 : THEMES.g10);
+
+const iconLight = Light20;
+const iconDark = Asleep20;
+const themes = THEMES;
+
+const userStore = useUserStore();
+const tokenStore = useTokenStore();
+
+const route = useRoute()
+
+async function logout() {
+  await tokenStore.logout();
+  window.location.reload();
 }
 
-  const iconLight = Light20;
-  const iconDark = Asleep20;
-  const themes = THEMES;
+const courseSelected = computed((): boolean => {
+  return route.params.hasOwnProperty('courseId') && route.params['courseId'] != null;
+})
 
-  const userStore = useUserStore();
-  const tokenStore = useTokenStore();
+const lessonSelected = computed((): boolean => {
+  return route.params.hasOwnProperty('lessonId') && route.params['lessonId'] != null;
+})
 
-  const route = useRoute()
+const problemSelected = computed((): boolean => {
+  return route.params.hasOwnProperty('problemId') && route.params['problemId'] != null;
+})
 
-  async function logout() {
-    await tokenStore.logout();
-    window.location.reload();
-  }
+const examSelected = computed((): boolean => {
+  return route.params.hasOwnProperty('examId') && route.params['examId'] != null;
+})
 
-  const courseSelected = computed((): boolean =>{
-      return route.params.hasOwnProperty('courseId') && route.params['courseId'] != null;
-  })
+const materialSelected = computed((): boolean => {
+  return route.params.hasOwnProperty('materialId') && route.params['materialId'] != null;
+})
 
-  const lessonSelected = computed((): boolean => {
-    return route.params.hasOwnProperty('lessonId') && route.params['lessonId'] != null;
-  })
+const getTheme = computed((): boolean => {
+  return localStorage.getItem('theme') === THEMES.g90
+})
 
-  const problemSelected = computed((): boolean => {
-    return route.params.hasOwnProperty('problemId') && route.params['problemId'] != null;
-  })
-
-  const examSelected = computed((): boolean => {
-    return route.params.hasOwnProperty('examId') && route.params['examId'] != null;
-  })
-
-  const materialSelected = computed((): boolean => {
-    return route.params.hasOwnProperty('materialId') && route.params['materialId'] != null;
-  })
-
-  const getTheme = computed((): boolean => {
-    return localStorage.getItem('theme') === THEMES.g90
-  })
-
-  const isStaff = computed((): boolean => {
-    console.log(userStore.user)
-    return userStore.user.staff_for.includes(Number(route.params.courseId));
-  })
+const isStaff = computed((): boolean => {
+  console.log(userStore.user)
+  return userStore.user.staff_for.includes(Number(route.params.courseId));
+})
 
 </script>
 

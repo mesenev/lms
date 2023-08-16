@@ -1,4 +1,4 @@
-import type { BaseModel } from "@/models/BaseModel.ts";
+import type { BaseModel } from "@/models/BaseModel";
 import type { LessonModel } from '@/models/LessonModel';
 import type { UserModel } from '@/models/UserModel';
 import type { AuthorModel } from '@/models/UserModel';
