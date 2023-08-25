@@ -1,8 +1,8 @@
 <template>
   <cv-header class="lms-header" aria-label="Carbon tutorial">
-    <cv-skip-to-content href="#main-content"> Skip to content</cv-skip-to-content>
+    <cv-skip-to-content href="#main-content"> Skip to content </cv-skip-to-content>
     <cv-header-menu-button v-if="courseSelected" aria-controls="side-nav" aria-label="Header menu"/>
-    <cv-header-name prefix="dvfu" to="/"><span class="lms">lms</span></cv-header-name>
+    <cv-header-name prefix="dvfu" to="/"><span class="lms"> lms </span></cv-header-name>
     <cv-header-nav v-if="courseSelected">
       <cv-header-menu-item
       >
@@ -123,35 +123,34 @@
     </template>
 
     <template v-slot:right-panels>
-      <cv-header-panel class="" id="account">
-        <!--        <UserView :userProp="userStore.user" class="user-view"/>-->
+      <cv-header-panel class="" id="account" :expanded="false">
+        <UserView :userProp="userStore.user" class="user-view"/>
         <cv-switcher>
-          <template>
-            <cv-switcher-item>
-              <cv-switcher-item-link
-              >
-                Профиль
-              </cv-switcher-item-link>
-            </cv-switcher-item>
-            <cv-switcher-item>
-              <cv-switcher-item-link to="/">
-                Мои курсы
-              </cv-switcher-item-link>
-            </cv-switcher-item>
-            <cv-switcher-item>
-              <cv-switcher-item-link
-              >
-                Создать курс
-              </cv-switcher-item-link>
-            </cv-switcher-item>
-            <!--            <cv-switcher-item>-->
-            <!--              <cv-switcher-item-link @click="logout"> Выйти</cv-switcher-item-link>-->
-            <!--            </cv-switcher-item>-->
-          </template>
+          <cv-switcher-item>
+            <cv-switcher-item-link :to="{
+                  name: 'profile-page',
+                  params:  { userId: userStore.user.id }
+                }"
+            >
+              Профиль
+            </cv-switcher-item-link>
+          </cv-switcher-item>
+          <cv-switcher-item>
+            <cv-switcher-item-link to="/">
+              Мои курсы
+            </cv-switcher-item-link>
+          </cv-switcher-item>
+          <cv-switcher-item>
+            <cv-switcher-item-link>
+              Создать курс
+            </cv-switcher-item-link>
+          </cv-switcher-item>
+          <cv-switcher-item>
+            <cv-switcher-item-link @click="logout"> Выйти </cv-switcher-item-link>
+          </cv-switcher-item>
         </cv-switcher>
-        <cv-button @click="logout">Выйти</cv-button>
-        <cv-toggle class="toggle-theme" label="Тема" value="" v-model="current_theme">
-          <template slot="text-left">
+        <cv-toggle class="toggle-theme" label="Тема" value="" v-model="currentTheme">
+          <template v-slot:text-left>
             <component :is="iconLight"></component>
           </template>
           <template v-slot:text-right>
@@ -161,23 +160,23 @@
       </cv-header-panel>
     </template>
 
-    <!--    <template slot="right-panels">-->
-    <!--      <cv-header-panel class="" id="notifications">-->
-    <!--        <span class="acc_text">Оповещения</span>-->
-    <!--        <cv-switcher>-->
-    <!--          <template>-->
-    <!--            <cv-switcher-item>-->
-    <!--              <cv-switcher-item-link to="/">-->
-    <!--                <cv-toast-notification-->
-    <!--                  caption="текст оповещения"-->
-    <!--                  kind="info"-->
-    <!--                  title="тестовое уведомление"/>-->
-    <!--              </cv-switcher-item-link>-->
-    <!--            </cv-switcher-item>-->
-    <!--          </template>-->
-    <!--        </cv-switcher>-->
-    <!--      </cv-header-panel>-->
-    <!--    </template>-->
+<!--    <template v-slot:right-panels>-->
+<!--      <cv-header-panel class="" id="notifications">-->
+<!--        <span class="acc_text">Оповещения</span>-->
+<!--        <cv-switcher>-->
+<!--          <template>-->
+<!--            <cv-switcher-item>-->
+<!--              <cv-switcher-item-link to="/">-->
+<!--                <cv-toast-notification-->
+<!--                    caption="текст оповещения"-->
+<!--                    kind="info"-->
+<!--                    title="тестовое уведомление"/>-->
+<!--              </cv-switcher-item-link>-->
+<!--            </cv-switcher-item>-->
+<!--          </template>-->
+<!--        </cv-switcher>-->
+<!--      </cv-header-panel>-->
+<!--    </template>-->
   </cv-header>
 </template>
 
@@ -193,7 +192,7 @@ import Asleep20 from '@carbon/icons-vue/es/asleep/20'
 import {useTokenStore} from "@/stores/modules/token";
 import {THEMES} from '@/utils/consts'
 import {useRoute} from 'vue-router'
-import {computed} from "vue";
+import {computed, ref, watch} from "vue";
 
 
 const iconLight = Light20;
@@ -202,6 +201,8 @@ const themes = THEMES;
 
 const userStore = useUserStore();
 const tokenStore = useTokenStore();
+
+const emit = defineEmits<{ (e: 'toggle-theme', theme: string): void }>();
 
 const route = useRoute()
 
@@ -232,6 +233,12 @@ const materialSelected = computed((): boolean => {
 
 const getTheme = computed((): boolean => {
   return localStorage.getItem('theme') === THEMES.g90
+})
+
+const currentTheme = ref<boolean>(getTheme.value);
+
+watch(() => currentTheme.value, () => {
+  emit('toggle-theme', currentTheme.value ? THEMES.g90 : THEMES.g10)
 })
 
 const isStaff = computed((): boolean => {

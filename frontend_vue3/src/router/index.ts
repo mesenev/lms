@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
+import ProfileView from "@/views/ProfileView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,6 +23,15 @@ const router = createRouter({
       path: '/reset',
       name: 'ResetPasswordView',
       component: ResetPasswordView,
+    },
+    {
+      path: '/profile/:userId',
+      name: 'profile-page',
+      component: ProfileView,
+      props: (route) => {
+        const userId = Number.parseInt(route.params.userId as string, 10);
+        return { userId, ...route.params };
+      },
     }
   ]
 })
