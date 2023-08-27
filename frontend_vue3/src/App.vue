@@ -4,7 +4,7 @@
   <div v-else-if="tokenStore.isLogin" :class="current_theme" class="layout">
     <lms-header @toggle-theme="toggleTheme($event)" class="layout-header"/>
     <main class="layout-content">
-      <!--      <lms-breadcrumb class="main&#45;&#45;breadcrumb"/>-->
+      <lms-breadcrumb class="main--breadcrumb"/>
       <router-view/>
     </main>
     <footer class="layout-footer">
@@ -42,6 +42,7 @@ import LoginView from "@/views/LoginView.vue";
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
 import {useRoute} from 'vue-router'
 import {computed, ref, watch} from "vue";
+import LmsBreadcrumb from "@/components/LmsBreadcrumb.vue";
 
 
 const tokenStore = useTokenStore();
