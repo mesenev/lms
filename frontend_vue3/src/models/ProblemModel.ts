@@ -1,4 +1,4 @@
-import type { BaseModel } from "@/models/BaseModel.ts";
+import type { BaseModel } from "@/models/BaseModel";
 import type { SubmitModel }  from '@/models/SubmitModel';
 
 

@@ -1,9 +1,4 @@
-import type { BaseModel } from "@/models/BaseModel.ts";
-
-export interface BaseModel {
-  id: number;
-  name: string;
-}
+import type { BaseModel } from "@/models/BaseModel";
 
 export interface MaterialModel extends BaseModel {
   lesson: number;

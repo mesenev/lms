@@ -1,5 +1,5 @@
 import type { QuestionModel } from "@/models/QuestionModel";
-import type { BaseModel } from "@/models/BaseModel.ts";
+import type { BaseModel } from "@/models/BaseModel";
 
 export interface ExamModel extends BaseModel {
   lesson: number;

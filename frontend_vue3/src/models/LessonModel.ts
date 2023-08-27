@@ -1,4 +1,4 @@
-import type { BaseModel } from "@/models/BaseModel.ts";
+import type { BaseModel } from "@/models/BaseModel";
 import type { MaterialModel } from '@/models/MaterialModel';
 import type { ProblemModel } from '@/models/ProblemModel';
 import type { UserProgress } from '@/models/UserProgress';
