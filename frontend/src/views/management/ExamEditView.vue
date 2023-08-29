@@ -149,7 +149,7 @@ export default class ExamEditView extends NotificationMixinComponent {
   addQuestion() {
     const newQuestion = _.cloneDeep({
       ...this.questionStore.newQuestion,
-      index: this.exam.questions.length > 0 ? Math.max(...this.exam.questions.map(question => question.index)) + 1 : 0,
+      index: this.examEdit.questions.length > 0 ? Math.max(...this.examEdit.questions.map(question => question.index)) + 1 : 0,
     });
     this.examEdit.questions.push(newQuestion);
     this.examEdit.questions.forEach(value => {
