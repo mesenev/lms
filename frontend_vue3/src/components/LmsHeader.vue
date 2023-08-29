@@ -141,7 +141,11 @@
             </cv-switcher-item-link>
           </cv-switcher-item>
           <cv-switcher-item>
-            <cv-switcher-item-link>
+            <cv-switcher-item-link :to="{
+                  name: 'course-add',
+                  params:  { courseId: null }
+                }"
+            >
               Создать курс
             </cv-switcher-item-link>
           </cv-switcher-item>

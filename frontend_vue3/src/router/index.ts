@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
 import ProfileView from "@/views/ProfileView.vue";
+import CourseEditView from "@/views/managment/CourseEditView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,6 +20,14 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue')
     },
+      {
+      path: '/course-add',
+      name: 'course-add',
+      component: CourseEditView,
+      props: () => {
+      return { courseId: null };
+    },
+  },
     {
       path: '/reset',
       name: 'ResetPasswordView',
