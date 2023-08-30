@@ -175,8 +175,11 @@ export default class ExamEditView extends NotificationMixinComponent {
       return;
     }
     this.examEdit.max_points = 0;
-    this.examEdit.questions.forEach((question) => {
+    this.examEdit.questions.forEach((question, index) => {
       this.examEdit.max_points += question.points;
+      this.examEdit.questions[index].all_answers = this.examEdit.questions[index].all_answers.map(answer => {
+        return answer.trim();
+      })
     })
     await api.patch(`/api/exam/${this.examId}/`, {
       ...this.examEdit,

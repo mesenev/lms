@@ -563,11 +563,12 @@ h1
   display flex
   gap 1rem
   flex-direction row
-  width 60%
-  margin-top 1.5rem
+  width fit-content
   padding-left 1rem
 
   .submit
     width fit-content
+    margin-top 1rem
+    margin-bottom 1rem
 
 </style>

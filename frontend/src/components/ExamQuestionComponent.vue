@@ -37,9 +37,9 @@
              :key="index">
           <span>вариант ответа</span>
           <div class="answer-variant">
-            <cv-text-input v-model.trim="question.all_answers[index]">
+            <cv-text-input v-model="question.all_answers[index]">
               <template slot="invalid-message"
-                        v-if="!question.all_answers[index].length && invalidProp">
+                        v-if="!question.all_answers[index].trim().length && invalidProp">
                 {{ emptyInputInvalidText }}
               </template>
             </cv-text-input>
@@ -49,7 +49,7 @@
         </div>
         <cv-link @click="addAnswer">Добавить вариант ответа</cv-link>
         <div class="answer-container">
-          <span v-if="!manualTestMode">Выберите верные варианты ответа</span>
+          <span v-if="!manualTestMode">Выберите верный вариант ответа</span>
           <cv-dropdown @focusout="checkEmptyFields" v-if="!manualTestMode" class="answer"
                        v-model="question.correct_answers[0]">
             <cv-dropdown-item :value="answer" v-for="answer in question.all_answers" :key="answer">
@@ -66,9 +66,9 @@
         <div class="answers" v-for="(answer, index) in question.all_answers" :key="index">
           <span>вариант ответа</span>
           <div class="answer-variant">
-            <cv-text-input v-model.trim="question.all_answers[index]">
+            <cv-text-input v-model="question.all_answers[index]">
               <template slot="invalid-message"
-                        v-if="!question.all_answers[index].length && invalidProp">
+                        v-if="!question.all_answers[index].trim().length && invalidProp">
                 {{ emptyInputInvalidText }}
               </template>
             </cv-text-input>
@@ -165,7 +165,7 @@ export default class ExamQuestionComponent extends Vue {
   }
 
   get correctAnswersLength() {
-    return this.question.correct_answers.length && (this.question.correct_answers[0] ?? '').length;
+    return this.question.correct_answers.length && (this.question.correct_answers[0] ?? '').trim().length;
   }
 
   get checkboxAnswers() {
@@ -178,6 +178,10 @@ export default class ExamQuestionComponent extends Vue {
         disabled: false,
       }
     })
+  }
+
+  inputHandler(answer: string, index: number) {
+    this.question.all_answers[index] = answer.trim();
   }
 
   @Watch('exam.test_mode')
@@ -196,7 +200,7 @@ export default class ExamQuestionComponent extends Vue {
     if (!this.textType && !this.inputType) {
       if (this.question.all_answers.length) {
         this.question.all_answers.forEach(value => {
-          if (!value.length)
+          if (!value.trim().length)
             isAllAnswersInvalid = true;
         })
       } else
@@ -204,7 +208,7 @@ export default class ExamQuestionComponent extends Vue {
       if (!this.manualTestMode) {
         if (this.question.correct_answers.length)
           this.question.correct_answers.forEach(value => {
-            if (!value.length)
+            if (!value.trim().length)
               isCorrectAnswersInvalid = true;
           })
         else
@@ -214,7 +218,7 @@ export default class ExamQuestionComponent extends Vue {
       if (this.autoTestMode) {
         if (this.question.correct_answers.length) {
           this.question.correct_answers.forEach(value => {
-            if (!value.length)
+            if (!value.trim().length)
               isCorrectAnswersInvalid = true;
           })
         } else
@@ -251,7 +255,7 @@ export default class ExamQuestionComponent extends Vue {
 
 <style scoped lang="stylus">
 .invalid-text
-  text-decoration underline
+  font-style italic
 
 .question-container
   line-height var(--cds-body-long-01-line-height, 1.43);
