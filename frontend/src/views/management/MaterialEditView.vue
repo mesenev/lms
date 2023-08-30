@@ -11,7 +11,7 @@
                    @click="changeMaterialVisibility">
           {{
             (currentMaterial.is_teacher_only) ?
-              "Открыть материал для студентов" : "Скрыть материал от студентов"
+              "Материал скрыт" : "Материал открыт"
           }}
         </cv-button>
       </div>
