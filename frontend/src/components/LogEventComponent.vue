@@ -396,8 +396,6 @@ export default class LogEventComponent extends NotificationMixinComponent {
 
 .scrollable-solution-list
   height 100%
-  display flex
-  flex-direction column
 
 .wrapper-for_controll-overflow-list
   height calc(491px)

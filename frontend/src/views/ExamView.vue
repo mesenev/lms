@@ -24,6 +24,7 @@
                          class="test-hide-button"
                          :icon="hiddenIcon"
                          kind="ghost"
+                         :disabled="isExamEmpty"
                          @click="changeExamVisibility">
                 {{ (exam.is_hidden) ? "Открыть тест" : "Скрыть тест" }}
               </cv-button>
@@ -34,7 +35,7 @@
       </div>
     </div>
     <cv-row :class="isStaff ? 'main-items' : 'header-container'">
-      <cv-column :style="loading || solutionLoading ? 'text-align: -webkit-center' : ''"
+      <cv-column v-if="!isExamEmpty" :style="loading || solutionLoading ? 'text-align: -webkit-center' : ''"
                  :lg="isStaff ? {'span' : 8, 'offset' : 0} : {'offset': 2}">
         <div v-if="isStaff ? !loading && !solutionLoading : !loading"
              class="test-container">
@@ -104,7 +105,10 @@
         </div>
         <cv-loading v-else/>
       </cv-column>
-      <cv-column v-if="isStaff">
+      <cv-column v-else :lg="{'span' : 2, 'offset' : 0}">
+        <empty-list-component text="Заполните тест" list-of="questions"/>
+      </cv-column>
+      <cv-column v-if="isStaff && !isExamEmpty">
         <div v-if="!loading && solutionId" class="results-container">
           <div v-if="!solutionLoading" class="results">
             <span> Статус: <strong>{{ status }}</strong> </span>
@@ -230,6 +234,10 @@ export default class ExamView extends NotificationMixinComponent {
       await this.initFields();
       this.solutionLoading = false;
     }
+  }
+
+  get isExamEmpty() {
+    return !this.exam?.questions.length;
   }
 
   get isStaff(): boolean {
