@@ -3,7 +3,7 @@ import * as urls from '@/stores/services/urls';
 import { useTokenStore } from "@/stores/modules/token";
 
 const BASE_URL = (process.env.NODE_ENV === "production")
-  ? process.env.APPLICATION_URL : "http://localhost:8000";
+  ? process.env.APPLICATION_URL : import.meta.env.VITE_BACKEND_URL;
 
 axios.defaults.baseURL = BASE_URL;
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
