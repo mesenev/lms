@@ -84,6 +84,8 @@ const user: Ref<UserModel>  = ref(userStore.user)
 
 onMounted(async ()=>{
   schedule.value = await courseStore.fetchCourseScheduleByCourseId(props.courseId);
+  await lessonStore.fetchLessonsByCourseId(props.courseId);
+  loading.value = false;
 })
 
 const isStaff = computed(()=>{
