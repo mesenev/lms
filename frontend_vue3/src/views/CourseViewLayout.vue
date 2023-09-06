@@ -22,7 +22,7 @@
     courseStore.changeCurrentCourse(null);
     course.value = await courseStore.fetchCourseById(props.courseId);
     courseStore.changeCurrentCourse(course.value);
-    if (!course.value.students.isEmpty()){
+    if (course.value.students.length !== 0){
       const users = course.value.students.reduce(
       (previousValue: { [key: number]: UserModel }, currentValue) => {
         previousValue[currentValue.id] = currentValue;
