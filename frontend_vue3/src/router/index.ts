@@ -3,6 +3,8 @@ import HomeView from '../views/HomeView.vue'
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
 import ProfileView from "@/views/ProfileView.vue";
 import CourseEditView from "@/views/managment/CourseEditView.vue";
+import courseRoutes from "@/router/course";
+import CourseViewLayout from "@/views/CourseViewLayout.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,8 +28,8 @@ const router = createRouter({
       component: CourseEditView,
       props: () => {
       return { courseId: null };
+        },
     },
-  },
     {
       path: '/reset',
       name: 'ResetPasswordView',
@@ -41,7 +43,19 @@ const router = createRouter({
         const userId = Number.parseInt(route.params.userId as string, 10);
         return { userId, ...route.params };
       },
-    }
+    },
+    {
+    path: '/course/:courseId',
+    component: CourseViewLayout,
+    props: (route) => {
+      const courseId = Number.parseInt(route.params.courseId as string, 10);
+      return { courseId, ...route.params };
+    },
+    children: [
+      ...courseRoutes,
+    ],
+    },
+
   ]
 })
 
