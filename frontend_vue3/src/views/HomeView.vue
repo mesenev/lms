@@ -19,7 +19,7 @@
           <cv-search
             label="label"
             placeholder="search"
-            v-model.trim="searchValue">
+            v-model:value.trim="searchValue">
           </cv-search>
           <cv-structured-list>
             <template v-slot:items>
@@ -42,6 +42,8 @@ import Course from "@/components/lists/CourseListComponent.vue";
 import { computed, onMounted, ref } from "vue";
 import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
 import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
+import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
+import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
 
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
