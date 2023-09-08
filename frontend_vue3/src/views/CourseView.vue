@@ -32,6 +32,7 @@
                   class="item"
                   v-for="lesson in filterLessons"
                   :key="lesson.id">
+                  {{lesson}}
                 </cv-structured-list-item>
               </template>
               <template slot="items" v-if="isStaff && lessonsNotInSchedule.length > 0">
@@ -39,6 +40,7 @@
                   class="item"
                   v-for="lesson in lessonsNotInSchedule"
                   :key="lesson.id">
+                  {{lesson}}
                 </cv-structured-list-item>
               </template>
               <!--          <template slot="items" v-else>-->
@@ -49,10 +51,9 @@
             </cv-structured-list>
           </div>
         </div>
-        <div v-else class="empty-list-wrapper">
-        </div>
       </div>
     </div>
+
 
   </div>
 </template>
@@ -60,7 +61,6 @@
 
 <script lang="ts" setup>
 import UserComponent from '@/components/UserComponent.vue';
-import UserProblemListComponent from "@/components/UserProblemListComponent.vue"
 import CourseModel from '@/models/CourseModel';
 import LessonModel from "@/models/LessonModel";
 import { UserModel } from "@/models/UserModel";
@@ -69,27 +69,26 @@ import useLessonStore from "@/stores/modules/lesson";
 import useUserStore from '@/stores/modules/user';
 import { defineProps, Ref, ref, onMounted, computed } from 'vue';
 import CourseScheduleModel, { ScheduleElement } from "@/models/ScheduleModel";
-import EmptyListComponent from "@/components/EmptyListComponent.vue";
 
 const props = defineProps(['courseId'])
 const courseStore = useCourseStore()
 const lessonStore = useLessonStore()
 const userStore = useUserStore()
 
-const searchValue: Ref<string> = ref('')
+const searchValue: Ref<string> = ref("")
 const loading: Ref<boolean> = ref(true)
 const schedule: Ref<CourseScheduleModel> | Ref<undefined> = ref(undefined)
 const emptyText: Ref<string> = ref('В данный момент нет доступных уроков.')
 const user: Ref<UserModel>  = ref(userStore.user)
 
-onMounted(async ()=>{
+onMounted(async () => {
   schedule.value = await courseStore.fetchCourseScheduleByCourseId(props.courseId);
   await lessonStore.fetchLessonsByCourseId(props.courseId);
   loading.value = false;
 })
 
 const isStaff = computed(()=>{
-  return user.staff_for.includes(Number(props.courseId));
+  return user.value.staff_for.includes(Number(props.courseId));
 })
 
 const course = computed(() => {
@@ -97,10 +96,10 @@ const course = computed(() => {
 })
 
 const sortedCourseSchedule = computed(() =>{
-  if (schedule === undefined || schedule.lessons === undefined)
+  if (schedule.value === undefined || schedule.value.lessons === undefined)
       return new Array<LessonModel>();
-    const schedule_ptr = (schedule as CourseScheduleModel);
-    const schedule_lessons = this.lessons.filter(
+    const schedule_ptr = (schedule.value as CourseScheduleModel);
+    const schedule_lessons = lessons.value.filter(
       lesson => schedule_ptr.lessons.find(elem => elem.lesson_id === lesson.id)?.lesson_id)
     return schedule_lessons.sort(
       (a: LessonModel, b: LessonModel) => {
@@ -112,40 +111,41 @@ const sortedCourseSchedule = computed(() =>{
 })
 
 const filterLessons = computed(() => {
-  sortedCourseSchedule.map(lesson =>
-      this.lessons.find(elem => elem.name === lesson.name))
+  sortedCourseSchedule.value.map(lesson =>
+      lessons.value.find(elem => elem.name === lesson.name))
       .filter(lesson => typeof lesson != "undefined");
     if (!isStaff) {
-      const sortedCourseSchedule = sortedCourseSchedule.filter(
-        lesson => lesson.name.toLowerCase().includes(searchValue.toLowerCase())
+      const sortedCourseSchedule_ptr = sortedCourseSchedule.value.filter(
+        lesson => lesson.name.toLowerCase().includes(searchValue.value.toLowerCase())
       );
-      if (sortedCourseSchedule.length)
-        return sortedCourseSchedule;
+      if (sortedCourseSchedule_ptr.length)
+        return sortedCourseSchedule_ptr;
     }
-    return sortedCourseSchedule
+    return sortedCourseSchedule.value
 })
 
 const lessons = computed((): Array<LessonModel> =>{
   if (!(props.courseId in lessonStore.lessonsByCourse))
       return [];
-    const lessons = lessonStore.lessonsByCourse[props.courseId].filter(lesson => {
-      return lesson.name.toLowerCase().includes(searchValue.toLowerCase());
+    const lessons_ptr = lessonStore.lessonsByCourse[props.courseId].filter(lesson => {
+      console.log('FILTER', lesson)
+      return lesson.name.toLowerCase().includes(searchValue.value.toLowerCase());
     });
     if (isStaff)
-      if (lessons.length)
-        return lessons;
-    return lessonStore.lessonsByCourse[this.courseId];
+      if (lessons_ptr.length)
+        return lessons_ptr;
+    return lessonStore.lessonsByCourse.value[props.courseId];
 })
 
 const lessonsNotInSchedule = computed(() => {
-    return lessons.filter(lesson => !filterLessons.map(lesson => lesson.id)
+    return lessons.value.filter(lesson => !filterLessons.value.map(lesson => lesson.id)
       .includes(lesson.id)).sort((a: LessonModel, b: LessonModel) => {
       return a.id - b.id;
     });
 })
 
 const dateForLesson = computed((lesson_id: number) => {
-    return ((this.schedule as CourseScheduleModel)
+    return ((schedule.value as CourseScheduleModel)
       .lessons.find(x => x.lesson_id === lesson_id) as ScheduleElement).date;
 })
 
