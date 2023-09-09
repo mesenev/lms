@@ -52,7 +52,6 @@ export const useTokenStore = defineStore('token', () => {
         console.log(error);
       });
       denyIsLoading();
-      console.log(isLoading.value)
 
   }
 

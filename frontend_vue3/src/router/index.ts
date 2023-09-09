@@ -4,7 +4,9 @@ import ResetPasswordView from "@/views/ResetPasswordView.vue";
 import ProfileView from "@/views/ProfileView.vue";
 import CourseEditView from "@/views/managment/CourseEditView.vue";
 import courseRoutes from "@/router/course";
-import CourseViewLayout from "@/views/CourseViewLayout.vue"
+import CourseViewLayout from "@/views/CourseViewLayout.vue";
+import lessonRoutes from "@/router/lesson";
+import LessonViewLayout from "@/views/LessonViewLayout.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -53,6 +55,17 @@ const router = createRouter({
     },
     children: [
       ...courseRoutes,
+        {
+            path: 'lesson/:lessonId',
+            component: LessonViewLayout,
+            props: (route) => {
+                const lessonId = Number.parseInt(route.params.lessonId as string, 10);
+                return {lessonId, ...route.params};
+            },
+            children: [
+                ...lessonRoutes,
+            ],
+        },
     ],
     },
 

@@ -1,6 +1,5 @@
 <template>
   <div class="bx--grid">
-
     <div class="bx--row header-container">
       <div class="main-title">
         <h1 v-if="!loading" class=""> Курс: {{ (course) ? course.name : "" }} </h1>
@@ -13,7 +12,6 @@
         </div>
       </div>
     </div>
-
     <div class=" bx--row">
       <div :class="(lessons.length) ? 'items bx--col-lg-6 bx--col-md-6'
       : 'empty-items bx--col-lg-6 bx--col-md-6'">
@@ -32,7 +30,8 @@
                   class="item"
                   v-for="lesson in filterLessons"
                   :key="lesson.id">
-                  {{lesson}}
+                  <lesson-list-component :date-prop="dateForLesson(lesson.id)"
+                                         :lesson-prop='lesson'/>
                 </cv-structured-list-item>
               </template>
               <template slot="items" v-if="isStaff && lessonsNotInSchedule.length > 0">
@@ -40,7 +39,7 @@
                   class="item"
                   v-for="lesson in lessonsNotInSchedule"
                   :key="lesson.id">
-                  {{lesson}}
+                  <lesson-list-component :lesson-prop='lesson' not-in-schedule="true"/>
                 </cv-structured-list-item>
               </template>
               <!--          <template slot="items" v-else>-->
@@ -51,13 +50,17 @@
             </cv-structured-list>
           </div>
         </div>
+        <div v-else class="empty-list-wrapper">
+          <empty-list-component list-of="lessons" :text="emptyText"/>
+        </div>
       </div>
+      <!-- <div v-if='course' class="submits bx--col-lg-4 bx--col-md-4">
+         <user-submit-list-component v-if="isStaff" :course-id="course.id"/>
+        <user-problem-list-component v-else :course-id="course.id"/>
+      </div> -->
     </div>
-
-
   </div>
 </template>
-
 
 <script lang="ts" setup>
 import UserComponent from '@/components/UserComponent.vue';
@@ -69,6 +72,8 @@ import useLessonStore from "@/stores/modules/lesson";
 import useUserStore from '@/stores/modules/user';
 import { defineProps, Ref, ref, onMounted, computed } from 'vue';
 import CourseScheduleModel, { ScheduleElement } from "@/models/ScheduleModel";
+import EmptyListComponent from  "@/components/lists/EmptyListComponent.vue";
+import LessonListComponent from "@/components/lists/LessonListComponent.vue"
 
 const props = defineProps(['courseId'])
 const courseStore = useCourseStore()
@@ -121,6 +126,7 @@ const filterLessons = computed(() => {
       if (sortedCourseSchedule_ptr.length)
         return sortedCourseSchedule_ptr;
     }
+    console.log('RETURN 1', sortedCourseSchedule.value[0].id)
     return sortedCourseSchedule.value
 })
 
@@ -128,7 +134,6 @@ const lessons = computed((): Array<LessonModel> =>{
   if (!(props.courseId in lessonStore.lessonsByCourse))
       return [];
     const lessons_ptr = lessonStore.lessonsByCourse[props.courseId].filter(lesson => {
-      console.log('FILTER', lesson)
       return lesson.name.toLowerCase().includes(searchValue.value.toLowerCase());
     });
     if (isStaff)
@@ -144,10 +149,10 @@ const lessonsNotInSchedule = computed(() => {
     });
 })
 
-const dateForLesson = computed((lesson_id: number) => {
+function dateForLesson(lesson_id: number){
     return ((schedule.value as CourseScheduleModel)
       .lessons.find(x => x.lesson_id === lesson_id) as ScheduleElement).date;
-})
+}
 
 
 
