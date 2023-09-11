@@ -1,5 +1,4 @@
 import api from '@/stores/services/api'
-import {AxiosResponse} from "axios";
 import {defineStore} from "pinia";
 import {computed, ref} from "vue";
 import type {SubmitModel} from "@/models/SubmitModel";
@@ -107,7 +106,7 @@ export const useSubmitStore = defineStore('submit', () => {
         }
         let data = {};
         await api.get(`/api/submit/${id}/`)
-            .then((response: AxiosResponse<SubmitModel>) => {
+            .then((response) => {
                 addSubmitToArray(response.data);
                 data = response.data
             })
@@ -120,12 +119,12 @@ export const useSubmitStore = defineStore('submit', () => {
     async function fetchCatsResult(submitId: number) {
         let data = {};
         await api.get(`/api/submit/cats-result/${submitId}/`)
-            .then((response: AxiosResponse<object>) => {
+            .then((response => {
                 data = response.data
             })
             .catch(error => {
                 console.error(error);
-            })
+            }))
         return data as object;
     }
 

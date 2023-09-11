@@ -4,6 +4,7 @@
     <router-view v-if="lesson"/>
     <cv-loading v-else/>
   </transition>
+
 </template>
 
 <script lang="ts" setup>
@@ -21,11 +22,4 @@ onMounted(async () =>{
   lessonStore.changeCurrentLesson(lesson.value);
   await lessonStore.fetchLessonsByCourseId(lesson.value.course);
 })
-//lessonStore.changeCurrentLesson(data);
-//await lessonStore.fetchLessonsByCourseId(data.course);
-
-
-
-
-
 </script>

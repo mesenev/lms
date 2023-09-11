@@ -28,6 +28,35 @@
         </div>
       </div>
     </div>
+    <div class="bx--row lesson-content">
+      <div :class="(isProblemsEmpty) ? 'empty-items bx--col-lg-6 bx--col-md-6'
+      : 'items bx--col-lg-6 bx--col-md-6'">
+        <div v-if="!loading">
+          <div v-if="isProblemsEmpty">
+            <empty-list-component list-of="problems" :text="emptyProblemsText"/>
+          </div>
+          <div v-else class="content-tasks-problems">
+            <div v-if="classwork.length > 0" class="classwork">
+              <h4 class="classwork-title title">Классная работа</h4>
+              <problem-list-component :task-list="classwork"></problem-list-component>
+            </div>
+            <div v-if="homework.length > 0" class="homework">
+              <h4 class="homework-title title">Домашняя работа</h4>
+              <problem-list-component :task-list="homework"/>
+            </div>
+            <div v-if="extrawork.length > 0" class="extrawork">
+              <h4 class="classwork-title title">Дополнительные задания</h4>
+              <problem-list-component :task-list="extrawork"/>
+            </div>
+            <div v-if="exams.length > 0" class="tests">
+              <h4 class="classwork-title title">Тесты</h4>
+              <!-- <exam-list-component :exams-list="exams"/> -->
+            </div>
+          </div>
+        </div>
+        <cv-skeleton-text :paragraph="true" :line-count="5" v-else/>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -41,9 +70,10 @@ import useUserStore from '@/stores/modules/user';
 import useExamStore from '@/stores/modules/exam';
 import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
-import EmptyListComponent from "@/components/EmptyListComponent.vue";
+import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
 import ExamModel from "@/models/ExamModel";
 import { ref, Ref, onMounted, computed } from "vue";
+import ProblemListComponent from "@/components/lists/ProblemListComponent.vue"
 
 const props = defineProps({lessonId:{ type: Number, required: true }})
 

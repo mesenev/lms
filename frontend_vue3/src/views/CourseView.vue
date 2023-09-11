@@ -73,7 +73,7 @@ import useUserStore from '@/stores/modules/user';
 import { defineProps, Ref, ref, onMounted, computed } from 'vue';
 import CourseScheduleModel, { ScheduleElement } from "@/models/ScheduleModel";
 import EmptyListComponent from  "@/components/lists/EmptyListComponent.vue";
-import LessonListComponent from "@/components/lists/LessonListComponent.vue"
+import LessonListComponent from "@/components/lists/LessonListComponent.vue";
 
 const props = defineProps(['courseId'])
 const courseStore = useCourseStore()
@@ -126,7 +126,6 @@ const filterLessons = computed(() => {
       if (sortedCourseSchedule_ptr.length)
         return sortedCourseSchedule_ptr;
     }
-    console.log('RETURN 1', sortedCourseSchedule.value[0].id)
     return sortedCourseSchedule.value
 })
 
