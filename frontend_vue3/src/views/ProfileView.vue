@@ -86,21 +86,24 @@
 </template>
 
 <script lang="ts" setup>
-
-// import Course from "@/components/lists/CourseListComponent.vue";
+import Course from "@/components/lists/CourseListComponent.vue";
 import Edit32 from '@carbon/icons-vue/es/edit/32';
-import type {UserModel} from "@/models/UserModel";
+import type { UserModel } from "@/models/UserModel";
 import useUserStore from "@/stores/modules/user";
 import useCourseStore from "@/stores/modules/course";
-import {computed, onMounted, ref} from "vue";
+import { computed, onMounted, ref } from "vue";
 import api from "@/stores/services/api";
 import Avatar from "@/components/Avatar.vue";
 import EditAvatarModal from "@/components/EditAvatarModal.vue";
 import AddCatsModal from "@/components/AddCatsModal.vue";
 import ChangePasswordModal from "@/components/ChangePasswordModal.vue";
+import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
+import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
+import CvStructuredListData from "@/components/CvStructuredList/CvStructuredListData.vue";
+import EditProfileComponent from "@/components/EditProfileComponent.vue";
 
 const props = defineProps({
-  userId: {type: Number, required: true}
+  userId: { type: Number, required: true }
 })
 const courseStore = useCourseStore();
 const userStore = useUserStore()
