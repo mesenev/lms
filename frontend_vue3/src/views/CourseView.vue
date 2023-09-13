@@ -25,7 +25,7 @@
             size="size"/>
           <div class="lessons-list-wrapper">
             <cv-structured-list class="lessons-list">
-              <template slot="items" v-if="filterLessons.length > 0">
+              <template v-slot:items v-if="filterLessons.length > 0">
                 <cv-structured-list-item
                   class="item"
                   v-for="lesson in filterLessons"
@@ -34,12 +34,12 @@
                                          :lesson-prop='lesson'/>
                 </cv-structured-list-item>
               </template>
-              <template slot="items" v-if="isStaff && lessonsNotInSchedule.length > 0">
+              <template v-slot:items v-if="isStaff && lessonsNotInSchedule.length > 0">
                 <cv-structured-list-item
                   class="item"
                   v-for="lesson in lessonsNotInSchedule"
                   :key="lesson.id">
-                  <lesson-list-component :lesson-prop='lesson' not-in-schedule="true"/>
+                  <lesson-list-component :lesson-prop='lesson' :not-in-schedule="true"/>
                 </cv-structured-list-item>
               </template>
               <!--          <template slot="items" v-else>-->
@@ -70,12 +70,16 @@ import { UserModel } from "@/models/UserModel";
 import useCourseStore from "@/stores/modules/course";
 import useLessonStore from "@/stores/modules/lesson";
 import useUserStore from '@/stores/modules/user';
-import { defineProps, Ref, ref, onMounted, computed } from 'vue';
+import { Ref, ref, onMounted, computed } from 'vue';
 import CourseScheduleModel, { ScheduleElement } from "@/models/ScheduleModel";
 import EmptyListComponent from  "@/components/lists/EmptyListComponent.vue";
 import LessonListComponent from "@/components/lists/LessonListComponent.vue";
+import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
+import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
 
-const props = defineProps(['courseId'])
+const props = defineProps({
+  courseId: {type: Number, required: true}
+})
 const courseStore = useCourseStore()
 const lessonStore = useLessonStore()
 const userStore = useUserStore()
@@ -119,7 +123,7 @@ const filterLessons = computed(() => {
   sortedCourseSchedule.value.map(lesson =>
       lessons.value.find(elem => elem.name === lesson.name))
       .filter(lesson => typeof lesson != "undefined");
-    if (!isStaff) {
+    if (!isStaff.value) {
       const sortedCourseSchedule_ptr = sortedCourseSchedule.value.filter(
         lesson => lesson.name.toLowerCase().includes(searchValue.value.toLowerCase())
       );
@@ -135,10 +139,10 @@ const lessons = computed((): Array<LessonModel> =>{
     const lessons_ptr = lessonStore.lessonsByCourse[props.courseId].filter(lesson => {
       return lesson.name.toLowerCase().includes(searchValue.value.toLowerCase());
     });
-    if (isStaff)
+    if (isStaff.value)
       if (lessons_ptr.length)
         return lessons_ptr;
-    return lessonStore.lessonsByCourse.value[props.courseId];
+    return lessonStore.lessonsByCourse[props.courseId];
 })
 
 const lessonsNotInSchedule = computed(() => {
@@ -152,10 +156,6 @@ function dateForLesson(lesson_id: number){
     return ((schedule.value as CourseScheduleModel)
       .lessons.find(x => x.lesson_id === lesson_id) as ScheduleElement).date;
 }
-
-
-
-
 
 </script>
 
