@@ -1,6 +1,6 @@
 <template>
   <cv-header class="lms-header" aria-label="Carbon tutorial">
-    <cv-skip-to-content href="#main-content"> Skip to content </cv-skip-to-content>
+    <cv-skip-to-content href="#main-content"> Skip to content</cv-skip-to-content>
     <cv-header-menu-button v-if="courseSelected" aria-controls="side-nav" aria-label="Header menu"/>
     <cv-header-name prefix="dvfu" to="/"><span class="lms"> lms </span></cv-header-name>
     <cv-header-nav v-if="courseSelected">
@@ -29,6 +29,7 @@
     </cv-header-nav>
     <cv-header-nav v-if="isStaff && courseSelected && !lessonSelected && !problemSelected">
       <cv-header-menu-item
+          :to="{ name: 'course-edit', params: { courseId: route.params.courseId } }"
       >
         Редактировать курс
       </cv-header-menu-item>
@@ -85,6 +86,7 @@
             </cv-header-menu-item>
             <cv-header-menu-item
                 v-if="isStaff && courseSelected && !lessonSelected && !problemSelected"
+                :to="{ name: 'course-edit', params: { courseId: route.params.courseId } }"
             >
               Редактировать курс
             </cv-header-menu-item>
@@ -150,7 +152,7 @@
             </cv-switcher-item-link>
           </cv-switcher-item>
           <cv-switcher-item>
-            <cv-switcher-item-link @click="logout"> Выйти </cv-switcher-item-link>
+            <cv-switcher-item-link @click="logout"> Выйти</cv-switcher-item-link>
           </cv-switcher-item>
         </cv-switcher>
         <cv-toggle class="toggle-theme" label="Тема" value="" v-model="currentTheme">
@@ -164,23 +166,23 @@
       </cv-header-panel>
     </template>
 
-<!--    <template v-slot:right-panels>-->
-<!--      <cv-header-panel class="" id="notifications">-->
-<!--        <span class="acc_text">Оповещения</span>-->
-<!--        <cv-switcher>-->
-<!--          <template>-->
-<!--            <cv-switcher-item>-->
-<!--              <cv-switcher-item-link to="/">-->
-<!--                <cv-toast-notification-->
-<!--                    caption="текст оповещения"-->
-<!--                    kind="info"-->
-<!--                    title="тестовое уведомление"/>-->
-<!--              </cv-switcher-item-link>-->
-<!--            </cv-switcher-item>-->
-<!--          </template>-->
-<!--        </cv-switcher>-->
-<!--      </cv-header-panel>-->
-<!--    </template>-->
+    <!--    <template v-slot:right-panels>-->
+    <!--      <cv-header-panel class="" id="notifications">-->
+    <!--        <span class="acc_text">Оповещения</span>-->
+    <!--        <cv-switcher>-->
+    <!--          <template>-->
+    <!--            <cv-switcher-item>-->
+    <!--              <cv-switcher-item-link to="/">-->
+    <!--                <cv-toast-notification-->
+    <!--                    caption="текст оповещения"-->
+    <!--                    kind="info"-->
+    <!--                    title="тестовое уведомление"/>-->
+    <!--              </cv-switcher-item-link>-->
+    <!--            </cv-switcher-item>-->
+    <!--          </template>-->
+    <!--        </cv-switcher>-->
+    <!--      </cv-header-panel>-->
+    <!--    </template>-->
   </cv-header>
 </template>
 
@@ -193,10 +195,10 @@ import Notification20 from '@carbon/icons-vue/es/notification/20';
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
 import Light20 from '@carbon/icons-vue/es/light/20'
 import Asleep20 from '@carbon/icons-vue/es/asleep/20'
-import {useTokenStore} from "@/stores/modules/token";
-import {THEMES} from '@/utils/consts'
-import {useRoute} from 'vue-router'
-import {computed, ref, watch} from "vue";
+import { useTokenStore } from "@/stores/modules/token";
+import { THEMES } from '@/utils/consts'
+import { useRoute } from 'vue-router'
+import { computed, ref, watch } from "vue";
 
 
 const iconLight = Light20;
