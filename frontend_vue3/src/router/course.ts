@@ -1,5 +1,6 @@
 import CourseView from '@/views/CourseView.vue';
 import CourseEditView from "@/views/managment/CourseEditView.vue";
+import CourseRegistrationView from "@/views/CourseRegistrationView.vue";
 
 const courseRoutes = [
   {
@@ -18,6 +19,14 @@ const courseRoutes = [
     props: (route) => {
       const courseId = Number.parseInt(route.params.courseId as string, 10);
       return { courseId };
+    },
+  },
+    {
+    path: '/course-registration/:link/',
+    name: 'course-registration',
+    component: CourseRegistrationView,
+    props: (route) => {
+      return { linkProp: route.params.link }
     },
   },
 ];
