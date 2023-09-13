@@ -6,101 +6,101 @@
             class="main-title">{{ isNewCourse ? 'Создание курса' : 'Редактирование курса' }}
         </h1>
         <cv-skeleton-text
-          v-else
-          :heading="true"
-          :width="'35%'"
-          class="main-title"
-          v-text="'Подождите...'"/>
+            v-else
+            :heading="true"
+            :width="'35%'"
+            class="main-title"
+            v-text="'Подождите...'"/>
       </div>
     </div>
     <div class="bx--row main--content">
       <div
-        v-bind:class="(!isNewCourse)? 'bx--col-lg-5 bx--col-md-4  col-content':'bx--col-lg-6 col-content'">
+          v-bind:class="(!isNewCourse)? 'bx--col-lg-5 bx--col-md-4  col-content':'bx--col-lg-6 col-content'">
         <div class="items">
           <confirm-modal
-            ref="confirmModal"
-            :text="approvedText"
-            :approve-handler="deleteCourse"
-            :modal-trigger="confirmModalTrigger"/>
+              ref="confirmModal"
+              :text="approvedText"
+              :approve-handler="deleteCourse"
+              :modal-trigger="confirmModalTrigger"/>
           <cv-inline-notification
-            v-if="showNotification"
-            :kind="notificationKind"
-            :sub-title="notificationText"
-            @close="hideSuccess"
+              v-if="showNotification"
+              :kind="notificationKind"
+              :sub-title="notificationText"
+              @close="hideSuccess"
           />
           <cv-text-input
-            :disabled="true"
-            :value="`${author.first_name}
+              :disabled="true"
+              :value="`${author.first_name}
              ${author.last_name}
               (${author.username})`.trim()"
-            label="Автор"
+              label="Автор"
           />
 
           <cv-combo-box
-            :disabled="!userStore.user.cats_account"
-            :options="contestsFromCats"
-            auto-filter
-            auto-highlight
-            class="cv-dropdown course--cats"
-            :label="(!userStore.user.cats_account)? 'Привязать турнир можно только с действующим cats-аккаунтом':'Введите название турнира'"
-            @change="setNewCatsId"
+              :disabled="!userStore.user.cats_account"
+              :options="contestsFromCats"
+              auto-filter
+              auto-highlight
+              class="cv-dropdown course--cats"
+              :label="(!userStore.user.cats_account)? 'Привязать турнир можно только с действующим cats-аккаунтом':'Введите название турнира'"
+              @change="setNewCatsId"
           >
           </cv-combo-box>
 
           <cv-skeleton-text
-            v-if="fetchingCourse"
-            :heading="true"
-            class="course--name"/>
+              v-if="fetchingCourse"
+              :heading="true"
+              class="course--name"/>
           <cv-text-input
-            v-else
-            v-model.trim="courseEdit.name"
-            class="course--name"
-            label="Название курса">
+              v-else
+              v-model.trim="courseEdit.name"
+              class="course--name"
+              label="Название курса">
             <template v-slot:invalid-message v-if="!courseEdit.name">
               {{ emptyInputInvalidText }}
             </template>
           </cv-text-input>
 
           <cv-skeleton-text
-            v-if="fetchingCourse"
-            :paragraph="true"
-            class="course--description"/>
+              v-if="fetchingCourse"
+              :paragraph="true"
+              class="course--description"/>
           <cv-text-area
-            v-else
-            v-model.trim="courseEdit.description"
-            class="course--description"
-            label="Описание курса"/>
+              v-else
+              v-model.trim="courseEdit.description"
+              class="course--description"
+              label="Описание курса"/>
 
           <cv-dropdown-skeleton
-            v-if="fetchingCourse"
-            :inline="true"/>
+              v-if="fetchingCourse"
+              :inline="true"/>
           <cv-multi-select
-            v-else
-            v-model="deChecks"
-            :options="deOptions"
-            class="course--de"
-            label="Выберите среды разработки"
-            title="Доступные среды для отправки решений"
-            @change="deChanged"/>
+              v-else
+              v-model:value="deChecks"
+              :options="deOptions"
+              class="course--de"
+              label="Выберите среды разработки"
+              title="Доступные среды для отправки решений"
+              @change="deChanged"/>
           <div class="btns--container">
             <cv-button-skeleton v-if="fetchingCourse"/>
             <div v-else class="btns">
-              <!--              <AddTeacherModal-->
-              <!--                v-if="!isNewCourse"-->
-              <!--                :courseId="course.id"-->
-              <!--                class="choose&#45;&#45;teacher"/>-->
+              <AddTeacherModal
+                  v-if="!isNewCourse"
+                  :courseId="course.id"
+                  class="choose--teacher"/>
               <cv-button
-                :disabled="!isChanged"
-                @click="createOrUpdate">
+                  :disabled="!isChanged"
+                  @click="createOrUpdate">
                 {{ isNewCourse ? 'Создать' : 'Изменить' }}
               </cv-button>
             </div>
             <cv-button
-              style="margin-top: 1rem"
-              v-if="!isNewCourse && !fetchingCourse"
-              class="delete-btn"
-              @click="showConfirmModal"
-              kind="danger">
+                style="margin-top: 1rem"
+                v-if="!isNewCourse && !fetchingCourse"
+                class="delete-btn"
+                @click="showConfirmModal"
+                kind="danger">
               Удалить
             </cv-button>
           </div>
@@ -108,17 +108,17 @@
       </div>
       <div v-if="!isNewCourse && !fetchingCourse" class="bx--col-lg-6 bx--col-md-6 col-content">
         <div class="lessons">
-          <!--          <EditCourseLessons-->
-          <!--            :course="currentCourse"-->
-          <!--            class="course-props edit&#45;&#45;course"/>-->
-          <!--          <div class="lessons-modal">-->
-          <!--            <GenerateLinks-->
-          <!--              :courseId="course.id"-->
-          <!--              class="generate&#45;&#45;link"/>-->
-          <!--            <EditCourseModal-->
-          <!--              :course-id="course.id"-->
-          <!--              class="course-props add&#45;&#45;btn"/>-->
-          <!--          </div>-->
+          <EditCourseLessons
+              :course="currentCourse"
+              class="course-props edit--course"/>
+          <div class="lessons-modal">
+            <GenerateLinks
+                :courseId="course.id"
+                class="generate--link"/>
+            <EditCourseModal
+                :course-id="course.id"
+                class="course-props add--btn"/>
+          </div>
         </div>
       </div>
     </div>
@@ -126,21 +126,24 @@
 </template>
 
 <script lang="ts" setup>
-import type { PropType } from "vue";
 import { computed, onMounted, ref } from "vue";
 import useCourseStore from "@/stores/modules/course";
 import useUserStore from "@/stores/modules/user";
 import type { CourseModel } from "@/models/CourseModel";
-import { CatsContestModel, ContestModel } from "@/models/ContestModel";
+import type { CatsContestModel, ContestModel } from "@/models/ContestModel";
 import _ from 'lodash';
 import type { AuthorModel } from "@/models/UserModel";
 import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
 import api from "@/stores/services/api";
 import { useRouter } from "vue-router";
 import ConfirmModal from "@/components/ConfirmModal.vue";
+import AddTeacherModal from "@/components/EditCourse/AddTeacherModal.vue";
+import EditCourseLessons from "@/components/EditCourse/EditCourseLessons.vue";
+import EditCourseModal from "@/components/EditCourse/EditCourseModal.vue";
+import GenerateLinks from "@/components/EditCourse/GenerateLinks.vue";
 
 const props = defineProps({
-  courseId: { type: Object as PropType<Number | null>, required: true }
+  courseId: { type: Number, required: true }
 })
 
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
@@ -236,20 +239,20 @@ function catsIdCheck() {
 async function fetchContests(): Promise<CatsContestModel[]> {
   let answer = { data: {} };
   await api.get('/api/cats-contests/')
-    .then(response => {
-      answer = response;
-    })
-    .catch(error => {
-      console.log(error);
-    });
+      .then(response => {
+        answer = response;
+      })
+      .catch(error => {
+        console.log(error);
+      });
   return answer.data as CatsContestModel[];
 }
 
 function createOrUpdate(): void {
   catsIdCheck();
   const request = (isNewCourse.value) ?
-    api.post('/api/course/', courseEdit.value) :
-    api.patch(`/api/course/${courseEdit.value.id}/`, courseEdit.value);
+      api.post('/api/course/', courseEdit.value) :
+      api.patch(`/api/course/${courseEdit.value.id}/`, courseEdit.value);
   request.then(response => {
     notificationKind.value = 'success';
     notificationText.value = (props.courseId) ? 'Курс успешно изменён' : 'Курс успешно создан';
@@ -257,7 +260,7 @@ function createOrUpdate(): void {
       courseStore.addCourseToArray(response.data);
       userStore.addStaffToArray(response.data.id);
       router.replace(
-        { name: 'course-edit', params: { courseId: response.data.id.toString() } },
+          { name: 'course-edit', params: { courseId: response.data.id.toString() } },
       );
     }
     course.value = { ...response.data };
@@ -275,16 +278,16 @@ async function deleteCourse() {
   if (isNewCourse.value)
     throw Error;
   await api.delete(`/api/course/${courseEdit.value.id}/`)
-    .then(async () => {
-      courseStore.setCourses(courseStore.courses.filter(x => x.id != courseEdit.value.id));
-      // await (this as any).$refs.confirmModal?.hideModal();
-      await router.replace({ name: 'Home', path: '/' });
-    })
-    .catch(error => {
-      notificationKind.value = 'error';
-      notificationText.value = `Что-то пошло не так: ${error.message}`;
-      showNotification.value = true;
-    })
+      .then(async () => {
+        courseStore.setCourses(courseStore.courses.filter(x => x.id != courseEdit.value.id));
+        // await (this as any).$refs.confirmModal?.hideModal();
+        await router.replace({ name: 'home', path: '/' });
+      })
+      .catch(error => {
+        notificationKind.value = 'error';
+        notificationText.value = `Что-то пошло не так: ${error.message}`;
+        showNotification.value = true;
+      })
 }
 </script>
 
