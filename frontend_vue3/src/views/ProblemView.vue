@@ -90,8 +90,8 @@
 </template>
 
 <script lang="ts" setup>
-//import ProblemDescription from "@/components/ProblemDescription.vue";
-//import ProblemNavigation from "@/components/ProblemNavigation.vue";
+import ProblemDescription from "@/components/ProblemDescription.vue";
+import ProblemNavigation from "@/components/ProblemNavigation.vue";
 //import SubmitComponent from '@/components/SubmitComponent.vue';
 //import LogEventComponent from '@/components/LogEventComponent.vue';
 //import SubmitStatus from "@/components/SubmitStatus.vue";
@@ -185,7 +185,7 @@ const isCompleted = computed((): boolean => {
   }
 
   function changeCurrentSubmit(id: number): void {
-    submitId = Number(id);
+    submitId.value = Number(id);
     if (props.submitIdProp === Number(id))
       return;
     router.push({
