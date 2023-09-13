@@ -246,7 +246,6 @@ watch(() => currentTheme.value, () => {
 })
 
 const isStaff = computed((): boolean => {
-  console.log(userStore.user)
   return userStore.user.staff_for.includes(Number(route.params.courseId));
 })
 

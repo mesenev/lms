@@ -1,20 +1,17 @@
 <template>
   <cv-breadcrumb-item>
-    <transition mode="out-in" name="fade">
       <cv-skeleton-text v-if="loading" class="skeleton" width="75px"/>
-      <router-link v-else :to="{ name: pageView, props: model.id }">{{ title }}</router-link>
-    </transition>
+      <router-link v-else :to="{ name: pageView, state: {pageId} }">{{ title }}</router-link>
   </cv-breadcrumb-item>
 </template>
 
 <script lang="ts" setup>
-import type {BaseModel} from '@/models/BaseModel';
-import type {PropType} from "vue";
-import {computed} from "vue";
+import type { PropType } from "vue";
+import { computed } from "vue";
 
 const props = defineProps({
-  model: {type: Object as PropType<BaseModel>, required: true},
-  pageView: {type: String, required: true}
+  model: { type: Object as PropType<any>, required: true },
+  pageView: { type: String, required: true }
 })
 
 const loading = computed(() => {
@@ -23,6 +20,10 @@ const loading = computed(() => {
 
 const title = computed(() => {
   return props.model?.name;
+})
+
+const pageId = computed(() => {
+  return props.model?.id;
 })
 </script>
 

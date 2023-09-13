@@ -1,6 +1,5 @@
 <template>
-  <!--  <cv-loading v-if="tokenStore.isLoading" overlay style="background: white"/>-->
-  <p v-if="tokenStore.isLoading">loading</p>
+  <cv-loading v-if="tokenStore.isLoading" overlay style="background: white"/>
   <div v-else-if="tokenStore.isLogin" :class="current_theme" class="layout">
     <lms-header @toggle-theme="toggleTheme($event)" class="layout-header"/>
     <main class="layout-content">

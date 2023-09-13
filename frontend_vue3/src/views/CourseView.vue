@@ -18,11 +18,10 @@
         <cv-data-table-skeleton v-if="loading" :columns="1" :rows="6"/>
         <div v-else-if="lessons.length">
           <cv-search
-            v-model.trim="searchValue"
+            v-model:value.trim="searchValue"
             class="search"
             label="label"
-            placeholder="Введите название урока"
-            size="size"/>
+            placeholder="Введите название урока"/>
           <div class="lessons-list-wrapper">
             <cv-structured-list class="lessons-list">
               <template v-slot:items v-if="filterLessons.length > 0">
