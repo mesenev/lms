@@ -56,6 +56,7 @@
     </cv-header-nav>
     <cv-header-nav v-if="isStaff && materialSelected">
       <cv-header-menu-item
+        :to="{ name: 'material-edit', params: { materialId: route.params.materialId } }"
       >
         Редактировать материалы
       </cv-header-menu-item>
@@ -107,7 +108,8 @@
               Редактировать тест
             </cv-header-menu-item>
             <cv-header-menu-item
-                v-if="isStaff && materialSelected"
+              v-if="isStaff && materialSelected"
+              :to="{ name: 'material-edit', params: { materialId: route.params.materialId } }"
             >
               Редактировать материалы
             </cv-header-menu-item>
