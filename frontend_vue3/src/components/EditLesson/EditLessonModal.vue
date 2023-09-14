@@ -6,7 +6,7 @@
     <cv-modal
         :primary-button-disabled="addButtonDisabled"
         :visible="modalVisible"
-        class="add_lesson_modal" size="default"
+        class="add_lesson_modal"
         @modal-hidden="modalHidden"
         @primary-click="primaryHandler">
       <template v-slot:label>{{ lesson.name }}</template>
