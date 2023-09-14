@@ -8,7 +8,7 @@ export interface ProblemStatsModel {
   red: number;
 }
 
-export interface ProblemModel extends BaseModel {
+export default interface ProblemModel extends BaseModel {
   lesson: number;
   type: string;
   description: string;
