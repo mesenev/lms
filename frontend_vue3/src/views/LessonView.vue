@@ -75,15 +75,15 @@
                                              :show-visibility="true"
                                              :is-staff="isStaff"/>
                   </cv-structured-list-item>
-                </template>
-                <template v-slot:items v-if="isStaff">
-                  <cv-structured-list-item
-                      v-for="material in teacherMaterials"
-                      :key="material.id">
-                    <material-list-component :material-prop="material"
-                                             :show-visibility="true"
-                                             :is-staff="isStaff"/>
-                  </cv-structured-list-item>
+                  <template v-if="isStaff">
+                    <cv-structured-list-item
+                        v-for="material in teacherMaterials"
+                        :key="material.id">
+                      <material-list-component :material-prop="material"
+                                               :show-visibility="true"
+                                               :is-staff="isStaff"/>
+                    </cv-structured-list-item>
+                  </template>
                 </template>
               </cv-structured-list>
             </div>

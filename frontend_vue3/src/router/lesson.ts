@@ -2,6 +2,8 @@ import LessonView from "@/views/LessonView.vue";
 import ProblemViewLayout from "@/views/ProblemViewLayout.vue"
 import problemRoutes from "@/router/problem";
 import LessonEditView from "@/views/managment/LessonEditView.vue";
+import MaterialView from "@/views/MaterialView.vue";
+import MaterialEditView from "@/views/managment/MaterialEditView.vue";
 
 const lessonRoutes = [
     {
@@ -23,7 +25,7 @@ const lessonRoutes = [
       const problemId = Number.parseInt(route.params.problemId as string, 10);
       return { problemId, ...route.params };
     },
-  },
+    },
     {
         path: 'edit',
         name: 'lesson-edit',
@@ -33,6 +35,24 @@ const lessonRoutes = [
           return { lessonId };
         },
     },
+    {
+    path: 'material/:materialId',
+    name: 'MaterialView',
+    component: MaterialView,
+    props: (route) => {
+      const materialId = Number.parseInt(route.params.materialId as string, 10);
+      return { materialId, ...route.params };
+    },
+  },
+    {
+    path: 'material/:materialId/edit',
+    name: 'material-edit',
+    component: MaterialEditView,
+    props: (route) => {
+      const materialId = Number.parseInt(route.params.materialId as string, 10);
+      return { materialId };
+    },
+  },
 ]
 
 
