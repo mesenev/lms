@@ -1,23 +1,23 @@
 <template>
-  <!-- > ToDo fix transition <-->
-  <transition>
-    <router-view v-if="lesson"/>
-    <cv-loading v-else/>
-  </transition>
-
+  <router-view v-slot="{Component}">
+    <transition mode="out-in" name="fade">
+      <component :is="Component"/>
+    </transition>
+  </router-view>
 </template>
 
 <script lang="ts" setup>
-import LessonModel from '@/models/LessonModel';
+import type { LessonModel } from '@/models/LessonModel';
 import useLessonStore from "@/stores/modules/lesson";
-import { computed, onMounted, ref, Ref, reactive } from "vue";
+import { onMounted, ref } from "vue";
 
 const props = defineProps({ lessonId: {type: Number, required: true} })
-const lesson: LessonModel | null = ref(null);
+const lesson = ref<LessonModel | null>(null);
 const lessonStore = useLessonStore();
 
-lessonStore.changeCurrentLesson(null);
+
 onMounted(async () =>{
+  lessonStore.changeCurrentLesson(null);
   lesson.value =  await lessonStore.fetchLessonById(props.lessonId);
   lessonStore.changeCurrentLesson(lesson.value);
   await lessonStore.fetchLessonsByCourseId(lesson.value.course);
