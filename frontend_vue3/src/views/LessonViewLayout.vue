@@ -1,8 +1,9 @@
 <template>
   <router-view v-slot="{Component}">
-    <transition mode="out-in" name="fade">
+    <transition v-if="lesson" mode="out-in" name="fade">
       <component :is="Component"/>
     </transition>
+    <cv-loading v-else/>
   </router-view>
 </template>
 

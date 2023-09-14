@@ -57,7 +57,7 @@
         <cv-skeleton-text :paragraph="true" :line-count="5" v-else/>
       </div>
       <div
-        :class="(!loading && isMaterialsEmpty) ? ('bx--col-lg-4 bx--col-md-4 content-info-empty')
+          :class="(!loading && isMaterialsEmpty) ? ('bx--col-lg-4 bx--col-md-4 content-info-empty')
          : ('bx--col-lg-4 bx--col-md-4 content-info')">
         <div v-if="!loading">
           <div v-if="isMaterialsEmpty" class="content-info-empty">
@@ -69,8 +69,8 @@
               <cv-structured-list class="list">
                 <template v-slot:items>
                   <cv-structured-list-item
-                    v-for="material in studentMaterials"
-                    :key="material.id">
+                      v-for="material in studentMaterials"
+                      :key="material.id">
                     <material-list-component :material-prop="material"
                                              :show-visibility="true"
                                              :is-staff="isStaff"/>
@@ -78,8 +78,8 @@
                 </template>
                 <template v-slot:items v-if="isStaff">
                   <cv-structured-list-item
-                    v-for="material in teacherMaterials"
-                    :key="material.id">
+                      v-for="material in teacherMaterials"
+                      :key="material.id">
                     <material-list-component :material-prop="material"
                                              :show-visibility="true"
                                              :is-staff="isStaff"/>
@@ -112,7 +112,7 @@ import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue
 import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
 import MaterialListComponent from "@/components/lists/MaterialListComponent.vue";
 
-const props = defineProps({lessonId:{ type: Number, required: true }})
+const props = defineProps({ lessonId: { type: Number, required: true } })
 
 const lessonStore = useLessonStore();
 const problemStore = useProblemStore();
@@ -125,77 +125,77 @@ const emptyProblemsText: Ref<string> = ref('');
 const emptyMaterialsText: Ref<string> = ref('');
 
 onMounted(async () => {
-    emptyProblemsText.value = 'В данный момент нет доступных задач.';
-    emptyMaterialsText.value = 'Похоже, доступные материалы отсутствуют.';
-    await problemStore.fetchProblemsByLessonId(props.lessonId);
-    await materialStore.fetchMaterialsByLessonId(props.lessonId);
-    await examStore.fetchExamsByLessonId(props.lessonId);
-    loading.value = false;
-  })
+  emptyProblemsText.value = 'В данный момент нет доступных задач.';
+  emptyMaterialsText.value = 'Похоже, доступные материалы отсутствуют.';
+  await problemStore.fetchProblemsByLessonId(props.lessonId);
+  await materialStore.fetchMaterialsByLessonId(props.lessonId);
+  await examStore.fetchExamsByLessonId(props.lessonId);
+  loading.value = false;
+})
 
-const isProblemsEmpty= computed(() => {
-    return (problems.value ?? []).length === 0 && (exams.value ?? []).length === 0;
-  })
+const isProblemsEmpty = computed(() => {
+  return (problems.value ?? []).length === 0 && (exams.value ?? []).length === 0;
+})
 
 const isMaterialsEmpty = computed(() => {
-    if (!isStaff.value)
-      return !studentMaterials.value.length;
-    return !materialStore.materials[props.lessonId].length;
-  })
+  if (!isStaff.value)
+    return !studentMaterials.value.length;
+  return !materialStore.materials[props.lessonId].length;
+})
 
 const isStaff = computed((): boolean => {
-    return userStore.user.staff_for.includes(Number(lesson.value?.course));
-  })
+  return userStore.user.staff_for.includes(Number(lesson.value?.course));
+})
 
 const hiddenIcon = computed(() => {
-    return (lesson.value?.is_hidden) ? viewOff : view;
-  })
+  return (lesson.value?.is_hidden) ? viewOff : view;
+})
 
-  //TODO: move materials in separate component
+//TODO: move materials in separate component
 const studentMaterials = computed((): Array<MaterialModel> => {
-    if (lesson.value)
-      return materialStore.materials[props.lessonId].filter(el => !el.is_teacher_only)
+  if (lesson.value)
+    return materialStore.materials[props.lessonId].filter(el => !el.is_teacher_only)
         .sort((a, b) => a.id - b.id);
-    return [];
-  })
+  return [];
+})
 
 const teacherMaterials = computed((): Array<MaterialModel> => {
-    if (lesson.value)
-      return materialStore.materials[props.lessonId].filter(el => el.is_teacher_only)
+  if (lesson.value)
+    return materialStore.materials[props.lessonId].filter(el => el.is_teacher_only)
         .sort((a, b) => a.id - b.id);
-    return [];
-  })
+  return [];
+})
 
 const lesson = computed(() => {
-    return lessonStore.currentLesson;
-  })
+  return lessonStore.currentLesson;
+})
 
 const problems = computed(() => {
-    return problemStore.problemsByLesson[props.lessonId];
-  })
+  return problemStore.problemsByLesson[props.lessonId];
+})
 
 const classwork = computed((): Array<ProblemModel> => {
-    return problemStore.problemsByLesson[props.lessonId].filter(x => x.type === 'CW');
-  })
+  return problemStore.problemsByLesson[props.lessonId].filter(x => x.type === 'CW');
+})
 
 const homework = computed((): Array<ProblemModel> => {
-    return problemStore.problemsByLesson[props.lessonId].filter(x => x.type === 'HW');
-  })
+  return problemStore.problemsByLesson[props.lessonId].filter(x => x.type === 'HW');
+})
 
 const extrawork = computed((): Array<ProblemModel> => {
-    return problemStore.problemsByLesson[props.lessonId].filter(x => x.type === 'EX');
-  })
+  return problemStore.problemsByLesson[props.lessonId].filter(x => x.type === 'EX');
+})
 
 const exams = computed((): Array<ExamModel> => {
-    return examStore.examsByLesson[props.lessonId];
-  })
+  return examStore.examsByLesson[props.lessonId];
+})
 
 async function changeLessonVisibility() {
-    changingVisibility.value = true;
-    await lessonStore.patchLesson(
+  changingVisibility.value = true;
+  await lessonStore.patchLesson(
       { id: props.lessonId, is_hidden: !lesson.value?.is_hidden },
-    );
-    changingVisibility.value = false;
+  );
+  changingVisibility.value = false;
 }
 
 </script>

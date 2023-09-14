@@ -37,6 +37,7 @@
     <cv-header-nav
         v-if="isStaff && lessonSelected && !problemSelected && !materialSelected && !examSelected">
       <cv-header-menu-item
+        :to="{ name: 'lesson-edit', params: { lessonId: route.params.lessonId } }"
       >
         Редактировать урок
       </cv-header-menu-item>
@@ -91,7 +92,8 @@
               Редактировать курс
             </cv-header-menu-item>
             <cv-header-menu-item
-                v-if="isStaff && lessonSelected && !problemSelected && !materialSelected && !examSelected"
+              v-if="isStaff && lessonSelected && !problemSelected && !materialSelected && !examSelected"
+              :to="{ name: 'lesson-edit', params: { lessonId: route.params.lessonId } }"
             >
               Редактировать урок
             </cv-header-menu-item>

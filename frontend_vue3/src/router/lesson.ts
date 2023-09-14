@@ -1,6 +1,7 @@
 import LessonView from "@/views/LessonView.vue";
 import ProblemViewLayout from "@/views/ProblemViewLayout.vue"
 import problemRoutes from "@/router/problem";
+import LessonEditView from "@/views/managment/LessonEditView.vue";
 
 const lessonRoutes = [
     {
@@ -23,6 +24,15 @@ const lessonRoutes = [
       return { problemId, ...route.params };
     },
   },
+    {
+        path: 'edit',
+        name: 'lesson-edit',
+        component: LessonEditView,
+        props: (route) => {
+          const lessonId = Number.parseInt(route.params.lessonId as string, 10);
+          return { lessonId };
+        },
+    },
 ]
 
 
