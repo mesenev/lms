@@ -9,12 +9,12 @@
             Дедлайн: {{ lesson.deadline }}
           </span>
           <div v-if="isStaff">
-            <cv-button-skeleton v-if="changingVisibility || !this.lesson" kind="ghost"/>
+            <cv-button-skeleton v-if="changingVisibility || !lesson" kind="ghost"/>
             <cv-button v-else
                        class="lesson-hide-button"
                        :icon="hiddenIcon"
                        kind="ghost"
-                       v-on:click="changeLessonVisibility">
+                       @click="changeLessonVisibility">
               {{ (lesson.is_hidden) ? "Открыть урок" : "Скрыть урок" }}
             </cv-button>
           </div>
@@ -56,13 +56,48 @@
         </div>
         <cv-skeleton-text :paragraph="true" :line-count="5" v-else/>
       </div>
+      <div
+        :class="(!loading && isMaterialsEmpty) ? ('bx--col-lg-4 bx--col-md-4 content-info-empty')
+         : ('bx--col-lg-4 bx--col-md-4 content-info')">
+        <div v-if="!loading">
+          <div v-if="isMaterialsEmpty" class="content-info-empty">
+            <empty-list-component :text="emptyMaterialsText" list-of="materials"/>
+          </div>
+          <div v-else>
+            <h2 class="content-info-title">Материалы</h2>
+            <div class="content-info-materials" v-if="!loading">
+              <cv-structured-list class="list">
+                <template v-slot:items>
+                  <cv-structured-list-item
+                    v-for="material in studentMaterials"
+                    :key="material.id">
+                    <material-list-component :material-prop="material"
+                                             :show-visibility="true"
+                                             :is-staff="isStaff"/>
+                  </cv-structured-list-item>
+                </template>
+                <template v-slot:items v-if="isStaff">
+                  <cv-structured-list-item
+                    v-for="material in teacherMaterials"
+                    :key="material.id">
+                    <material-list-component :material-prop="material"
+                                             :show-visibility="true"
+                                             :is-staff="isStaff"/>
+                  </cv-structured-list-item>
+                </template>
+              </cv-structured-list>
+            </div>
+          </div>
+        </div>
+        <cv-skeleton-text :paragraph="true" :line-count="5" v-else/>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import MaterialModel from '@/models/MaterialModel';
-import ProblemModel from '@/models/ProblemModel';
+import type { MaterialModel } from '@/models/MaterialModel';
+import type { ProblemModel } from '@/models/ProblemModel';
 import useLessonStore from '@/stores/modules/lesson';
 import useMaterialStore from '@/stores/modules/material';
 import useProblemStore from '@/stores/modules/problem';
@@ -71,8 +106,11 @@ import useExamStore from '@/stores/modules/exam';
 import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
 import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
-import ExamModel from "@/models/ExamModel";
+import type { ExamModel } from "@/models/ExamModel";
 import { ref, Ref, onMounted, computed } from "vue";
+import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
+import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
+import MaterialListComponent from "@/components/lists/MaterialListComponent.vue";
 
 const props = defineProps({lessonId:{ type: Number, required: true }})
 
@@ -96,36 +134,34 @@ onMounted(async () => {
   })
 
 const isProblemsEmpty= computed(() => {
-    if ((problems.value ?? []).length === 0 && (exams.value ?? []).length === 0) {
-      return true;
-    }
+    return (problems.value ?? []).length === 0 && (exams.value ?? []).length === 0;
   })
 
 const isMaterialsEmpty = computed(() => {
     if (!isStaff.value)
       return !studentMaterials.value.length;
-    return !materialStore._materials[props.lessonId].length;
+    return !materialStore.materials[props.lessonId].length;
   })
 
 const isStaff = computed((): boolean => {
-    return userStore.user.staff_for.includes(Number(lesson?.value.course));
+    return userStore.user.staff_for.includes(Number(lesson.value?.course));
   })
 
 const hiddenIcon = computed(() => {
-    return (lesson?.value.is_hidden) ? viewOff : view;
+    return (lesson.value?.is_hidden) ? viewOff : view;
   })
 
   //TODO: move materials in separate component
 const studentMaterials = computed((): Array<MaterialModel> => {
     if (lesson.value)
-      return materialStore._materials[props.lessonId].filter(el => !el.is_teacher_only)
+      return materialStore.materials[props.lessonId].filter(el => !el.is_teacher_only)
         .sort((a, b) => a.id - b.id);
     return [];
   })
 
 const teacherMaterials = computed((): Array<MaterialModel> => {
     if (lesson.value)
-      return materialStore._materials[props.lessonId].filter(el => el.is_teacher_only)
+      return materialStore.materials[props.lessonId].filter(el => el.is_teacher_only)
         .sort((a, b) => a.id - b.id);
     return [];
   })
@@ -157,7 +193,7 @@ const exams = computed((): Array<ExamModel> => {
 async function changeLessonVisibility() {
     changingVisibility.value = true;
     await lessonStore.patchLesson(
-      { id: props.lessonId, is_hidden: !lesson?.value.is_hidden },
+      { id: props.lessonId, is_hidden: !lesson.value?.is_hidden },
     );
     changingVisibility.value = false;
 }

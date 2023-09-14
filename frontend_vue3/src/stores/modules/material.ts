@@ -19,6 +19,10 @@ export const useMaterialStore = defineStore('material', () => {
         };
     })
 
+    const materials = computed(() => {
+        return _materials.value;
+    })
+
     const _currentMaterial = ref<MaterialModel>({...getNewMaterial.value});
     const _currentAttachments = ref<Array<AttachmentModel>>([]);
 
@@ -125,7 +129,7 @@ export const useMaterialStore = defineStore('material', () => {
     }
 
     return {
-        getNewMaterial, fetchMaterials, currentMaterial, currentAttachments, currentMaterialType,
+        materials, getNewMaterial, fetchMaterials, currentMaterial, currentAttachments, currentMaterialType,
         currentMaterialUrl, setMaterials, setCurrentMaterial, patchMaterialVisibility, fetchMaterialById,
         fetchMaterialsByLessonId, setCurrentAttachments, createAttachment, deleteAttachment,
         fetchAttachmentsByMaterialId
