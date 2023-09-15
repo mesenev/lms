@@ -8,11 +8,10 @@
     </div>
     <div class="bx--row">
       <div v-if="isMaterialAVideo" class="material-content-video">
-        <youtube v-if="isYoutubeFormat || !currentMaterial.content"
-                 :video-id="youTubeGetID"
-                 ref="youtube"
-                 player-width="100%"
-                 player-height="540"/>
+        <lite-you-tube-embed v-if="isYoutubeFormat || !currentMaterial.content"
+                             :id="youTubeGetID"
+                             title=""
+                             ref="youtube"/>
         <lms-markdown v-else :source="currentMaterial.content" class="md-body"/>
       </div>
       <div v-else class="less material-content">
@@ -54,6 +53,8 @@ import MaterialListComponent from "@/components/lists/MaterialListComponent.vue"
 import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
 import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
 import LmsMarkdown from "@/components/common/LmsMarkdown.vue";
+import LiteYouTubeEmbed from 'vue-lite-youtube-embed'
+import 'vue-lite-youtube-embed/style.css'
 
 const props = defineProps({
   materialId: { type: Number, required: true }
@@ -79,9 +80,15 @@ const isStaff = computed((): boolean => {
 })
 
 const youTubeGetID = computed(() => {
-  // const VID_REGEX = (/(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
-  // return (this.materialUrl!.match(VID_REGEX)![1]);
-  return getIdFromURL(currentMaterial.value.content);
+  const regExp =
+      /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+
+  const match = currentMaterial.value.content.match(regExp);
+
+  if (match && match[2].length === 11) {
+    return match[2];
+  }
+  return '';
 })
 
 const isYoutubeFormat = computed(() => {

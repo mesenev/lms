@@ -89,9 +89,9 @@
       <div class="preview-container bx--col-lg-6">
         <h4 class="title" v-if="materialEdit.name.length > 0"> {{ materialEdit.name }} </h4>
         <h4 v-else>Введите название материала</h4>
-        <youtube v-if="isVideoType && isYoutubeFormat" :video-id="youtubeUrl"
-                 ref="youtube"
-                 player-width="100%"/>
+        <lite-you-tube-embed v-if="isVideoType && isYoutubeFormat" :id="youtubeId"
+                             ref="youtube"
+                             title=""/>
         <lms-markdown v-else :source="materialEdit.content" class="markdown"/>
       </div>
     </div>
@@ -115,6 +115,8 @@ import AttachmentsComponentList from "@/components/lists/AttachmentsComponentLis
 import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
 import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
 import LmsMarkdown from "@/components/common/LmsMarkdown.vue";
+import LiteYouTubeEmbed from 'vue-lite-youtube-embed'
+import 'vue-lite-youtube-embed/style.css'
 
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
@@ -207,9 +209,17 @@ const isYoutubeFormat = computed(() => {
   return materialEdit.value.content.includes('https://www.youtube.com/');
 })
 
-const youtubeUrl = computed(() => {
-  // return getIdFromURL(materialEdit.content);
-  return materialEdit.value.content;
+const youtubeId = computed(() => {
+  const regExp =
+      /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+
+  const match = materialEdit.value.content.match(regExp);
+
+  if (match && match[2].length === 11) {
+    return match[2];
+  }
+
+  return '';
 })
 
 const canChangeMaterial = computed((): boolean => {
