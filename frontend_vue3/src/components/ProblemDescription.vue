@@ -9,15 +9,17 @@
 </template>
 
 <script lang="ts" setup>
-import ProblemModel from '@/models/ProblemModel';
-import { onMounted } from "vue";
+import type { PropType } from "vue";
+import type { ProblemModel } from "@/models/ProblemModel"
+import { onMounted, ref } from "vue";
 
-const props = defineProps({problem: {type: ProblemModel, required: true}})
+const props = defineProps({problem: {type: Object as PropType<ProblemModel>, required: true}})
 
-let description = '';
+const description = ref('');
 
 onMounted(async () => {
-    description = props.problem.description.replaceAll('download/img', 'https://imcs.dvfu.ru/cats/static/download/img');
+    description.value = props.problem.description.replaceAll('download/img', 'https://imcs.dvfu.ru/cats/static/download/img');
+    console.log('DESCRIPTION', description.value)
   })
 
 </script>

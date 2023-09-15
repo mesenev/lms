@@ -70,7 +70,7 @@ const extrawork = computed((): Array<ProblemModel> => {
 
 
 onMounted(async () => {
-    problems.value = await problemStore.fetchProblemsByLessonId(this.lessonId);
+    problems.value = await problemStore.fetchProblemsByLessonId(props.lessonId);
     loading.value = false;
   })
 

@@ -2,7 +2,7 @@
   <li v-if="!loading" :class="{'status-ok': isAccepted,
                  'status-wa': isRejected,
                  'status-aw': isAwaitingManual,
-                 'status-np': !(isAccepted || isRejected || isAwaitingManual)}" class="status">
+                 'status-np': !(isAccepted || isRejected || isAwaitingManual)}" class="status">™
     <div class="status-back"></div>
     <router-link :to="target">
       <component
@@ -33,21 +33,24 @@
 </template>
 
 <script lang="ts" setup>
-import useSubmitStore from "@/stores/modules/submit"
+import useSubmitStore from "@/stores/modules/submit";
+import type { PropType } from "vue";
 import useUserStore from "@/stores/modules/user"
-import ProblemModel from "@/models/ProblemModel";
+import type { ProblemModel } from "@/models/ProblemModel";
 import SubmitModel, { SUBMIT_STATUS } from "@/models/SubmitModel";
 import Checkmark16 from "@carbon/icons-vue/es/checkmark/16";
 import Close16 from "@carbon/icons-vue/es/close/16";
-import { ref, Ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
+import type { Ref } from "vue";
+import { useRoute } from "vue-router";
 
-  const props = defineProps({problem:{required: true, type: ProblemModel}})
-
+  const props = defineProps({problem:{required: true, type: Object as PropType<ProblemModel>}})
+  const route = useRoute()
   const submitStore = useSubmitStore();
   const userStore = useUserStore();
   const submit: Ref<SubmitModel | null> = ref(null);
   const loading = ref(true);
-  const target: object = ref({});
+  const target: Ref<object> = ref({});
 
   const getStatus = computed((): string | undefined => {
     return submit?.value.status;
@@ -77,18 +80,18 @@ onMounted(async() => {
       target.value = {
         name: 'ProblemViewWithSubmit',
         params: {
-          courseId: this.$route.params.courseId,
-          lessonId: this.$route.params.lessonId,
-          problemId: this.problem.id.toString(),
-          submitId: this.submit.id.toString(),
+          courseId: route.params.courseId,
+          lessonId: route.params.lessonId,
+          problemId: props.problem.id.toString(),
+          submitId: submit.value.id.toString(),
         }
       };
     } else {
       target.value = {
         name: 'ProblemView', params: {
-          courseId: this.$route.params.courseId,
-          lessonId: this.$route.params.lessonId,
-          problemId: this.problem.id.toString(),
+          courseId: route.params.courseId,
+          lessonId: route.params.lessonId,
+          problemId: props.problem.id.toString(),
         }
       };
     }
