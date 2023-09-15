@@ -50,6 +50,7 @@
     </cv-header-nav>
     <cv-header-nav v-if="isStaff && examSelected">
       <cv-header-menu-item
+        :to="{ name: 'exam-edit', params: { examId: route.params.examId } }"
       >
         Редактировать тест
       </cv-header-menu-item>
@@ -104,6 +105,8 @@
               Редактировать задачу
             </cv-header-menu-item>
             <cv-header-menu-item
+              v-if="isStaff && examSelected"
+              :to="{ name: 'exam-edit', params: { examId: route.params.examId } }"
             >
               Редактировать тест
             </cv-header-menu-item>
