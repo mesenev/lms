@@ -97,16 +97,15 @@ import SubmitComponent from '@/components/SubmitComponent.vue';
 //import SubmitStatus from "@/components/SubmitStatus.vue";
 //import CatsPackageWindow from "@/components/CatsPackageWindow.vue";
 import UserComponent from '@/components/UserComponent.vue';
-import SubmitModel from '@/models/SubmitModel';
+import type { SubmitModel } from '@/models/SubmitModel';
 import useLessonStore from '@/stores/modules/lesson';
 import useProblemStore from '@/stores/modules/problem';
 import useSubmitStore from '@/stores/modules/submit';
 import useUserStore from '@/stores/modules/user';
 import { useRoute, useRouter } from "vue-router";
-import { computed, ref, watch, onMounted } from "vue";
+import { computed, ref, watch, onMounted, type Ref } from "vue";
 
-
-const props = defineProps({ submitIdProp: {type: Number | null, required: false , default: null } });
+const props = defineProps({ submitIdProp: {type: Number, required: false , default: null } });
 const route = useRoute();
 const router = useRouter();
 
@@ -122,7 +121,7 @@ const user = ref(userStore.user);
 const courseId = ref(Number(route.params.courseId));
 const displayProblem = ref(false);
 const displayCatsPackage = ref(false);
-const catsResultSubmitId: number | null = ref(null);
+const catsResultSubmitId: Ref<number | null> = ref(null);
 
 const logEventComponentKey = ref(0);
 
@@ -144,7 +143,7 @@ const submits = computed((): SubmitModel[] => {
   })
 
 const userSubmits = computed(() => {
-    return submits.value.filter((x: SubmitModel) => x.student === this.studentId);
+    return submits.value.filter((x: SubmitModel) => x.student === studentId.value);
   })
 
 const workName = computed(() => {
@@ -161,8 +160,8 @@ const isStaff = computed((): boolean => {
   })
 
 const avatarUrl= computed(() => {
-    if (user && user.avatar_url)
-      return user.thumbnail;
+    if (user && user.value.avatar_url)
+      return user.value.thumbnail;
     return "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
   })
 
@@ -172,7 +171,7 @@ const isCompleted = computed((): boolean => {
     ));
   })
 
-  watch(route.params.problemId, async()=> {
+  watch(() => route.params.problemId, async()=> {
     const problem = await problemStore.fetchProblemById(Number(route.params.problemId));
     problemStore.changeCurrentProblem(problem);
     recreateLogEventComponent();
@@ -205,7 +204,7 @@ const isCompleted = computed((): boolean => {
 
 onMounted(async () => {
     if (isStaff.value && submitId.value && submits.value.length)
-      changeCurrentSubmit(submits.value[this.submits.length - 1].id);
+      changeCurrentSubmit(submits.value[submits.value.length - 1].id);
     if (submitId.value)
       studentId.value = submits?.value.find(x => x.id === submitId.value)?.student as number;
     if (!isStaff.value) {
