@@ -95,7 +95,7 @@ import ProblemNavigation from "@/components/ProblemNavigation.vue";
 import SubmitComponent from '@/components/SubmitComponent.vue';
 import LogEventComponent from '@/components/LogEventComponent.vue';
 import SubmitStatus from "@/components/SubmitStatus.vue";
-//import CatsPackageWindow from "@/components/CatsPackageWindow.vue";
+import CatsPackageWindow from "@/components/CatsPackageWindow.vue";
 import UserComponent from '@/components/UserComponent.vue';
 import type { SubmitModel } from '@/models/SubmitModel';
 import useLessonStore from '@/stores/modules/lesson';
