@@ -103,7 +103,7 @@ import type { Ref } from 'vue';
 
 const props = defineProps( {submitId:{type: Number, required: true }, isStaff: {type: Boolean, required: true} })
 const emit = defineEmits<{
-  (e:'submit-created', id: number): void
+  (e:'submit-created', id: string): void
 }>()
 
 const submitStore = useSubmitStore();
@@ -266,7 +266,7 @@ function confirmSubmit() {
       'problem': problemStore.currentProblem?.id as number,
     }).then((response: AxiosResponse<SubmitModel>) => {
       submitStore.addSubmitToArray(response.data);
-      emit('submit-created', { id: response.data.id.toString() });
+      emit('submit-created',  response.data.id.toString());
       submit.value = { ...response.data };
       submitEdit.value = { ...submit.value };
       problem.value.last_submit = submit.value;
