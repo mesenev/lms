@@ -82,60 +82,55 @@
     </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import CodeEditorComponent from '@/components/common/CodeEditorComponent.vue';
 import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
-import SubmitModel, { SUBMIT_STATUS } from '@/models/SubmitModel';
-import ProblemModel from '@/models/ProblemModel';
+import { SUBMIT_STATUS } from '@/models/SubmitModel';
+import type { SubmitModel } from '@/models/SubmitModel';
+import type ProblemModel from '@/models/ProblemModel';
 import useProblemStore from '@/stores/modules/problem';
 import useSubmitStore from '@/stores/modules/submit';
 import useUserStore from '@/stores/modules/user';
-import { AxiosError, AxiosResponse } from 'axios';
+import { AxiosError} from 'axios';
+import type { AxiosResponse, ResponseType } from 'axios';
 import api from '@/stores/services/api'
 import { de_options } from '@/utils/consts';
 import _ from 'lodash';
 import TrashCan from '@carbon/icons-vue/es/trash-can/20';
+import type { PropType } from 'vue';
+import {ref, computed, onMounted, watch} from 'vue'
+import type { Ref } from 'vue';
 
+const props = defineProps( {submitId:{type: Number, required: true }, isStaff: {type: Boolean, required: true} })
+const emit = defineEmits<{
+  (e:'submit-created', id: number): void
+}>()
 
-@Component({
-  components: { CodeEditorComponent },
-  filters: {
-    withoutSeconds: function (d: string) {
-      return new Date(d).toLocaleString([], {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit"
-      })
-    }
-  }
-})
-export default class SubmitComponent extends NotificationMixinComponent {
-  @Prop({ required: true }) submitId!: number;
-  @Prop({ required: true }) isStaff!: boolean;
-  submit: SubmitModel | null = null;
-  submitStore = submitStore;
-  problemStore = problemStore;
-  userStore = userStore;
-  submitEdit: SubmitModel = { ...this.submitStore.defaultSubmit };
-  loading = true;
-  file_content = '';
-  TrashCan = TrashCan;
+const submitStore = useSubmitStore();
+const problemStore = useProblemStore();
+const userStore = useUserStore();
 
-  get isChanged(): boolean {
-    return !_.isEqual(this.submit, this.submitEdit);
-  }
+const submitEdit: Ref<SubmitModel> = ref({ ...submitStore.defaultSubmit });
+const submit: Ref<SubmitModel | null> = ref(null);
+const loading = ref(true);
+const file_content = ref('');
+const notificationKind: Ref<string> = ref('');
+const notificationText: Ref<string> = ref('');
+const showNotification: Ref<boolean> = ref(false);
 
-  deleteFile(){
+const isChanged = computed((): boolean => {
+    return !_.isEqual(submit.value, submitEdit.value);
+  })
+
+function deleteFile(){
     const input = window.document.getElementById('file_input') as HTMLInputElement
     if (input.files?.length) {
       input.value = '';
-      this.file_content = '';
+      file_content.value = '';
     }
   }
 
-  readFileAsync(file: File){
+function readFileAsync(file: File){
     return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
@@ -149,141 +144,141 @@ export default class SubmitComponent extends NotificationMixinComponent {
   })
   }
 
-  async handleFileUpload(){
+async function handleFileUpload(){
     const input = window.document.getElementById('file_input') as HTMLInputElement
 
     if (input.files?.length) {
-      this.file_content = await this.readFileAsync(input.files[0]) as string
+      file_content.value = await readFileAsync(input.files[0]) as string
     }
   }
 
-  get isRejectDisabled() {
-    return this.isNewSubmit || this.submit?.status === SUBMIT_STATUS.WRONG_ANSWER;
-  }
+const isRejectDisabled = computed(() => {
+    return isNewSubmit.value || submit.value?.status === SUBMIT_STATUS.WRONG_ANSWER;
+  })
 
-  get isAcceptDisabled() {
-    return this.isNewSubmit || this.submit?.status === SUBMIT_STATUS.OK;
-  }
+const isAcceptDisabled = computed(() => {
+    return isNewSubmit.value || submit.value?.status === SUBMIT_STATUS.OK;
+  })
 
-  get canSubmit(): boolean {
+const canSubmit = computed((): boolean => {
 
-    if (this.file_content.length != 0 &&
-       this.submitEdit.content?.length !== 0){
-      this.notificationKind = 'error';
-      this.notificationText = `Отправьте либо текст решения либо файл`;
-      this.showNotification = true;
+    if (file_content.value.length != 0 &&
+      submitEdit.value.content?.length !== 0){
+      notificationKind.value = 'error';
+      notificationText.value = `Отправьте либо текст решения либо файл`;
+      showNotification.value = true;
     }
     else {
-      this.showNotification = false;
+      showNotification.value = false;
     }
 
-     return (((this.submitEdit.content?.length !== 0
-        && this.isChanged) || (this.file_content.length != 0))
-        && this.submitEdit.de_id.length !== 0
-        && this.cats_account) && !(this.file_content.length != 0 &&
-       this.submitEdit.content?.length !== 0);
+     return (((submitEdit.value.content?.length !== 0
+        && isChanged.value) || (file_content.value.length != 0))
+        && submitEdit.value.de_id.length !== 0
+        && cats_account.value) && !(file_content.value.length != 0 &&
+       submitEdit.value.content?.length !== 0);
 
-  }
+  })
 
-  get cats_account(): boolean {
-    return this.userStore.user.cats_account !== null;
-  }
+const cats_account = computed((): boolean => {
+    return userStore.user.cats_account !== null;
+  })
 
-  get problem(): ProblemModel {
-    return this.problemStore.currentProblem as ProblemModel;
-  }
+const problem = computed((): ProblemModel => {
+    return problemStore.currentProblem as ProblemModel;
+  })
 
   // TODO: workflow when already-made submit have de that is disabled
-  get deOptions() {
-    const options_on = this.problem.de_options.split(',')
+const deOptions = computed(() => {
+    const options_on = problem.value.de_options.split(',')
     return de_options.filter(option => options_on.includes(option.value));
-  }
+  })
 
-  get isNewSubmit(): boolean {
-    return isNaN(this.submitEdit.id);
-  }
+const isNewSubmit = computed((): boolean => {
+    return isNaN(submitEdit.value.id);
+  })
 
-  async created() {
-    await this.updateSubmit();
-  }
+onMounted(async () => {
+    await updateSubmit();
+  })
 
-  async updateSubmit() {
-    this.loading = true;
-    if (this.submitId) {
-      this.submit = await this.submitStore.fetchSubmitById(this.submitId);
+async function updateSubmit() {
+    loading.value = true;
+    if (props.submitId) {
+      submit.value = await submitStore.fetchSubmitById(props.submitId);
     } else {
-      this.submit = null;
+      submit.value = null;
     }
-    this.submitEdit = (this.submit) ? { ...this.submit }:{ ...this.submitStore.defaultSubmit };
-    if (this.submitEdit.de_id === '' && this.deOptions.length === 1)
-      this.submitEdit.de_id = this.deOptions[0].value;
-    this.loading = false;
+    submitEdit.value = (submit.value) ? { ...submit.value }:{ ...submitStore.defaultSubmit };
+    if (submitEdit.value.de_id === '' && deOptions.value.length === 1)
+      submitEdit.value.de_id = deOptions.value[0].value;
+    loading.value = false;
   }
 
-  @Watch('submitId')
-  onSubmitIdChanged() {
-    this.updateSubmit();
+watch(() => props.submitId, (newVal, oldVal) =>onSubmitIdChanged)
+
+function onSubmitIdChanged() {
+    updateSubmit();
   }
 
-  patchSubmit(status: string) {
+function patchSubmit(status: string) {
 
-    this.submitEdit = (this.submit)
-        ? { ...this.submit, status: status }
-        :{ ...this.submitStore.defaultSubmit };
+    submitEdit.value = (submit.value)
+        ? { ...submit.value, status: status }
+        :{ ...submitStore.defaultSubmit };
 
 
-    api.patch(`/api/submit/${this.submitEdit.id}/`, this.submitEdit)
-        .then((response: AxiosResponse<SubmitModel>) => {
-          this.submitStore.changeSubmitStatus(response.data);
-          this.submit = { ...response.data };
-          this.submitEdit = { ...this.submit };
-          this.notificationKind = 'success';
-          this.notificationText = `Работа оценена: ${status}`;
+    api.patch(`/api/submit/${submitEdit.value.id}/`, submitEdit.value)
+        .then((response) => {
+          submitStore.changeSubmitStatus(response.data);
+          submit.value = { ...response.data };
+          submitEdit.value = { ...submit.value };
+          notificationKind.value = 'success';
+          notificationText.value = `Работа оценена: ${status}`;
         })
         .catch((error: AxiosError) => {
-          this.notificationKind = 'error';
-          this.notificationText = `Что-то пошло не так ${error.message}`
+          notificationKind.value = 'error';
+          notificationText.value = `Что-то пошло не так ${error.message}`
         })
-        .finally(() => this.showNotification = true);
+        .finally(() => showNotification.value = true);
   }
 
-  acceptSubmit() {
-    this.patchSubmit('OK');
+function acceptSubmit() {
+    patchSubmit('OK');
   }
 
-  rejectSubmit() {
-    this.patchSubmit('WA');
+function rejectSubmit() {
+    patchSubmit('WA');
   }
 
-  confirmSubmit() {
+function confirmSubmit() {
 
-    this.submitEdit = {
-      ...this.submitEdit
+    submitEdit.value = {
+      ...submitEdit.value
     }
 
-    if ( this.file_content.length != 0 ){
-      this.submitEdit.content = this.file_content
+    if ( file_content.value.length != 0 ){
+      submitEdit.value.content = file_content.value
     }
 
     api.post('/api/submit/', {
-      ...this.submitEdit, 'content': this.submitEdit.content,
-      'problem': this.problemStore.currentProblem?.id as number,
+      ...submitEdit.value, 'content': submitEdit.value.content,
+      'problem': problemStore.currentProblem?.id as number,
     }).then((response: AxiosResponse<SubmitModel>) => {
-      this.submitStore.addSubmitToArray(response.data);
-      this.$emit('submit-created', { id: response.data.id.toString() });
-      this.submit = { ...response.data };
-      this.submitEdit = { ...this.submit };
-      this.problem.last_submit = this.submit;
-      this.problemStore.changeCurrentProblem(this.problem)
-      this.notificationKind = 'success';
-      this.notificationText = 'Попытка отправлена';
+      submitStore.addSubmitToArray(response.data);
+      emit('submit-created', { id: response.data.id.toString() });
+      submit.value = { ...response.data };
+      submitEdit.value = { ...submit.value };
+      problem.value.last_submit = submit.value;
+      problemStore.changeCurrentProblem(problem.value)
+      notificationKind.value = 'success';
+      notificationText.value = 'Попытка отправлена';
     }).catch((error: AxiosError) => {
-      this.notificationKind = 'error';
-      this.notificationText = `Что-то пошло не так ${error.message}`;
-    }).finally(() => this.showNotification = true);
+      notificationKind.value = 'error';
+      notificationText.value = `Что-то пошло не так ${error.message}`;
+    }).finally(() => showNotification.value = true);
   }
 
-}
 </script>
 
 <style lang="stylus" scoped>
