@@ -50,7 +50,7 @@
             </div>
             <div v-if="exams.length > 0" class="tests">
               <h4 class="classwork-title title">Тесты</h4>
-              <!-- <exam-list-component :exams-list="exams"/> -->
+              <exam-list-component :exams-list="exams"/>
             </div>
           </div>
         </div>
@@ -107,10 +107,11 @@ import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
 import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
 import type { ExamModel } from "@/models/ExamModel";
-import { ref, Ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed } from "vue";
 import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
 import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
 import MaterialListComponent from "@/components/lists/MaterialListComponent.vue";
+import ExamListComponent from "@/components/lists/ExamListComponent.vue";
 
 const props = defineProps({ lessonId: { type: Number, required: true } })
 
@@ -119,10 +120,10 @@ const problemStore = useProblemStore();
 const userStore = useUserStore();
 const materialStore = useMaterialStore();
 const examStore = useExamStore();
-const loading: Ref<boolean> = ref(true);
-const changingVisibility: Ref<boolean> = ref(false);
-const emptyProblemsText: Ref<string> = ref('');
-const emptyMaterialsText: Ref<string> = ref('');
+const loading = ref<boolean>(true);
+const changingVisibility = ref<boolean>(false);
+const emptyProblemsText = ref<string>('');
+const emptyMaterialsText = ref<string>('');
 
 onMounted(async () => {
   emptyProblemsText.value = 'В данный момент нет доступных задач.';
