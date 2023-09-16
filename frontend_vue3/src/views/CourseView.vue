@@ -55,10 +55,10 @@
           <empty-list-component list-of="lessons" :text="emptyText"/>
         </div>
       </div>
-      <!-- <div v-if='course' class="submits bx--col-lg-4 bx--col-md-4">
+      <div v-if='course' class="submits bx--col-lg-4 bx--col-md-4">
          <user-submit-list-component v-if="isStaff" :course-id="course.id"/>
         <user-problem-list-component v-else :course-id="course.id"/>
-      </div> -->
+      </div>
     </div>
   </div>
 </template>
@@ -78,6 +78,8 @@ import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
 import LessonListComponent from "@/components/lists/LessonListComponent.vue";
 import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
 import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
+import UserProblemListComponent from '@/components/UserProblemListComponent.vue';
+import UserSubmitListComponent from '@/components/UserSubmitListComponent.vue';
 
 const props = defineProps({
   courseId: { type: Number, required: true }
