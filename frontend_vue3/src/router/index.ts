@@ -6,7 +6,8 @@ import CourseEditView from "@/views/managment/CourseEditView.vue";
 import courseRoutes from "@/router/course";
 import CourseViewLayout from "@/views/CourseViewLayout.vue";
 import lessonRoutes from "@/router/lesson";
-import LessonViewLayout from "@/views/LessonViewLayout.vue"
+import LessonViewLayout from "@/views/LessonViewLayout.vue";
+import RegistrationView from "@/views/RegistrationView.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -68,7 +69,11 @@ const router = createRouter({
         },
     ],
     },
-
+    {
+      path: '/registration',
+      name: 'RegistrationView',
+      component: RegistrationView,
+    },
   ]
 })
 
