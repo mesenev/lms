@@ -43,7 +43,6 @@ export const useTokenStore = defineStore('token', () => {
   async function setupTokenStore() {
     if (String(localStorage.getItem('access')))
       setIsLoading();
-      console.log(isLoading.value)
       await api.get(urls.PROTECTED_USER_DATA_URL).then(
           (response: { data: any; }) => {
           userStore.receiveUser(response.data);

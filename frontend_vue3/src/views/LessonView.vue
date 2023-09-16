@@ -112,6 +112,7 @@ import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue
 import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
 import MaterialListComponent from "@/components/lists/MaterialListComponent.vue";
 import ExamListComponent from "@/components/lists/ExamListComponent.vue";
+import ProblemListComponent from '@/components/lists/ProblemListComponent.vue';
 
 const props = defineProps({ lessonId: { type: Number, required: true } })
 

@@ -63,7 +63,7 @@
 
 <!-- TODO: password work w/ backend -->
 
-<script lang="ts">
+<script lang="ts" setup>
 import api from '@/store/services/api'
 import Vue from 'vue';
 import Component from 'vue-class-component';
