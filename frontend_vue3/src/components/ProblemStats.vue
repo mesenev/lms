@@ -4,7 +4,7 @@
   </div>
   <div v-else>
     <cv-structured-list class="sent">
-      <template slot="headings">
+      <template v-slot:headings>
         <cv-structured-list-heading class="headings">
           <div class="stats">
             <span>Зачтено: {{ successful.length }}</span>
@@ -13,7 +13,7 @@
           </div>
         </cv-structured-list-heading>
       </template>
-      <template slot="items">
+      <template v-slot:items>
         <cv-structured-list-item
           v-for="submit in successful.concat(testing).concat(wrong)" :key="submit.id">
           <div class="list-results-container">
@@ -28,12 +28,12 @@
       </template>
     </cv-structured-list>
     <cv-structured-list class="unsent">
-      <template slot="headings">
+      <template v-slot:headings>
         <cv-structured-list-heading>
           Не сдали: {{ noSubmitsUsers.length }}
         </cv-structured-list-heading>
       </template>
-      <template slot="items">
+      <template v-slot:items>
         <cv-structured-list-item
           v-for="user in noSubmitsUsers"
           :key="user.id"
@@ -58,6 +58,10 @@ import useCourseStore from '@/stores/modules/course';
 import useUserStore from '@/stores/modules/user';
 import useSubmitStore from '@/stores/modules/submit';
 import { type PropType, type Ref, ref, computed, onMounted } from 'vue';
+import CvStructuredListData from "@/components/CvStructuredList/CvStructuredListData.vue";
+import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
+import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
+import CvStructuredListHeading from "@/components/CvStructuredList/CvStructuredListHeading.vue";
 
 const props = defineProps({
   problem: { type: Object as PropType<ProblemModel>, required: true }
