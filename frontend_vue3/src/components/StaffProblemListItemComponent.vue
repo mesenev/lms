@@ -1,6 +1,6 @@
 <template>
   <cv-accordion-item v-if="!loading" class="accordion">
-    <template slot="title">
+    <template v-slot:title>
       <div class="problem-list-component--header">
         <div class="problem-container">
           <cv-link :to="target(problem)">
@@ -18,7 +18,7 @@
         </component>
       </div>
     </template>
-    <template slot="content">
+    <template v-slot:content>
       <problem-stats :problem="problem"/>
     </template>
   </cv-accordion-item>
@@ -34,6 +34,7 @@ import useUserStore from "@/stores/modules/user";
 import TrashCan16 from '@carbon/icons-vue/es/trash-can/16'
 import { type PropType, type Ref, ref} from "vue";
 import { useRoute } from "vue-router";
+import type { CatsProblemModel } from "@/models/CatsProblemModel";
 
 const props = defineProps({
   problem: { type: Object as PropType<ProblemModel>, required: true },

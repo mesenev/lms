@@ -33,6 +33,11 @@ const props = defineProps({ problem: { type: Object as PropType<ProblemModel>, r
   const usersWithSubmits: Ref<number[]> = ref([]);
   const loading: Ref<boolean> = ref(true);
 
+  const students = computed((): Dictionary<UserModel> => {
+    return userStore.currentCourseStudents;
+  })
+
+  
   const studentsCount = computed((): number => {
     return Object.keys(students.value).length;
   })
@@ -59,11 +64,6 @@ onMounted(async () => {
     usersWithSubmits.value = submits.value.map(x => x.student);
     loading.value = false;
   })
-
-const students = computed((): Dictionary<UserModel> => {
-    return userStore.currentCourseStudents;
-  })
-
 
 const submits = computed((): SubmitModel[] => {
     return _submits.value.filter(x => students.value[x.student] !== undefined);
