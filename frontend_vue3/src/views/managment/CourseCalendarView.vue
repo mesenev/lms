@@ -27,8 +27,8 @@
           :primaryButtonDisabled="!isScheduleChanged"
           @primary-click="changeSchedule"
           :auto-hide-off="false">
-          <template slot="title">Редактирование расписания</template>
-          <template slot="content">
+          <template v-slot:title>Редактирование расписания</template>
+          <template v-slot:content>
             <cv-grid>
               <cv-row v-if="showNotification">
                 <cv-inline-notification
@@ -105,18 +105,20 @@
               </cv-row>
             </cv-grid>
           </template>
-          <template slot="primary-button">Сохранить изменения</template>
+          <template v-slot:primary-button>Сохранить изменения</template>
         </cv-modal>
       </div>
     </div>
+
+
     <div class="bx--row">
       <div class="items bx--col-lg-10 schedule-list">
         <cv-structured-list selectable @change="actionChange">
-          <template slot="headings"></template>
-          <template v-if="loading" slot="items">
+          <template v-slot:headings></template>
+          <template v-if="loading" v-slot:items>
             <cv-inline-loading/>
           </template>
-          <template v-else slot="items">
+          <template v-else v-slot:items>
             <cv-structured-list-item
               v-for="(record, index) in scheduledLessons"
               :key="index"
@@ -146,8 +148,8 @@
                   :primaryButtonDisabled="!isSelfDateChanged"
                   @modal-hidden="st_actionHidden"
                   :auto-hide-off="false">
-                  <template slot="title">Установка собственного времени</template>
-                  <template slot="content">
+                  <template v-slot:title>Установка собственного времени</template>
+                  <template v-slot:content>
                     <cv-grid>
                       <cv-row>
                         <cv-column>
@@ -177,6 +179,8 @@
       </div>
     </div>
 
+    
+
     <div v-if="lessonsWOt.length !== 0" class="bx--row header no-schedule--wrapper">
       <div class="items-top bx--col-lg-10">
         <div class="items-top--element" v-if="!loading">
@@ -184,11 +188,11 @@
         </div>
         <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
         <cv-structured-list>
-          <template slot="headings"></template>
-          <template v-if="loading" slot="items">
+          <template v-slot:headings></template>
+          <template v-if="loading" v-slot:items>
             <cv-loading/>
           </template>
-          <template v-else slot="items">
+          <template v-else v-slot:items>
             <cv-structured-list-item
               v-for="item in lessonsWOt"
               :key="item.id"
@@ -214,8 +218,8 @@
                     :primaryButtonDisabled="!isSelfDateChanged"
                     @modal-hidden="st_actionHidden"
                     :auto-hide-off="false">
-                    <template slot="title">Установка собственного времени</template>
-                    <template slot="content">
+                    <template v-slot:title>Установка собственного времени</template>
+                    <template v-slot:content>
                       <cv-grid>
                         <cv-row>
                           <cv-column>
@@ -282,6 +286,10 @@ import api from '@/stores/services/api';
 import _ from 'lodash';
 import { dateParse } from '@/utils/utils';
 import { ref, type Ref, computed, onMounted, watch } from 'vue';
+import CvStructuredListData from "@/components/CvStructuredList/CvStructuredListData.vue";
+import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
+import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
+import CvStructuredListHeading from "@/components/CvStructuredList/CvStructuredListHeading.vue";
 
   const props = defineProps({
     courseId: { type: Number, required: true }
@@ -292,6 +300,9 @@ import { ref, type Ref, computed, onMounted, watch } from 'vue';
     ref({
       id: NaN, name: '', course: course.id, lessons: [], start_date: '', week_schedule: {},
     } as CourseScheduleModel);
+
+  const { monday, tuesday, wednesday, thursday, friday, saturday, sunday } = useWeekDaysMixin();
+
   const oldCourseSchedule: Ref<CourseScheduleModel> = ref(_.cloneDeep(courseSchedule));
   const iconEdit = Edit;
   const modalVisible: Ref<boolean> = ref(false);
