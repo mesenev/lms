@@ -76,8 +76,6 @@ import type { ScheduleElement } from "@/models/ScheduleModel";
 import type { CourseScheduleModel } from "@/models/ScheduleModel";
 import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
 import LessonListComponent from "@/components/lists/LessonListComponent.vue";
-import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
-import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
 import UserProblemListComponent from '@/components/UserProblemListComponent.vue';
 import UserSubmitListComponent from '@/components/UserSubmitListComponent.vue';
 

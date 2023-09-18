@@ -50,8 +50,6 @@ import useLessonStore from "@/stores/modules/lesson";
 import type { MaterialModel } from "@/models/MaterialModel";
 import { computed, onMounted, ref } from "vue";
 import MaterialListComponent from "@/components/lists/MaterialListComponent.vue";
-import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
-import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
 import LmsMarkdown from "@/components/common/LmsMarkdown.vue";
 import LiteYouTubeEmbed from 'vue-lite-youtube-embed'
 import 'vue-lite-youtube-embed/style.css'

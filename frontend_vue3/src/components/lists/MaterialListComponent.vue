@@ -33,7 +33,6 @@ import type { MaterialModel } from "@/models/MaterialModel";
 import useMaterialStore from "@/stores/modules/material";
 import { useRoute, useRouter } from "vue-router";
 import { computed } from "vue";
-import CvStructuredListData from "@/components/CvStructuredList/CvStructuredListData.vue";
 
 const props = defineProps({
   materialProp: { type: Object as PropType<MaterialModel>, required: true },

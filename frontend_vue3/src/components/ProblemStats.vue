@@ -58,10 +58,6 @@ import useCourseStore from '@/stores/modules/course';
 import useUserStore from '@/stores/modules/user';
 import useSubmitStore from '@/stores/modules/submit';
 import { type PropType, type Ref, ref, computed, onMounted } from 'vue';
-import CvStructuredListData from "@/components/CvStructuredList/CvStructuredListData.vue";
-import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
-import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
-import CvStructuredListHeading from "@/components/CvStructuredList/CvStructuredListHeading.vue";
 
 const props = defineProps({
   problem: { type: Object as PropType<ProblemModel>, required: true }

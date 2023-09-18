@@ -165,10 +165,6 @@ import { ANSWER_TYPE } from "@/models/QuestionModel";
 import api from "@/stores/services/api";
 import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
 import UserComponent from "@/components/UserComponent.vue";
-import CvStructuredListData from "@/components/CvStructuredList/CvStructuredListData.vue";
-import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
-import CvStructuredListHeading from "@/components/CvStructuredList/CvStructuredListHeading.vue";
-import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
 
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 

@@ -93,8 +93,6 @@ import { computed, ref } from "vue";
 import type { LessonModel } from "@/models/LessonModel";
 import api from "@/stores/services/api";
 import type { CourseModel } from "@/models/CourseModel";
-import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
-import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
 
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 

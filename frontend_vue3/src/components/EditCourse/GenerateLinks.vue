@@ -63,9 +63,6 @@ import AddAlt24 from '@carbon/icons-vue/lib/add--alt/24';
 import { onMounted, ref } from "vue";
 import type { LinkModel } from "@/models/LinkModel";
 import api from "@/stores/services/api";
-import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
-import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
-import CvStructuredListData from "@/components/CvStructuredList/CvStructuredListData.vue";
 
 const props = defineProps({
   courseId: { type: Number, required: true }

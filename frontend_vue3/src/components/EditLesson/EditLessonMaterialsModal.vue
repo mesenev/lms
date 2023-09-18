@@ -93,8 +93,6 @@ import useNotificationMixin from "@/components/common/NotificationMixinComponent
 import { useRoute } from "vue-router";
 import MaterialListComponent from "@/components/lists/MaterialListComponent.vue";
 import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
-import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
-import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
 
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 

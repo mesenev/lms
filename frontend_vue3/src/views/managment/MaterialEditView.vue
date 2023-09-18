@@ -112,8 +112,6 @@ import api from "@/stores/services/api";
 import { useRouter } from "vue-router";
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import AttachmentsComponentList from "@/components/lists/AttachmentsComponentList.vue";
-import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
-import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
 import LmsMarkdown from "@/components/common/LmsMarkdown.vue";
 import LiteYouTubeEmbed from 'vue-lite-youtube-embed'
 import 'vue-lite-youtube-embed/style.css'

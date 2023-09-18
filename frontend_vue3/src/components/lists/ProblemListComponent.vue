@@ -51,8 +51,6 @@ import api from "@/stores/services/api";
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import { type Ref, ref, computed, type PropType } from 'vue';
 import { useRoute } from 'vue-router';
-import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
-import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
 
 
   const props = defineProps({

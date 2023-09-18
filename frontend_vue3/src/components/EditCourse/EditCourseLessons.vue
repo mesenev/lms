@@ -39,8 +39,6 @@ import useLessonStore from "@/stores/modules/lesson";
 import { computed, ref } from "vue";
 import type { LessonModel } from "@/models/LessonModel";
 import { useRouter } from "vue-router";
-import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
-import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
 
 const props = defineProps({
   course: { type: Object as PropType<CourseModel>, required: true }

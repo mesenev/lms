@@ -108,8 +108,6 @@ import view from '@carbon/icons-vue/es/view/32';
 import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
 import type { ExamModel } from "@/models/ExamModel";
 import { ref, onMounted, computed } from "vue";
-import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
-import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
 import MaterialListComponent from "@/components/lists/MaterialListComponent.vue";
 import ExamListComponent from "@/components/lists/ExamListComponent.vue";
 import ProblemListComponent from '@/components/lists/ProblemListComponent.vue';

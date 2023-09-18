@@ -63,10 +63,6 @@ import useUserStore from "@/stores/modules/user";
 import type { UserModel } from "@/models/UserModel";
 import api from "@/stores/services/api";
 import { TEACHER } from "@/utils/consts";
-import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
-import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
-import CvStructuredListData from "@/components/CvStructuredList/CvStructuredListData.vue";
-import CvStructuredListHeading from "@/components/CvStructuredList/CvStructuredListHeading.vue";
 
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 

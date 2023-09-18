@@ -97,9 +97,6 @@ import Avatar from "@/components/Avatar.vue";
 import EditAvatarModal from "@/components/EditAvatarModal.vue";
 import AddCatsModal from "@/components/AddCatsModal.vue";
 import ChangePasswordModal from "@/components/ChangePasswordModal.vue";
-import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
-import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
-import CvStructuredListData from "@/components/CvStructuredList/CvStructuredListData.vue";
 import EditProfileComponent from "@/components/EditProfileComponent.vue";
 
 const props = defineProps({

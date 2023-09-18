@@ -73,9 +73,6 @@ import type { PropType } from "vue";
 import type { UserModel } from "@/models/UserModel";
 import { computed, onMounted, ref } from "vue";
 import api from "@/stores/services/api";
-import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
-import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
-import CvStructuredListData from "@/components/CvStructuredList/CvStructuredListData.vue";
 import _ from 'lodash';
 
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
