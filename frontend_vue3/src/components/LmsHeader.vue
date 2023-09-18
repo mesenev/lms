@@ -23,6 +23,7 @@
     </cv-header-nav>
     <cv-header-nav v-if="isStaff && courseSelected">
       <cv-header-menu-item
+      :to="{name: 'course-calendar', params: { courseId: route.params.courseId } }"
       >
         Календарь
       </cv-header-menu-item>
