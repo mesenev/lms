@@ -126,7 +126,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import useCourseStore from "@/stores/modules/course";
 import useUserStore from "@/stores/modules/user";
 import type { CourseModel } from "@/models/CourseModel";
@@ -170,6 +170,8 @@ const deOptions = [
   },
 ];
 const contestsFromCats = ref<ContestModel[]>([]);
+
+watch(()=>deChecks.value, ()=>deChanged());
 
 onMounted(async () => {
   if (userStore.user.cats_account)
