@@ -13,7 +13,7 @@ import 'prismjs/themes/prism-tomorrow.css';
 import { onMounted, ref, watch } from "vue"; // import syntax highlighting styles
 
 const props = defineProps({
-  value: { type: String, required: true }
+  value: { type: String, required: false, default: 'console.log("Hello World")'}
 });
 
 const emits = defineEmits(['input']);
