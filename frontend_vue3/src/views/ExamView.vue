@@ -24,6 +24,7 @@
                          class="test-hide-button"
                          :icon="hiddenIcon"
                          kind="ghost"
+                         :disabled="isExamEmpty"
                          @click="changeExamVisibility">
                 {{ (exam.is_hidden) ? "Открыть тест" : "Скрыть тест" }}
               </cv-button>
@@ -34,7 +35,7 @@
       </div>
     </div>
     <cv-row :class="isStaff ? 'main-items' : 'header-container'">
-      <cv-column :style="loading || solutionLoading ? 'text-align: -webkit-center' : ''"
+      <cv-column v-if="!isExamEmpty" :style="loading || solutionLoading ? 'text-align: -webkit-center' : ''"
                  :lg="isStaff ? {'span' : 8, 'offset' : 0} : {'offset': 2}">
         <div v-if="isStaff ? !loading && !solutionLoading : !loading"
              class="test-container">
@@ -104,7 +105,10 @@
         </div>
         <cv-loading v-else/>
       </cv-column>
-      <cv-column v-if="isStaff && exam">
+      <cv-column v-else :lg="{'span' : 2, 'offset' : 0}">
+        <empty-list-component text="Заполните тест" list-of="questions"/>
+      </cv-column>
+      <cv-column v-if="isStaff && !isExamEmpty && exam">
         <div v-if="!loading && solutionId" class="results-container">
           <div v-if="!solutionLoading" class="results">
             <span> Статус: <strong>{{ status }}</strong> </span>
@@ -240,6 +244,10 @@ watch(() => route.params.solutionId, async () => {
   }
 }, { immediate: true, deep: true })
 
+const isExamEmpty = computed(() => {
+  return !exam.value?.questions.length;
+})
+
 const isStaff = computed((): boolean => {
   return userStore.user.staff_for.includes(Number(route.params.courseId));
 })
@@ -371,6 +379,7 @@ function changeCurrentSolution(id: number) {
 }
 
 function changeExistedSolution() {
+  //:ToDo its calling before init cause immediate watcher
   if (submittedSolutions.value.length) {
     if (submittedSolutions.value.filter(x => x.id === solutionId.value).length) {
       studentSolution.value = submittedSolutions.value.filter(x => x.id === solutionId.value)[0];

@@ -136,7 +136,7 @@ function setFieldsEmpty(isEmpty: boolean, question: number) {
 function addQuestion() {
   const newQuestion = _.cloneDeep({
     ...questionStore.newQuestion,
-    index: exam.value.questions.length > 0 ? Math.max(...exam.value.questions.map(question => question.index)) + 1 : 0,
+    index: examEdit.value.questions.length > 0 ? Math.max(...examEdit.value.questions.map(question => question.index)) + 1 : 0,
   });
   examEdit.value.questions.push(newQuestion);
   examEdit.value.questions.forEach(value => {
