@@ -155,6 +155,8 @@ import type { ExamModel } from "@/models/ExamModel";
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import EditLessonModal from "@/components/EditLesson/EditLessonModal.vue";
 import EditLessonMaterialsModal from "@/components/EditLesson/EditLessonMaterialsModal.vue";
+import ExamListComponent from "@/components/lists/ExamListComponent.vue";
+import ProblemListComponent from "@/components/lists/ProblemListComponent.vue";
 
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 

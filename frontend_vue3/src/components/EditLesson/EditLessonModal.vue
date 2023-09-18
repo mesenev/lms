@@ -13,15 +13,15 @@
       <template v-slot:title>
         Добавить задание
         <cv-content-switcher class="switcher" @selected="actionSelected">
-          <cv-content-switcher-button owner-id="Problems"
+          <cv-content-switcher-button parent-switcher="Problems" owner-id="Problems"
                                       selected>
             Импортировать задачу из cats
           </cv-content-switcher-button>
-          <cv-content-switcher-button owner-id="Exams">
+          <cv-content-switcher-button parent-switcher="Exams" owner-id="Exams">
             Создать тест
           </cv-content-switcher-button>
         </cv-content-switcher>
-        <cv-content-switcher-content owner-id="Problems">
+        <cv-content-switcher-content parent-switcher="Problems" owner-id="Problems">
           <cv-inline-notification
               v-if="showNotification"
               @close="() => showNotification=false"
@@ -31,7 +31,7 @@
       </template>
       <template v-slot:content>
         <section class="modal--content">
-          <cv-content-switcher-content owner-id="Problems">
+          <cv-content-switcher-content parent-switcher="Problems" owner-id="Problems">
             <div class="content-1">
               <div class="problem-type-selection">
                 <h5>Выберите способ тестирования</h5>
@@ -72,7 +72,7 @@
               <div>
                 <cv-data-table
                     v-if="!fetchingCatsProblems" ref="table"
-                    v-model="selected" :columns="columns" :data="catsFilteredProblems"
+                    v-model:rowsSelected="selected" :columns="columns" :data="catsFilteredProblems"
                     :stickyHeader="true"
                     class="cats-problems-table" :expanding-search="false"
                     @search="onSearch">
@@ -89,7 +89,7 @@
               <cv-text-input v-model.trim="currentProblem.description" label="Описание задания"/>
             </div>
           </cv-content-switcher-content>
-          <cv-content-switcher-content owner-id="Exams">
+          <cv-content-switcher-content parent-switcher="Exams" owner-id="Exams">
             <div class="exam-container">
               <div class="exam-container-head">
                 <p>Настройки теста</p>
@@ -137,7 +137,7 @@ import useNotificationMixin from "@/components/common/NotificationMixinComponent
 import type { PropType } from "vue";
 import type { LessonModel } from "@/models/LessonModel";
 import useProblemStore from "@/stores/modules/problem";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import type { ProblemModel } from "@/models/ProblemModel";
 import type { CatsProblemModel } from "@/models/CatsProblemModel";
 import useExamStore from "@/stores/modules/exam";
