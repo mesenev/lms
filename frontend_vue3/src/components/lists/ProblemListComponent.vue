@@ -1,7 +1,7 @@
 <template>
   <div v-if="!isStaff">
     <cv-structured-list>
-      <template slot="items">
+      <template v-slot:items>
         <cv-structured-list-item
           v-for="problem in taskList"
           :key="problem.id">
