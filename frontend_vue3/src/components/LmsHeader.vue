@@ -70,6 +70,7 @@
           <cv-header-side-nav-items>
             <cv-header-menu-item
                 v-if="courseSelected"
+                :to="{name: 'course-solutions-list', params: {courseId: route.params.courseId}}"
             >
               Решения
             </cv-header-menu-item>
