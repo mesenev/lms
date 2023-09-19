@@ -198,7 +198,6 @@
               :key="item.id"
               :cur_key="item.id"
               :item="item">
-              <template>
                 <cv-structured-list-data>
                   Установите время для урока
                   <cv-icon-button
@@ -236,12 +235,11 @@
                         </cv-row>
                       </cv-grid>
                     </template>
-                    <template slot="secondary-button">Отменить</template>
-                    <template slot="primary-button">Сохранить изменения</template>
+                    <template v-slot:secondary-button>Отменить</template>
+                    <template v-slot:primary-button>Сохранить изменения</template>
                   </cv-modal>
                 </cv-structured-list-data>
                 <cv-structured-list-data>{{ item.name }}</cv-structured-list-data>
-              </template>
             </cv-structured-list-item>
           </template>
         </cv-structured-list>
@@ -286,10 +284,6 @@ import api from '@/stores/services/api';
 import _ from 'lodash';
 import { dateParse } from '@/utils/utils';
 import { ref, type Ref, computed, onMounted, watch } from 'vue';
-import CvStructuredListData from "@/components/CvStructuredList/CvStructuredListData.vue";
-import CvStructuredListItem from "@/components/CvStructuredList/CvStructuredListItem.vue";
-import CvStructuredList from "@/components/CvStructuredList/CvStructuredList.vue";
-import CvStructuredListHeading from "@/components/CvStructuredList/CvStructuredListHeading.vue";
 
   const props = defineProps({
     courseId: { type: Number, required: true }
@@ -298,7 +292,7 @@ import CvStructuredListHeading from "@/components/CvStructuredList/CvStructuredL
   const course: Ref<CourseModel> = ref({} as CourseModel);
   const courseSchedule: Ref<CourseScheduleModel> =
     ref({
-      id: NaN, name: '', course: course.id, lessons: [], start_date: '', week_schedule: {},
+      id: NaN, name: '', course: course.value.id, lessons: [], start_date: '', week_schedule: {},
     } as CourseScheduleModel);
 
   const { monday, tuesday, wednesday, thursday, friday, saturday, sunday } = useWeekDaysMixin();
