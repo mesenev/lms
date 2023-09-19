@@ -75,6 +75,7 @@
             </cv-header-menu-item>
             <cv-header-menu-item
                 v-if="isStaff && courseSelected"
+                :to="{ name: 'course-progress' , params: {courseId: route.params.courseId}}"
             >
               Успеваемость
             </cv-header-menu-item>
