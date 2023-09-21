@@ -6,6 +6,7 @@ import MaterialView from "@/views/MaterialView.vue";
 import MaterialEditView from "@/views/managment/MaterialEditView.vue";
 import ExamViewLayout from "@/views/ExamViewLayout.vue";
 import examRoutes from "@/router/exam";
+import LessonProgressView from "@/views/managment/LessonProgressView.vue"
 
 const lessonRoutes = [
     {
@@ -64,6 +65,15 @@ const lessonRoutes = [
     props: (route) => {
       const materialId = Number.parseInt(route.params.materialId as string, 10);
       return { materialId };
+    },
+  },
+  {
+    path: 'progress',
+    name: 'lesson-progress',
+    component: LessonProgressView,
+    props: (route) => {
+      const lessonId = Number.parseInt(route.params.lessonId as string, 10);
+      return { lessonId };
     },
   },
 ]

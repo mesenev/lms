@@ -11,12 +11,14 @@
     </cv-header-nav>
     <cv-header-nav v-if="isStaff && courseSelected">
       <cv-header-menu-item
+      :to="{ name: 'course-progress' , params: {courseId: route.params.courseId}}"
       >
         Успеваемость
       </cv-header-menu-item>
     </cv-header-nav>
     <cv-header-nav v-if="isStaff && lessonSelected">
       <cv-header-menu-item
+      :to="{ name: 'lesson-progress' , params: {courseId: route.params.courseId}}"
       >
         Успеваемость урока
       </cv-header-menu-item>
@@ -82,11 +84,13 @@
             </cv-header-menu-item>
             <cv-header-menu-item
                 v-if="lessonSelected"
+                :to="{name: 'lesson-progress', params: { courseId: route.params.courseId } }"
             >
               Успеваемость урока
             </cv-header-menu-item>
             <cv-header-menu-item
                 v-if="isStaff && courseSelected"
+                :to="{name: 'course-calendar', params: { courseId: route.params.courseId } }"
             >
               Календарь
             </cv-header-menu-item>
