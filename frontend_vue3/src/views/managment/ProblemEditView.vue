@@ -155,6 +155,7 @@ function updateProblem(): void {
     notificationText.value = 'Задача успешно обновлена'
     problem.value = response.data;
     problemEdit.value = { ...problem.value };
+    problemStore.changeCurrentProblem(response.data);
   });
   request.catch(error => {
     notificationText.value = `Что-то пошло не так: ${error.message}`;
