@@ -56,7 +56,7 @@
         </div>
       </div>
       <div v-if='course' class="submits bx--col-lg-4 bx--col-md-4">
-         <user-submit-list-component v-if="isStaff" :course-id="course.id"/>
+        <user-submit-list-component v-if="isStaff" :course-id="course.id"/>
         <user-problem-list-component v-else :course-id="course.id"/>
       </div>
     </div>

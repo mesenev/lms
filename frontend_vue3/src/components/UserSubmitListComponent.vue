@@ -3,15 +3,15 @@
     <div v-if="loading || submits.length > 0" class="submit-list-data">
       <cv-structured-list v-if="!loading"
                           class="submit-list">
-        <template slot="headings">
+        <template v-slot:heading>
           <cv-structured-list-heading>Студент</cv-structured-list-heading>
           <cv-structured-list-heading>Задача</cv-structured-list-heading>
           <cv-structured-list-heading>Статус</cv-structured-list-heading>
         </template>
-        <template slot="items">
+        <template v-slot:items>
           <cv-structured-list-item
-            v-for="submit in submits"
-            :key="submit.id">
+              v-for="submit in submits"
+              :key="submit.id">
             <cv-structured-list-data>
               <div class="user-component-container-main">
                 <user-component :user-id="submit.student" class="user-component-container"/>
@@ -52,29 +52,28 @@ const props = defineProps({
   courseId: { type: Number, required: true }
 })
 
-
 const submits: Ref<Array<SubmitModel>> = ref([]);
 const loading: Ref<boolean> = ref(true);
 const submitStore = useSubmitStore();
 const route = useRoute();
 
 onMounted(async () => {
-    submits.value = (await submitStore.fetchFirstFiveAW(props.courseId));
-    loading.value = false;
-  })
+  submits.value = (await submitStore.fetchFirstFiveAW(props.courseId));
+  loading.value = false;
+})
 
 function linkRoute(data: SubmitModel) {
-    const params = {
-      courseId: route.params.courseId,
-      lessonId: Number(data.lesson).toString(),
-      problemId: data.problem.id.toString(),
-    };
-    return {
-      name: 'ProblemViewWithSubmit', params: {
-        ...params, submitId: Number(data.id).toString(),
-      },
-    };
-  }
+  const params = {
+    courseId: route.params.courseId,
+    lessonId: Number(data.lesson).toString(),
+    problemId: data.problem.id.toString(),
+  };
+  return {
+    name: 'ProblemViewWithSubmit', params: {
+      ...params, submitId: Number(data.id).toString(),
+    },
+  };
+}
 
 </script>
 

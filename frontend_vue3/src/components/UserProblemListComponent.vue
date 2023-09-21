@@ -2,13 +2,13 @@
   <div class="solution-container">
     <div v-if="loading || problems.length > 0" class="submit-list-data">
       <cv-structured-list
-        v-if="!loading"
-        class="submit-list">
-        <template slot="headings">
+          v-if="!loading"
+          class="submit-list">
+        <template v-slot:headings>
           <cv-structured-list-heading>Задача</cv-structured-list-heading>
           <cv-structured-list-heading>Статус</cv-structured-list-heading>
         </template>
-        <template v-if="problems" slot="items">
+        <template v-if="problems" v-slot:items>
           <cv-structured-list-item v-for="problem in problems" :key="problem.id">
             <cv-structured-list-data>
               <cv-link :to="linkRoute(problem)">{{ problem.name }}</cv-link>
@@ -19,13 +19,12 @@
             </cv-structured-list-data>
           </cv-structured-list-item>
         </template>
-        <template v-else>
+        <template v-if="!problems">
           <cv-structured-list-item>
             <cv-skeleton-text/>
           </cv-structured-list-item>
         </template>
       </cv-structured-list>
-
       <cv-data-table-skeleton v-else :columns="2" :rows="1"/>
     </div>
     <div v-else class="submit-list-empty">
@@ -40,7 +39,7 @@
 
 <script lang="ts" setup>
 import SubmitStatus from '@/components/SubmitStatus.vue';
-import ProblemModel from "@/models/ProblemModel";
+import type { ProblemModel } from "@/models/ProblemModel";
 import useProblemStore from '@/stores/modules/problem';
 import TaskIcon from '@carbon/icons-vue/es/task/32';
 import { type Ref, ref, onMounted } from 'vue';
@@ -50,34 +49,34 @@ const props = defineProps({
   courseId: { type: Number, required: true }
 })
 
-  const problemStore = useProblemStore();
-  const route = useRoute();
+const problemStore = useProblemStore();
+const route = useRoute();
 
-  const problems: Ref<Array<ProblemModel>> = ref([]);
-  const loading: Ref<boolean> = ref(true);
+const problems: Ref<Array<ProblemModel>> = ref([]);
+const loading: Ref<boolean> = ref(true);
 
- onMounted(async () => {
-    problems.value = await problemStore.fetchProblemsForCourse(props.courseId);
-    loading.value = false;
-  })
+onMounted(async () => {
+  problems.value = await problemStore.fetchProblemsForCourse(props.courseId);
+  loading.value = false;
+})
 
-  function linkRoute(data: ProblemModel) {
-    const params = {
-      courseId: route.params.courseId,
-      lessonId: Number(data.lesson).toString(),
-      problemId: data.id.toString(),
-    };
-    if (!data.last_submit) {
-      return {
-        name: 'ProblemView', params: { ...params },
-      };
-    }
+function linkRoute(data: ProblemModel) {
+  const params = {
+    courseId: route.params.courseId,
+    lessonId: Number(data.lesson).toString(),
+    problemId: data.id.toString(),
+  };
+  if (!data.last_submit) {
     return {
-      name: 'ProblemViewWithSubmit', params: {
-        ...params, submitId: Number(data.last_submit.id).toString(),
-      },
+      name: 'ProblemView', params: { ...params },
     };
   }
+  return {
+    name: 'ProblemViewWithSubmit', params: {
+      ...params, submitId: Number(data.last_submit.id).toString(),
+    },
+  };
+}
 
 </script>
 
