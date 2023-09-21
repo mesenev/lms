@@ -182,8 +182,7 @@ async function thumbnailsUpdate() {
   let previous = sortedEvents.value[0];
   await fetchThumbnailForEvent(previous);
   for (const event of sortedEvents.value) {
-    if (previous.author !== event.author)
-      await fetchThumbnailForEvent(event);
+    await fetchThumbnailForEvent(event);
     previous = event;
   }
   events.value = [...events.value];
@@ -193,7 +192,7 @@ async function fetchThumbnailForEvent(event: LogEventModel) {
   if (!event.author)
     return;
   const user = await userStore.fetchUserById(event.author);
-  event.data.thumbnail = user.thumbnail;
+  event.data.thumbnail = picUrl(user.thumbnail);
 }
 
 function elementClickHandler(element: LogEventModel): void {
@@ -220,7 +219,7 @@ async function createMessageHandler() {
   const newMessage: LogEventModel = {
     ...logEventStore.getNewLogEventMessage,
     problem: props.problemId, student: props.studentId,
-    data: { message: commentary.value },
+    data: { message: commentary.value, thumbnail: picUrl(userStore.user.thumbnail) },
   };
   await logEventStore.createLogEvent(newMessage);
   // if (answer !== undefined) {
