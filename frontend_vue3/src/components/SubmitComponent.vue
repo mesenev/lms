@@ -7,7 +7,7 @@
             submitEdit.status
           }}</span></span>
       </div>
-      <span class="submit-date">{{ submitEdit.updated_at | withoutSeconds }}</span>
+      <span class="submit-date">{{ withoutSeconds(submitEdit.updated_at) }}</span>
     </div>
     <cv-skeleton-text v-if="loading"/>
     <div v-else>
@@ -97,14 +97,17 @@ import { de_options } from '@/utils/consts';
 import _ from 'lodash';
 import TrashCan from '@carbon/icons-vue/es/trash-can/20';
 import { ref, computed, onMounted, watch } from 'vue'
-import type { Ref } from 'vue';
 import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
 
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
-const props = defineProps({ submitId: { type: Number, required: true }, isStaff: { type: Boolean, required: true } })
+const props = defineProps({
+  submitId: { type: Number, required: true },
+  isStaff: { type: Boolean, required: true }
+})
+
 const emit = defineEmits<{
-  (e: 'submit-created', id: string): void
+  (e: 'submit-created', id: number): void
 }>()
 
 
@@ -120,6 +123,17 @@ const file_content = ref('');
 const isChanged = computed((): boolean => {
   return !_.isEqual(submit.value, submitEdit.value);
 })
+
+function withoutSeconds(d: string | undefined) {
+  if (typeof d === 'undefined') return '';
+  return new Date(d).toLocaleString([], {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
 
 function inputContent(content: string) {
   submitEdit.value.content = content;
@@ -220,7 +234,9 @@ async function updateSubmit() {
   loading.value = false;
 }
 
-watch(() => props.submitId, (newVal, oldVal) => onSubmitIdChanged)
+watch(() => props.submitId, () => {
+  onSubmitIdChanged();
+})
 
 function onSubmitIdChanged() {
   updateSubmit();
@@ -271,7 +287,7 @@ function confirmSubmit() {
     'problem': problemStore.currentProblem?.id as number,
   }).then((response: AxiosResponse<SubmitModel>) => {
     submitStore.addSubmitToArray(response.data);
-    emit('submit-created', response.data.id.toString());
+    emit('submit-created', response.data.id);
     submit.value = { ...response.data };
     submitEdit.value = { ...submit.value };
     problem.value.last_submit = submit.value;
