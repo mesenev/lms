@@ -1,4 +1,5 @@
 import ProblemView from '@/views/ProblemView.vue';
+import ProblemEditView from "@/views/managment/ProblemEditView.vue";
 
 const problemRoutes = [
   {
@@ -15,15 +16,15 @@ const problemRoutes = [
       return { submitIdProp, ...route.params };
     },
   },
-  // {
-  //   path: 'edit/',
-  //   name: 'problem-edit',
-  //   component: ProblemEditView,
-  //   props: (route) => {
-  //     const problemId = Number.parseInt(route.params.submitId as string, 10);
-  //     return { problemId, ...route.params };
-  //   },
-  // },
+  {
+    path: 'edit/',
+    name: 'problem-edit',
+    component: ProblemEditView,
+    props: (route) => {
+      const problemId = Number.parseInt(route.params.submitId as string, 10);
+      return { problemId, ...route.params };
+    },
+  },
 ];
 
 

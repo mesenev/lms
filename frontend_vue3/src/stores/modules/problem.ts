@@ -49,7 +49,7 @@ export const useProblemStore = defineStore('problem', () => {
 
     async function fetchCatsProblemById(catsId: number): Promise<CatsProblemModel> {
         let answer = {data: {}};
-        await api.get(`/api/cats-problem/${catsId}/`)
+        await api.get(`/api/cats-problem-description/${catsId}/`)
             .then(response => answer = response)
             .catch(error => {
                 console.log(error);

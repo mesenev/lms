@@ -47,6 +47,7 @@
     </cv-header-nav>
     <cv-header-nav v-if="isStaff && problemSelected">
       <cv-header-menu-item
+        :to="{ name: 'problem-edit', params: { problemId: route.params.problemId } }"
       >
         Редактировать задачу
       </cv-header-menu-item>
@@ -107,7 +108,8 @@
               Редактировать урок
             </cv-header-menu-item>
             <cv-header-menu-item
-                v-if="isStaff && problemSelected"
+              v-if="isStaff && problemSelected"
+              :to="{ name: 'problem-edit', params: { problemId: route.params.problemId } }"
             >
               Редактировать задачу
             </cv-header-menu-item>
