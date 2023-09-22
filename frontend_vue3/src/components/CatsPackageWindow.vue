@@ -1,8 +1,8 @@
 <template>
   <cv-loading v-if="isLoading"/>
   <div
-    v-else
-    class="cats-package-window">
+      v-else
+      class="cats-package-window">
     <div v-for="message_keys in Object.keys(data)" v-bind:key="message_keys">
       <div class="head_of_message">
         {{ message_keys }}
@@ -23,19 +23,19 @@ import api from '@/stores/services/api';
 import { ref, computed, onMounted } from 'vue';
 
 const props = defineProps({
-  submitIdProp: {type: Number, required: true}
+  submitIdProp: { type: Number, required: true }
 })
 
 const data = ref({});
 const submitStore = useSubmitStore();
 
 const isLoading = computed((): boolean => {
-    return Object.keys(data.value).length === 0;
-  })
+  return Object.keys(data.value).length === 0;
+})
 
 onMounted(async () => {
-    data .value= await submitStore.fetchCatsResult(props.submitIdProp);
-  })
+  data.value = await submitStore.fetchCatsResult(props.submitIdProp);
+})
 
 </script>
 

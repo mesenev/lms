@@ -81,7 +81,7 @@
           </div>
         </div>
       </cv-column>
-      <cv-column v-if="displayCatsPackage">
+      <cv-column v-if="displayCatsPackage && catsResultSubmitId">
         <cats-package-window :submit-id-prop="catsResultSubmitId"/>
       </cv-column>
     </cv-row>
@@ -197,7 +197,7 @@ function changeCurrentSubmit(id: number): void {
 
 function showCatsAnswerModal(id: number): void {
   catsResultSubmitId.value = Number(id);
-  toggleCatsModal(true);
+  toggleCatsModal(undefined);
 }
 
 onMounted(async () => {

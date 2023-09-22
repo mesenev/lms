@@ -119,12 +119,12 @@ export const useSubmitStore = defineStore('submit', () => {
     async function fetchCatsResult(submitId: number) {
         let data = {};
         await api.get(`/api/submit/cats-result/${submitId}/`)
-            .then((response => {
+            .then(response => {
                 data = response.data
             })
             .catch(error => {
                 console.error(error);
-            }))
+            })
         return data as object;
     }
 
