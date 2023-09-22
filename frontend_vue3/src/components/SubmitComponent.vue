@@ -1,6 +1,6 @@
 <template>
   <div class="item">
-    <div :class="['submit-header', 'status-' + submitEdit.status.toLowerCase()]">
+    <div :class="['submit-header', 'status-' + (isDefaultStatus ? submitEdit.status.toLowerCase() : 'np')]">
       <div class="line">
         <h4 class="submit-title">ID решения: {{ submitId }}</h4>
         <span class="submit-status">Состояние: <span class="status">{{
@@ -215,6 +215,10 @@ const deOptions = computed(() => {
 
 const isNewSubmit = computed((): boolean => {
   return isNaN(submitEdit.value.id);
+})
+
+const isDefaultStatus = computed(() => {
+  return ['ok', 'aw', 'np', 'wa'].includes(submitEdit.value.status.toLowerCase())
 })
 
 onMounted(async () => {
