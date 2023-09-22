@@ -119,7 +119,7 @@
               <strong>{{ exam.max_points }}</strong>
             </span>
           </div>
-          <cv-inline-loading v-else :active="true"/>
+          <cv-inline-loading v-else :active="true" state="loading"/>
         </div>
         <div v-if="!loading" class="item student-list-container">
           <cv-structured-list v-if="submittedSolutions.length" class="student-list" condensed selectable

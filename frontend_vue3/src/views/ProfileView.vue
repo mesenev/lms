@@ -67,7 +67,7 @@
                 <cv-structured-list-item>
                   <cv-structured-list-data>Аккаунт Cats</cv-structured-list-data>
                   <cv-structured-list-data class="cats_status">
-                    <cv-inline-loading active v-if="cats_loading"/>
+                    <cv-inline-loading active state="loading" v-if="cats_loading"/>
                     <span v-else> {{ cats_status }}</span>
                   </cv-structured-list-data>
                 </cv-structured-list-item>

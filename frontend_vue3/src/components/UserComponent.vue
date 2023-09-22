@@ -53,7 +53,7 @@ onMounted(async () => {
     <div class="user-component--wrapper">
       <img alt="" class="user-component--avatar" :src="picUrl"/>
       <div class="user-component--name">
-        <cv-inline-loading v-if="loading" active/>
+        <cv-inline-loading v-if="loading" state="loading" active/>
         <span v-else>{{ name }}</span>
       </div>
       <div v-if="warning" class="user-component--warning">
