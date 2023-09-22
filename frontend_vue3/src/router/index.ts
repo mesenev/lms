@@ -8,6 +8,7 @@ import CourseViewLayout from "@/views/CourseViewLayout.vue";
 import lessonRoutes from "@/router/lesson";
 import LessonViewLayout from "@/views/LessonViewLayout.vue";
 import RegistrationView from "@/views/RegistrationView.vue"
+import CourseRegistrationView from "@/views/CourseRegistrationView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -68,6 +69,14 @@ const router = createRouter({
             ],
         },
     ],
+    },
+    {
+      path: '/course-registration/:link/',
+      name: 'course-registration',
+      component: CourseRegistrationView,
+      props: (route) => {
+        return { linkProp: route.params.link }
+      },
     },
     {
       path: '/registration',
