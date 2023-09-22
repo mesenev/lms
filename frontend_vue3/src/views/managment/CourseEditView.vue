@@ -38,9 +38,9 @@
 
           <cv-combo-box
               :disabled="!userStore.user.cats_account"
-              :options="contestsFromCats"
-              auto-filter
-              auto-highlight
+              :options="catsContests"
+              :auto-filter="true"
+              :auto-highlight="true"
               class="cv-dropdown course--cats"
               :label="(!userStore.user.cats_account)? 'Привязать турнир можно только с действующим cats-аккаунтом':'Введите название турнира'"
               @change="setNewCatsId"
@@ -126,7 +126,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, toRaw, watch } from "vue";
 import useCourseStore from "@/stores/modules/course";
 import useUserStore from "@/stores/modules/user";
 import type { CourseModel } from "@/models/CourseModel";
@@ -171,15 +171,15 @@ const deOptions = [
 ];
 const contestsFromCats = ref<ContestModel[]>([]);
 
-watch(()=>deChecks.value, ()=>deChanged());
+watch(() => deChecks.value, () => deChanged());
 
 onMounted(async () => {
   if (userStore.user.cats_account)
     (await fetchContests()).forEach(value => {
       contestsFromCats.value.push({
-        value: value.id.toString(),
+        name: value.name,
         label: value.name,
-        name: value.name
+        value: value.id.toString(),
       });
     });
 
@@ -192,6 +192,16 @@ onMounted(async () => {
   courseEdit.value = { ...course.value };
   deChecks.value = courseEdit.value.de_options.split(',');
   fetchingCourse.value = false;
+})
+
+const catsContests = computed(() => {
+  return contestsFromCats.value.map(item => {
+    return {
+      name: item.name,
+      value: item.value,
+      label: item.label
+    }
+  });
 })
 
 const isChanged = computed(() => {
