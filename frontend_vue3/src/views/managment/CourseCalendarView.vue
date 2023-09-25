@@ -65,13 +65,13 @@
                     <cv-checkbox label="Вторник" value='123' v-model="tuesday"/>
                     <cv-time-picker
                       label="" ampm="24" :disabled="!tuesday"
-                      :time.sync="newSchedule[1]" :form-item="true"/>
+                      :time.sync="newSchedule[1]" />
                   </div>
                   <div class="daytime-container">
                     <cv-checkbox label="Среда" value='123' v-model="wednesday"/>
                     <cv-time-picker
                       label="" ampm="24" :disabled="!wednesday"
-                      :time.sync="newSchedule[2]" :form-item="true"/>
+                      :time.sync="newSchedule[2]" />
                   </div>
                 </cv-column>
                 <cv-column :sm="1">
@@ -79,19 +79,19 @@
                     <cv-checkbox label="Четверг" value='123' v-model="thursday"/>
                     <cv-time-picker
                       label="" ampm="24" :disabled="!thursday"
-                      :time.sync="newSchedule[3]" :form-item="true"/>
+                      :time.sync="newSchedule[3]"/>
                   </div>
                   <div class="daytime-container">
                     <cv-checkbox label="Пятница" value='123' v-model="friday"/>
                     <cv-time-picker
                       label="" ampm="24" :disabled="!friday"
-                      :time.sync="newSchedule[4]" :form-item="true"/>
+                      :time.sync="newSchedule[4]" />
                   </div>
                   <div class="daytime-container">
                     <cv-checkbox label="Суббота" value='123' v-model="saturday"/>
                     <cv-time-picker
                       label="" ampm="24" :disabled="!saturday"
-                      :time.sync="newSchedule[5]" :form-item="true"/>
+                      :time.sync="newSchedule[5]"/>
                   </div>
                 </cv-column>
                 <cv-column :sm="1">
@@ -99,7 +99,7 @@
                     <cv-checkbox label="Воскресенье" value='123' v-model="sunday"/>
                     <cv-time-picker
                       label="" ampm="24" :disabled="!sunday"
-                      :time.sync="newSchedule[6]" :form-item="true"/>
+                      :time.sync="newSchedule[6]"/>
                   </div>
                 </cv-column>
               </cv-row>
@@ -295,7 +295,7 @@ import { ref, type Ref, computed, onMounted, watch } from 'vue';
       id: NaN, name: '', course: course.value.id, lessons: [], start_date: '', week_schedule: {},
     } as CourseScheduleModel);
 
-  const { monday, tuesday, wednesday, thursday, friday, saturday, sunday } = useWeekDaysMixin();
+  const { monday, tuesday, wednesday, thursday, friday, saturday, sunday, newSchedule } = useWeekDaysMixin();
 
   const oldCourseSchedule: Ref<CourseScheduleModel> = ref(_.cloneDeep(courseSchedule));
   const iconEdit = Edit;
@@ -310,7 +310,6 @@ import { ref, type Ref, computed, onMounted, watch } from 'vue';
   const cur_les_upd_id: Ref<string> = ref("");
   const k_keeper: Ref<number | null> = ref(null);
   const updatingInProgress: Ref<boolean> = ref(false);
-  const newSchedule: Ref<Record<string, string | null>> = ref({});
   const schedule: Ref<Record<string, string | null>> = ref({
     0: null, 1: null, 2: null, 3: null, 4: null, 5: null, 6: null,
   });
