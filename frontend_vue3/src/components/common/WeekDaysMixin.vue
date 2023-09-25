@@ -20,7 +20,7 @@ export default function () {
       },
       set: (value: boolean) => {
         monday_.value = value;
-        newSchedule.value = { ...newSchedule, 0: (value) ? '00:00' : null };
+        newSchedule.value = { ...newSchedule.value, 0: (value) ? '00:00' : null };
       }
     }
   )
@@ -31,7 +31,7 @@ export default function () {
       },
       set: (value: boolean) => {
         tuesday_.value = value;
-        newSchedule.value = { ...newSchedule, 1: (value) ? '00:00' : null };
+        newSchedule.value = { ...newSchedule.value, 1: (value) ? '00:00' : null };
       }
     }
   )
@@ -42,7 +42,7 @@ export default function () {
       },
       set: (value: boolean) => {
         wednesday_.value = value;
-        newSchedule.value = { ...newSchedule, 2: (value) ? '00:00' : null };
+        newSchedule.value = { ...newSchedule.value, 2: (value) ? '00:00' : null };
       }
     }
   )
@@ -53,7 +53,7 @@ export default function () {
       },
       set: (value: boolean) => {
         thursday_.value = value;
-        newSchedule.value = { ...newSchedule, 3: (value) ? '00:00' : null };
+        newSchedule.value = { ...newSchedule.value, 3: (value) ? '00:00' : null };
       }
     }
   )
@@ -64,7 +64,7 @@ export default function () {
       },
       set: (value: boolean) => {
         friday_.value = value;
-        newSchedule.value = { ...newSchedule, 4: (value) ? '00:00' : null };
+        newSchedule.value = { ...newSchedule.value, 4: (value) ? '00:00' : null };
       }
     }
   )
@@ -75,7 +75,7 @@ export default function () {
       },
       set: (value: boolean) => {
         saturday_.value = value;
-        newSchedule.value = { ...newSchedule, 5: (value) ? '00:00' : null };
+        newSchedule.value = { ...newSchedule.value, 5: (value) ? '00:00' : null };
       }
     }
   )
@@ -86,7 +86,7 @@ export default function () {
       },
       set: (value: boolean) => {
         sunday_.value = value;
-        newSchedule.value = { ...newSchedule, 6: (value) ? '00:00' : null };
+        newSchedule.value = { ...newSchedule.value, 6: (value) ? '00:00' : null };
       }
     }
   )
