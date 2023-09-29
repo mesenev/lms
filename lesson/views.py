@@ -13,7 +13,8 @@ from lesson.serializers import LessonSerializer, MaterialSerializer, LessonShort
 from problem.models import Problem
 from problem.serializers import ProblemSerializer
 from users.permissions import CourseStaffOrReadOnlyForStudents
-
+import base64
+from django.core.files.base import ContentFile
 
 class LessonViewSet(viewsets.ModelViewSet):
     permission_classes = [CourseStaffOrReadOnlyForStudents]
@@ -108,6 +109,8 @@ class AttachmentViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         if request.user.groups.filter(name=TEACHER).exists():
+            request.data['file_url'] = ContentFile(base64.b64decode(request.data['file_url']),
+                                                   name=request.data['name'])
             return super().create(request, *args, **kwargs)
         raise exceptions.PermissionDenied
 

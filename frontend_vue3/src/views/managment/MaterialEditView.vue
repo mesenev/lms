@@ -104,7 +104,7 @@ import _ from 'lodash';
 import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
 import useMaterialStore from "@/stores/modules/material";
-import { computed, onMounted, ref } from "vue";
+import {type Ref, computed, onMounted, ref } from "vue";
 import type { MaterialModel } from "@/models/MaterialModel";
 import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
 import type { AttachmentModel } from "@/models/Attachment";
@@ -141,6 +141,7 @@ const approvedText = ref('');
 const deletingValueId = ref<number | null>(null);
 const attachmentLoading = ref(false);
 const changingVisibility = ref(false);
+const file: Ref<File | null> = ref(null);
 
 function hideSuccess() {
   showNotification.value = false;
@@ -160,18 +161,25 @@ onMounted(async () => {
 
 async function uploadFiles(fileList: File[]) {
   attachmentLoading.value = true;
+
   for (const element of fileList) {
-    const fd = new FormData();
-    fd.append('id', '-1')
-    fd.append('name', element.name)
-    fd.append('material', material.value.id.toString())
-    fd.append('file_url', element)
-    fd.append('file_format', element.type)
-    await materialStore.createAttachment(fd).catch(error => {
-      notificationKind.value = 'error';
-      notificationText.value = `Что-то пошло не так: ${error.message}`;
-      showNotification.value = true;
-    })
+    const reader = new FileReader();
+    reader.readAsDataURL(element);
+    reader.onload = async () => {
+      const encodedFile = reader.result.split(",")[1];
+      const data = {
+        id: '-1',
+        name: element.name,
+        material: material.value.id.toString(),
+        file_url: encodedFile,
+        file_format: element.type
+      }
+      await materialStore.createAttachment(data).catch(error => {
+        notificationKind.value = 'error';
+        notificationText.value = `Что-то пошло не так: ${error.message}`;
+        showNotification.value = true;
+      })
+    }
   }
   await updateAttachments();
   const input = window.document.getElementById('files_input') as HTMLInputElement
