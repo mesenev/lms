@@ -23,6 +23,8 @@ const markdown = new MarkdownIt()
   .use(MarkdownItTasklists)
   .use(MarkdownItTOC);
 
+markdown.set({ html: true });
+
 defineProps({
   source: {
     type: String,
