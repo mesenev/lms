@@ -1,37 +1,48 @@
 <template>
   <div class="bx--grid">
-    <div class="bx--row header">
-      <h1>{{ isNewLesson ? 'Создание урока' : 'Редактирование урока' }}</h1>
+    <div class="bx--row header-container">
+      <h1 class="main-title">{{ 'Редактирование урока' }}</h1>
+      <div class="lesson-hide-button-container">
+        <cv-button-skeleton v-if="changingVisibility || !lesson" kind="ghost"
+                            class="lesson-hide-button"/>
+        <cv-button v-else
+                   class="lesson-hide-button"
+                   :icon="hiddenIcon"
+                   kind="ghost"
+                   v-on:click="changeLessonVisibility">
+          {{ (lesson.is_hidden) ? "Открыть урок" : "Скрыть урок" }}
+        </cv-button>
+      </div>
     </div>
     <cv-loading v-if="fetchingLesson"/>
     <div v-else class="bx--row content">
       <div class="bx--col-lg-5 bx--col-md-5">
         <confirm-modal
-            class="confirm--modal"
-            :text="approvedText"
-            :modal-trigger="modalTrigger"
-            :approve-handler="deleteLesson"/>
+          class="confirm--modal"
+          :text="approvedText"
+          :modal-trigger="modalTrigger"
+          :approve-handler="deleteLesson"/>
         <div class="edit-content">
           <cv-inline-notification
-              v-if="showNotification"
-              @close="hideNotification"
-              :kind="notificationKind"
-              :sub-title="notificationText"
+            v-if="showNotification"
+            @close="hideNotification"
+            :kind="notificationKind"
+            :sub-title="notificationText"
           />
           <cv-text-input
-              class="text_field"
-              label="Название урока"
-              v-model.trim="lessonEdit.name"/>
+            class="text_field"
+            label="Название урока"
+            v-model.trim="lessonEdit.name"/>
           <cv-text-area
-              class="text_field"
-              label="Описание урока"
-              v-model.trim="lessonEdit.description"/>
+            class="text_field"
+            label="Описание урока"
+            v-model.trim="lessonEdit.description"/>
           <cv-date-picker
-              class="deadLine text_field"
-              kind="single"
-              v-model="lessonEdit.deadline"
-              date-label="Дедлайн"
-              :cal-options=calOptions
+            class="deadLine text_field"
+            kind="single"
+            v-model="lessonEdit.deadline"
+            date-label="Дедлайн"
+            :cal-options=calOptions
           />
           <div class="action-btns">
             <cv-button kind="danger" @click="showConfirmModal(lessonEdit)">
@@ -73,9 +84,9 @@
             <div v-if="getClasswork.length > 0">
               <div v-if="!fetchingLesson" class="classwork">
                 <problem-list-component
-                    :is-editing="true"
-                    @update-problem-delete="updateProblemDelete($event)"
-                    :task-list="getClasswork">
+                  :is-editing="true"
+                  @update-problem-delete="updateProblemDelete($event)"
+                  :task-list="getClasswork">
                 </problem-list-component>
               </div>
               <div v-else>
@@ -88,9 +99,9 @@
             <div v-if="getHomework.length > 0">
               <div v-if="!fetchingLesson" class="homework">
                 <problem-list-component
-                    :is-editing="true"
-                    @update-problem-delete="updateProblemDelete($event)"
-                    :task-list="getHomework">
+                  :is-editing="true"
+                  @update-problem-delete="updateProblemDelete($event)"
+                  :task-list="getHomework">
                 </problem-list-component>
               </div>
               <div v-else>
@@ -103,9 +114,9 @@
             <div v-if="getExtrawork.length > 0">
               <div v-if="!fetchingLesson" class="extrawork">
                 <problem-list-component
-                    :is-editing="true"
-                    @update-problem-delete="updateProblemDelete($event)"
-                    :task-list="getExtrawork">
+                  :is-editing="true"
+                  @update-problem-delete="updateProblemDelete($event)"
+                  :task-list="getExtrawork">
                 </problem-list-component>
               </div>
               <div v-else>
@@ -118,10 +129,10 @@
             <div v-if="getExams.length > 0">
               <div v-if="!fetchingLesson" class="extrawork">
                 <exam-list-component
-                    :exams-list="getExams"
-                    :is-staff="true"
-                    :is-editing="true"
-                    @update-exam-delete="updateExamDelete($event)"/>
+                  :exams-list="getExams"
+                  :is-staff="true"
+                  :is-editing="true"
+                  @update-exam-delete="updateExamDelete($event)"/>
               </div>
               <div v-else>
                 <cv-accordion-skeleton/>
@@ -157,6 +168,8 @@ import EditLessonModal from "@/components/EditLesson/EditLessonModal.vue";
 import EditLessonMaterialsModal from "@/components/EditLesson/EditLessonMaterialsModal.vue";
 import ExamListComponent from "@/components/lists/ExamListComponent.vue";
 import ProblemListComponent from "@/components/lists/ProblemListComponent.vue";
+import viewOff from '@carbon/icons-vue/es/view--off/32';
+import view from '@carbon/icons-vue/es/view/32';
 
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
@@ -178,10 +191,11 @@ const calOptions = { dateFormat: 'Y-m-d' };
 const query = ref('');
 const modalTrigger = ref(false);
 const approvedText = ref('');
+const changingVisibility = ref(false);
 
 onMounted(async () => {
   if (props.lessonId) {
-    lesson.value = lessonStore.currentLesson as LessonModel;
+    lesson.value = lessonStore.currentLesson ?? await lessonStore.fetchLessonById(props.lessonId);
     await materialStore.fetchMaterialsByLessonId(lesson.value.id);
     await examStore.fetchExamsByLessonId(lesson.value.id);
   }
@@ -205,6 +219,10 @@ const getExams = computed((): Array<ExamModel> => {
   return lessonEdit.value.exams;
 })
 
+const hiddenIcon = computed(() => {
+  return (lesson.value?.is_hidden) ? viewOff : view;
+})
+
 
 const isNewLesson = computed((): boolean => {
   return isNaN(lessonEdit.value.id);
@@ -214,6 +232,16 @@ const isChanged = computed((): boolean => {
   return !_.isEqual(lesson.value, lessonEdit.value);
 })
 
+async function changeLessonVisibility() {
+  changingVisibility.value = true;
+  await lessonStore.patchLesson(
+    { id: props.lessonId, is_hidden: !lesson.value?.is_hidden },
+  );
+  lesson.value.is_hidden = !lesson.value.is_hidden;
+  lessonEdit.value.is_hidden = lesson.value.is_hidden;
+  changingVisibility.value = false;
+}
+
 async function deleteLesson() {
   await lessonStore.deleteLesson(lessonEdit.value.id).then(async () => {
     const curCourse = courseStore.currentCourse as CourseModel;
@@ -221,7 +249,7 @@ async function deleteLesson() {
     lessonStore.setLessons({ [lessonEdit.value.course]: curCourse.lessons });
     courseStore.changeCurrentCourse(curCourse);
     await router.push(
-        { name: 'CourseView', params: { courseId: curCourse.id.toString() } }
+      { name: 'CourseView', params: { courseId: curCourse.id.toString() } }
     );
   }).catch(error => {
     notificationKind.value = 'error';
@@ -237,14 +265,14 @@ function showConfirmModal(deletingLesson: LessonModel) {
 
 function createOrUpdate(): void {
   const request = (isNewLesson.value) ?
-      api.post('/api/lesson/', lessonEdit.value) :
-      api.patch(`/api/lesson/${lessonEdit.value.id}/`, lessonEdit.value);
+    api.post('/api/lesson/', lessonEdit.value) :
+    api.patch(`/api/lesson/${lessonEdit.value.id}/`, lessonEdit.value);
   request.then(response => {
     notificationKind.value = 'success';
     notificationText.value = (props.lessonId) ? 'Урок успешно изменён' : 'Урок успешно создан';
     if (isNewLesson.value) {
       router.replace(
-          { name: 'lesson-edit', params: { lessonId: response.data.id.toString() } },
+        { name: 'lesson-edit', params: { lessonId: response.data.id.toString() } },
       );
     }
     lessonStore.changeCurrentLesson({ ...response.data });
@@ -273,14 +301,14 @@ function updateExamList(new_exam: ExamModel) {
 
 function updateProblemDelete(deleted_problem_id: number) {
   lessonEdit.value.problems = lessonEdit.value.problems
-      .filter(x => x.id != deleted_problem_id);
+    .filter(x => x.id != deleted_problem_id);
   lesson.value.problems = lessonEdit.value.problems;
   problemStore.setProblems({ [props.lessonId]: lessonEdit.value.problems });
 }
 
 function updateExamDelete(delete_exam_id: number) {
   lessonEdit.value.exams = lessonEdit.value.exams
-      .filter(x => x.id != delete_exam_id);
+    .filter(x => x.id != delete_exam_id);
   lesson.value.exams = lessonEdit.value.exams;
   examStore.setExams({ [props.lessonId]: lessonEdit.value.exams });
 }
@@ -290,7 +318,7 @@ function updateMaterialDelete() {
 }
 
 function searchByTutorial(problems: Array<ProblemModel | CatsProblemModel>):
-    Array<ProblemModel | CatsProblemModel> {
+  Array<ProblemModel | CatsProblemModel> {
   return searchByProblems(query.value, problems);
 }
 </script>
@@ -371,9 +399,10 @@ function searchByTutorial(problems: Array<ProblemModel | CatsProblemModel>):
 .accordion /deep/ .bx--accordion__content
   padding-right 0
 
-.header
-  color var(--cds-text-01)
-  display flex
-  flex-direction row
-  align-items baseline
+.lesson-hide-button
+  margin-left 1rem
+  margin-bottom 1rem
+
+.main-title
+  margin-bottom: var(--cds-spacing-04)
 </style>

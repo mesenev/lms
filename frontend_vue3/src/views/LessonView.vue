@@ -8,16 +8,6 @@
           <span>
             Дедлайн: {{ lesson.deadline }}
           </span>
-          <div v-if="isStaff">
-            <cv-button-skeleton v-if="changingVisibility || !lesson" kind="ghost"/>
-            <cv-button v-else
-                       class="lesson-hide-button"
-                       :icon="hiddenIcon"
-                       kind="ghost"
-                       @click="changeLessonVisibility">
-              {{ (lesson.is_hidden) ? "Открыть урок" : "Скрыть урок" }}
-            </cv-button>
-          </div>
         </div>
         <cv-skeleton-text v-else width="'35%'"/>
         <div class="description-container">
@@ -57,7 +47,7 @@
         <cv-skeleton-text :paragraph="true" :line-count="5" v-else/>
       </div>
       <div
-          :class="(!loading && isMaterialsEmpty) ? ('bx--col-lg-4 bx--col-md-4 content-info-empty')
+        :class="(!loading && isMaterialsEmpty) ? ('bx--col-lg-4 bx--col-md-4 content-info-empty')
          : ('bx--col-lg-4 bx--col-md-4 content-info')">
         <div v-if="!loading">
           <div v-if="isMaterialsEmpty" class="content-info-empty">
@@ -69,8 +59,8 @@
               <cv-structured-list class="list">
                 <template v-slot:items>
                   <cv-structured-list-item
-                      v-for="material in studentMaterials"
-                      :key="material.id">
+                    v-for="material in studentMaterials"
+                    :key="material.id">
                     <material-list-component :material-prop="material"
                                              :show-visibility="true"
                                              :is-staff="isStaff"/>
@@ -229,6 +219,9 @@ async function changeLessonVisibility() {
   margin 1rem
 
 .content-info-materials
+  max-height 300px
+  min-height 300px
+  overflow auto
   margin-bottom 1rem
 
 
@@ -253,6 +246,13 @@ async function changeLessonVisibility() {
 
   &-info
     height 100%
+    margin-bottom 1rem
+
+    &-empty
+      margin-bottom 1rem
+      height 400px
+      display flex
+      align-items center
 
     &-title
       color var(--cds-text-01)
@@ -279,6 +279,8 @@ async function changeLessonVisibility() {
 
 .empty-items
   background-color var(--cds-ui-01)
+  display flex
+  align-items center
   padding-top 1rem
   margin-bottom 1rem
   margin-right 1rem
