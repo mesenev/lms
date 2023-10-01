@@ -29,9 +29,9 @@
           <div class="info">
             <h3>Информация</h3>
             <cv-button
-                v-if="!guestMode"
-                :icon="edit32"
-                @click="showEdit">
+              v-if="!guestMode"
+              :icon="edit32"
+              @click="showEdit">
               Редактировать
             </cv-button>
           </div>
@@ -100,7 +100,7 @@ import ChangePasswordModal from "@/components/ChangePasswordModal.vue";
 import EditProfileComponent from "@/components/EditProfileComponent.vue";
 
 const props = defineProps({
-  userId: { type: Number, required: true }
+  userId: { type: String, required: true }
 })
 const courseStore = useCourseStore();
 const userStore = useUserStore()
@@ -117,9 +117,9 @@ const guestMode = ref(false);
 
 onMounted(async () => {
   await courseStore.fetchUserCourses();
-  if (props.userId != user.value.id) {
+  if (parseInt(props.userId) != user.value.id) {
     guestMode.value = true;
-    user.value = await userStore.fetchUserById(props.userId);
+    user.value = await userStore.fetchUserById(parseInt(props.userId));
   }
   loading.value = false;
   await fetch_cats_account();
@@ -127,13 +127,13 @@ onMounted(async () => {
 
 async function fetch_cats_account() {
   await api.get(`/api/cats_account/?user=${props.userId}`)
-      .then(response => {
-        if (response.data)
-          cats_account.value = response.data[0].username;
-      })
-      .catch(error => {
-        console.log(error);
-      })
+    .then(response => {
+      if (response.data)
+        cats_account.value = response.data[0].username;
+    })
+    .catch(error => {
+      console.log(error);
+    })
   cats_loading.value = false;
 }
 
