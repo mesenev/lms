@@ -10,7 +10,7 @@ import type { PropType } from "vue";
 import { computed } from "vue";
 
 const props = defineProps({
-  model: { type: Object as PropType<any>, required: true },
+  model: { type: Object as PropType<any>, required: false },
   pageView: { type: String, required: true }
 })
 
