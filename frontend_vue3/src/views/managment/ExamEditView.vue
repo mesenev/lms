@@ -89,7 +89,7 @@ import ExamQuestionComponent from "@/components/ExamQuestionComponent.vue";
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
 const props = defineProps({
-  examId: { type: Number, required: true }
+  examId: { type: String, required: true }
 })
 
 
@@ -108,7 +108,7 @@ const examEdit = ref<ExamModel>({ ...exam.value });
 onMounted(async () => {
   loading.value = true;
   emptyFieldText.value = 'Заполните поле!';
-  exam.value = await examStore.fetchExamById(props.examId);
+  exam.value = await examStore.fetchExamById(parseInt(props.examId));
   if (!exam.value.questions.length) {
     exam.value.questions.push(
         _.cloneDeep({

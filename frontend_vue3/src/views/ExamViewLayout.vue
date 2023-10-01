@@ -3,7 +3,9 @@
     <transition v-if="exam" mode="out-in" name="fade">
       <component :is="Component"/>
     </transition>
-    <cv-loading v-else/>
+    <div v-else class="loading-container">
+      <cv-loading/>
+    </div>
   </router-view>
 </template>
 
@@ -14,7 +16,7 @@ import type { ExamModel } from "@/models/ExamModel";
 import useSolutionStore from "@/stores/modules/solution";
 
 const props = defineProps({
-  examId: { type: Number, required: true }
+  examId: { type: String, required: true }
 })
 
 const exam = ref<ExamModel | null>(null);
@@ -23,10 +25,10 @@ const solutionStore = useSolutionStore();
 
 onMounted(async () => {
   examStore.changeCurrentExam(null);
-  exam.value = await examStore.fetchExamById(props.examId);
+  exam.value = await examStore.fetchExamById(parseInt(props.examId));
   examStore.changeCurrentExam(exam.value);
   await examStore.fetchExamsByLessonId(exam.value.lesson);
-  solutionStore.setSolutions(await solutionStore.fetchSolutionsByExam(props.examId));
+  solutionStore.setSolutions(await solutionStore.fetchSolutionsByExam(parseInt(props.examId)));
 })
 </script>
 
