@@ -1,10 +1,12 @@
 <template>
-  <router-view v-if="problem" v-slot="{Component}" :key="route.params.problemId" :submitId="route.params.submitId">
-    <transition mode="out-in" name="fade">
+  <router-view v-slot="{Component}" :key="route.params.problemId" :submitId="route.params.submitId">
+    <transition v-if="problem" mode="out-in" name="fade">
       <component :is="Component"/>
     </transition>
+    <div v-else class="loading-container">
+      <cv-loading class="loading-out"/>
+    </div>
   </router-view>
-  <cv-loading v-else class="loading-out"/>
 </template>
 
 <script lang="ts" setup>
@@ -15,7 +17,7 @@ import type { SubmitModel } from "@/models/SubmitModel";
 import { ref, onMounted } from 'vue';
 import { useRoute } from "vue-router";
 
-const props = defineProps({ problemId: {type: Number, required: true} })
+const props = defineProps({ problemId: {type: String, required: true} })
 const problemStore = useProblemStore();
 const submitStore = useSubmitStore();
 const route = useRoute()
@@ -23,7 +25,7 @@ const problem = ref<ProblemModel | null>(null);
 
 onMounted( async () => {
     problemStore.changeCurrentProblem(null);
-    problem.value = await problemStore.fetchProblemById(props.problemId);
+    problem.value = await problemStore.fetchProblemById(parseInt(props.problemId));
     problemStore.changeCurrentProblem(problem.value);
     submitStore.setSubmits(problemStore.currentProblem?.submits as SubmitModel[]);
   })

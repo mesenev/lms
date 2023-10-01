@@ -19,7 +19,6 @@ const description = ref('');
 
 onMounted(async () => {
     description.value = props.problem.description.replaceAll('download/img', 'https://imcs.dvfu.ru/cats/static/download/img');
-    console.log('DESCRIPTION', description.value)
   })
 
 </script>
