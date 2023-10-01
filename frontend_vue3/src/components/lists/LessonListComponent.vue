@@ -3,7 +3,6 @@
     :to="openLesson"
     class="list-element"
     v-bind:class="{ 'lesson--hidden': lessonProp.is_hidden, }"
-    v-on:click="openLesson"
   >
     <div class="content-wrapper">
       <div class="title-wrapper">
@@ -19,7 +18,7 @@
           <view-off-icon v-if="lessonProp.is_hidden"/>
           <view-icon v-else/>
       </span>
-      <!--  <lesson-stats-graph v-else :lesson="lesson" :user="currentUser"/> -->
+        <lesson-stats-graph v-else :lesson="lesson" :user="currentUser"/>
     </div>
     <cv-tag v-if="notInSchedule"
             label="Не состоит в расписании"
@@ -38,6 +37,7 @@ import viewIcon from '@carbon/icons-vue/es/view/16';
 import warningAltFilled from '@carbon/icons-vue/es/warning--alt--filled/16';
 import { computed } from "vue";
 import DateViewComponent from "@/components/common/DateViewComponent.vue";
+import LessonStatsGraph from "@/components/LessonStatsGraph.vue";
 
 const props = defineProps({
   lessonProp: { type: Object as PropType<LessonModel>, required: true },
@@ -53,7 +53,7 @@ const lesson = computed((): LessonModel => {
 })
 
 const openLesson = computed(() => {
-  return { name: 'LessonView', params: { lessonId: lesson.value.id.toString() } };
+  return { name: 'LessonView', params: { lessonId: lesson.value.id } };
 })
 
 const currentUser = computed(() => {
