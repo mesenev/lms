@@ -1,5 +1,7 @@
 <template>
-  <cv-loading v-if="loading"/>
+  <div v-if="loading" class="loading-container">
+    <cv-loading/>
+  </div>
   <div v-else class="bx--grid">
     <div class="bx--row header-container">
       <div class="main-title">
@@ -25,8 +27,8 @@
               <cv-structured-list class="other-materials-list">
                 <template v-slot:items>
                   <cv-structured-list-item
-                      v-for="material in materials"
-                      :key="material.id"
+                    v-for="material in materials"
+                    :key="material.id"
                   >
                     <material-list-component :is-selected="isMaterialSelected(material.id)"
                                              :is-staff="isStaff"
@@ -43,7 +45,6 @@
 </template>
 
 <script lang="ts" setup>
-import MarkdownIt from 'markdown-it';
 import useMaterialStore from "@/stores/modules/material";
 import useUserStore from "@/stores/modules/user";
 import useLessonStore from "@/stores/modules/lesson";
@@ -55,7 +56,7 @@ import LiteYouTubeEmbed from 'vue-lite-youtube-embed'
 import 'vue-lite-youtube-embed/style.css'
 
 const props = defineProps({
-  materialId: { type: Number, required: true }
+  materialId: { type: String, required: true }
 })
 
 const materialStore = useMaterialStore();
@@ -65,7 +66,7 @@ const _materials = ref<Array<MaterialModel>>([]);
 const loading = ref(true);
 
 onMounted(async () => {
-  const material = await materialStore.fetchMaterialById(props.materialId);
+  const material = await materialStore.fetchMaterialById(parseInt(props.materialId));
   if (material.id) {
     materialStore.setCurrentMaterial(material);
     _materials.value = await materialStore.fetchMaterialsByLessonId(material.lesson);
@@ -79,7 +80,7 @@ const isStaff = computed((): boolean => {
 
 const youTubeGetID = computed(() => {
   const regExp =
-      /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
 
   const match = currentMaterial.value.content.match(regExp);
 
@@ -103,10 +104,10 @@ const currentMaterial = computed((): MaterialModel => {
 
 const materials = computed((): Array<MaterialModel> => {
   return [..._materials.value].sort(
-      (a, b) => {
-        return (a.is_teacher_only === b.is_teacher_only ? 0
-            : b.is_teacher_only ? -1 : 1) || a.id - b.id;
-      });
+    (a, b) => {
+      return (a.is_teacher_only === b.is_teacher_only ? 0
+        : b.is_teacher_only ? -1 : 1) || a.id - b.id;
+    });
 })
 
 function isMaterialSelected(materialId: number) {
@@ -116,7 +117,7 @@ function isMaterialSelected(materialId: number) {
 </script>
 
 <style scoped lang="stylus">
-/deep/ .bx--title
+:deep() .bx--title
   background-color var(--cds-ui-background)
 
 .material-title
@@ -158,6 +159,12 @@ function isMaterialSelected(materialId: number) {
 code
   color: var(--color-b)
 
+.loading-container
+  width 100%
+  height 100%
+  display flex
+  align-items center
+  justify-content center
 
 </style>
 

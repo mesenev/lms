@@ -119,7 +119,7 @@ import 'vue-lite-youtube-embed/style.css'
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
 const props = defineProps({
-  materialId: { type: Number, required: true }
+  materialId: { type: String, required: true }
 })
 
 const router = useRouter();
@@ -134,6 +134,7 @@ const material = ref<MaterialModel>({
   is_teacher_only: false,
 })
 
+const materialId = ref<number>(parseInt(props.materialId));
 const materialEdit = ref<MaterialModel>({ ...material.value })
 const loading = ref(true);
 const confirmModalTrigger = ref(false);
@@ -148,8 +149,8 @@ function hideSuccess() {
 }
 
 onMounted(async () => {
-  const _material = await materialStore.fetchMaterialById(props.materialId);
-  await materialStore.fetchAttachmentsByMaterialId(props.materialId);
+  const _material = await materialStore.fetchMaterialById(materialId.value);
+  await materialStore.fetchAttachmentsByMaterialId(materialId.value);
   if (_material) {
     materialStore.setCurrentMaterial(_material);
     await materialStore.fetchMaterialsByLessonId(_material.lesson);
@@ -324,7 +325,7 @@ async function deleteMaterial() {
 }
 
 async function updateAttachments() {
-  await materialStore.fetchAttachmentsByMaterialId(props.materialId);
+  await materialStore.fetchAttachmentsByMaterialId(materialId.value);
 }
 
 async function updateAfterDeleteMaterials() {
