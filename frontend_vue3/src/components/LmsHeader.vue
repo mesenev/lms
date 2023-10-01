@@ -5,6 +5,10 @@
     <cv-header-name prefix="dvfu" to="/"><span class="lms"> lms </span></cv-header-name>
     <cv-header-nav v-if="courseSelected">
       <cv-header-menu-item
+        :to="{
+          name: 'course-solutions-list',
+          params: { courseId: route.params.courseId }
+        }"
       >
         Решения
       </cv-header-menu-item>
