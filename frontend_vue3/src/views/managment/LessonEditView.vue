@@ -187,7 +187,7 @@ const examStore = useExamStore();
 const fetchingLesson = ref(true);
 const lesson = ref<LessonModel>(lessonStore.getNewLesson);
 const lessonEdit = ref<LessonModel>({ ...lesson.value });
-const calOptions = { dateFormat: 'Y-m-d' };
+const calOptions = { dateFormat: 'd/m/Y' };
 const query = ref('');
 const modalTrigger = ref(false);
 const approvedText = ref('');
@@ -277,6 +277,7 @@ function createOrUpdate(): void {
     }
     lessonStore.changeCurrentLesson({ ...response.data });
     lesson.value = { ...response.data };
+    lessonEdit.value = {...response.data};
   });
   request.catch(error => {
     notificationText.value = `Что-то пошло не так: ${error.message}`;
