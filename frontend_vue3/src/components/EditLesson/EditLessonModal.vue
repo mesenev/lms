@@ -13,15 +13,15 @@
       <template v-slot:title>
         Добавить задание
         <cv-content-switcher class="switcher" @selected="actionSelected">
-          <cv-content-switcher-button parent-switcher="Problems" owner-id="Problems"
+          <cv-content-switcher-button parent-switcher="task" owner-id="Problems"
                                       selected>
             Импортировать задачу из cats
           </cv-content-switcher-button>
-          <cv-content-switcher-button parent-switcher="Exams" owner-id="Exams">
+          <cv-content-switcher-button parent-switcher="task" owner-id="Exams">
             Создать тест
           </cv-content-switcher-button>
         </cv-content-switcher>
-        <cv-content-switcher-content parent-switcher="Problems" owner-id="Problems">
+        <cv-content-switcher-content parent-switcher="task" owner-id="Problems">
           <cv-inline-notification
               v-if="showNotification"
               @close="() => showNotification=false"
@@ -31,7 +31,7 @@
       </template>
       <template v-slot:content>
         <section class="modal--content">
-          <cv-content-switcher-content parent-switcher="Problems" owner-id="Problems">
+          <cv-content-switcher-content parent-switcher="task" owner-id="Problems">
             <div class="content-1">
               <div class="problem-type-selection">
                 <h5>Выберите способ тестирования</h5>
@@ -89,7 +89,7 @@
               <cv-text-input v-model.trim="currentProblem.description" label="Описание задания"/>
             </div>
           </cv-content-switcher-content>
-          <cv-content-switcher-content parent-switcher="Exams" owner-id="Exams">
+          <cv-content-switcher-content parent-switcher="task" owner-id="Exams">
             <div class="exam-container">
               <div class="exam-container-head">
                 <p>Настройки теста</p>
