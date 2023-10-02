@@ -325,13 +325,13 @@ function searchByTutorial(problems: Array<ProblemModel | CatsProblemModel>):
 </script>
 
 <style scoped lang="stylus">
-.text_field
-  margin-bottom 2rem
+:deep() .text_field
+  margin-bottom 1rem
 
-.text_field /deep/ .bx--text-input, .text_field /deep/ .bx--text-area
+:deep() .bx--text-input, :deep() .bx--text-area
   background-color var(--cds-ui-background)
 
-.cv-date-picker >>> .bx--date-picker__input
+.cv-date-picker :deep() .bx--date-picker__input
   background-color var(--cds-ui-background)
   width auto
 
@@ -397,7 +397,7 @@ function searchByTutorial(problems: Array<ProblemModel | CatsProblemModel>):
   &:hover
     background-color: var(--cds-ui-04)
 
-.accordion /deep/ .bx--accordion__content
+.accordion :deep() .bx--accordion__content
   padding-right 0
 
 .lesson-hide-button
