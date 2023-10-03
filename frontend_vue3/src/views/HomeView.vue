@@ -85,7 +85,7 @@ const filterCourses = computed(() => {
   .bx--structured-list-thead
     display none
 
-  /deep/ .bx--search-input
+  :deep() .bx--search-input
     background-color var(--cds-ui-background)
 
 .item

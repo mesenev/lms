@@ -177,7 +177,7 @@ function dateForLesson(lesson_id: number) {
   margin-right 1rem
   background-color var(--cds-ui-01)
 
-  /deep/ .bx--search-input
+  :deep() .bx--search-input
     background-color var(--cds-ui-background)
 
 .lessons-list-wrapper
@@ -188,7 +188,7 @@ function dateForLesson(lesson_id: number) {
   padding-left 0
   margin-bottom 1rem
 
-  /deep/ .submit-list-data
+  :deep() .submit-list-data
     background-color var(--cds-ui-01)
 
 .empty-items

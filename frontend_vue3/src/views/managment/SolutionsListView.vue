@@ -157,7 +157,7 @@ interface TablePagination {
 .header
   color var(--cds-text-01)
 
-/deep/ .bx--search-input
+:deep() .bx--search-input
   background-color var(--cds-ui-background)
 
 .empty-list

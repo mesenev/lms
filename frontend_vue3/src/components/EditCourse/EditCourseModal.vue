@@ -4,7 +4,9 @@
       Добавить урок
     </cv-button>
     <cv-modal class="add_lesson_modal"
+              id="add_lesson_modal"
               :visible="modalVisible"
+              :disableTeleport="true"
               @modal-hidden="modalHidden"
               :primary-button-disabled="primaryButtonDisabled"
               @primary-click="addLesson"
@@ -23,10 +25,10 @@
       </template>
       <template v-slot:content>
         <cv-inline-notification
-            v-if="showNotification"
-            :kind="notificationKind"
-            @close="hideNotification"
-            :sub-title="notificationText"
+          v-if="showNotification"
+          :kind="notificationKind"
+          @close="hideNotification"
+          :sub-title="notificationText"
         />
         <section class="modal--content">
           <cv-content-switcher-content owner-id="create-lesson">
@@ -36,14 +38,16 @@
               <cv-text-input class="modal--content--input"
                              label="Автор" v-model.trim="authorUsername" disabled/>
               <cv-text-input class="modal--content--input"
+                             placeholder="Введите название урока"
                              label="Название урока" v-model.trim="currentLesson.name">
                 <template v-slot:invalid-message v-if="showInvalidMessage && !currentLesson.name.length">
                   {{ emptyInputInvalidText }}
                 </template>
               </cv-text-input>
               <cv-text-input class="modal--content--input"
+                             placeholder="Введите описание урока"
                              label="Описание урока" v-model.trim="currentLesson.description"/>
-              <span style="text-decoration-line: underline">
+              <span style="font-style: italic">
               Добавление к уроку материалов и задач доступно после создания урока.
             </span>
             </div>
@@ -55,14 +59,14 @@
                   <template v-slot:items>
                     <cv-search v-model:value="searchQueryForAllLessons"></cv-search>
                     <cv-structured-list-item
-                        class="lesson-card"
-                        v-for="lesson in allLessons"
-                        :key="lesson.id">
+                      class="lesson-card"
+                      v-for="lesson in allLessons"
+                      :key="lesson.id">
                       <LessonCard
-                          :lesson="lesson"
-                          :main-icon="AddAlt32"
-                          :change-main-icon="SubtractAlt32"
-                          :manipulation="chooseLesson">
+                        :lesson="lesson"
+                        :main-icon="AddAlt32"
+                        :change-main-icon="SubtractAlt32"
+                        :manipulation="chooseLesson">
                       </LessonCard>
                     </cv-structured-list-item>
                   </template>
@@ -152,9 +156,9 @@ function actionSelected(value: string) {
 
 const getSelected = computed((): string => {
   return lessons.value.concat(currentLesson.value)
-      .map((l) => l.name)
-      .sort((a, b) => a < b ? -1 : 1)
-      .join(' ');
+    .map((l) => l.name)
+    .sort((a, b) => a < b ? -1 : 1)
+    .join(' ');
 })
 
 async function addLesson() {
@@ -177,26 +181,26 @@ function checkCorrectFields() {
 
 async function createNewLesson() {
   await api.post('/api/lesson/', currentLesson.value)
-      .then(response => {
-        const course = courseStore.currentCourse as CourseModel;
-        course.lessons.push(response.data as LessonModel);
-        lessonStore.setLessons({ [course.id]: course.lessons });
-        modalHidden();
-      })
-      .catch(error => {
-        notificationKind.value = 'error';
-        notificationText.value = `Что-то пошло не так: ${error.message}`;
-        showNotification.value = true;
-      })
-      .finally(() => {
-        creationLoader.value = false;
-      })
+    .then(response => {
+      const course = courseStore.currentCourse as CourseModel;
+      course.lessons.push(response.data as LessonModel);
+      lessonStore.setLessons({ [course.id]: course.lessons });
+      modalHidden();
+    })
+    .catch(error => {
+      notificationKind.value = 'error';
+      notificationText.value = `Что-то пошло не так: ${error.message}`;
+      showNotification.value = true;
+    })
+    .finally(() => {
+      creationLoader.value = false;
+    })
 }
 
 </script>
 
 <style scoped lang="stylus">
-/deep/ .bx--modal-content:focus
+:deep() .bx--modal-content:focus
   outline none
 
 .lesson_list
@@ -208,11 +212,14 @@ async function createNewLesson() {
 .switcher
   margin-bottom: 5px
 
-.modal--content--input
+.cv-text-input
   margin-bottom 1rem
 
-/deep/ .bx--modal-content
+:deep() .bx--modal-content
   margin-bottom 0
+
+:deep() .bx--text-input:disabled
+  background-color var(--cds-ui-02)
 
 .add_lesson_modal .bx--modal-container
   height 75vh
@@ -235,7 +242,4 @@ async function createNewLesson() {
 .add_lesson_modal .bx--btn--primary[disabled = disabled],
 .add_lesson_modal .bx--btn--primary
   background-color var(--cds-ui-05)
-
-.modal--content
-  height 500px
 </style>

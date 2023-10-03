@@ -2,6 +2,8 @@
   <div>
     <cv-button kind="secondary" @click="showModal">Создать ссылку-приглашение</cv-button>
     <cv-modal :visible="modalVisible"
+              size="sm"
+              :disableTeleport="true"
               class="generate-link-modal"
               @modal-hidden="modalHidden">
       <template v-slot:title>Создание ссылки-приглашения</template>
@@ -117,9 +119,8 @@ function copyLink(link: string) {
 </script>
 
 <style scoped lang="stylus">
-.generate-link-modal >>> .bx--modal-content
-  display flex
-  justify-content center
+:deep() .bx--modal-content:focus
+  outline none
 
 .link-content
   max-width 25rem

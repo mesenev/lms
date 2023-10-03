@@ -30,7 +30,7 @@
           />
           <cv-text-input
             :disabled="true"
-            :value="`${author.first_name}
+            :modelValue="`${author.first_name}
              ${author.last_name}
               (${author.username})`.trim()"
             label="Автор"
@@ -42,6 +42,7 @@
             :auto-filter="true"
             :auto-highlight="true"
             class="cv-dropdown course--cats"
+            title="Турнир курса"
             :label="(!userStore.user.cats_account)? 'Привязать турнир можно только с действующим cats-аккаунтом':'Введите название турнира'"
             @change="setNewCatsId"
           >
@@ -312,16 +313,13 @@ async function deleteCourse() {
 
 <style lang="stylus" scoped>
 .course--cats
-  margin-top 2rem
+  margin-top 1rem
+
+.cv-text-input, .cv-dropdown, .cv-text-area, .cv-multi-select
+  margin-bottom 1rem
 
 .course--name
-  margin-top 2rem
-
-.course--description
-  margin-top 2rem
-
-.course--de
-  margin-top 2rem
+  margin-top 1rem
 
 .btns--container
   margin-top 2rem
@@ -361,13 +359,13 @@ async function deleteCourse() {
   background-color var(--cds-ui-01)
   padding var(--cds-spacing-05)
 
-  /deep/ .bx--text-input
+  :deep() .bx--text-input
     background-color var(--cds-ui-background)
 
-  /deep/ .bx--text-area
+  :deep() .bx--text-area
     background-color var(--cds-ui-background)
 
-  /deep/ .bx--list-box
+  :deep() .bx--list-box
     background-color var(--cds-ui-background)
 
   .change-btn:not([disabled = disabled])

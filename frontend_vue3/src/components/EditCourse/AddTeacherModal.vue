@@ -5,6 +5,7 @@
     </cv-button>
     <cv-modal :visible="modalVisible"
               class="add_lesson_modal"
+              :disableTeleport="true"
               @modal-hidden="modalHidden"
               @secondary-click="() => {}">
       <template v-slot:title>
@@ -158,18 +159,11 @@ function actionSelected(user: UserModel) {
 
 <style lang="stylus" scoped>
 .list-headings
-  display flex
-  flex-direction column
-  align-items stretch
+  width 5rem
 
 .list-checkbox
   display flex
   flex-direction row
-  justify-content center
-
-.heading-btn
-  padding 5px
-  display flex
   justify-content center
 
 .bx--modal-content:focus

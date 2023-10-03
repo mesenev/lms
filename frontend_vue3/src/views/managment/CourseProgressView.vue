@@ -89,154 +89,153 @@ import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
 import { ref, type Ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 
-  const props = defineProps({courseId: { type: Number, required: true  }})
-  const userStore = useUserStore();
-  const courseStore = useCourseStore();
-  const progressStore = useProgressStore();
-  const problemStore = useProblemStore();
-  const lessonStore = useLessonStore();
-  const router = useRouter();
-  const route = useRoute();
+const props = defineProps({ courseId: { type: Number, required: true } })
+const userStore = useUserStore();
+const courseStore = useCourseStore();
+const progressStore = useProgressStore();
+const problemStore = useProblemStore();
+const lessonStore = useLessonStore();
+const router = useRouter();
+const route = useRoute();
 
-  const students_progress: Ref<Array<UserProgress>>= ref([]);
-  const s: Ref<Dictionary<Array<Attendance>>> = ref({});
-  const users: Ref<Dictionary<UserModel>> = ref({});
-  const student_attendance: Ref<Dictionary<Attendance>> = ref({});
-  const student_attendance_copy: Ref<Dictionary<any>> = ref({});
-  const lessons: Ref<Array<LessonModel>> = ref([]);
-  const course: Ref<CourseModel> = ref({ ...courseStore.newCourse });
-  const emptyText: Ref<string> = ref('');
+const students_progress: Ref<Array<UserProgress>> = ref([]);
+const s: Ref<Dictionary<Array<Attendance>>> = ref({});
+const users: Ref<Dictionary<UserModel>> = ref({});
+const student_attendance: Ref<Dictionary<Attendance>> = ref({});
+const student_attendance_copy: Ref<Dictionary<any>> = ref({});
+const lessons: Ref<Array<LessonModel>> = ref([]);
+const course: Ref<CourseModel> = ref({ ...courseStore.newCourse });
+const emptyText: Ref<string> = ref('');
 
-  const loading: Ref<boolean> = ref(true);
-  const sortable: Ref<boolean> = ref(true);
-  const dontSolved: Ref<boolean> = ref(false);
+const loading: Ref<boolean> = ref(true);
+const sortable: Ref<boolean> = ref(true);
+const dontSolved: Ref<boolean> = ref(false);
 
-  const columns= computed(() => {
-    const a = lessons.value.map(l => (
-      {
-        id: l.id,
-        name: l.name,
-      }
-    ))
-    a.unshift({ id: -2, name: "Ученики" })
-    a.push({ id: 0, name: "Рейтинг" })
-    return a
-  })
+const columns = computed(() => {
+  const a = lessons.value.map(l => (
+    {
+      id: l.id,
+      name: l.name,
+    }
+  ))
+  a.unshift({ id: -2, name: "Ученики" })
+  a.push({ id: 0, name: "Рейтинг" })
+  return a
+})
 
-  const  attendance = computed(() => {
-    return student_attendance.value;
-  })
+const attendance = computed(() => {
+  return student_attendance.value;
+})
 
-  const progress = computed(() => {
-    // if (this.dontSolved) {
-    //   return this.students_progress.filter(x => Object.keys(x.solved["HW"]).length === 0)
-    // }
-    return students_progress.value;
-  })
+const progress = computed(() => {
+  // if (this.dontSolved) {
+  //   return this.students_progress.filter(x => Object.keys(x.solved["HW"]).length === 0)
+  // }
+  return students_progress.value;
+})
 
-  const change = computed(() => {
-    return _.isEqual(student_attendance.value, student_attendance_copy.value)
-  })
+const change = computed(() => {
+  return _.isEqual(student_attendance.value, student_attendance_copy.value)
+})
 
-  function attendanceChange(userId: number, lessonId: number) {
-    const key = `${userId}-${lessonId}`;
-    student_attendance_copy.value[key].attendance = !student_attendance_copy.value[key].attendance;
+function attendanceChange(userId: number, lessonId: number) {
+  const key = `${userId}-${lessonId}`;
+  student_attendance_copy.value[key].attendance = !student_attendance_copy.value[key].attendance;
+}
+
+onMounted(async () => {
+  course.value = await courseStore.fetchCourseById(props.courseId);
+  students_progress.value = await progressStore.fetchCourseProgressById(props.courseId);
+  users.value = await userStore.fetchStudentsByCourseId(props.courseId);
+  lessons.value = await lessonStore.fetchLessonsByCourseId(props.courseId);
+  s.value = await progressStore.fetchAttendance(props.courseId);
+  emptyText.value = 'Ни один студент не записан на данный курс'
+
+  for (const [key, val] of Object.entries(s.value))
+    for (const at of val)
+      student_attendance.value[`${key}-${at.lesson}`] = at;
+
+  student_attendance_copy.value = _.cloneDeep(student_attendance.value);
+  loading.value = false;
+})
+
+function color(type: string) {
+  if (type === 'CW') {
+    return 'blue'
   }
-
-  onMounted(async () => {
-    course.value = await courseStore.fetchCourseById(props.courseId);
-    students_progress.value = await progressStore.fetchCourseProgressById(props.courseId);
-    users.value = await userStore.fetchStudentsByCourseId(props.courseId);
-    lessons.value = await lessonStore.fetchLessonsByCourseId(props.courseId);
-    s.value = await progressStore.fetchAttendance(props.courseId);
-    emptyText.value = 'Ни один студент не записан на данный курс'
-
-    for (const [key, val] of Object.entries(s.value))
-      for (const at of val)
-        student_attendance.value[`${key}-${at.lesson}`] = at;
-
-    student_attendance_copy.value = _.cloneDeep(student_attendance.value);
-    loading.value= false;
-  })
-
-  function color(type: string) {
-    if (type === 'CW') {
-      return 'blue'
-    }
-    if (type === 'HW') {
-      return 'green'
-    }
-    if (type === 'EX') {
-      return 'purple'
-    }
+  if (type === 'HW') {
+    return 'green'
   }
-
-  function sum(type: any) {
-    return Math.trunc(type['CW'] + type['HW'] + type['EX']);
+  if (type === 'EX') {
+    return 'purple'
   }
+}
 
-  function average(progress: Dictionary<string>) {
-    let sum = 0 as any;
-    for (const submits of Object.values(progress)) {
-      sum += submits['CW' as any];
-      sum += submits['HW' as any];
-      sum += submits['EX' as any];
-    }
-    return Math.trunc(sum);
-  }
+function sum(type: any) {
+  return Math.trunc(type['CW'] + type['HW'] + type['EX']);
+}
 
-  //TODO: change it with classical link
-  function openSubmitOrProblem(problem: number, submit?: number) {
-    if (submit)
-      router.push(`/course/${route.params['courseId']}/lesson/${route.params['lessonId']}/problem/${problem}/submit/${submit}`);
-    else
-      router.push(`/course/${route.params['courseId']}/lesson/${route.params['lessonId']}/problem/${problem}`);
+function average(progress: Dictionary<string>) {
+  let sum = 0 as any;
+  for (const submits of Object.values(progress)) {
+    sum += submits['CW' as any];
+    sum += submits['HW' as any];
+    sum += submits['EX' as any];
   }
+  return Math.trunc(sum);
+}
 
-  async function mark(): Promise<void> {
-    let success = true;
-    //TODO: remove unchanged instances
-    for (const val of Object.values(student_attendance_copy)) {
-      debugger;
-      const request = api.patch(`/api/lessonprogress/${val.id}/`, val);
-      request.then((response) => {
-        //
-      });
-      request.catch((error) => {
-        success = false;
-      })
-    }
-    student_attendance.value = _.cloneDeep(student_attendance_copy.value);
-  }
+//TODO: change it with classical link
+function openSubmitOrProblem(problem: number, submit?: number) {
+  if (submit)
+    router.push(`/course/${route.params['courseId']}/lesson/${route.params['lessonId']}/problem/${problem}/submit/${submit}`);
+  else
+    router.push(`/course/${route.params['courseId']}/lesson/${route.params['lessonId']}/problem/${problem}`);
+}
 
-  function Sort(sortBy: { index: string; order: string }) {
-    let order = -1;
-    if (sortBy.order == "none") {
-      return students_progress.value.sort((a, b) => {
-        return a.user - b.user
-      })
-    }
-    if (sortBy.order == "ascending") {
-      order *= -1;
-    }
-    if (sortBy.index == "0") {
-      return students_progress.value.sort((a, b) => {
-        return (users.value[a.user].last_name > users.value[b.user].last_name) ? order : -1 * order;
-      })
-    } else if (sortBy.index == (columns.value.length - 1).toString()) {
-      return students_progress.value.sort((a, b) => {
-        const A = a.progress ? average(a.progress) : 0;
-        const B = b.progress ? average(b.progress) : 0;
-        return A > B ? order : -1 * order;
-      })
-    } else {
-      return students_progress.value.sort((a, b) => {
-        const A = a.progress ? sum(a.progress[sortBy.index]) : 0;
-        const B = b.progress ? sum(b.progress[sortBy.index]) : 0;
-        return A > B ? order : -1 * order;
-      })
-    }
+async function mark(): Promise<void> {
+  let success = true;
+  //TODO: remove unchanged instances
+  for (const val of Object.values(student_attendance_copy)) {
+    const request = api.patch(`/api/lessonprogress/${val.id}/`, val);
+    request.then((response) => {
+      //
+    });
+    request.catch((error) => {
+      success = false;
+    })
   }
+  student_attendance.value = _.cloneDeep(student_attendance_copy.value);
+}
+
+function Sort(sortBy: { index: string; order: string }) {
+  let order = -1;
+  if (sortBy.order == "none") {
+    return students_progress.value.sort((a, b) => {
+      return a.user - b.user
+    })
+  }
+  if (sortBy.order == "ascending") {
+    order *= -1;
+  }
+  if (sortBy.index == "0") {
+    return students_progress.value.sort((a, b) => {
+      return (users.value[a.user].last_name > users.value[b.user].last_name) ? order : -1 * order;
+    })
+  } else if (sortBy.index == (columns.value.length - 1).toString()) {
+    return students_progress.value.sort((a, b) => {
+      const A = a.progress ? average(a.progress) : 0;
+      const B = b.progress ? average(b.progress) : 0;
+      return A > B ? order : -1 * order;
+    })
+  } else {
+    return students_progress.value.sort((a, b) => {
+      const A = a.progress ? sum(a.progress[sortBy.index]) : 0;
+      const B = b.progress ? sum(b.progress[sortBy.index]) : 0;
+      return A > B ? order : -1 * order;
+    })
+  }
+}
 </script>
 
 <style scoped lang="stylus">
@@ -276,15 +275,15 @@ import { useRouter, useRoute } from "vue-router";
 .fixed-col:last-child
   border-right none
 
-/deep/ table
+:deep() table
   text-align-last center
   border-collapse separate
 
-/deep/ th
+:deep() th
   padding-top 0.5rem
   padding-bottom 0.5rem
 
-/deep/ .bx--data-table-container
+:deep() .bx--data-table-container
   padding-top 0
 
 .marks
@@ -305,7 +304,7 @@ import { useRouter, useRoute } from "vue-router";
 .user-component
   cursor pointer
 
-/deep/ .empty-list-wrapper
+:deep() .empty-list-wrapper
   margin-top 5rem
   text-align center
 
