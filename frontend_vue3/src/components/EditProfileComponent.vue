@@ -5,10 +5,10 @@
     </div>
     <div class="list">
       <cv-inline-notification
-          v-if="showNotification"
-          :kind="notificationKind"
-          :sub-title="notificationText"
-          @close="hideNotification"
+        v-if="showNotification"
+        :kind="notificationKind"
+        :sub-title="notificationText"
+        @close="hideNotification"
       />
       <cv-structured-list>
         <template v-slot:items>
@@ -29,8 +29,8 @@
             <cv-structured-list-data>
               <cv-text-input v-model.trim="curUser.username">
                 <template
-                    v-if="checkUsername"
-                    v-slot:invalid-message>
+                  v-if="checkUsername"
+                  v-slot:invalid-message>
                   Логин должен содержать от 4 до 10 символов
                   и может состоять из латинских букв и цифр
                 </template>
@@ -41,10 +41,10 @@
             <cv-structured-list-data>Учебная группа</cv-structured-list-data>
             <cv-structured-list-data>
               <cv-combo-box
-                  :options="studyGroups"
-                  :auto-filter="true"
-                  label="Выберите группу"
-                  v-model="curUser.study_group"/>
+                :options="studyGroups"
+                :auto-filter="true"
+                label="Выберите группу"
+                v-model="curUser.study_group"/>
             </cv-structured-list-data>
           </cv-structured-list-item>
           <cv-structured-list-item class="list-item">
@@ -91,26 +91,26 @@ const isEmailValid = ref(false);
 const studyGroups = ref<Array<any>>([]);
 
 onMounted(async () => {
-  await fetch_study_groups();
-  studyGroups.value = studyGroups.value.map(item => {
-    return {
-      name: item.study_group,
-      label: item.study_group,
-      value: item.study_group,
-    };
-  });
+  // await fetch_study_groups();
+  // studyGroups.value = studyGroups.value.map(item => {
+  //   return {
+  //     name: item.study_group,
+  //     label: item.study_group,
+  //     value: item.study_group,
+  //   };
+  // });
 })
 
-async function fetch_study_groups() {
-  await api.get(`/api/studygroups/`)
-      .then(response => {
-        if (response.data)
-          this.studyGroups = response.data;
-      })
-      .catch(error => {
-        console.log(error);
-      })
-}
+// async function fetch_study_groups() {
+//   await api.get(`/api/studygroups/`)
+//     .then(response => {
+//       if (response.data)
+//         studyGroups.value = response.data;
+//     })
+//     .catch(error => {
+//       console.log(error);
+//     })
+// }
 
 function setLoginValidStatus(status: boolean) {
   isLoginValid.value = status;
@@ -160,17 +160,17 @@ async function editButtonHandler() {
     username: curUser.value.username,
     email: curUser.value.email,
   })
-      .then(response => {
-        emits('updateUser', curUser.value);
-        notificationKind.value = 'success';
-        notificationText.value = "Профиль успешно изменен";
-        showNotification.value = true;
-      })
-      .catch(error => {
-        notificationKind.value = 'error';
-        notificationText.value = `Что-то пошло не так: ${error.message}`;
-        showNotification.value = true;
-      })
+    .then(response => {
+      emits('updateUser', curUser.value);
+      notificationKind.value = 'success';
+      notificationText.value = "Профиль успешно изменен";
+      showNotification.value = true;
+    })
+    .catch(error => {
+      notificationKind.value = 'error';
+      notificationText.value = `Что-то пошло не так: ${error.message}`;
+      showNotification.value = true;
+    })
 }
 
 function hideEdit() {
@@ -180,6 +180,9 @@ function hideEdit() {
 </script>
 
 <style scoped lang="stylus">
+:deep() .bx--text-input,
+:deep() .bx--combo-box
+  background-color var(--cds-ui-background)
 
 .list
   margin-top 2rem
