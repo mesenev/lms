@@ -6,6 +6,7 @@
     <cv-modal class="add_lesson_modal"
               :visible="modalVisible"
               @modal-hidden="modalHidden"
+              :disableTeleport="true"
               :primary-button-disabled="isButtonDisabled"
               @primary-click="addMaterial"
               @secondary-click="() => {}">
@@ -97,106 +98,105 @@ import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
 const props = defineProps({
-  _lesson: {type: Object as PropType<LessonModel>, required: true}
+  _lesson: { type: Object as PropType<LessonModel>, required: true }
 })
 
 const route = useRoute();
 
-  const lesson = ref<LessonModel>(props._lesson)
-  const materialStore = useMaterialStore();
-  const userStore = useUserStore();
-  const currentMaterial = ref<MaterialModel>({ ...materialStore.getNewMaterial, lesson: lesson.value.id });
-  const creationLoader = ref(false);
-  const modalVisible = ref(false);
-  const searchQueryForAllMaterials = ref('');
-  const invalidMessageVisible = ref(false);
-  const invalidMessage = 'Материал с таким названием уже существует!';
-  const emptyInvalidMessage = 'Заполните поле!';
-  const emptyMaterialsListText = 'Добавьте новый материал.';
+const lesson = ref<LessonModel>(props._lesson)
+const materialStore = useMaterialStore();
+const userStore = useUserStore();
+const currentMaterial = ref<MaterialModel>({ ...materialStore.getNewMaterial, lesson: lesson.value.id });
+const creationLoader = ref(false);
+const modalVisible = ref(false);
+const searchQueryForAllMaterials = ref('');
+const invalidMessageVisible = ref(false);
+const invalidMessage = 'Материал с таким названием уже существует!';
+const emptyInvalidMessage = 'Заполните поле!';
+const emptyMaterialsListText = 'Добавьте новый материал.';
 
-  const materials = computed((): Array<MaterialModel> => {
-    if (lesson.value)
-      return [...materialStore.materials[lesson.value.id]].sort(
-        (a, b) => {
-          return (a.is_teacher_only === b.is_teacher_only ? 0 : b.is_teacher_only ? -1 : 1) || a.id - b.id;
-        }
-      );
-    return [];
+const materials = computed((): Array<MaterialModel> => {
+  if (lesson.value)
+    return [...materialStore.materials[lesson.value.id]].sort(
+      (a, b) => {
+        return (a.is_teacher_only === b.is_teacher_only ? 0 : b.is_teacher_only ? -1 : 1) || a.id - b.id;
+      }
+    );
+  return [];
+})
+
+function showModal() {
+  modalVisible.value = true;
+  currentMaterial.value = { ...materialStore.getNewMaterial, lesson: lesson.value.id };
+}
+
+function modalHidden() {
+  modalVisible.value = false;
+}
+
+function invalidMessageHidden() {
+  if (areSameMaterialNames(currentMaterial.value.name))
+    invalidMessageVisible.value = false;
+}
+
+async function addMaterial() {
+  if (areSameMaterialNames(currentMaterial.value.name)
+    || !currentMaterial.value.name
+    || !currentMaterial.value.content_type) {
+    invalidMessageVisible.value = true;
+    return;
+  }
+  creationLoader.value = true;
+  await createNewMaterial();
+  creationLoader.value = false;
+  if (materials.value.every((l) => l.name)) {
+    // this.lessons.forEach((lesson) => this.lessonStore.addLessonToCourse(lesson));
+    // this.lessons = [];
+  }
+}
+
+async function createNewMaterial() {
+  if (currentMaterial.value.content_type === 'text')
+    currentMaterial.value.content = "### материал"
+  const request = api.post('/api/material/', currentMaterial.value);
+  request.then(response => {
+    lesson.value.materials.push(response.data as MaterialModel);
+    materialStore.setMaterials({ [lesson.value.id]: lesson.value.materials });
+  });
+  request.catch(error => {
+    notificationKind.value = 'error';
+    notificationText.value = `Что-то пошло не так: ${error.message}`;
+    showNotification.value = true;
+  });
+  request.finally(() => {
+    invalidMessageHidden();
   })
+}
 
-  function showModal() {
-    modalVisible.value = true;
-    currentMaterial.value = { ...materialStore.getNewMaterial, lesson: lesson.value.id };
-  }
+const isStaff = computed(() => {
+  return userStore.user.staff_for.includes(Number(route.params.courseId));
+})
 
-  function modalHidden() {
-    modalVisible.value = false;
-  }
+const isButtonDisabled = computed(() => {
+  return creationLoader.value;
+})
 
-  function invalidMessageHidden() {
-    if (areSameMaterialNames(currentMaterial.value.name))
-      invalidMessageVisible.value = false;
-  }
+function areSameMaterialNames(materialName: string) {
+  return materials.value.filter(material => material.name === materialName).length != 0;
+}
 
-  async function addMaterial() {
-    if (areSameMaterialNames(currentMaterial.value.name)
-      || !currentMaterial.value.name
-      || !currentMaterial.value.content_type) {
-      invalidMessageVisible.value = true;
-      return;
+function sortMaterials(): Array<MaterialModel> {
+  return materialStore.materials[lesson.value.id].sort(
+    (a, b) => {
+      return (a.is_teacher_only === b.is_teacher_only ? 0 : b.is_teacher_only ? -1 : 1) || a.id - b.id;
     }
-    creationLoader.value = true;
-    await createNewMaterial();
-    creationLoader.value = false;
-    if (materials.value.every((l) => l.name)) {
-      // this.lessons.forEach((lesson) => this.lessonStore.addLessonToCourse(lesson));
-      // this.lessons = [];
-    }
-  }
-
-  async function createNewMaterial() {
-    if (currentMaterial.value.content_type === 'text')
-      currentMaterial.value.content = "### материал"
-    const request = api.post('/api/material/', currentMaterial.value);
-    request.then(response => {
-      lesson.value.materials.push(response.data as MaterialModel);
-      materialStore.setMaterials({ [lesson.value.id]: lesson.value.materials });
-    });
-    request.catch(error => {
-      notificationKind.value = 'error';
-      notificationText.value = `Что-то пошло не так: ${error.message}`;
-      showNotification.value = true;
-    });
-    request.finally(() => {
-      invalidMessageHidden();
-    })
-  }
-
-  const isStaff = computed(() => {
-    return userStore.user.staff_for.includes(Number(route.params.courseId));
-  })
-
-  const isButtonDisabled = computed(() => {
-    return creationLoader.value;
-  })
-
-  function areSameMaterialNames(materialName: string) {
-    return materials.value.filter(material => material.name === materialName).length != 0;
-  }
-
-  function sortMaterials(): Array<MaterialModel> {
-    return materialStore.materials[lesson.value.id].sort(
-        (a, b) => {
-          return (a.is_teacher_only === b.is_teacher_only ? 0 : b.is_teacher_only ? -1 : 1) || a.id - b.id;
-        }
-      );
-  }
+  );
+}
 
 </script>
 
 <style scoped lang="stylus">
-
-.bx--modal-content:focus
+:deep() .bx--modal-content:focus
   outline none
 
 .change-btn
@@ -212,16 +212,16 @@ const route = useRoute();
   justify-content space-between
 
 .cv-text-input
-  /deep/ .bx--label
+  :deep() .bx--label
     margin-top 3px
 
 .material-type-dropdown
   max-width 10rem
 
-  /deep/ .bx--dropdown__wrapper.bx--list-box__wrapper
+  :deep() .bx--dropdown__wrapper.bx--list-box__wrapper
     align-self end
 
-/deep/ .bx--list-box__field
+:deep() .bx--list-box__field
   display flex
 
 .materials-info

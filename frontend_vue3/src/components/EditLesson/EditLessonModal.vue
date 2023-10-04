@@ -4,11 +4,12 @@
       Добавить задание
     </cv-button>
     <cv-modal
-        :primary-button-disabled="addButtonDisabled"
-        :visible="modalVisible"
-        class="add_lesson_modal"
-        @modal-hidden="modalHidden"
-        @primary-click="primaryHandler">
+      :primary-button-disabled="addButtonDisabled"
+      :visible="modalVisible"
+      :disableTeleport="true"
+      class="add_lesson_modal"
+      @modal-hidden="modalHidden"
+      @primary-click="primaryHandler">
       <template v-slot:label>{{ lesson.name }}</template>
       <template v-slot:title>
         Добавить задание
@@ -23,10 +24,10 @@
         </cv-content-switcher>
         <cv-content-switcher-content parent-switcher="task" owner-id="Problems">
           <cv-inline-notification
-              v-if="showNotification"
-              @close="() => showNotification=false"
-              :kind="notificationKind"
-              :sub-title="notificationText"/>
+            v-if="showNotification"
+            @close="() => showNotification=false"
+            :kind="notificationKind"
+            :sub-title="notificationText"/>
         </cv-content-switcher-content>
       </template>
       <template v-slot:content>
@@ -53,29 +54,29 @@
               <div class="problem-type-selection">
                 <h5>Тип задачи</h5>
                 <cv-radio-group
-                    @change="(newType) => problemType = newType"
-                    :vertical="false">
+                  @change="(newType) => problemType = newType"
+                  :vertical="false">
                   <cv-radio-button
-                      v-model="problemType"
-                      label="Классная работа"
-                      name="group-1" value="CW"/>
+                    v-model="problemType"
+                    label="Классная работа"
+                    name="group-1" value="CW"/>
                   <cv-radio-button
-                      v-model="problemType"
-                      label="Домашняя работа"
-                      name="group-1" value="HW"/>
+                    v-model="problemType"
+                    label="Домашняя работа"
+                    name="group-1" value="HW"/>
                   <cv-radio-button
-                      v-model="problemType"
-                      label="Дополнительные задания"
-                      name="group-1" value="EX"/>
+                    v-model="problemType"
+                    label="Дополнительные задания"
+                    name="group-1" value="EX"/>
                 </cv-radio-group>
               </div>
               <div>
                 <cv-data-table
-                    v-if="!fetchingCatsProblems" ref="table"
-                    v-model:rowsSelected="selected" :columns="columns" :data="catsFilteredProblems"
-                    :stickyHeader="true"
-                    class="cats-problems-table" :expanding-search="false"
-                    @search="onSearch">
+                  v-if="!fetchingCatsProblems" ref="table"
+                  v-model:rowsSelected="selected" :columns="columns" :data="catsFilteredProblems"
+                  :stickyHeader="true"
+                  class="cats-problems-table" :expanding-search="false"
+                  @search="onSearch">
                   <template v-slot:batch-actions>
                     <div></div>
                   </template>
@@ -105,19 +106,19 @@
                 </cv-dropdown>
               </div>
               <div class="exam-fields">
-                <cv-text-input v-model="exam.name" label="Название теста">
+                <cv-text-input v-model="exam.name" label="Название теста" placeholder="Введите название теста">
                   <template v-slot:invalid-message v-if="!exam.name && showInvalidMessage">
                     {{ emptyInputInvalidText }}
                   </template>
                 </cv-text-input>
-                <cv-text-area v-model="exam.description" label="Описание"/>
+                <cv-text-area v-model="exam.description" label="Описание" placeholder="Введите описание теста"/>
               </div>
             </div>
             <cv-inline-notification
-                v-if="showNotification"
-                @close="() => showNotification=false"
-                :kind="notificationKind"
-                :sub-title="notificationText"/>
+              v-if="showNotification"
+              @close="() => showNotification=false"
+              :kind="notificationKind"
+              :sub-title="notificationText"/>
           </cv-content-switcher-content>
         </section>
       </template>
@@ -190,18 +191,18 @@ onMounted(async () => {
 async function fetchCatsProblems() {
   fetchingCatsProblems.value = true;
   await api.get(`/api/cats-problems/${props.lesson.course}/`)
-      .then(response => {
-        catsProblems.value = response.data;
-      })
-      .catch(error => {
-        console.log(error.response);
-        notificationKind.value = 'error';
-        notificationText.value = `Ошибка получения списка задач: ${error.message}`;
-        showNotification.value = true;
-      })
+    .then(response => {
+      catsProblems.value = response.data;
+    })
+    .catch(error => {
+      console.log(error.response);
+      notificationKind.value = 'error';
+      notificationText.value = `Ошибка получения списка задач: ${error.message}`;
+      showNotification.value = true;
+    })
   catsProblems.value.map(value => {
     catsProblemsTruncated.value.push(
-        { id: value.id, name: value.name, status: value.status },
+      { id: value.id, name: value.name, status: value.status },
     )
   });
   catsProblemsTruncated.value = [...catsProblemsTruncated.value];
@@ -267,7 +268,7 @@ const selectedCatsProblems = computed(() => {
 const areUsedTasks = computed(() => {
   return props.lesson.problems.filter(element => {
     return selectedCatsProblems.value.find(e => e.id === element.cats_id)?.id
-        && element.type === problemType.value;
+      && element.type === problemType.value;
   }).length > 0;
 })
 
@@ -314,27 +315,27 @@ async function addProblem() {
     const problemTypes = new Map<string, number>([['CW', 0], ['HW', 1], ['EX', 2]]);
     data.forEach(element => element.test_mode = testingMode.value);
     await api.post(
-        `/api/lesson/${props.lesson.id}/add_cats_problems/`,
-        { problem_data: data, problem_type: problemTypes.get(problemType.value) },
+      `/api/lesson/${props.lesson.id}/add_cats_problems/`,
+      { problem_data: data, problem_type: problemTypes.get(problemType.value) },
     )
-        .then(async (answer) => {
-          if (answer.status == 200) {
-            const newProblems = (answer.data as ProblemModel[]).map(element => {
-              element.type = problemType.value;
-              return element;
-            });
-            emits("update-problem-list", newProblems as ProblemModel[]);
-            modalHidden();
-            clearData();
-            // await this.fetchCatsProblems();
-          }
-        }).catch(answer => {
-          notificationKind.value = 'error';
-          notificationText.value = `Произошла ошибка при добавлении задач. ${answer.message}`;
-          showNotification.value = true;
-        }).finally(() => {
-          loading.value = false;
-        })
+      .then(async (answer) => {
+        if (answer.status == 200) {
+          const newProblems = (answer.data as ProblemModel[]).map(element => {
+            element.type = problemType.value;
+            return element;
+          });
+          emits("update-problem-list", newProblems as ProblemModel[]);
+          modalHidden();
+          clearData();
+          // await this.fetchCatsProblems();
+        }
+      }).catch(answer => {
+        notificationKind.value = 'error';
+        notificationText.value = `Произошла ошибка при добавлении задач. ${answer.message}`;
+        showNotification.value = true;
+      }).finally(() => {
+        loading.value = false;
+      })
   }
 }
 
@@ -346,7 +347,7 @@ async function createExam() {
     emits('update-exam-list', response.data as ExamModel);
     await modalHidden();
     await router.push(
-        { name: 'exam-edit', params: { examId: response.data.id.toString() } },
+      { name: 'exam-edit', params: { examId: response.data.id.toString() } },
     );
   }).catch(error => {
     notificationText.value = `Что-то пошло не так: ${error.message}`;
@@ -359,19 +360,19 @@ async function createExam() {
 </script>
 
 <style scoped lang="stylus">
-.add_lesson_modal /deep/ .bx--modal-container
+.add_lesson_modal :deep() .bx--modal-container
   background var(--cds-ui-background)
 
-/deep/ .bx--modal-content:focus
+:deep() .bx--modal-content:focus
   outline none
 
-/deep/ .bx--modal-content
+:deep() .bx--modal-content
   margin-bottom var(--cds-spacing-04)
   padding-top 0
 
-/deep/ .bx--text-input,
-/deep/ .bx--text-area,
-/deep/ .bx--dropdown
+:deep() .bx--text-input,
+:deep() .bx--text-area,
+:deep() .bx--dropdown
   background-color var(--cds-ui-background)
 
 .change-btn
@@ -415,12 +416,12 @@ async function createExam() {
   margin-bottom 1rem
 
 .testing-type-dropdown
-  /deep/ .bx--dropdown__wrapper.bx--list-box__wrapper
+  :deep() .bx--dropdown__wrapper.bx--list-box__wrapper
     max-width 50%
     align-self end
 
 
-/deep/ .bx--list-box__field
+:deep() .bx--list-box__field
   display flex
 
 .action-container
