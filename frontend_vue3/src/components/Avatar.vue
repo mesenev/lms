@@ -12,7 +12,7 @@
 import {computed} from "vue";
 
 const props = defineProps({
-  avatar_url: {type: String, required: true}
+  avatar_url: {type: String, required: false}
 });
 
 const src = "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
