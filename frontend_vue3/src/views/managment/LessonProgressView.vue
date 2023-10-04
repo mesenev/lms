@@ -6,13 +6,14 @@
       </div>
       <div class="table-actions" v-if="progress.length">
         <cv-toggle v-model="dontSolved"
+                   :hideLabel="true"
                    value="value">
           <template v-slot:text-left>Отображать только студентов без решений</template>
           <template v-slot:text-right>Отображать только студентов без решений</template>
         </cv-toggle>
         <div class="problem-type-dropdown">
-          <cv-dropdown v-model="problemsType">
-            <cv-dropdown-item value="CW" selected>Классная работа</cv-dropdown-item>
+          <cv-dropdown v-model:value="problemsType">
+            <cv-dropdown-item value="CW">Классная работа</cv-dropdown-item>
             <cv-dropdown-item value="HW">Домашняя работа</cv-dropdown-item>
             <cv-dropdown-item value="EW">Доп. задачи</cv-dropdown-item>
           </cv-dropdown>
@@ -37,8 +38,8 @@
             <cv-data-table-row v-for="user in progress" :key="user.id">
               <cv-data-table-cell class="fixed-col">
                 <router-link :to="{ name: 'profile-page', params: { userId: user.user } }"
-                             class="course--title" tag="p">
-                  <UserComponent :userId="user.user"/>
+                             class="course--title" >
+                  <UserComponent :userId="user.user"/> {{ user.user }}
                 </router-link>
               </cv-data-table-cell>
               <cv-data-table-cell v-for="problem in problems"
@@ -82,152 +83,153 @@ import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
 import { ref, type Ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
-  const props = defineProps({lessonId: {type: Number, required: true}})
+const props = defineProps({ lessonId: { type: Number, required: true } })
 
 
-  const students: Ref<Array<UserProgress>> = ref([]);
-  const users:Ref<Dictionary<UserModel>> = ref({});
-  const _problems: Ref<Array<ProblemModel>> = ref([]);
-  const submits: Ref<Dictionary<SubmitModel[]>> = ref({});
-  const lesson: Ref<LessonModel> = ref({
-    id: NaN,
-    course: NaN,
-    description: '',
-    name: '',
-    problems: [],
-    exams: [],
-    materials: [],
-    deadline: '',
-    lessonContent: '',
-    is_hidden: true,
-    progress: [],
-    scores: {},
-  });
+const students: Ref<Array<UserProgress>> = ref([]);
+const users: Ref<Dictionary<UserModel>> = ref({});
+const _problems: Ref<Array<ProblemModel>> = ref([]);
+const submits: Ref<Dictionary<SubmitModel[]>> = ref({});
+const lesson: Ref<LessonModel> = ref({
+  id: NaN,
+  course: NaN,
+  description: '',
+  name: '',
+  problems: [],
+  exams: [],
+  materials: [],
+  deadline: '',
+  lessonContent: '',
+  is_hidden: true,
+  progress: [],
+  scores: {},
+});
 
-  const userStore = useUserStore();
-  const lessonStore = useLessonStore();
-  const progressStore = useProgressStore();
-  const problemStore = useProblemStore();
-  const submitStore = useSubmitStore();
+const userStore = useUserStore();
+const lessonStore = useLessonStore();
+const progressStore = useProgressStore();
+const problemStore = useProblemStore();
+const submitStore = useSubmitStore();
 
-  const route = useRoute();
-  const router = useRouter();
+const route = useRoute();
+const router = useRouter();
 
-  const loading: Ref<boolean> = ref(true);
-  const dontSolved: Ref<boolean> = ref(false);
-  const problemsType: Ref<string> = ref('');
-  const emptyText: Ref<string> = ref('');
+const loading: Ref<boolean> = ref(true);
+const dontSolved: Ref<boolean> = ref(false);
+const problemsType: Ref<string> = ref('CW');
+const emptyText: Ref<string> = ref('');
 
-  const columns = computed(() => {
-    const a = problems.value.map(l => (
-      {
-        id: l.id,
-        name: l.name,
-      }
-    ))
-    a.unshift({ id: -2, name: "Ученики" })
-    a.push({ id: 0, name: "Рейтинг" })
-    return a
-  })
-
-  const problems = computed(() => {
-    return _problems.value.filter(x => x.type === problemsType.value);
-  })
-
-  const progress = computed(() => {
-    if (dontSolved.value) {
-      return students.value.filter(x => Object.keys(x.solved[problemsType.value]).length === 0)
+const columns = computed(() => {
+  const a = problems.value.map(l => (
+    {
+      id: l.id,
+      name: l.name,
     }
-    return students.value;
-  })
+  ))
+  a.unshift({ id: -2, name: "Ученики" })
+  a.push({ id: 0, name: "Рейтинг" })
+  return a
+})
 
-  const currentLesson = computed(() => {
-    return lesson.value;
-  })
+const problems = computed(() => {
+  return _problems.value.filter(x => x.type === problemsType.value);
+})
+
+const progress = computed(() => {
+  if (dontSolved.value) {
+    const studentsWithoutSolutions = students.value.filter(x => Object.keys(x.solved[problemsType.value] ?? []).length === 0)
+    return studentsWithoutSolutions.length ? studentsWithoutSolutions : students.value;
+  }
+  return students.value;
+})
+
+const currentLesson = computed(() => {
+  return lesson.value;
+})
 
 onMounted(async () => {
-    lesson.value = await lessonStore.fetchLessonById(props.lessonId);
-    users.value = await userStore.fetchStudentsByCourseId(lesson.value.course);
-    _problems.value = await problemStore.fetchProblemsByLessonId(props.lessonId);
-    for (const problem of _problems.value) {
-      submits.value[problem.id] = await submitStore.fetchProblemStats(problem.id);
-    }
-    students.value = (await progressStore.fetchLessonProgressByLessonId(props.lessonId));
-    emptyText.value = 'Ни один студент не записан на курс';
-    loading.value = false;
-  })
-
-  function openSubmitOrProblem(problem: number, submit?: number) {
-    if (submit)
-      router.push(`/course/${route.params['courseId']}/lesson/${route.params['lessonId']}/problem/${problem}/submit/${submit}`);
-    else
-      router.push(`/course/${route.params['courseId']}/lesson/${route.params['lessonId']}/problem/${problem}`);
+  lesson.value = await lessonStore.fetchLessonById(props.lessonId);
+  users.value = await userStore.fetchStudentsByCourseId(lesson.value.course);
+  _problems.value = await problemStore.fetchProblemsByLessonId(props.lessonId);
+  for (const problem of _problems.value) {
+    submits.value[problem.id] = await submitStore.fetchProblemStats(problem.id);
   }
+  students.value = (await progressStore.fetchLessonProgressByLessonId(props.lessonId));
+  emptyText.value = 'Ни один студент не записан на курс';
+  loading.value = false;
+})
 
-  function definition(column: number) {
-    if (!loading.value && column != -2 && column != 0) {
-      const columnProblem = problems.value.filter((problem) => problem.id === column)[0]
-      column = (columnProblem) ? (columnProblem.stats ? columnProblem.stats.green : 0) : 0;
-    }
-    return `Успешно решило ${column} из ${progress.value.length} студентов`
+function openSubmitOrProblem(problem: number, submit?: number) {
+  if (submit)
+    router.push(`/course/${route.params['courseId']}/lesson/${route.params['lessonId']}/problem/${problem}/submit/${submit}`);
+  else
+    router.push(`/course/${route.params['courseId']}/lesson/${route.params['lessonId']}/problem/${problem}`);
+}
+
+function definition(column: number) {
+  if (!loading.value && column != -2 && column != 0) {
+    const columnProblem = problems.value.filter((problem) => problem.id === column)[0]
+    column = (columnProblem) ? (columnProblem.stats ? columnProblem.stats.green : 0) : 0;
   }
+  return `Успешно решило ${column} из ${progress.value.length} студентов`
+}
 
-  function create_submit(status_id: never, problemId: number, userid: number) {
-    return {
-      id: Object.values(status_id)[1],
-      problem: problemId,
-      student: Number(userid),
-      status: Object.values(status_id)[0]
-    }
-  };
-
-  function userMarks(userId: UserProgress, problemType: string, problemId: number) {
-    return userId.solved[problemType][problemId];
+function create_submit(status_id: never, problemId: number, userid: number) {
+  return {
+    id: Object.values(status_id)[1],
+    problem: problemId,
+    student: Number(userid),
+    status: Object.values(status_id)[0]
   }
+};
 
-  function average(user: UserProgress): number {
-    const problemIds = problems.value.filter(x => x.type === problemsType.value).map(x => x.id);
-    let solvedCount = 0;
+function userMarks(userId: UserProgress, problemType: string, problemId: number) {
+  return userId.solved[problemType][problemId];
+}
 
-    for (const submits_ptr of Object.values(submits.value)) {
-      solvedCount += submits_ptr.filter(
-        x => x.student === user.user && x.status === 'OK' && problemIds.includes(x.problem.id)
-      ).length ? 1 : 0;
-    }
-    const averageResult = (solvedCount / problemIds.length) * 100;
+function average(user: UserProgress): number {
+  const problemIds = problems.value.filter(x => x.type === problemsType.value).map(x => x.id);
+  let solvedCount = 0;
 
-    return problemIds.length ? Math.trunc(averageResult) : 0;
+  for (const submits_ptr of Object.values(submits.value)) {
+    solvedCount += submits_ptr.filter(
+      x => x.student === user.user && x.status === 'OK' && problemIds.includes(x.problem.id)
+    ).length ? 1 : 0;
   }
+  const averageResult = (solvedCount / problemIds.length) * 100;
 
-  function Sort(sortBy: { index: string; order: string }) {
-    let order = -1;
-    if (sortBy.order == "none") {
-      return students.value.sort((a, b) => {
-        return a.id - b.id
-      })
-    }
-    if (sortBy.order == "ascending") {
-      order *= -1;
-    }
-    if (sortBy.index == "0") {
-      return students.value.sort((a, b) => {
-        return (users.value[a.user].last_name > users.value[b.user].last_name) ? order : -1 * order;
-      })
-    } else if (sortBy.index == (columns.value.length - 1).toString()) {
-      return students.value.sort((a, b) => {
-        return (average(a) > average(b) ? order : -1 * order);
-      })
-    } else {
-      const solved = students.value.filter(x => x.solved[problemsType.value][sortBy.index]).sort((a, b) => {
-        const aSolutions = a.solved[problemsType.value][sortBy.index];
-        const bSolutions = b.solved[problemsType.value][sortBy.index];
-        const A = aSolutions[0] === 'OK' ? 1 : (aSolutions[0] === 'NP' ? 0 : -1);
-        const B = bSolutions[0] === 'OK' ? 1 : (bSolutions[0] === 'NP' ? 0 : -1);
-        return (A > B) ? order : -1 * order;
-      })
-      return students.value = solved.concat(students.value.filter(x => !x.solved[problemsType.value][sortBy.index]));
-    }
+  return problemIds.length ? Math.trunc(averageResult) : 0;
+}
+
+function Sort(sortBy: { index: string; order: string }) {
+  let order = -1;
+  if (sortBy.order == "none") {
+    return students.value.sort((a, b) => {
+      return a.id - b.id
+    })
   }
+  if (sortBy.order == "ascending") {
+    order *= -1;
+  }
+  if (sortBy.index == "0") {
+    return students.value.sort((a, b) => {
+      return (users.value[a.user].last_name > users.value[b.user].last_name) ? order : -1 * order;
+    })
+  } else if (sortBy.index == (columns.value.length - 1).toString()) {
+    return students.value.sort((a, b) => {
+      return (average(a) > average(b) ? order : -1 * order);
+    })
+  } else {
+    const solved = students.value.filter(x => x.solved[problemsType.value][sortBy.index]).sort((a, b) => {
+      const aSolutions = a.solved[problemsType.value][sortBy.index];
+      const bSolutions = b.solved[problemsType.value][sortBy.index];
+      const A = aSolutions[0] === 'OK' ? 1 : (aSolutions[0] === 'NP' ? 0 : -1);
+      const B = bSolutions[0] === 'OK' ? 1 : (bSolutions[0] === 'NP' ? 0 : -1);
+      return (A > B) ? order : -1 * order;
+    })
+    return students.value = solved.concat(students.value.filter(x => !x.solved[problemsType.value][sortBy.index]));
+  }
+}
 </script>
 
 <style lang="stylus" scoped>
@@ -242,7 +244,7 @@ onMounted(async () => {
 .problem-type-dropdown
   width fit-content
 
-/deep/ .bx--list-box__field
+:deep() .bx--list-box__field
   display flex
 
 .table-wrapper
@@ -252,11 +254,11 @@ onMounted(async () => {
   overflow-x auto
   width 100%
 
-/deep/ table
+:deep() table
   text-align-last center
   border-collapse separate
 
-/deep/ th
+:deep() th
   padding-top 0.5rem
   padding-bottom 0.5rem
 
@@ -273,19 +275,19 @@ onMounted(async () => {
 .fixed-col:last-child
   border-right none
 
-/deep/ .bx--data-table-container
+:deep() .bx--data-table-container
   padding-top 0
 
 .mark
   user-select none
 
-/deep/ .tag
+:deep() .tag
   cursor pointer
 
 .user-component
   cursor pointer
 
-/deep/ .empty-list-wrapper
+:deep() .empty-list-wrapper
   margin-top 5rem
   text-align center
 
