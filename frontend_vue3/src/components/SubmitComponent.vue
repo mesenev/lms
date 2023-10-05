@@ -284,6 +284,7 @@ function confirmSubmit() {
 
   if (file_content.value.length != 0) {
     submitEdit.value.content = file_content.value
+    deleteFile();
   }
 
   api.post('/api/submit/', {
