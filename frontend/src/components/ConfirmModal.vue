@@ -7,51 +7,52 @@
       size="small"
       @primary-click="approve"
       @modal-hidden="hideModal">
-      <template slot="label">Подтверждение</template>
-      <template slot="title">Вы уверены?</template>
-      <template slot="content">
+      <template v-slot:label>Подтверждение</template>
+      <template v-slot:title>Вы уверены?</template>
+      <template v-slot:content>
         <div>
           {{ text }}
         </div>
       </template>
-      <template slot="primary-button">Подтвердить</template>
-      <template slot="secondary-button">Отмена</template>
+      <template v-slot:primary-button>Подтвердить</template>
+      <template v-slot:secondary-button>Отмена</template>
     </cv-modal>
   </div>
 </template>
 
-<script lang="ts">
-import {Component, Prop, Watch, Vue} from "vue-property-decorator";
+<script lang="ts" setup>
 
-@Component({})
-export default class ConfirmModal extends Vue {
-  @Prop({required: true}) modalTrigger!: boolean;
-  @Prop({required: true}) text!: string;
-  @Prop({required: true}) approveHandler!: Function;
+import { ref, watch } from "vue";
 
-  modalVisible = false;
-  inAction = false;
+const props = defineProps({
+  modalTrigger: { type: Boolean, required: true },
+  text: { type: String, required: true },
+  approveHandler: { type: Function, required: true }
+})
 
-  @Watch('modalTrigger')
-  showModal() {
-    this.modalVisible = true;
-  }
+const emits = defineEmits(['show-modal'])
 
-  hideModal() {
-    this.modalVisible = false;
-    this.sideModalAction();
-  }
+const modalVisible = ref(false);
+const inAction = ref(false);
 
-  sideModalAction() {
-    this.$emit('show-modal');
-  }
+watch(() => props.modalTrigger, () => {
+  modalVisible.value = true;
+})
 
-  async approve() {
-    this.inAction = true;
-    await this.approveHandler();
-    this.inAction = false;
-    this.hideModal();
-  }
+function hideModal() {
+  modalVisible.value = false;
+  sideModalAction();
+}
+
+function sideModalAction() {
+  emits('show-modal');
+}
+
+async function approve() {
+  inAction.value = true;
+  await props.approveHandler();
+  inAction.value = false;
+  hideModal();
 }
 </script>
 

@@ -2,29 +2,30 @@
   <div>
     <cv-button kind="secondary" @click="showModal">Создать ссылку-приглашение</cv-button>
     <cv-modal :visible="modalVisible"
+              size="sm"
+              :disableTeleport="true"
               class="generate-link-modal"
-              size="small"
               @modal-hidden="modalHidden">
-      <template slot="title">Создание ссылки-приглашения</template>
-      <template slot="content">
+      <template v-slot:title>Создание ссылки-приглашения</template>
+      <template v-slot:content>
         <div class="link-content">
           <div class="input-link-container">
             <cv-number-input
-              :light="false"
-              :label="'Выберите количество учеников курса'"
-              :min="1"
-              :step="1"
-              v-model="counter"
-              class="create-link-input">
+                :light="false"
+                :label="'Выберите количество учеников курса'"
+                :min="1"
+                :step="1"
+                v-model="counter"
+                class="create-link-input">
             </cv-number-input>
             <cv-icon-button
-              kind="secondary"
-              :icon="AddAlt24"
-              label="Создать ссылку"
-              tip-position="top"
-              size="field"
-              @click="createNewLink"
-              class="generate-btn"/>
+                kind="secondary"
+                :icon="AddAlt24"
+                label="Создать ссылку"
+                tip-position="top"
+                size="field"
+                @click="createNewLink"
+                class="generate-btn"/>
           </div>
           <div class="headings">
             <p class="heading">Доступные ссылки</p>
@@ -32,7 +33,7 @@
           </div>
           <div class="links-list-container">
             <cv-structured-list class="links-list">
-              <template slot="items">
+              <template v-slot:items>
                 <cv-structured-list-item v-if="loading">
                 </cv-structured-list-item>
                 <cv-structured-list-item checked v-for="k in Links" :key="k.link" v-else>
@@ -57,73 +58,69 @@
   </div>
 </template>
 
-<script lang="ts">
-import LinkModel from "@/models/LinkModel";
+<script lang="ts" setup>
 import CopyLink16 from '@carbon/icons-vue/lib/copy--link/16';
 import TrashCan16 from '@carbon/icons-vue/lib/trash-can/16';
 import AddAlt24 from '@carbon/icons-vue/lib/add--alt/24';
-import api from '@/store/services/api';
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { onMounted, ref } from "vue";
+import type { LinkModel } from "@/models/LinkModel";
+import api from "@/stores/services/api";
 
-@Component({})
-export default class LinksManagerComponent extends Vue {
-  @Prop({required: true}) courseId!: number;
-  loading = true;
-  Links: Array<LinkModel> = [];
-  counter = 1;
-  AddAlt24 = AddAlt24
-  TrashCan16 = TrashCan16
-  CopyLink16 = CopyLink16
-  modalVisible = false;
+const props = defineProps({
+  courseId: { type: Number, required: true }
+})
 
-  async created() {
-    await api.get(
-      '/api/courselink/', { params: { course: this.courseId } },
-    ).then(response => {
-        this.Links = response.data.filter((x: LinkModel) => x.usages > 0);
+const loading = ref(true);
+const Links = ref<Array<LinkModel>>([]);
+const counter = ref(1);
+const modalVisible = ref(false);
+
+onMounted(async () => {
+  await api.get(
+      '/api/courselink/', { params: { course: props.courseId } },
+  ).then(response => {
+        Links.value = response.data.filter((x: LinkModel) => x.usages > 0);
       },
-    ).catch(error => {
-      console.log(error);
-    })
-    this.loading = false;
-  }
+  ).catch(error => {
+    console.log(error);
+  })
+  loading.value = false;
+})
 
-  showModal() {
-    this.modalVisible = true;
-  }
+function showModal() {
+  modalVisible.value = true;
+}
 
-  modalHidden() {
-    this.modalVisible = false;
-  }
+function modalHidden() {
+  modalVisible.value = false;
+}
 
-  async createNewLink() {
-    api.post('/api/courselink/',
-      { course: this.courseId, usages: this.counter })
+async function createNewLink() {
+  api.post('/api/courselink/',
+      { course: props.courseId, usages: counter.value })
       .then(response => {
-        this.Links.push(response.data);
-        this.Links = [...this.Links];
+        Links.value.push(response.data);
+        Links.value = [...Links.value];
       })
       .catch(error => {
         console.log(error);
       });
-  }
-
-  deleteLink(link: string) {
-    this.Links = this.Links.filter((x: LinkModel) => x.link != link);
-    api.delete(`/api/delete-link/${link}/`);
-  }
-
-  copyLink(link: string) {
-    this.$copyText(window.location.origin + '/course-registration/' + link);
-  }
-
 }
+
+function deleteLink(link: string) {
+  Links.value = Links.value.filter((x: LinkModel) => x.link != link);
+  api.delete(`/api/delete-link/${link}/`);
+}
+
+function copyLink(link: string) {
+  navigator.clipboard.writeText(window.location.origin + '/course-registration/' + link);
+}
+
 </script>
 
 <style scoped lang="stylus">
-.generate-link-modal >>> .bx--modal-content
-  display flex
-  justify-content center
+:deep() .bx--modal-content:focus
+  outline none
 
 .link-content
   max-width 25rem

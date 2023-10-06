@@ -1,7 +1,7 @@
 <template>
   <div v-if="!isStaff">
     <cv-structured-list>
-      <template slot="items">
+      <template v-slot:items>
         <cv-structured-list-item
           v-for="problem in taskList"
           :key="problem.id">
@@ -35,64 +35,62 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import ProblemStats from '@/components/ProblemStats.vue';
 import StatsGraph from '@/components/StatsGraph.vue';
 import SubmitStatus from "@/components/SubmitStatus.vue";
-import ProblemModel from '@/models/ProblemModel';
+import type { ProblemModel } from '@/models/ProblemModel';
 import Launch from '@carbon/icons-vue/es/launch/16';
-import userStore from '@/store/modules/user';
-import courseStore from '@/store/modules/course';
-import {Component, Prop} from 'vue-property-decorator';
-import CatsProblemModel from "@/models/CatsProblemModel";
+import useUserStore from '@/stores/modules/user';
+import useCourseStore from '@/stores/modules/course';
+import type { CatsProblemModel } from "@/models/CatsProblemModel";
 import StudentProblemListItemComponent from "@/components/StudentProblemListItemComponent.vue";
 import StaffProblemListItemComponent from "@/components/StaffProblemListItemComponent.vue";
-import NotificationMixinComponent from '../common/NotificationMixinComponent.vue';
-import api from "@/store/services/api";
+import useNotificationMixin from '../common/NotificationMixinComponent.vue';
+import api from "@/stores/services/api";
 import ConfirmModal from "@/components/ConfirmModal.vue";
+import { type Ref, ref, computed, type PropType } from 'vue';
+import { useRoute } from 'vue-router';
 
-@Component({
-  components: {
-    ProblemStats,
-    SubmitStatus,
-    Launch,
-    StatsGraph,
-    StudentProblemListItemComponent,
-    StaffProblemListItemComponent,
-    ConfirmModal
-  }
+
+const props = defineProps({
+  taskList: { type: Object as PropType<Array<ProblemModel | CatsProblemModel>>, required: true },
+  isEditing: { type: Boolean, required: false }
 })
-export default class ProblemListComponent extends NotificationMixinComponent {
-  @Prop({required: true}) taskList!: Array<ProblemModel | CatsProblemModel>;
-  @Prop({required: false}) isEditing!: false | boolean;
-  userStore = userStore;
-  courseStore = courseStore;
-  deletingProblemId: number | null = null;
-  modalTrigger = false;
-  approvedText = '';
+const emit = defineEmits<{
+  (e: 'update-problem-delete', problemId: number | null): void
+}>()
+const userStore = useUserStore();
+const courseStore = useCourseStore();
+const route = useRoute();
 
-  get isStaff(): boolean {
-    const courseId = Number(this.$route.params.courseId);
-    return this.userStore.user.staff_for.includes(courseId);
-  }
+const deletingProblemId: Ref<number | null> = ref(null);
+const modalTrigger: Ref<boolean> = ref(false);
+const approvedText: Ref<string> = ref('');
 
-  showConfirmModal(deletingProblem: ProblemModel) {
-    this.deletingProblemId = deletingProblem.id;
-    this.approvedText = `Удалить задачу: ${deletingProblem.name}`;
-    this.modalTrigger = !this.modalTrigger;
-  }
+const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
-  async deleteProblem() {
-    if (!this.deletingProblemId)
-      throw Error;
-    await api.delete(`/api/problem/${this.deletingProblemId}/`).then(() => {
-      this.$emit('update-problem-delete', this.deletingProblemId);
-    }).catch(error => {
-      this.notificationKind = 'error';
-      this.notificationText = `Что-то пошло не так: ${error.message}`;
-      this.showNotification = true;
-    })
-  }
+const isStaff = computed((): boolean => {
+  const courseId = Number(route.params.courseId);
+  return userStore.user.staff_for.includes(courseId);
+})
+
+function showConfirmModal(deletingProblem: ProblemModel) {
+  deletingProblemId.value = deletingProblem.id;
+  approvedText.value = `Удалить задачу: ${deletingProblem.name}`;
+  modalTrigger.value = !modalTrigger.value;
+}
+
+async function deleteProblem() {
+  if (!deletingProblemId.value)
+    throw Error;
+  await api.delete(`/api/problem/${deletingProblemId.value}/`).then(() => {
+    emit('update-problem-delete', deletingProblemId.value);
+  }).catch(error => {
+    notificationKind.value = 'error';
+    notificationText.value = `Что-то пошло не так: ${error.message}`;
+    showNotification.value = true;
+  })
 }
 </script>
 <style lang="stylus">

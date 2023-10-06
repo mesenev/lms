@@ -1,21 +1,21 @@
 <template>
   <div class="item">
-    <div :class="['submit-header', 'status-' + submitEdit.status.toLowerCase()]">
+    <div :class="['submit-header', 'status-' + (isDefaultStatus ? submitEdit.status.toLowerCase() : 'np')]">
       <div class="line">
         <h4 class="submit-title">ID решения: {{ submitId }}</h4>
         <span class="submit-status">Состояние: <span class="status">{{
             submitEdit.status
           }}</span></span>
       </div>
-      <span class="submit-date">{{ submitEdit.updated_at | withoutSeconds }}</span>
+      <span class="submit-date">{{ withoutSeconds(submitEdit.updated_at) }}</span>
     </div>
     <cv-skeleton-text v-if="loading"/>
     <div v-else>
-      <code-editor-component v-model="submitEdit.content"/>
+      <code-editor-component :value="submitEdit.content" @input="inputContent"/>
       <div class="submit-lang">
         <div>Среда разработки:</div>
         <cv-dropdown
-          v-model="submitEdit.de_id"
+          v-model:value="submitEdit.de_id"
           :disabled="deOptions.length === 0"
           :items="deOptions"
           class="lang-choice"
@@ -31,20 +31,20 @@
         <div class="submit-container">
           <div class="input-file-container">
             <input type="file"
-                id="file_input" @change="handleFileUpload()">
+                   id="file_input" @change="handleFileUpload()">
             <component class="trash-icon icon" :is="TrashCan" @click.prevent.stop="deleteFile"/>
           </div>
           <cv-button
             v-if="!loading"
             :disabled="!canSubmit"
             class="submit-btn"
-            v-on:click="confirmSubmit">
+            @click="confirmSubmit">
             Отправить решение
           </cv-button>
 
           <cv-button-skeleton v-else></cv-button-skeleton>
           <cv-link
-            v-if="!this.cats_account"
+            v-if="!cats_account"
             :to="{
             name: 'profile-page',
             params: { userId: userStore.user.id }
@@ -57,7 +57,7 @@
             v-if="!loading"
             :disabled="isAcceptDisabled"
             class="submit-btn accepted"
-            v-on:click="acceptSubmit">
+            @click="acceptSubmit">
             Принять
           </cv-button>
           <cv-button-skeleton v-else></cv-button-skeleton>
@@ -66,78 +66,89 @@
             :disabled="isRejectDisabled"
             class="submit-btn rejected"
             kind='danger'
-            v-on:click="rejectSubmit">
+            @click="rejectSubmit">
             Отклонить
           </cv-button>
           <cv-button-skeleton v-else></cv-button-skeleton>
         </div>
       </div>
     </div>
-      <cv-inline-notification
-          v-if="showNotification"
-          :kind="notificationKind"
-          :sub-title="notificationText"
-          class="notification"
-          @close="hideNotification"/>
-    </div>
+    <cv-inline-notification
+      v-if="showNotification"
+      :kind="notificationKind"
+      :sub-title="notificationText"
+      class="notification"
+      @close="hideNotification"/>
+  </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import CodeEditorComponent from '@/components/common/CodeEditorComponent.vue';
-import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
-import SubmitModel, { SUBMIT_STATUS } from '@/models/SubmitModel';
-import ProblemModel from '@/models/ProblemModel';
-import problemStore from '@/store/modules/problem';
-import submitStore from '@/store/modules/submit';
-import userStore from '@/store/modules/user';
-import { AxiosError, AxiosResponse } from 'axios';
-import api from '@/store/services/api'
+import { SUBMIT_STATUS } from '@/models/SubmitModel';
+import type { SubmitModel } from '@/models/SubmitModel';
+import type { ProblemModel } from '@/models/ProblemModel';
+import useProblemStore from '@/stores/modules/problem';
+import useSubmitStore from '@/stores/modules/submit';
+import useUserStore from '@/stores/modules/user';
+import { AxiosError } from 'axios';
+import type { AxiosResponse } from 'axios';
+import api from '@/stores/services/api'
 import { de_options } from '@/utils/consts';
-import { Component, Prop, Watch } from 'vue-property-decorator';
 import _ from 'lodash';
 import TrashCan from '@carbon/icons-vue/es/trash-can/20';
+import { ref, computed, onMounted, watch } from 'vue'
+import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
 
+const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
-@Component({
-  components: { CodeEditorComponent },
-  filters: {
-    withoutSeconds: function (d: string) {
-      return new Date(d).toLocaleString([], {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit"
-      })
-    }
-  }
+const props = defineProps({
+  submitId: { type: Number, required: false },
+  isStaff: { type: Boolean, required: true }
 })
-export default class SubmitComponent extends NotificationMixinComponent {
-  @Prop({ required: true }) submitId!: number;
-  @Prop({ required: true }) isStaff!: boolean;
-  submit: SubmitModel | null = null;
-  submitStore = submitStore;
-  problemStore = problemStore;
-  userStore = userStore;
-  submitEdit: SubmitModel = { ...this.submitStore.defaultSubmit };
-  loading = true;
-  file_content = '';
-  TrashCan = TrashCan;
 
-  get isChanged(): boolean {
-    return !_.isEqual(this.submit, this.submitEdit);
+const emit = defineEmits<{
+  (e: 'submit-created', id: number): void
+}>()
+
+
+const submitStore = useSubmitStore();
+const problemStore = useProblemStore();
+const userStore = useUserStore();
+
+const submitEdit = ref<SubmitModel>({ ...submitStore.defaultSubmit });
+const submit = ref<SubmitModel | null>(null);
+const loading = ref(true);
+const file_content = ref('');
+
+const isChanged = computed((): boolean => {
+  return !_.isEqual(submit.value, submitEdit.value);
+})
+
+function withoutSeconds(d: string | undefined) {
+  if (typeof d === 'undefined') return '';
+  return new Date(d).toLocaleString([], {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function inputContent(content: string) {
+  submitEdit.value.content = content;
+}
+
+function deleteFile() {
+  const input = window.document.getElementById('file_input') as HTMLInputElement
+  if (input.files?.length) {
+    input.value = '';
+    file_content.value = '';
   }
+}
 
-  deleteFile(){
-    const input = window.document.getElementById('file_input') as HTMLInputElement
-    if (input.files?.length) {
-      input.value = '';
-      this.file_content = '';
-    }
-  }
-
-  readFileAsync(file: File){
-    return new Promise((resolve, reject) => {
+function readFileAsync(file: File) {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
     reader.onload = () => {
@@ -148,143 +159,152 @@ export default class SubmitComponent extends NotificationMixinComponent {
 
     reader.readAsText(file);
   })
-  }
-
-  async handleFileUpload(){
-    const input = window.document.getElementById('file_input') as HTMLInputElement
-
-    if (input.files?.length) {
-      this.file_content = await this.readFileAsync(input.files[0]) as string
-    }
-  }
-
-  get isRejectDisabled() {
-    return this.isNewSubmit || this.submit?.status === SUBMIT_STATUS.WRONG_ANSWER;
-  }
-
-  get isAcceptDisabled() {
-    return this.isNewSubmit || this.submit?.status === SUBMIT_STATUS.OK;
-  }
-
-  get canSubmit(): boolean {
-
-    if (this.file_content.length != 0 &&
-       this.submitEdit.content?.length !== 0){
-      this.notificationKind = 'error';
-      this.notificationText = `Отправьте либо текст решения либо файл`;
-      this.showNotification = true;
-    }
-    else {
-      this.showNotification = false;
-    }
-
-     return (((this.submitEdit.content?.length !== 0
-        && this.isChanged) || (this.file_content.length != 0))
-        && this.submitEdit.de_id.length !== 0
-        && this.cats_account) && !(this.file_content.length != 0 &&
-       this.submitEdit.content?.length !== 0);
-
-  }
-
-  get cats_account(): boolean {
-    return this.userStore.user.cats_account !== null;
-  }
-
-  get problem(): ProblemModel {
-    return this.problemStore.currentProblem as ProblemModel;
-  }
-
-  // TODO: workflow when already-made submit have de that is disabled
-  get deOptions() {
-    const options_on = this.problem.de_options.split(',')
-    return de_options.filter(option => options_on.includes(option.value));
-  }
-
-  get isNewSubmit(): boolean {
-    return isNaN(this.submitEdit.id);
-  }
-
-  async created() {
-    await this.updateSubmit();
-  }
-
-  async updateSubmit() {
-    this.loading = true;
-    if (this.submitId) {
-      this.submit = await this.submitStore.fetchSubmitById(this.submitId);
-    } else {
-      this.submit = null;
-    }
-    this.submitEdit = (this.submit) ? { ...this.submit }:{ ...this.submitStore.defaultSubmit };
-    if (this.submitEdit.de_id === '' && this.deOptions.length === 1)
-      this.submitEdit.de_id = this.deOptions[0].value;
-    this.loading = false;
-  }
-
-  @Watch('submitId')
-  onSubmitIdChanged() {
-    this.updateSubmit();
-  }
-
-  patchSubmit(status: string) {
-
-    this.submitEdit = (this.submit)
-        ? { ...this.submit, status: status }
-        :{ ...this.submitStore.defaultSubmit };
-
-
-    api.patch(`/api/submit/${this.submitEdit.id}/`, this.submitEdit)
-        .then((response: AxiosResponse<SubmitModel>) => {
-          this.submitStore.changeSubmitStatus(response.data);
-          this.submit = { ...response.data };
-          this.submitEdit = { ...this.submit };
-          this.notificationKind = 'success';
-          this.notificationText = `Работа оценена: ${status}`;
-        })
-        .catch((error: AxiosError) => {
-          this.notificationKind = 'error';
-          this.notificationText = `Что-то пошло не так ${error.message}`
-        })
-        .finally(() => this.showNotification = true);
-  }
-
-  acceptSubmit() {
-    this.patchSubmit('OK');
-  }
-
-  rejectSubmit() {
-    this.patchSubmit('WA');
-  }
-
-  confirmSubmit() {
-
-    this.submitEdit = {
-      ...this.submitEdit
-    }
-
-    if ( this.file_content.length != 0 ){
-      this.submitEdit.content = this.file_content
-    }
-
-    api.post('/api/submit/', {
-      ...this.submitEdit, 'content': this.submitEdit.content,
-      'problem': this.problemStore.currentProblem?.id as number,
-    }).then((response: AxiosResponse<SubmitModel>) => {
-      this.submitStore.addSubmitToArray(response.data);
-      this.$emit('submit-created', { id: response.data.id.toString() });
-      this.submit = { ...response.data };
-      this.submitEdit = { ...this.submit };
-      this.problem.last_submit = this.submit;
-      this.problemStore.changeCurrentProblem(this.problem)
-      this.notificationKind = 'success';
-      this.notificationText = 'Попытка отправлена';
-    }).catch((error: AxiosError) => {
-      this.notificationKind = 'error';
-      this.notificationText = `Что-то пошло не так ${error.message}`;
-    }).finally(() => this.showNotification = true);
-  }
-
 }
+
+async function handleFileUpload() {
+  const input = window.document.getElementById('file_input') as HTMLInputElement
+
+  if (input.files?.length) {
+    file_content.value = await readFileAsync(input.files[0]) as string
+  }
+}
+
+const isRejectDisabled = computed(() => {
+  return isNewSubmit.value || submit.value?.status === SUBMIT_STATUS.WRONG_ANSWER;
+})
+
+const isAcceptDisabled = computed(() => {
+  return isNewSubmit.value || submit.value?.status === SUBMIT_STATUS.OK;
+})
+
+function setNotification() {
+  if (file_content.value.length != 0 &&
+    submitEdit.value.content?.length !== 0) {
+    notificationKind.value = 'error';
+    notificationText.value = `Отправьте либо текст решения либо файл`;
+    showNotification.value = true;
+  } else {
+    showNotification.value = false;
+  }
+}
+
+const canSubmit = computed((): boolean => {
+  setNotification();
+
+  return (((submitEdit.value.content?.length !== 0
+      && isChanged.value) || (file_content.value.length != 0))
+    && submitEdit.value.de_id.length !== 0
+    && cats_account.value) && !(file_content.value.length != 0 &&
+    submitEdit.value.content?.length !== 0);
+
+})
+
+const cats_account = computed((): boolean => {
+  return userStore.user.cats_account !== null;
+})
+
+const problem = computed((): ProblemModel => {
+  return problemStore.currentProblem as ProblemModel;
+})
+
+// TODO: workflow when already-made submit have de that is disabled
+const deOptions = computed(() => {
+  const options_on = problem.value.de_options.split(',')
+  return de_options.filter(option => options_on.includes(option.value));
+})
+
+const isNewSubmit = computed((): boolean => {
+  return isNaN(submitEdit.value.id);
+})
+
+const isDefaultStatus = computed(() => {
+  return ['ok', 'aw', 'np', 'wa'].includes(submitEdit.value.status.toLowerCase())
+})
+
+onMounted(async () => {
+  await updateSubmit();
+})
+
+async function updateSubmit() {
+  loading.value = true;
+  if (props.submitId) {
+    submit.value = await submitStore.fetchSubmitById(props.submitId);
+  } else {
+    submit.value = null;
+  }
+  submitEdit.value = (submit.value) ? { ...submit.value } : { ...submitStore.defaultSubmit };
+  if (submitEdit.value.de_id === '' && deOptions.value.length === 1)
+    submitEdit.value.de_id = deOptions.value[0].value;
+  loading.value = false;
+}
+
+watch(() => props.submitId, () => {
+  onSubmitIdChanged();
+})
+
+function onSubmitIdChanged() {
+  updateSubmit();
+}
+
+function patchSubmit(status: string) {
+
+  submitEdit.value = (submit.value)
+    ? { ...submit.value, status: status }
+    : { ...submitStore.defaultSubmit };
+
+
+  api.patch(`/api/submit/${submitEdit.value.id}/`, submitEdit.value)
+    .then((response) => {
+      submitStore.changeSubmitStatus(response.data);
+      submit.value = { ...response.data };
+      submitEdit.value = { ...response.data };
+      notificationKind.value = 'success';
+      notificationText.value = `Работа оценена: ${status}`;
+    })
+    .catch((error: AxiosError) => {
+      notificationKind.value = 'error';
+      notificationText.value = `Что-то пошло не так ${error.message}`
+    })
+    .finally(() => showNotification.value = true);
+}
+
+function acceptSubmit() {
+  patchSubmit('OK');
+}
+
+function rejectSubmit() {
+  patchSubmit('WA');
+}
+
+function confirmSubmit() {
+
+  submitEdit.value = {
+    ...submitEdit.value
+  }
+
+  if (file_content.value.length != 0) {
+    submitEdit.value.content = file_content.value
+    deleteFile();
+  }
+
+  api.post('/api/submit/', {
+    ...submitEdit.value, 'content': submitEdit.value.content,
+    'problem': problemStore.currentProblem?.id as number,
+  }).then((response: AxiosResponse<SubmitModel>) => {
+    submitStore.addSubmitToArray(response.data);
+    emit('submit-created', response.data.id);
+    submit.value = { ...response.data };
+    submitEdit.value = { ...submit.value };
+    problem.value.last_submit = submit.value;
+    problemStore.changeCurrentProblem(problem.value)
+    notificationKind.value = 'success';
+    notificationText.value = 'Попытка отправлена';
+  }).catch((error: AxiosError) => {
+    notificationKind.value = 'error';
+    notificationText.value = `Что-то пошло не так ${error.message}`;
+  }).finally(() => showNotification.value = true);
+}
+
 </script>
 
 <style lang="stylus" scoped>
@@ -373,11 +393,11 @@ export default class SubmitComponent extends NotificationMixinComponent {
     vertical-align center
 
 .input-file-container
-    display flex
-    align-items center
+  display flex
+  align-items center
 
-  input
-    width: 80%
+input
+  width: 80%
 
 
 .handlers-staff
@@ -407,7 +427,7 @@ export default class SubmitComponent extends NotificationMixinComponent {
 .bx--dropdown
   border-bottom 0
 
-/deep/.bx--list-box__field
+:deep() .bx--list-box__field
   display flex
 
   .bx--list-box__field, ui

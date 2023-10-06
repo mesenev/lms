@@ -1,4 +1,4 @@
-export default interface PaginatedList<T> {
+export interface PaginatedList<T> {
   count: number;
   next?: string;
   previous?: string;

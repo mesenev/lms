@@ -3,40 +3,40 @@
     <cv-button class="change-btn" @click="showModal">
       Материалы
     </cv-button>
-    <cv-modal size="default"
-              class="add_lesson_modal"
+    <cv-modal class="add_lesson_modal"
               :visible="modalVisible"
               @modal-hidden="modalHidden"
+              :disableTeleport="true"
               :primary-button-disabled="isButtonDisabled"
               @primary-click="addMaterial"
               @secondary-click="() => {}">
-      <template slot="label">{{ lesson.name }}</template>
-      <template slot="title">
+      <template v-slot:label>{{ lesson.name }}</template>
+      <template v-slot:title>
         Добавить материалы
       </template>
-      <template slot="content">
+      <template v-slot:content>
         <section class="modal--content">
           <div class="materials-header">
             <cv-text-input label="Название материала"
                            @focus="invalidMessageHidden"
                            v-model.trim="currentMaterial.name">
               <template v-if="invalidMessageVisible && !currentMaterial.name"
-                        slot="invalid-message">
+                        v-slot:invalid-message>
                 {{ emptyInvalidMessage }}
               </template>
               <template v-if="invalidMessageVisible && areSameMaterialNames(currentMaterial.name)"
-                        slot="invalid-message">
+                        v-slot:invalid-message>
                 {{ invalidMessage }}
               </template>
             </cv-text-input>
             <cv-dropdown class="material-type-dropdown"
                          placeholder="Выберите тип"
                          label="Тип материала"
-                         v-model="currentMaterial.content_type">
+                         v-model:value="currentMaterial.content_type">
               <cv-dropdown-item value="text">Текст</cv-dropdown-item>
               <cv-dropdown-item value="url">Ссылка</cv-dropdown-item>
               <cv-dropdown-item value="video">Видео</cv-dropdown-item>
-              <template slot="invalid-message"
+              <template v-slot:invalid-message
                         v-if="invalidMessageVisible && !currentMaterial.content_type">
                 {{ emptyInvalidMessage }}
               </template>
@@ -55,7 +55,7 @@
           />
           <div class="materials-list-container" v-if="materials.length">
             <cv-structured-list class="materials-list">
-              <template slot="items">
+              <template v-slot:items>
                 <cv-structured-list-item
                   v-for="material in materials"
                   :key="material.id"
@@ -73,127 +73,130 @@
                                 list-of="materials"/>
         </section>
       </template>
-      <template slot="primary-button">
+      <template v-slot:primary-button>
         Добавить материал
       </template>
     </cv-modal>
   </div>
 </template>
 
-<script lang="ts">
-import MaterialListComponent from '@/components/lists/MaterialListComponent.vue';
-import LessonModel from '@/models/LessonModel';
-import MaterialModel from '@/models/MaterialModel';
+<script lang="ts" setup>
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
-import api from '@/store/services/api'
-import { Component, Prop } from 'vue-property-decorator';
-import materialStore from '@/store/modules/material';
-import userStore from '@/store/modules/user';
-import ConfirmModal from "@/components/ConfirmModal.vue";
-import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
-import EmptyListComponent from "@/components/EmptyListComponent.vue";
+import type { PropType } from "vue";
+import type { LessonModel } from "@/models/LessonModel";
+import useMaterialStore from "@/stores/modules/material";
+import useUserStore from "@/stores/modules/user";
+import { computed, ref } from "vue";
+import type { MaterialModel } from "@/models/MaterialModel";
+import api from "@/stores/services/api";
+import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
+import { useRoute } from "vue-router";
+import MaterialListComponent from "@/components/lists/MaterialListComponent.vue";
+import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
 
-@Component({
-  components: {
-    EmptyListComponent,
-    AddAlt20,
-    SubtractAlt20,
-    MaterialListComponent,
-    ConfirmModal
-  }
+const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
+
+const props = defineProps({
+  _lesson: { type: Object as PropType<LessonModel>, required: true }
 })
-export default class EditLessonMaterialsModal extends NotificationMixinComponent {
-  @Prop({ required: true }) lesson!: LessonModel;
-  AddAlt32 = AddAlt20;
-  SubtractAlt32 = SubtractAlt20;
-  materialStore = materialStore;
-  userStore = userStore;
-  currentMaterial: MaterialModel = { ...this.materialStore.getNewMaterial, lesson: this.lesson.id };
-  creationLoader = false;
-  material: Array<MaterialModel> = [];
-  modalVisible = false;
-  searchQueryForAllMaterials = '';
-  invalidMessageVisible = false;
-  invalidMessage = 'Материал с таким названием уже существует!';
-  emptyInvalidMessage = 'Заполните поле!';
-  emptyMaterialsListText = 'Добавьте новый материал.';
 
-  showModal() {
-    this.modalVisible = true;
-    this.currentMaterial = { ...this.materialStore.getNewMaterial, lesson: this.lesson.id };
+const route = useRoute();
+
+const lesson = ref<LessonModel>(props._lesson)
+const materialStore = useMaterialStore();
+const userStore = useUserStore();
+const currentMaterial = ref<MaterialModel>({ ...materialStore.getNewMaterial, lesson: lesson.value.id });
+const creationLoader = ref(false);
+const modalVisible = ref(false);
+const searchQueryForAllMaterials = ref('');
+const invalidMessageVisible = ref(false);
+const invalidMessage = 'Материал с таким названием уже существует!';
+const emptyInvalidMessage = 'Заполните поле!';
+const emptyMaterialsListText = 'Добавьте новый материал.';
+
+const materials = computed((): Array<MaterialModel> => {
+  if (lesson.value)
+    return [...materialStore.materials[lesson.value.id]].sort(
+      (a, b) => {
+        return (a.is_teacher_only === b.is_teacher_only ? 0 : b.is_teacher_only ? -1 : 1) || a.id - b.id;
+      }
+    );
+  return [];
+})
+
+function showModal() {
+  modalVisible.value = true;
+  currentMaterial.value = { ...materialStore.getNewMaterial, lesson: lesson.value.id };
+}
+
+function modalHidden() {
+  modalVisible.value = false;
+}
+
+function invalidMessageHidden() {
+  if (areSameMaterialNames(currentMaterial.value.name))
+    invalidMessageVisible.value = false;
+}
+
+async function addMaterial() {
+  if (areSameMaterialNames(currentMaterial.value.name)
+    || !currentMaterial.value.name
+    || !currentMaterial.value.content_type) {
+    invalidMessageVisible.value = true;
+    return;
   }
-
-  modalHidden() {
-    this.modalVisible = false;
-  }
-
-  invalidMessageHidden() {
-    if (this.areSameMaterialNames(this.currentMaterial.name))
-      this.invalidMessageVisible = false;
-  }
-
-  async addMaterial() {
-    if (this.areSameMaterialNames(this.currentMaterial.name)
-      || !this.currentMaterial.name
-      || !this.currentMaterial.content_type) {
-      this.invalidMessageVisible = true;
-      return;
-    }
-    this.creationLoader = true;
-    await this.createNewMaterial();
-    this.creationLoader = false;
-    if (this.materials.every((l) => l.name)) {
-      // this.lessons.forEach((lesson) => this.lessonStore.addLessonToCourse(lesson));
-      // this.lessons = [];
-    }
-  }
-
-  async createNewMaterial() {
-    if (this.currentMaterial.content_type === 'text')
-      this.currentMaterial.content = "### материал"
-    const request = api.post('/api/material/', this.currentMaterial);
-    request.then(response => {
-      this.lesson.materials.push(response.data as MaterialModel);
-      this.materialStore.setMaterials({ [this.lesson.id]: this.lesson.materials });
-    });
-    request.catch(error => {
-      this.notificationKind = 'error';
-      this.notificationText = `Что-то пошло не так: ${error.message}`;
-      this.showNotification = true;
-    });
-    request.finally(() => {
-      this.invalidMessageHidden();
-    })
-  }
-
-  get isStaff() {
-    return this.userStore.user.staff_for.includes(Number(this.$route.params.courseId));
-  }
-
-  get isButtonDisabled() {
-    return this.creationLoader;
-  }
-
-  areSameMaterialNames(materialName: string) {
-    return this.materials.filter(material => material.name === materialName).length != 0;
-  }
-
-  get materials(): Array<MaterialModel> {
-    if (this.lesson)
-      return this.materialStore._materials[this.lesson.id].sort(
-        (a, b) => {
-          return (a.is_teacher_only === b.is_teacher_only ? 0 : b.is_teacher_only ? -1 : 1) || a.id - b.id;
-        }
-      );
-    return [];
+  creationLoader.value = true;
+  await createNewMaterial();
+  creationLoader.value = false;
+  if (materials.value.every((l) => l.name)) {
+    // this.lessons.forEach((lesson) => this.lessonStore.addLessonToCourse(lesson));
+    // this.lessons = [];
   }
 }
+
+async function createNewMaterial() {
+  if (currentMaterial.value.content_type === 'text')
+    currentMaterial.value.content = "### материал"
+  const request = api.post('/api/material/', currentMaterial.value);
+  request.then(response => {
+    lesson.value.materials.push(response.data as MaterialModel);
+    materialStore.setMaterials({ [lesson.value.id]: lesson.value.materials });
+  });
+  request.catch(error => {
+    notificationKind.value = 'error';
+    notificationText.value = `Что-то пошло не так: ${error.message}`;
+    showNotification.value = true;
+  });
+  request.finally(() => {
+    invalidMessageHidden();
+  })
+}
+
+const isStaff = computed(() => {
+  return userStore.user.staff_for.includes(Number(route.params.courseId));
+})
+
+const isButtonDisabled = computed(() => {
+  return creationLoader.value;
+})
+
+function areSameMaterialNames(materialName: string) {
+  return materials.value.filter(material => material.name === materialName).length != 0;
+}
+
+function sortMaterials(): Array<MaterialModel> {
+  return materialStore.materials[lesson.value.id].sort(
+    (a, b) => {
+      return (a.is_teacher_only === b.is_teacher_only ? 0 : b.is_teacher_only ? -1 : 1) || a.id - b.id;
+    }
+  );
+}
+
 </script>
 
 <style scoped lang="stylus">
-
-.bx--modal-content:focus
+:deep() .bx--modal-content:focus
   outline none
 
 .change-btn
@@ -209,16 +212,16 @@ export default class EditLessonMaterialsModal extends NotificationMixinComponent
   justify-content space-between
 
 .cv-text-input
-  /deep/ .bx--label
+  :deep() .bx--label
     margin-top 3px
 
 .material-type-dropdown
   max-width 10rem
 
-  /deep/ .bx--dropdown__wrapper.bx--list-box__wrapper
+  :deep() .bx--dropdown__wrapper.bx--list-box__wrapper
     align-self end
 
-/deep/ .bx--list-box__field
+:deep() .bx--list-box__field
   display flex
 
 .materials-info

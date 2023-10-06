@@ -81,7 +81,6 @@ import useProgressStore from "@/stores/modules/progress"
 import useUserStore from '@/stores/modules/user';
 import useLessonStore from '@/stores/modules/lesson'
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
-import { Dictionary } from "vue-router/types/router";
 import type { CourseModel } from "@/models/CourseModel";
 import type { LessonModel } from "@/models/LessonModel";
 import api from "@/stores/services/api";

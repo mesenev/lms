@@ -8,19 +8,19 @@
   </div>
 </template>
 
-<script lang="ts">
-import ProblemModel from '@/models/ProblemModel';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+<script lang="ts" setup>
+import type { PropType } from "vue";
+import type { ProblemModel } from "@/models/ProblemModel"
+import { onMounted, ref } from "vue";
 
-@Component({ components: {} })
-export default class ProblemDescription extends Vue {
-  @Prop({ required: true }) problem!: ProblemModel;
-  description = '';
+const props = defineProps({problem: {type: Object as PropType<ProblemModel>, required: true}})
 
-  async created() {
-    this.description = this.problem.description.replaceAll('download/img', 'https://imcs.dvfu.ru/cats/static/download/img');
-  }
-}
+const description = ref('');
+
+onMounted(async () => {
+    description.value = props.problem.description.replaceAll('download/img', 'https://imcs.dvfu.ru/cats/static/download/img');
+  })
+
 </script>
 
 <style lang="stylus" scoped>

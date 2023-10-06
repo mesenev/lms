@@ -1,7 +1,6 @@
-import {Dictionary} from "vue-router/types/router";
-import UserModel from "@/models/UserModel";
+import type { UserModel } from "@/models/UserModel";
 
-export default interface UserProgress {
+export interface UserProgress {
   id: number;
   attendance: boolean;
   lesson: number;

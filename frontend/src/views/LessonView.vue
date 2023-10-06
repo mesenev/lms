@@ -8,16 +8,6 @@
           <span>
             Дедлайн: {{ lesson.deadline }}
           </span>
-          <div v-if="isStaff">
-            <cv-button-skeleton v-if="changingVisibility || !this.lesson" kind="ghost"/>
-            <cv-button v-else
-                       class="lesson-hide-button"
-                       :icon="hiddenIcon"
-                       kind="ghost"
-                       v-on:click="changeLessonVisibility">
-              {{ (lesson.is_hidden) ? "Открыть урок" : "Скрыть урок" }}
-            </cv-button>
-          </div>
         </div>
         <cv-skeleton-text v-else width="'35%'"/>
         <div class="description-container">
@@ -67,7 +57,7 @@
             <h2 class="content-info-title">Материалы</h2>
             <div class="content-info-materials" v-if="!loading">
               <cv-structured-list class="list">
-                <template slot="items">
+                <template v-slot:items>
                   <cv-structured-list-item
                     v-for="material in studentMaterials"
                     :key="material.id">
@@ -75,15 +65,15 @@
                                              :show-visibility="true"
                                              :is-staff="isStaff"/>
                   </cv-structured-list-item>
-                </template>
-                <template slot="items" v-if="isStaff">
-                  <cv-structured-list-item
-                    v-for="material in teacherMaterials"
-                    :key="material.id">
-                    <material-list-component :material-prop="material"
-                                             :show-visibility="true"
-                                             :is-staff="isStaff"/>
-                  </cv-structured-list-item>
+                  <template v-if="isStaff">
+                    <cv-structured-list-item
+                        v-for="material in teacherMaterials"
+                        :key="material.id">
+                      <material-list-component :material-prop="material"
+                                               :show-visibility="true"
+                                               :is-staff="isStaff"/>
+                    </cv-structured-list-item>
+                  </template>
                 </template>
               </cv-structured-list>
             </div>
@@ -95,120 +85,109 @@
   </div>
 </template>
 
-<script lang="ts">
-import MaterialListComponent from '@/components/lists/MaterialListComponent.vue';
-import ProblemListComponent from '@/components/lists/ProblemListComponent.vue';
-import MaterialModel from '@/models/MaterialModel';
-import ProblemModel from '@/models/ProblemModel';
-import lessonStore from '@/store/modules/lesson';
-import materialStore from '@/store/modules/material';
-import problemStore from '@/store/modules/problem';
-import userStore from '@/store/modules/user';
-import examStore from '@/store/modules/exam';
+<script lang="ts" setup>
+import type { MaterialModel } from '@/models/MaterialModel';
+import type { ProblemModel } from '@/models/ProblemModel';
+import useLessonStore from '@/stores/modules/lesson';
+import useMaterialStore from '@/stores/modules/material';
+import useProblemStore from '@/stores/modules/problem';
+import useUserStore from '@/stores/modules/user';
+import useExamStore from '@/stores/modules/exam';
 import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import EmptyListComponent from "@/components/EmptyListComponent.vue";
-import ExamModel from "@/models/ExamModel";
+import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
+import type { ExamModel } from "@/models/ExamModel";
+import { ref, onMounted, computed } from "vue";
+import MaterialListComponent from "@/components/lists/MaterialListComponent.vue";
 import ExamListComponent from "@/components/lists/ExamListComponent.vue";
+import ProblemListComponent from '@/components/lists/ProblemListComponent.vue';
 
-@Component({
-  components: {
-    ExamListComponent,
-    MaterialListComponent,
-    ProblemListComponent,
-    EmptyListComponent
-  }
+const props = defineProps({ lessonId: { type: Number, required: true } })
+
+const lessonStore = useLessonStore();
+const problemStore = useProblemStore();
+const userStore = useUserStore();
+const materialStore = useMaterialStore();
+const examStore = useExamStore();
+const loading = ref<boolean>(true);
+const changingVisibility = ref<boolean>(false);
+const emptyProblemsText = ref<string>('');
+const emptyMaterialsText = ref<string>('');
+
+onMounted(async () => {
+  emptyProblemsText.value = 'В данный момент нет доступных задач.';
+  emptyMaterialsText.value = 'Похоже, доступные материалы отсутствуют.';
+  await problemStore.fetchProblemsByLessonId(props.lessonId);
+  await materialStore.fetchMaterialsByLessonId(props.lessonId);
+  await examStore.fetchExamsByLessonId(props.lessonId);
+  loading.value = false;
 })
-export default class LessonView extends Vue {
-  @Prop({ required: true }) lessonId!: number;
-  lessonStore = lessonStore;
-  problemStore = problemStore;
-  userStore = userStore;
-  materialStore = materialStore;
-  examStore = examStore;
-  loading = true;
-  changingVisibility = false;
-  emptyProblemsText = '';
-  emptyMaterialsText = '';
 
-  async created() {
-    this.emptyProblemsText = 'В данный момент нет доступных задач.';
-    this.emptyMaterialsText = 'Похоже, доступные материалы отсутствуют.';
-    await this.problemStore.fetchProblemsByLessonId(this.lessonId);
-    await this.materialStore.fetchMaterialsByLessonId(this.lessonId);
-    await this.examStore.fetchExamsByLessonId(this.lessonId);
-    this.loading = false;
-  }
+const isProblemsEmpty = computed(() => {
+  return (problems.value ?? []).length === 0 && (exams.value ?? []).length === 0;
+})
 
-  get isProblemsEmpty() {
-    if ((this.problems ?? []).length === 0 && (this.exams ?? []).length === 0) {
-      return true;
-    }
-  }
+const isMaterialsEmpty = computed(() => {
+  if (!isStaff.value)
+    return !studentMaterials.value.length;
+  return !materialStore.materials[props.lessonId].length;
+})
 
-  get isMaterialsEmpty() {
-    if (!this.isStaff)
-      return !this.studentMaterials.length;
-    return !this.materialStore._materials[this.lessonId].length;
-  }
+const isStaff = computed((): boolean => {
+  return userStore.user.staff_for.includes(Number(lesson.value?.course));
+})
 
-  get isStaff(): boolean {
-    return this.userStore.user.staff_for.includes(Number(this.lesson?.course));
-  }
+const hiddenIcon = computed(() => {
+  return (lesson.value?.is_hidden) ? viewOff : view;
+})
 
-  get hiddenIcon() {
-    return (this.lesson?.is_hidden) ? viewOff : view;
-  }
-
-  //TODO: move materials in separate component
-  get studentMaterials(): Array<MaterialModel> {
-    if (this.lesson)
-      return this.materialStore._materials[this.lessonId].filter(el => !el.is_teacher_only)
+//TODO: move materials in separate component
+const studentMaterials = computed((): Array<MaterialModel> => {
+  if (lesson.value)
+    return materialStore.materials[props.lessonId].filter(el => !el.is_teacher_only)
         .sort((a, b) => a.id - b.id);
-    return [];
-  }
+  return [];
+})
 
-  get teacherMaterials(): Array<MaterialModel> {
-    if (this.lesson)
-      return this.materialStore._materials[this.lessonId].filter(el => el.is_teacher_only)
+const teacherMaterials = computed((): Array<MaterialModel> => {
+  if (lesson.value)
+    return materialStore.materials[props.lessonId].filter(el => el.is_teacher_only)
         .sort((a, b) => a.id - b.id);
-    return [];
-  }
+  return [];
+})
 
-  get lesson() {
-    return this.lessonStore.currentLesson;
-  }
+const lesson = computed(() => {
+  return lessonStore.currentLesson;
+})
 
-  get problems() {
-    return this.problemStore.problemsByLesson[this.lessonId];
-  }
+const problems = computed(() => {
+  return problemStore.problemsByLesson[props.lessonId];
+})
 
-  get classwork(): Array<ProblemModel> {
-    return this.problemStore.problemsByLesson[this.lessonId].filter(x => x.type === 'CW');
-  }
+const classwork = computed((): Array<ProblemModel> => {
+  return problemStore.problemsByLesson[props.lessonId].filter(x => x.type === 'CW');
+})
 
-  get homework(): Array<ProblemModel> {
-    return this.problemStore.problemsByLesson[this.lessonId].filter(x => x.type === 'HW');
-  }
+const homework = computed((): Array<ProblemModel> => {
+  return problemStore.problemsByLesson[props.lessonId].filter(x => x.type === 'HW');
+})
 
-  get extrawork(): Array<ProblemModel> {
-    return this.problemStore.problemsByLesson[this.lessonId].filter(x => x.type === 'EX');
-  }
+const extrawork = computed((): Array<ProblemModel> => {
+  return problemStore.problemsByLesson[props.lessonId].filter(x => x.type === 'EX');
+})
 
-  get exams(): Array<ExamModel> {
-    return this.examStore.examsByLesson[this.lessonId];
-  }
+const exams = computed((): Array<ExamModel> => {
+  return examStore.examsByLesson[props.lessonId];
+})
 
-  async changeLessonVisibility() {
-    this.changingVisibility = true;
-    await this.lessonStore.patchLesson(
-      { id: this.lessonId, is_hidden: !this.lesson?.is_hidden },
-    );
-    this.changingVisibility = false;
-  }
-
+async function changeLessonVisibility() {
+  changingVisibility.value = true;
+  await lessonStore.patchLesson(
+      { id: props.lessonId, is_hidden: !lesson.value?.is_hidden },
+  );
+  changingVisibility.value = false;
 }
+
 </script>
 
 <style scoped lang="stylus">
@@ -240,6 +219,9 @@ export default class LessonView extends Vue {
   margin 1rem
 
 .content-info-materials
+  max-height 300px
+  min-height 300px
+  overflow auto
   margin-bottom 1rem
 
 
@@ -264,6 +246,13 @@ export default class LessonView extends Vue {
 
   &-info
     height 100%
+    margin-bottom 1rem
+
+    &-empty
+      margin-bottom 1rem
+      height 400px
+      display flex
+      align-items center
 
     &-title
       color var(--cds-text-01)
@@ -290,6 +279,8 @@ export default class LessonView extends Vue {
 
 .empty-items
   background-color var(--cds-ui-01)
+  display flex
+  align-items center
   padding-top 1rem
   margin-bottom 1rem
   margin-right 1rem

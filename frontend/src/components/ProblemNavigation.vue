@@ -34,48 +34,44 @@
   </aside>
 </template>
 
-<script lang="ts">
-import problemStore from '@/store/modules/problem';
+<script lang="ts" setup>
+import useProblemStore from '@/stores/modules/problem';
 import ProblemNavigationItem from '@/components/ProblemNavigationItem.vue';
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import ProblemModel from "@/models/ProblemModel";
+import type { ProblemModel } from "@/models/ProblemModel";
+import { computed, onMounted, ref, type Ref } from "vue";
 
+const props = defineProps({ lessonId: { required: true, type: Number } })
 
-@Component({ components: { ProblemNavigationItem } })
-export default class ProblemNavigation extends Vue {
-  @Prop({ required: true }) lessonId!: number;
-  problemStore = problemStore;
-  problems: Array<ProblemModel> = [];
-  loading = true;
+const problemStore = useProblemStore();
+const problems: Ref<Array<ProblemModel>> = ref([]);
+const loading = ref(true);
 
-  target(pid: number) {
-    return { name: 'ProblemView', params: { problemId: pid.toString() } };
-  }
-
-  get isProblemsEmpty() {
-    if (this.problems.length === 0) {
-      return true;
-    }
-  }
-
-  get classwork(): Array<ProblemModel> {
-    return this.problems.filter(x => x.type === 'CW');
-  }
-
-  get homework(): Array<ProblemModel> {
-    return this.problems.filter(x => x.type === 'HW');
-  }
-
-  get extrawork(): Array<ProblemModel> {
-    return this.problems.filter(x => x.type === 'EX');
-  }
-
-
-  async created() {
-    this.problems = await this.problemStore.fetchProblemsByLessonId(this.lessonId);
-    this.loading = false;
-  }
+function target(pid: number) {
+  return { name: 'ProblemView', params: { problemId: pid.toString() } };
 }
+
+const isProblemsEmpty = computed(() => {
+  return problems.value.length === 0;
+})
+
+const classwork = computed((): Array<ProblemModel> => {
+  return problems.value.filter(x => x.type === 'CW');
+})
+
+const homework = computed((): Array<ProblemModel> => {
+  return problems.value.filter(x => x.type === 'HW');
+})
+
+const extrawork = computed((): Array<ProblemModel> => {
+  return problems.value.filter(x => x.type === 'EX');
+})
+
+
+onMounted(async () => {
+  problems.value = await problemStore.fetchProblemsByLessonId(props.lessonId);
+  loading.value = false;
+})
+
 </script>
 
 
@@ -107,7 +103,7 @@ aside
 </style>
 
 <style lang="stylus" scoped>
-.bx--structured-list-row--header-row
+:deep() .bx--structured-list-row--header-row
   background-color #393939
 
   .pupil-title

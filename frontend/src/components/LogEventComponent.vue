@@ -9,41 +9,41 @@
          @scroll="handleScroll">
       <cv-loading v-if="loading"/>
       <cv-structured-list
-        v-else
-        class="submit-list">
-        <template slot="items">
+          v-else
+          class="submit-list">
+        <template v-slot:items>
           <div
-            v-for="event in sortedEvents" :key="event.id" class="list--item"
-            v-bind:class="{
+              v-for="event in sortedEvents" :key="event.id" class="list--item"
+              v-bind:class="{
               'list--item--submit': event.type === logEventTypes.TYPE_SUBMIT,
               'right': event.author === userStore.user.id,
               'clickable': [logEventTypes.TYPE_SUBMIT,
                             logEventTypes.TYPE_STATUS_CHANGE].includes(event.type)}"
-            v-on:click="elementClickHandler(event)">
+              v-on:click="elementClickHandler(event)">
 
             <img
-              v-if="event.data.thumbnail"
-              :src="event.data.thumbnail"
-              alt='avatar'
-              class="student--avatar">
-            <span class="event--date">{{ event.created_at | withoutSeconds }}</span>
+                v-if="event.data.thumbnail"
+                :src="event.data.thumbnail"
+                alt='avatar'
+                class="student--avatar">
+            <span class="event--date">{{ withoutSeconds(event.created_at) }}</span>
 
             <div v-if="logEventTypes.TYPE_SUBMIT === event.type" class="one-history-point">
               <span>ID решения: {{ event.data.message }}</span>
               <div
-                class="checkbox--submit"
-                v-bind:class="{ 'hidden': event.submit !== selectedSubmit }">
-                <component :is="Checkbox"/>
+                  class="checkbox--submit"
+                  v-bind:class="{ 'hidden': event.submit !== selectedSubmit }">
+                <component :is="Checkbox16"/>
               </div>
             </div>
             <div v-else class="one-history-point">
               <span>{{ event.data.message }}</span>
               <component
-                :is="iconTrash"
-                v-if="event.author === userStore.user.id && event.type === logEventTypes.TYPE_MESSAGE"
-                class="event--delete"
-                title="Удалить сообщение"
-                @click="deleteEvent(event)"/>
+                  :is="TrashCan16"
+                  v-if="event.author === userStore.user.id && event.type === logEventTypes.TYPE_MESSAGE"
+                  class="event--delete"
+                  title="Удалить сообщение"
+                  @click="deleteEvent(event)"/>
             </div>
             <div ref="eventListBottom" class="space"></div>
           </div>
@@ -52,212 +52,211 @@
     </div>
     <div class="searchbar-out">
       <cv-text-input
-        v-model.trim="commentary"
-        :disabled="false"
-        :label="''"
-        :light="false"
-        :password-visible="false"
-        :placeholder="'Введите сообщение'"
-        :type="''"
-        :value="''"
-        class="searchbar"
-        v-on:keydown.enter="createMessageHandler">
+          v-model.trim="commentary"
+          :disabled="false"
+          :label="''"
+          :light="false"
+          :password-visible="false"
+          :placeholder="'Введите сообщение'"
+          :value="''"
+          class="searchbar"
+          v-on:keydown.enter="createMessageHandler">
       </cv-text-input>
       <cv-button class="btn-send" @click="createMessageHandler">Отправить</cv-button>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import LogEventModel, * as logEventTypes from "@/models/LogEventModel";
-import userStore from '@/store/modules/user';
+<script lang="ts" setup>
+import type LogEventModel from "@/models/LogEventModel";
+import * as allLogEventTypes from "@/models/LogEventModel";
+import useUserStore from '@/stores/modules/user';
 import TrashCan16 from '@carbon/icons-vue/es/trash-can/16';
 import Checkbox16 from '@carbon/icons-vue/es/checkbox--checked--filled/16';
-import logEventStore from '@/store/modules/logEvent';
-import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
-import { Component, Prop } from "vue-property-decorator";
+import useLogEventStore from '@/stores/modules/logEvent';
+import { ref, computed, onMounted, nextTick } from "vue";
 
-
-@Component({
-  components: { TrashCan16 },
-  filters: {
-    withoutSeconds: function (d: string) {
-      return new Date(d).toLocaleString([], {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-    }
-  }
+const props = defineProps({
+  problemId: { type: Number, required: true },
+  studentId: { type: Number, required: true },
+  selectedSubmit: { type: Number, required: false, default: NaN }
 })
-export default class LogEventComponent extends NotificationMixinComponent {
-  @Prop({ required: true }) problemId!: number;
-  @Prop({ required: true }) studentId!: number;
-  @Prop({ required: false }) selectedSubmit?: number;
-  userStore = userStore;
-  logEventStore = logEventStore;
-  logEventTypes = logEventTypes;
-  loading = true;
-  messageIsSending = false;
-  commentary = '';
-  iconTrash = TrashCan16;
-  Checkbox = Checkbox16;
-  events: Array<LogEventModel> = [];
-  newEvents: Array<LogEventModel> = [];
-  connection!: WebSocket;
-  limit = 20;
-  offset = 0;
-  previousScrollHeightMinusScrollTop = 0;
 
-  get sortedEvents() {
-    return this.events.sort((a, b) => a.id - b.id);
-  }
+const emit = defineEmits<{
+  (e: 'submit-selected', id: number): void,
+  (e: 'cats-answer', id: number): void
+}>();
 
-  // @Watch('studentId')
-  // @Watch('problemId')
-  // onPropChanged() {
-  //   this.fetchEvents();
-  // }
+const userStore = useUserStore();
+const logEventStore = useLogEventStore();
+const logEventTypes = allLogEventTypes;
+const loading = ref<boolean>(true);
+const messageIsSending = ref<boolean>(false);
+const commentary = ref<string>('');
+const events = ref<Array<LogEventModel>>([]);
+const newEvents = ref<Array<LogEventModel>>([]);
+let connection!: WebSocket;
+const limit = 20;
+const offset = ref(0);
+const previousScrollHeightMinusScrollTop = ref(0);
 
-  async created() {
-    await this.userStore.fetchUserById(this.studentId);
-    await this.fetchEvents();
-    this.socketConnectionUpdate();
-    await this.scrollDown();
-    this.loading = false;
-  }
+const sortedEvents = computed(() => {
+  return [...events.value].sort((a, b) => a.id - b.id);
+})
 
-  socketMessageHandler(event: MessageEvent) {
-    this.events.push((JSON.parse(event.data) as LogEventModel));
-    this.events = [...this.events];
-    this.$nextTick(this.scrollDown);
-  }
+// @Watch('studentId')
+// @Watch('problemId')
+// onPropChanged() {
+//   this.fetchEvents();
+// }
 
-  socketEventHandler(event: Event) {
-    console.log(event);
-  }
+onMounted(async () => {
+  await userStore.fetchUserById(props.studentId);
+  await fetchEvents();
+  socketConnectionUpdate();
+  await scrollDown();
+  loading.value = false;
+})
 
-  socketErrorHandler(event: Event) {
-    console.log('something bad happened with sockets');
-    console.log(event);
-  }
+function withoutSeconds(d: string | undefined) {
+  if (typeof d === 'undefined') return '';
+  return new Date(d).toLocaleString([], {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
 
-  socketConnectionUpdate() {
-    const protocol = (window.location.protocol === 'http:') ? 'ws://' : 'wss://';
-    this.connection = new WebSocket(
+function socketMessageHandler(event: MessageEvent) {
+  events.value.push((JSON.parse(event.data) as LogEventModel));
+  events.value = [...events.value];
+  nextTick(scrollDown);
+}
+
+function socketEventHandler(event: Event) {
+  console.log(event);
+}
+
+function socketErrorHandler(event: Event) {
+  console.log('something bad happened with sockets');
+  console.log(event);
+}
+
+function socketConnectionUpdate() {
+  const protocol = (window.location.protocol === 'http:') ? 'ws://' : 'wss://';
+  connection = new WebSocket(
       protocol + window.location.host
-      + `/ws/notifications?user_id=${this.studentId}&problem_id=${this.problemId}`
-    );
-    this.connection.onmessage = this.socketMessageHandler;
-    this.connection.onclose = this.socketEventHandler;
-    this.connection.onopen = this.socketEventHandler;
-    this.connection.onerror = this.socketErrorHandler;
-  }
+      + `/ws/notifications?user_id=${props.studentId}&problem_id=${props.problemId}`
+  );
+  connection.onmessage = socketMessageHandler;
+  connection.onclose = socketEventHandler;
+  connection.onopen = socketEventHandler;
+  connection.onerror = socketErrorHandler;
+}
 
-  async fetchEvents() {
-    this.newEvents = await this.logEventStore.fetchLogEventsByProblemAndStudentIds(
+async function fetchEvents() {
+  newEvents.value = await logEventStore.fetchLogEventsByProblemAndStudentIds(
       {
-        problem: this.problemId,
-        student: this.studentId,
-        limit: this.limit,
-        offset: this.offset
+        problem: props.problemId,
+        student: props.studentId,
+        limit: limit,
+        offset: offset.value
       },
-    );
-    if (this.newEvents.length) {
-      this.recordScrollPosition();
-      this.events.unshift(...this.newEvents);
-      this.loading = false;
-      this.offset += this.limit;
-      this.restoreScrollPosition();
-    }
-    await this.thumbnailsUpdate();
+  );
+  if (newEvents.value.length) {
+    recordScrollPosition();
+    events.value.unshift(...newEvents.value);
+    loading.value = false;
+    offset.value += limit;
+    restoreScrollPosition();
   }
+  await thumbnailsUpdate();
+}
 
-  async thumbnailsUpdate() {
-    if (!this.events.length)
-      return;
-    let previous = this.sortedEvents[0];
-    await this.fetchThumbnailForEvent(previous);
-    for (const event of this.sortedEvents) {
-      if (previous.author !== event.author)
-        await this.fetchThumbnailForEvent(event);
-      previous = event;
-    }
-    this.events = [...this.events];
+async function thumbnailsUpdate() {
+  if (!events.value.length)
+    return;
+  let previous = sortedEvents.value[0];
+  await fetchThumbnailForEvent(previous);
+  for (const event of sortedEvents.value) {
+    await fetchThumbnailForEvent(event);
+    previous = event;
   }
+  events.value = [...events.value];
+}
 
-  async fetchThumbnailForEvent(event: LogEventModel) {
-    if (!event.author)
-      return;
-    const user = await this.userStore.fetchUserById(event.author);
-    event.data.thumbnail = user.thumbnail;
+async function fetchThumbnailForEvent(event: LogEventModel) {
+  if (!event.author)
+    return;
+  const user = await userStore.fetchUserById(event.author);
+  event.data.thumbnail = picUrl(user.thumbnail);
+}
+
+function elementClickHandler(element: LogEventModel): void {
+  if (typeof element.submit === 'undefined') return;
+  if (logEventTypes.TYPE_SUBMIT === element.type)
+    emit('submit-selected', element.submit);
+  if (logEventTypes.TYPE_STATUS_CHANGE === element.type)
+    emit('cats-answer', element.submit);
+}
+
+async function deleteEvent(event: LogEventModel) {
+  await logEventStore.deleteEvent(event.id);
+  events.value = events.value.filter(value => value.id !== event.id);
+  await thumbnailsUpdate();
+  if (offset.value > 0) {
+    offset.value -= 1;
   }
+}
 
-  elementClickHandler(element: LogEventModel): void {
-    if (logEventTypes.TYPE_SUBMIT === element.type)
-      this.$emit('submit-selected', { id: element.submit });
-    if (logEventTypes.TYPE_STATUS_CHANGE === element.type)
-      this.$emit('cats-answer', { id: element.submit });
-  }
+async function createMessageHandler() {
+  if (!commentary.value)
+    return;
+  messageIsSending.value = true;
+  const newMessage: LogEventModel = {
+    ...logEventStore.getNewLogEventMessage,
+    problem: props.problemId, student: props.studentId,
+    data: { message: commentary.value, thumbnail: picUrl(userStore.user.thumbnail) },
+  };
+  await logEventStore.createLogEvent(newMessage);
+  // if (answer !== undefined) {
+  //   await this.fetchThumbnailForEvent(answer);
+  // this.events.push(answer);
+  // }
+  commentary.value = '';
+  messageIsSending.value = false;
+  offset.value += 1;
+}
 
-  async deleteEvent(event: LogEventModel) {
-    await this.logEventStore.deleteEvent(event.id);
-    this.events = this.events.filter(value => value.id !== event.id);
-    await this.thumbnailsUpdate();
-    if (this.offset > 0) {
-      this.offset -= 1;
-    }
-  }
+function picUrl(url: string): string {
+  if (url)
+    return url;
+  return "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
+}
 
-  async createMessageHandler() {
-    if (!this.commentary)
-      return;
-    this.messageIsSending = true;
-    const newMessage: LogEventModel = {
-      ...this.logEventStore.getNewLogEventMessage,
-      problem: this.problemId, student: this.studentId,
-      data: { message: this.commentary },
-    };
-    await this.logEventStore.createLogEvent(newMessage);
-    // if (answer !== undefined) {
-    //   await this.fetchThumbnailForEvent(answer);
-    // this.events.push(answer);
-    // }
-    this.commentary = '';
-    this.messageIsSending = false;
-    this.offset += 1;
-  }
-
-  picUrl(url: string): string {
-    if (url)
-      return url;
-    return "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
-  }
-
-  recordScrollPosition() {
-    const eventList = document.getElementById('submit-list-wrapper')!;
-    this.previousScrollHeightMinusScrollTop =
+function recordScrollPosition() {
+  const eventList = document.getElementById('submit-list-wrapper')!;
+  previousScrollHeightMinusScrollTop.value =
       eventList.scrollHeight - eventList.scrollTop;
-  }
+}
 
-  restoreScrollPosition() {
-    const eventList = document.getElementById('submit-list-wrapper')!;
-    eventList.scrollTop = eventList.scrollHeight - this.previousScrollHeightMinusScrollTop;
-  }
+function restoreScrollPosition() {
+  const eventList = document.getElementById('submit-list-wrapper')!;
+  eventList.scrollTop = eventList.scrollHeight - previousScrollHeightMinusScrollTop.value;
+}
 
-  handleScroll() {
-    const eventList = document.getElementById('submit-list-wrapper')!;
-    if (eventList.scrollTop === 0) {
-      this.fetchEvents();
-    }
+function handleScroll() {
+  const eventList = document.getElementById('submit-list-wrapper')!;
+  if (eventList.scrollTop === 0) {
+    fetchEvents();
   }
+}
 
-  async scrollDown() {
-    const eventList = document.getElementById('submit-list-wrapper')!;
-    eventList.scrollTop = eventList.scrollHeight;
-  }
+async function scrollDown() {
+  const eventList = document.getElementById('submit-list-wrapper')!;
+  eventList.scrollTop = eventList.scrollHeight;
 }
 
 </script>

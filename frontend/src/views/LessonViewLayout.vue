@@ -1,29 +1,25 @@
 <template>
-  <transition mode="out-in" name="fade">
-    <router-view v-if="lesson"/>
-    <cv-loading v-else/>
-  </transition>
+  <router-view v-slot="{Component}">
+    <transition  mode="out-in" name="fade">
+      <component :is="Component"/>
+    </transition>
+  </router-view>
 </template>
 
-<script lang="ts">
-import LessonModel from '@/models/LessonModel';
-import lessonStore from "@/store/modules/lesson";
-import { Component, Prop, Vue } from 'vue-property-decorator';
+<script lang="ts" setup>
+import type { LessonModel } from '@/models/LessonModel';
+import useLessonStore from "@/stores/modules/lesson";
+import { onMounted, ref } from "vue";
 
-@Component({ components: {} })
-export default class LessonViewLayout extends Vue {
-  @Prop({ required: true }) lessonId!: number;
+const props = defineProps({ lessonId: {type: String, required: true} })
+const lesson = ref<LessonModel | null>(null);
+const lessonStore = useLessonStore();
 
-  lesson: LessonModel | null = null;
-  lessonStore = lessonStore;
 
-  async created() {
-    this.lessonStore.changeCurrentLesson(null);
-    this.lesson = await this.lessonStore.fetchLessonById(this.lessonId);
-    this.lessonStore.changeCurrentLesson(this.lesson);
-    await this.lessonStore.fetchLessonsByCourseId(this.lesson.course);
-  }
-
-}
-
+onMounted(async () =>{
+  lessonStore.changeCurrentLesson(null);
+  lesson.value =  await lessonStore.fetchLessonById(parseInt(props.lessonId));
+  lessonStore.changeCurrentLesson(lesson.value);
+  await lessonStore.fetchLessonsByCourseId(lesson.value.course);
+})
 </script>

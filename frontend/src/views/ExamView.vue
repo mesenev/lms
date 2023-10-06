@@ -24,6 +24,7 @@
                          class="test-hide-button"
                          :icon="hiddenIcon"
                          kind="ghost"
+                         :disabled="isExamEmpty"
                          @click="changeExamVisibility">
                 {{ (exam.is_hidden) ? "Открыть тест" : "Скрыть тест" }}
               </cv-button>
@@ -34,11 +35,11 @@
       </div>
     </div>
     <cv-row :class="isStaff ? 'main-items' : 'header-container'">
-      <cv-column :style="loading || solutionLoading ? 'text-align: -webkit-center' : ''"
+      <cv-column v-if="!isExamEmpty" :style="loading || solutionLoading ? 'text-align: -webkit-center' : ''"
                  :lg="isStaff ? {'span' : 8, 'offset' : 0} : {'offset': 2}">
         <div v-if="isStaff ? !loading && !solutionLoading : !loading"
              class="test-container">
-          <div v-if="!isStaff && isExamVerified" class="student-results question-container">
+          <div v-if="exam && !isStaff && isExamVerified" class="student-results question-container">
             <div class="results">
               <span v-if="incorrectAnswers > 0"> Неверных ответов: <strong>{{
                   incorrectAnswers
@@ -59,13 +60,13 @@
               {{ question.text }}
               <cv-radio-group v-if="isStaff && solutionId" class="verdict-btns">
                 <cv-radio-button
-                  :checked="studentSolution.question_verdicts[question.index] === 'incorrect'"
-                  @click="setVerdict(question.index, false)" label="✖" value="0"
-                  :name="'verdict ' + question.index"/>
+                    :checked="studentSolution.question_verdicts[question.index] === 'incorrect'"
+                    @click="setVerdict(question.index, false)" label="✖" value="0"
+                    :name="'verdict ' + question.index"/>
                 <cv-radio-button
-                  :checked="studentSolution.question_verdicts[question.index] === 'correct'"
-                  @click="setVerdict(question.index, true)" label="✔" value="1"
-                  :name="'verdict ' + question.index"/>
+                    :checked="studentSolution.question_verdicts[question.index] === 'correct'"
+                    @click="setVerdict(question.index, true)" label="✔" value="1"
+                    :name="'verdict ' + question.index"/>
               </cv-radio-group>
             </h4>
             <p class="question-description">{{ question.description }}</p>
@@ -97,14 +98,17 @@
             <cv-button-skeleton v-else/>
           </div>
           <cv-inline-notification
-            v-if="showNotification"
-            @close="hideNotification"
-            :kind="notificationKind"
-            :sub-title="notificationText"/>
+              v-if="showNotification"
+              @close="hideNotification"
+              :kind="notificationKind"
+              :sub-title="notificationText"/>
         </div>
         <cv-loading v-else/>
       </cv-column>
-      <cv-column v-if="isStaff">
+      <cv-column v-else :lg="{'span' : 2, 'offset' : 0}">
+        <empty-list-component text="Заполните тест" list-of="questions"/>
+      </cv-column>
+      <cv-column v-if="isStaff && !isExamEmpty && exam">
         <div v-if="!loading && solutionId" class="results-container">
           <div v-if="!solutionLoading" class="results">
             <span> Статус: <strong>{{ status }}</strong> </span>
@@ -115,22 +119,23 @@
               <strong>{{ exam.max_points }}</strong>
             </span>
           </div>
-          <cv-inline-loading v-else :active="true"/>
+          <cv-inline-loading v-else :active="true" state="loading"/>
         </div>
         <div v-if="!loading" class="item student-list-container">
-          <cv-structured-list v-if="submittedSolutions.length" class="student-list" condensed selectable @change="changeStudent">
-            <template slot="headings">
+          <cv-structured-list v-if="submittedSolutions.length" class="student-list" condensed selectable
+                              @change="changeStudent">
+            <template v-slot:headings>
               <cv-structured-list-heading class="pupil-title">Список учеников
               </cv-structured-list-heading>
             </template>
-            <template slot="items">
+            <template v-slot:items>
               <cv-structured-list-item
-                v-for="solution in submittedSolutions"
-                :key="solution.id"
-                :checked="checkedStudent(solution.student)"
-                :value="solution.student.toString()"
-                class="student-list--item"
-                name="student">
+                  v-for="solution in submittedSolutions"
+                  :key="solution.id"
+                  :checked="checkedStudent(solution.student)"
+                  :value="solution.student.toString()"
+                  class="student-list--item"
+                  name="student">
                 <cv-structured-list-data>
                   <user-component :user-id="solution.student"
                                   class="student-list--item--user-component"/>
@@ -139,7 +144,7 @@
             </template>
           </cv-structured-list>
           <empty-list-component v-else class="empty-list" text="Решения отсутствуют"
-                                    list-of="solutions"/>
+                                list-of="solutions"/>
         </div>
         <cv-skeleton-text v-else :heading="false" width="70%" :line-count="5" :paragraph="true"/>
       </cv-column>
@@ -147,300 +152,310 @@
   </div>
 </template>
 
-<script lang="ts">
-import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
-import { Component, Prop, Watch } from "vue-property-decorator";
-import examStore from '@/store/modules/exam';
-import solutionStore from '@/store/modules/solution';
-import userStore from '@/store/modules/user';
-import QuestionModel, { ANSWER_TYPE } from "@/models/QuestionModel";
+<script lang="ts" setup>
 import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
-import api from "@/store/services/api";
-import { Dictionary } from "vue-router/types/router";
-import SolutionModel from "@/models/SolutionModel";
 import _ from "lodash";
+import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
+import type { PropType } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import useExamStore from "@/stores/modules/exam";
+import useSolutionStore from "@/stores/modules/solution";
+import useUserStore from "@/stores/modules/user";
+import { computed, onMounted, ref, watch } from "vue";
+import type { SolutionModel } from "@/models/SolutionModel";
+import type { QuestionModel } from "@/models/QuestionModel";
+import { ANSWER_TYPE } from "@/models/QuestionModel";
+import api from "@/stores/services/api";
+import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
 import UserComponent from "@/components/UserComponent.vue";
-import EmptyListComponent from "@/components/EmptyListComponent.vue";
 
-@Component({ components: { EmptyListComponent, UserComponent } })
-export default class ExamView extends NotificationMixinComponent {
-  @Prop({ required: false, default: null }) solutionIdProp!: number | null;
+const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
-  examStore = examStore;
-  solutionStore = solutionStore;
-  userStore = userStore;
-  changingVisibility = false;
-  loading = true;
-  solutionLoading = false;
-  isExamSubmitted = false;
-  submitting = false;
-  studentSolution: SolutionModel = { ...this.solutionStore.defaultSolution };
-  teacherSolution = { ...this.studentSolution };
-  solutionId = this.solutionIdProp;
-  studentId = NaN;
+const props = defineProps({
+  solutionIdProp: { type: Object as PropType<number | null>, required: false, default: null }
+})
 
-  userAnswers: Dictionary<{ question_index: number; submitted_answers: Array<string> }> = {};
-
-  verdicts: Dictionary<{ question_index: number; verdict: boolean }> = {};
+const router = useRouter();
+const route = useRoute();
 
 
-  async created() {
-    if (this.solutionId) {
-      if (this.isStaff)
-        this.studentSolution = await this.solutionStore.fetchSolutionById(this.solutionId);
-      this.studentId = this.studentSolution.student;
-    } else if (!this.isStaff) {
-      try {
-        await this.solutionStore.fetchSolutionsByExamAndUser({
-          examId: this.exam?.id as number,
-          userId: this.userStore.user.id
-        }).then(response => {
-          this.studentSolution = { ...response[0] };
-        })
-      } catch (error) {
-        this.studentSolution = { ...this.solutionStore.defaultSolution };
-      }
+const examStore = useExamStore();
+const solutionStore = useSolutionStore();
+const userStore = useUserStore();
+const changingVisibility = ref(false);
+const loading = ref(true);
+const solutionLoading = ref(false);
+const isExamSubmitted = ref(false);
+const submitting = ref(false);
+const studentSolution = ref<SolutionModel>({ ...solutionStore.defaultSolution });
+const teacherSolution = ref<SolutionModel>({ ...studentSolution.value });
+const solutionId = ref(props.solutionIdProp);
+const studentId = ref(NaN);
+
+const userAnswers = ref<Dictionary<{ question_index: number; submitted_answers: Array<string> }>>({});
+
+const verdicts = ref<Dictionary<{ question_index: number; verdict: boolean }>>({});
+
+
+onMounted(async () => {
+  if (solutionId.value) {
+    if (isStaff.value)
+      studentSolution.value = await solutionStore.fetchSolutionById(solutionId.value);
+    studentId.value = studentSolution.value.student;
+  } else if (!isStaff.value) {
+    try {
+      await solutionStore.fetchSolutionsByExamAndUser({
+        examId: exam.value?.id as number,
+        userId: userStore.user.id
+      }).then(response => {
+        studentSolution.value = { ...response[0] };
+      })
+    } catch (error) {
+      studentSolution.value = { ...solutionStore.defaultSolution };
     }
-    await this.initFields();
-    this.loading = false;
   }
+  await initFields();
+  loading.value = false;
+})
 
-  async initFields() {
-    this.exam?.questions.forEach((question) => {
-      this.userAnswers[question.index] = { question_index: question.index, submitted_answers: [] };
-      this.verdicts[question.index] = { question_index: question.index, verdict: false };
+async function initFields() {
+  exam.value?.questions.forEach((question) => {
+    userAnswers.value[question.index] = { question_index: question.index, submitted_answers: [] };
+    verdicts.value[question.index] = { question_index: question.index, verdict: false };
+  })
+  if (studentSolution.value.id) {
+    teacherSolution.value = _.cloneDeep(studentSolution.value);
+    studentSolution.value.user_answers.forEach((answer) => {
+      userAnswers.value[answer.question_index] = answer;
     })
-    if (this.studentSolution.id) {
-      this.teacherSolution = _.cloneDeep(this.studentSolution);
-      this.studentSolution.user_answers.forEach((answer) => {
-        this.userAnswers[answer.question_index] = answer;
+  }
+  userAnswers.value = { ...userAnswers.value };
+  verdicts.value = { ...verdicts.value };
+}
+
+watch(() => route.params.solutionId, async () => {
+  if (route.params.solutionId) {
+    solutionLoading.value = true;
+    solutionId.value = Number(route.params.solutionId);
+    changeExistedSolution();
+    await initFields();
+    solutionLoading.value = false;
+  }
+}, { immediate: true, deep: true })
+
+const isExamEmpty = computed(() => {
+  return !exam.value?.questions.length;
+})
+
+const isStaff = computed((): boolean => {
+  return userStore.user.staff_for.includes(Number(route.params.courseId));
+})
+
+const questions = computed(() => {
+  if (isStaff.value &&
+      solutionId.value &&
+      exam.value?.test_mode === 'auto_and_manual' &&
+      exam.value?.questions
+          .filter(x => studentSolution.value.question_verdicts[x.index] === 'await_verification').length
+  ) {
+    return exam.value?.questions
+        .filter(x => studentSolution.value.question_verdicts[x.index] === 'await_verification');
+  }
+  return exam.value?.questions;
+})
+
+const submittedSolutions = computed((): Array<SolutionModel> => {
+  return solutionStore.solutions;
+})
+
+const exam = computed(() => {
+  return examStore.currentExam;
+})
+
+const finalPoints = computed(() => {
+  return exam.value?.questions
+      .filter(x => studentSolution.value.question_verdicts[x.index] === 'correct')
+      .map(x => x.points)
+      .reduce((a, b) => a + b, 0);
+})
+
+const status = computed(() => {
+  if (['AWAIT VERIFICATION', 'await'].includes(studentSolution.value.status))
+    return 'Ожидает проверки';
+  return 'Проверено';
+})
+
+const isExamVerified = computed(() => {
+  return ['VERIFIED', 'verified'].includes(studentSolution.value.status);
+})
+
+const incorrectAnswers = computed(() => {
+  return Object.values(studentSolution.value.question_verdicts).filter(x => x === 'incorrect').length;
+})
+
+const hiddenIcon = computed(() => {
+  return (exam.value?.is_hidden) ? viewOff : view;
+})
+
+const isSolutionChanged = computed((): boolean => {
+  return !_.isEqual(studentSolution.value.question_verdicts, teacherSolution.value.question_verdicts);
+})
+
+const isStudentSolutionExist = computed(() => {
+  return submittedSolutions.value.filter(x => x.student === userStore.user.id).length > 0;
+})
+
+const disableHandler = computed(() => {
+  if (isStaff.value)
+    return isSolutionChanged.value;
+  return !disableField.value;
+})
+
+const disableField = computed(() => {
+  if (isStaff.value) {
+    return true;
+  }
+  return isExamSubmitted.value || isStudentSolutionExist.value;
+})
+
+function setVerdict(question_index: number, question_verdict: boolean) {
+  if (isStaff.value) {
+    teacherSolution.value.question_verdicts[question_index] = question_verdict ? 'correct' : 'incorrect';
+  }
+}
+
+function setVerdictBorder(question_index: string) {
+  const CORRECT_BORDER = 'border: 2px solid yellowgreen';
+  const INCORRECT_BORDER = 'border: 2px solid red';
+  const AWAIT_BORDER = 'border: 2px solid var(--cds-ui-01)';
+  if (isStaff.value && solutionId.value) {
+    if (teacherSolution.value.question_verdicts[question_index] === 'correct')
+      return CORRECT_BORDER;
+    if (teacherSolution.value.question_verdicts[question_index] === 'incorrect')
+      return INCORRECT_BORDER;
+  }
+  return AWAIT_BORDER;
+}
+
+async function changeExamVisibility() {
+  changingVisibility.value = true;
+  await examStore.patchExam(
+      { id: exam.value?.id as number, is_hidden: !exam.value?.is_hidden },
+  );
+  changingVisibility.value = false;
+}
+
+function checkedStudent(_studentId: number): boolean {
+  return studentId.value === _studentId;
+}
+
+function isQuestionInputType(question: QuestionModel) {
+  return question.answer_type === ANSWER_TYPE.INPUT;
+}
+
+function isQuestionTextType(question: QuestionModel) {
+  return question.answer_type === ANSWER_TYPE.TEXT_FIELD;
+}
+
+function isQuestionRadioType(question: QuestionModel) {
+  return question.answer_type === ANSWER_TYPE.RADIO;
+}
+
+function isQuestionCheckboxType(question: QuestionModel) {
+  return question.answer_type === ANSWER_TYPE.CHECKBOXES;
+}
+
+function changeCurrentSolution(id: number) {
+  if (solutionId.value === id)
+    return;
+  router.push({
+    name: 'ExamViewWithSolution', params: {
+      courseId: route.params.courseId,
+      lessonId: route.params.lessonId,
+      solutionId: id.toString(),
+    }
+  })
+}
+
+function changeExistedSolution() {
+  //:ToDo its calling before init cause immediate watcher
+  if (submittedSolutions.value.length) {
+    if (submittedSolutions.value.filter(x => x.id === solutionId.value).length) {
+      studentSolution.value = submittedSolutions.value.filter(x => x.id === solutionId.value)[0];
+      studentId.value = studentSolution.value.student;
+    } else {
+      solutionId.value = null;
+      router.push({
+        name: 'ExamView', params: {
+          courseId: route.params.courseId,
+          lessonId: route.params.lessonId,
+          examId: exam.value?.id.toString() as string,
+        }
       })
     }
-    this.userAnswers = { ...this.userAnswers };
-    this.verdicts = { ...this.verdicts };
   }
+}
 
-  @Watch('$route.params.solutionId', { immediate: true, deep: true })
-  async unUrlChange() {
-    if (this.$route.params.solutionId) {
-      this.solutionLoading = true;
-      this.solutionId = Number(this.$route.params.solutionId);
-      this.changeExistedSolution();
-      await this.initFields();
-      this.solutionLoading = false;
-    }
+function submitHandler() {
+  if (isStaff.value && solutionId.value) {
+    submitSolution();
+  } else {
+    submitExam();
   }
+}
 
-  get isStaff(): boolean {
-    return this.userStore.user.staff_for.includes(Number(this.$route.params.courseId));
-  }
+async function changeStudent(id: number) {
+  studentId.value = Number(id);
+  changeCurrentSolution(submittedSolutions.value.filter(x => x.student === Number(id))[0].id);
+}
 
-  get questions() {
-    if (this.isStaff &&
-      this.solutionId &&
-      this.exam?.test_mode === 'auto_and_manual' &&
-      this.exam?.questions
-        .filter(x => this.studentSolution.question_verdicts[x.index] === 'await_verification').length
-    )
-    {
-      return this.exam?.questions
-        .filter(x => this.studentSolution.question_verdicts[x.index] === 'await_verification');
-    }
-    return this.exam?.questions;
-  }
+async function submitExam() {
+  submitting.value = true;
+  await api.post('/api/solution/', {
+    user_answers: Object.values(userAnswers.value),
+    solution_points: 0,
+    student: userStore.user.id,
+    exam: exam.value?.id,
+  }).then(() => {
+    notificationKind.value = 'success';
+    notificationText.value = "Тест отправлен на проверку";
+    isExamSubmitted.value = true;
+    solutionStore.fetchSolutionsByExamAndUser({
+      examId: exam.value?.id as number,
+      userId: userStore.user.id
+    }).then(response => studentSolution.value = { ...response[0] });
+  }).catch(error => {
+    notificationKind.value = 'error';
+    notificationText.value = `Что-то пошло не так: ${error.message}`;
+  }).finally(() => {
+    showNotification.value = true;
+    submitting.value = false;
+  });
+}
 
-  get submittedSolutions(): Array<SolutionModel> {
-    return this.solutionStore.solutions;
-  }
-
-  get exam() {
-    return this.examStore.currentExam;
-  }
-
-  get finalPoints() {
-    return this.exam?.questions
-      .filter(x => this.studentSolution.question_verdicts[x.index] === 'correct')
+async function submitSolution() {
+  submitting.value = true;
+  const points = exam.value?.questions
+      .filter(x => studentSolution.value.question_verdicts[x.index] === 'correct')
       .map(x => x.points)
       .reduce((a, b) => a + b, 0);
-  }
-
-  get status() {
-    if (['AWAIT VERIFICATION', 'await'].includes(this.studentSolution.status))
-      return 'Ожидает проверки';
-    return 'Проверено';
-  }
-
-  get isExamVerified() {
-    return ['VERIFIED', 'verified'].includes(this.studentSolution.status);
-  }
-
-  get incorrectAnswers() {
-    return Object.values(this.studentSolution.question_verdicts).filter(x => x === 'incorrect').length;
-  }
-
-  get hiddenIcon() {
-    return (this.exam?.is_hidden) ? viewOff : view;
-  }
-
-  get isSolutionChanged(): boolean {
-    return !_.isEqual(this.studentSolution.question_verdicts, this.teacherSolution.question_verdicts);
-  }
-
-  get isStudentSolutionExist() {
-    return this.submittedSolutions.filter(x => x.student === this.userStore.user.id).length > 0;
-  }
-
-  get disableHandler() {
-    if (this.isStaff)
-      return this.isSolutionChanged;
-    return !this.disableField;
-  }
-
-  get disableField() {
-    if (this.isStaff) {
-      return true;
-    }
-    return this.isExamSubmitted || this.isStudentSolutionExist;
-  }
-
-  setVerdict(question_index: number, question_verdict: boolean) {
-    if (this.isStaff) {
-      this.teacherSolution.question_verdicts[question_index] = question_verdict ? 'correct' : 'incorrect';
-    }
-  }
-
-  setVerdictBorder(question_index: string) {
-    const CORRECT_BORDER = 'border: 2px solid yellowgreen';
-    const INCORRECT_BORDER = 'border: 2px solid red';
-    const AWAIT_BORDER = 'border: 2px solid var(--cds-ui-01)';
-    if (this.isStaff && this.solutionId) {
-      if (this.teacherSolution.question_verdicts[question_index] === 'correct')
-        return CORRECT_BORDER;
-      if (this.teacherSolution.question_verdicts[question_index] === 'incorrect')
-        return INCORRECT_BORDER;
-    }
-    return AWAIT_BORDER;
-  }
-
-  async changeExamVisibility() {
-    this.changingVisibility = true;
-    await this.examStore.patchExam(
-      { id: this.exam?.id as number, is_hidden: !this.exam?.is_hidden },
-    );
-    this.changingVisibility = false;
-  }
-
-  checkedStudent(studentId: number): boolean {
-    return studentId === this.studentId;
-  }
-
-  isQuestionInputType(question: QuestionModel) {
-    return question.answer_type === ANSWER_TYPE.INPUT;
-  }
-
-  isQuestionTextType(question: QuestionModel) {
-    return question.answer_type === ANSWER_TYPE.TEXT_FIELD;
-  }
-
-  isQuestionRadioType(question: QuestionModel) {
-    return question.answer_type === ANSWER_TYPE.RADIO;
-  }
-
-  isQuestionCheckboxType(question: QuestionModel) {
-    return question.answer_type === ANSWER_TYPE.CHECKBOXES;
-  }
-
-  changeCurrentSolution(id: number) {
-    if (this.solutionId === id)
-      return;
-    this.$router.push({
-      name: 'ExamViewWithSolution', params: {
-        courseId: this.$route.params.courseId,
-        lessonId: this.$route.params.lessonId,
-        solutionId: id.toString(),
-      }
-    })
-  }
-
-  changeExistedSolution() {
-    if (this.submittedSolutions.length) {
-      if (this.submittedSolutions.filter(x => x.id === this.solutionId).length) {
-        this.studentSolution = this.submittedSolutions.filter(x => x.id === this.solutionId)[0];
-        this.studentId = this.studentSolution.student;
-      } else {
-        this.solutionId = null;
-        this.$router.push({
-          name: 'ExamView', params: {
-            courseId: this.$route.params.courseId,
-            lessonId: this.$route.params.lessonId,
-            examId: this.exam?.id.toString() as string,
-          }
-        })
-      }
-    }
-  }
-
-  submitHandler() {
-    if (this.isStaff && this.solutionId) {
-      this.submitSolution();
-    } else {
-      this.submitExam();
-    }
-  }
-
-  async changeStudent(id: number) {
-    this.studentId = Number(id);
-    this.changeCurrentSolution(this.submittedSolutions.filter(x => x.student === Number(id))[0].id);
-  }
-
-  async submitExam() {
-    this.submitting = true;
-    await api.post('/api/solution/', {
-      user_answers: Object.values(this.userAnswers),
-      solution_points: 0,
-      student: userStore.user.id,
-      exam: this.exam?.id,
-    }).then(() => {
-      this.notificationKind = 'success';
-      this.notificationText = "Тест отправлен на проверку";
-      this.isExamSubmitted = true;
-      this.solutionStore.fetchSolutionsByExamAndUser({
-        examId: this.exam?.id as number,
-        userId: userStore.user.id
-      }).then(response => this.studentSolution = { ...response[0] });
-    }).catch(error => {
-      this.notificationKind = 'error';
-      this.notificationText = `Что-то пошло не так: ${error.message}`;
-    }).finally(() => {
-      this.showNotification = true;
-      this.submitting = false;
-    });
-  }
-
-  async submitSolution() {
-    this.submitting = true;
-    const points = this.exam?.questions
-      .filter(x => this.studentSolution.question_verdicts[x.index] === 'correct')
-      .map(x => x.points)
-      .reduce((a, b) => a + b, 0);
-    await api.patch(`/api/solution/${this.solutionId}/`, {
-      question_verdicts: this.teacherSolution.question_verdicts,
-      status: 'verified',
-      solution_points: points,
-    }).then(() => {
-      this.notificationKind = 'success';
-      this.notificationText = "Тест успешно оценен";
-      this.teacherSolution.status = 'verified';
-      this.studentSolution = _.cloneDeep(this.teacherSolution)
-    }).catch(error => {
-      this.notificationKind = 'error';
-      this.notificationText = `Что-то пошло не так: ${error.message}`;
-    }).finally(() => {
-      this.showNotification = true;
-      this.submitting = false;
-    });
-  }
+  await api.patch(`/api/solution/${solutionId.value}/`, {
+    question_verdicts: teacherSolution.value.question_verdicts,
+    status: 'verified',
+    solution_points: points,
+  }).then(() => {
+    notificationKind.value = 'success';
+    notificationText.value = "Тест успешно оценен";
+    teacherSolution.value.status = 'verified';
+    studentSolution.value = _.cloneDeep(teacherSolution.value)
+  }).catch(error => {
+    notificationKind.value = 'error';
+    notificationText.value = `Что-то пошло не так: ${error.message}`;
+  }).finally(() => {
+    showNotification.value = true;
+    submitting.value = false;
+  });
 }
 </script>
 

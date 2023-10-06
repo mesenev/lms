@@ -19,104 +19,101 @@
   </cv-structured-list-data>
 </template>
 
-<script lang="ts">
-import MaterialModel from '@/models/MaterialModel';
+<script lang="ts" setup>
 import Document24 from '@carbon/icons-vue/es/document/24';
 import VideoChat24 from '@carbon/icons-vue/es/video--chat/24';
 import TrashCan24 from '@carbon/icons-vue/es/trash-can/24';
 import LicenseGlobal24 from '@carbon/icons-vue/es/license--global/24';
 import Settings24 from '@carbon/icons-vue/es/settings/24';
 import Checked16 from '@carbon/icons-vue/es/checkmark--filled/16';
-import router from '@/router';
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import materialStore from '@/store/modules/material';
 import viewOff from '@carbon/icons-vue/es/view--off/24';
 import view from '@carbon/icons-vue/es/view/24';
+import type { PropType } from "vue";
+import type { MaterialModel } from "@/models/MaterialModel";
+import useMaterialStore from "@/stores/modules/material";
+import { useRoute, useRouter } from "vue-router";
+import { computed } from "vue";
 
-@Component({
-  components: {
-    Document24,
-    VideoChat24,
-    TrashCan24,
-    Settings24,
-    LicenseGlobal24,
-    Checked16
-  }
+const props = defineProps({
+  materialProp: { type: Object as PropType<MaterialModel>, required: true },
+  isStaff: { type: Boolean, required: false, default: false },
+  isSelected: { type: Boolean, required: false, default: false },
+  showVisibility: { type: Boolean, required: false, default: false }
 })
-export default class MaterialListComponent extends Vue {
-  @Prop() materialProp!: MaterialModel;
-  @Prop({ required: false, default: false }) isStaff!: boolean;
-  @Prop({required: false, default: false}) isSelected!: boolean;
-  @Prop({required: false, default: false}) showVisibility!: boolean;
-  private materialStore = materialStore;
 
-  async openMaterial() {
-    this.materialStore.setCurrentMaterial(this.material);
-    await this.$emit('modal-hidden');
-    if (!this.isCurrentMaterialSelected)
-      await router.push({
-        name: 'MaterialView',
-        params: { materialId: this.material.id.toString() }
-      });
-  }
+const emits = defineEmits(['modal-hidden'])
 
-  async openHandler() {
-    if (this.isStaff && !this.showVisibility) {
-      await this.openMaterial();
-    } else {
-      this.openMaterialContent();
-    }
-  }
+const materialStore = useMaterialStore();
 
-  openMaterialContent() {
-    if (this.material.content_type === 'url') {
-      this.setContentUrl();
-      this.addProtocolDomain();
-      open(this.material.content);
-    } else {
-      this.openMaterial();
-    }
-  }
+const router = useRouter();
+const route = useRoute();
 
-  setContentUrl() {
-    let contentUrl = this.material.content
-    if (contentUrl.includes('href="')) {
-      const subBegin = contentUrl.lastIndexOf('href="') + 6;
-      const subEnd = contentUrl.indexOf('">');
-      contentUrl = contentUrl.substring(subBegin, subEnd);
-    }
-    this.material.content = contentUrl;
-  }
+const isCurrentMaterialSelected = computed(() => {
+  return route.params.hasOwnProperty('materialId') &&
+      route.params['materialId'] === material.value.id.toString();
+})
 
-  addProtocolDomain() {
-    if (!this.material.content.includes('https://') && !this.material.content.includes('http://'))
-      this.material.content = 'https://' + this.material.content;
-  }
+const isVideo = computed(() => {
+  return material.value.content_type === 'video';
+})
 
-  get isCurrentMaterialSelected() {
-    return this.$route.params.hasOwnProperty('materialId') &&
-      this.$route.params['materialId'] === this.material.id.toString();
-  }
+const isUrl = computed(() => {
+  return material.value.content_type === 'url';
+})
 
-  get isVideo() {
-    return this.material.content_type === 'video';
-  }
+const isText = computed(() => {
+  return material.value.content_type === 'text';
+})
 
-  get isUrl() {
-    return this.material.content_type === 'url';
-  }
+const hiddenIcon = computed(() => {
+  return (material.value.is_teacher_only) ? viewOff : view;
+})
 
-  get isText() {
-    return this.material.content_type === 'text';
-  }
+const material = computed((): MaterialModel => {
+  return props.materialProp;
+})
 
-  get hiddenIcon() {
-    return (this.material.is_teacher_only) ? viewOff : view;
-  }
+async function openMaterial() {
+  materialStore.setCurrentMaterial(material.value);
+  await emits('modal-hidden');
+  if (!isCurrentMaterialSelected.value)
+    await router.push({
+      name: 'MaterialView',
+      params: { materialId: material.value.id.toString() }
+    });
+}
 
-  get material(): MaterialModel {
-    return this.materialProp;
+async function openHandler() {
+  if (props.isStaff && !props.showVisibility) {
+    await openMaterial();
+  } else {
+    openMaterialContent();
   }
+}
+
+function openMaterialContent() {
+  if (material.value.content_type === 'url') {
+    setContentUrl();
+    addProtocolDomain();
+    open(material.value.content);
+  } else {
+    openMaterial();
+  }
+}
+
+function setContentUrl() {
+  let contentUrl = material.value.content
+  if (contentUrl.includes('href="')) {
+    const subBegin = contentUrl.lastIndexOf('href="') + 6;
+    const subEnd = contentUrl.indexOf('">');
+    contentUrl = contentUrl.substring(subBegin, subEnd);
+  }
+  material.value.content = contentUrl;
+}
+
+function addProtocolDomain() {
+  if (!material.value.content.includes('https://') && !material.value.content.includes('http://'))
+    material.value.content = 'https://' + material.value.content;
 }
 </script>
 

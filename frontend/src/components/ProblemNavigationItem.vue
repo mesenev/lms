@@ -6,9 +6,9 @@
     <div class="status-back"></div>
     <router-link :to="target">
       <component
-          :is="Checkmark16"
-          v-if="isAccepted"
-          class="icon-accepted">
+        :is="Checkmark16"
+        v-if="isAccepted"
+        class="icon-accepted">
       </component>
       <component
         :is="Checkmark16"
@@ -16,14 +16,14 @@
         class="icon-accepted">
       </component>
       <component
-          :is="Close16"
-          v-else-if="isRejected"
-          class="icon-rejected">
+        :is="Close16"
+        v-else-if="isRejected"
+        class="icon-rejected">
       </component>
       <span
-          v-else
-          class="icon-not-passed"
-          v-text="'?'">
+        v-else
+        class="icon-not-passed"
+        v-text="'?'">
       </span>
     </router-link>
   </li>
@@ -32,72 +32,73 @@
   </li>
 </template>
 
-<script lang="ts">
-import submitStore from "@/store/modules/submit"
-import userStore from "@/store/modules/user"
-import ProblemModel from "@/models/ProblemModel";
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import SubmitModel, { SUBMIT_STATUS } from "@/models/SubmitModel";
+<script lang="ts" setup>
+import useSubmitStore from "@/stores/modules/submit";
+import type { PropType } from "vue";
+import useUserStore from "@/stores/modules/user"
+import type { ProblemModel } from "@/models/ProblemModel";
+import type { SubmitModel } from "@/models/SubmitModel";
 import Checkmark16 from "@carbon/icons-vue/es/checkmark/16";
 import Close16 from "@carbon/icons-vue/es/close/16";
+import { ref, computed, onMounted } from "vue";
+import type { Ref } from "vue";
+import { useRoute } from "vue-router";
+import { SUBMIT_STATUS } from "@/models/SubmitModel";
 
-@Component({ components: { Close16, Checkmark16 } })
-export default class ProblemNavigationItem extends Vue {
-  @Prop({ required: true }) problem!: ProblemModel;
-  submitStore = submitStore;
-  userStore = userStore;
-  submit: SubmitModel | null = null;
-  loading = true;
-  Close16 = Close16;
-  Checkmark16 = Checkmark16;
-  target: object = {};
+const props = defineProps({ problem: { required: true, type: Object as PropType<ProblemModel> } })
+const route = useRoute()
+const submitStore = useSubmitStore();
+const userStore = useUserStore();
+const submit: Ref<SubmitModel | null> = ref(null);
+const loading = ref(true);
+const target: Ref<object> = ref({});
 
-  get getStatus(): string | undefined {
-    return this.submit?.status;
+const getStatus = computed((): string | undefined => {
+  return submit?.value?.status;
+})
+
+const isAccepted = computed(() => {
+  return getStatus.value === SUBMIT_STATUS.OK;
+})
+
+const isRejected = computed(() => {
+  return getStatus.value === SUBMIT_STATUS.WRONG_ANSWER;
+})
+const isAwaitingManual = computed(() => {
+  return getStatus.value === SUBMIT_STATUS.AWAITING_MANUAL;
+})
+
+onMounted(async () => {
+  await submitStore.fetchLastSubmit({
+    user_id: userStore.user.id,
+    problem_id: props.problem.id
+  })
+    .then((data: SubmitModel | null) => submit.value = data)
+    .catch((error: string) => console.log(error));
+
+  // TODO: MAKE SEPARATE TARGET METHOD FOR ALL NAVIGATION LINKS
+  if (!!submit.value?.status) {
+    target.value = {
+      name: 'ProblemViewWithSubmit',
+      params: {
+        courseId: route.params.courseId,
+        lessonId: route.params.lessonId,
+        problemId: props.problem.id.toString(),
+        submitId: submit.value.id.toString(),
+      }
+    };
+  } else {
+    target.value = {
+      name: 'ProblemView', params: {
+        courseId: route.params.courseId,
+        lessonId: route.params.lessonId,
+        problemId: props.problem.id.toString(),
+      }
+    };
   }
+  loading.value = false;
+})
 
-  get isAccepted() {
-    return this.getStatus === SUBMIT_STATUS.OK;
-  }
-
-  get isRejected() {
-    return this.getStatus === SUBMIT_STATUS.WRONG_ANSWER;
-  }
-  get isAwaitingManual() {
-    return this.getStatus === SUBMIT_STATUS.AWAITING_MANUAL;
-  }
-
-  async created() {
-    await this.submitStore.fetchLastSubmit({
-      user_id: this.userStore.user.id,
-      problem_id: this.problem.id
-    })
-      .then((data: SubmitModel | null) => this.submit = data)
-      .catch((error: string) => console.log(error));
-
-    // TODO: MAKE SEPARATE TARGET METHOD FOR ALL NAVIGATION LINKS
-    if (!!this.submit?.status) {
-      this.target = {
-        name: 'ProblemViewWithSubmit',
-        params: {
-          courseId: this.$route.params.courseId,
-          lessonId: this.$route.params.lessonId,
-          problemId: this.problem.id.toString(),
-          submitId: this.submit.id.toString(),
-        }
-      };
-    } else {
-      this.target = {
-        name: 'ProblemView', params: {
-          courseId: this.$route.params.courseId,
-          lessonId: this.$route.params.lessonId,
-          problemId: this.problem.id.toString(),
-        }
-      };
-    }
-    this.loading = false;
-  }
-}
 </script>
 
 <style lang="stylus" scoped>

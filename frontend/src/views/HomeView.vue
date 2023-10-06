@@ -19,13 +19,13 @@
           <cv-search
             label="label"
             placeholder="search"
-            v-model.trim="searchValue">
+            v-model:value.trim="searchValue">
           </cv-search>
           <cv-structured-list>
-            <template slot="items">
+            <template v-slot:items>
               <cv-structured-list-item
                 v-for="course in filterCourses" :key="course.id" class="item">
-                <Course :courseProp='course' @show-confirm-modal="showConfirmModal($event)"/>
+                <Course :courseProp='course'/>
               </cv-structured-list-item>
             </template>
           </cv-structured-list>
@@ -36,46 +36,35 @@
   </div>
 </template>
 
-<script lang="ts">
-import Course from '@/components/lists/CourseListComponent.vue';
-import courseStore from "@/store/modules/course";
-import Component from 'vue-class-component';
-import EmptyListComponent from "@/components/EmptyListComponent.vue";
-import CourseModel from "@/models/CourseModel";
-import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
+<script lang="ts" setup>
+import useCourseStore from "@/stores/modules/course";
+import Course from "@/components/lists/CourseListComponent.vue";
+import { computed, onMounted, ref } from "vue";
+import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
+import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
 
-@Component({ components: { Course, EmptyListComponent } })
-export default class HomeView extends NotificationMixinComponent {
-  private store = courseStore;
-  searchValue = "";
-  loading = true;
-  emptyText = '';
-  deletingCourseId: number | null = null;
-  approvedText = '';
-  confirmModalTrigger = false;
+const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
-  async created() {
-    this.emptyText = 'В данный момент нет доступных курсов.'
-    await this.store.fetchUserCourses();
-    this.loading = false;
-  }
+const courseStore = useCourseStore();
+const searchValue = ref("");
+const loading = ref(true);
+const emptyText = ref('');
 
-  get courses() {
-    return this.store.courses;
-  }
+onMounted(async () => {
+  emptyText.value = 'В данный момент нет доступных курсов.'
+  await courseStore.fetchUserCourses();
+  loading.value = false;
+})
 
-  get filterCourses() {
-    return this.courses.filter(c => {
-      return c.name.toLowerCase().includes(this.searchValue.toLowerCase())
-    })
-  }
+const courses = computed(() => {
+  return courseStore.courses;
+})
 
-  showConfirmModal(deletingCourse: CourseModel) {
-    this.deletingCourseId = deletingCourse.id;
-    this.approvedText = `Удалить курс: ${deletingCourse.name}`;
-    this.confirmModalTrigger = !this.confirmModalTrigger;
-  }
-}
+const filterCourses = computed(() => {
+  return courses.value.filter(c => {
+    return c.name.toLowerCase().includes(searchValue.value.toLowerCase())
+  })
+})
 </script>
 
 <style lang="stylus" scoped>
@@ -96,7 +85,7 @@ export default class HomeView extends NotificationMixinComponent {
   .bx--structured-list-thead
     display none
 
-  /deep/.bx--search-input
+  :deep() .bx--search-input
     background-color var(--cds-ui-background)
 
 .item
