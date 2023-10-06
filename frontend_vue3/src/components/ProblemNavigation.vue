@@ -37,42 +37,40 @@
 <script lang="ts" setup>
 import useProblemStore from '@/stores/modules/problem';
 import ProblemNavigationItem from '@/components/ProblemNavigationItem.vue';
-import ProblemModel from "@/models/ProblemModel";
-import { computed, onMounted, ref, Ref } from "vue";
+import type { ProblemModel } from "@/models/ProblemModel";
+import { computed, onMounted, ref, type Ref } from "vue";
 
-const props = defineProps({lessonId:{required: true, type: Number}})
+const props = defineProps({ lessonId: { required: true, type: Number } })
 
-const  problemStore = useProblemStore();
-const  problems: Ref<Array<ProblemModel>> = ref([]);
-const  loading = ref(true);
+const problemStore = useProblemStore();
+const problems: Ref<Array<ProblemModel>> = ref([]);
+const loading = ref(true);
 
 function target(pid: number) {
-    return { name: 'ProblemView', params: { problemId: pid.toString() } };
-  }
+  return { name: 'ProblemView', params: { problemId: pid.toString() } };
+}
 
 const isProblemsEmpty = computed(() => {
-    if (problems.value.length === 0) {
-      return true;
-    }
-  })
+  return problems.value.length === 0;
+})
 
 const classwork = computed((): Array<ProblemModel> => {
-    return problems.value.filter(x => x.type === 'CW');
-  })
+  return problems.value.filter(x => x.type === 'CW');
+})
 
 const homework = computed((): Array<ProblemModel> => {
-    return problems.value.filter(x => x.type === 'HW');
-  })
+  return problems.value.filter(x => x.type === 'HW');
+})
 
 const extrawork = computed((): Array<ProblemModel> => {
-    return problems.value.filter(x => x.type === 'EX');
-  })
+  return problems.value.filter(x => x.type === 'EX');
+})
 
 
 onMounted(async () => {
-    problems.value = await problemStore.fetchProblemsByLessonId(props.lessonId);
-    loading.value = false;
-  })
+  problems.value = await problemStore.fetchProblemsByLessonId(props.lessonId);
+  loading.value = false;
+})
 
 </script>
 
@@ -105,7 +103,7 @@ aside
 </style>
 
 <style lang="stylus" scoped>
-.bx--structured-list-row--header-row
+:deep() .bx--structured-list-row--header-row
   background-color #393939
 
   .pupil-title

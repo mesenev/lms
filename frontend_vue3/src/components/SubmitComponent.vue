@@ -15,11 +15,11 @@
       <div class="submit-lang">
         <div>Среда разработки:</div>
         <cv-dropdown
-            v-model:value="submitEdit.de_id"
-            :disabled="deOptions.length === 0"
-            :items="deOptions"
-            class="lang-choice"
-            placeholder="Выберите язык программирования">
+          v-model:value="submitEdit.de_id"
+          :disabled="deOptions.length === 0"
+          :items="deOptions"
+          class="lang-choice"
+          placeholder="Выберите язык программирования">
           <cv-dropdown-item v-for="de in deOptions" :key="de.value" :value="de.value">
             <span>{{ de.name }}</span>
           </cv-dropdown-item>
@@ -35,17 +35,17 @@
             <component class="trash-icon icon" :is="TrashCan" @click.prevent.stop="deleteFile"/>
           </div>
           <cv-button
-              v-if="!loading"
-              :disabled="!canSubmit"
-              class="submit-btn"
-              @click="confirmSubmit">
+            v-if="!loading"
+            :disabled="!canSubmit"
+            class="submit-btn"
+            @click="confirmSubmit">
             Отправить решение
           </cv-button>
 
           <cv-button-skeleton v-else></cv-button-skeleton>
           <cv-link
-              v-if="!cats_account"
-              :to="{
+            v-if="!cats_account"
+            :to="{
             name: 'profile-page',
             params: { userId: userStore.user.id }
           }">
@@ -54,19 +54,19 @@
         </div>
         <div v-if="isStaff" class="handlers-staff">
           <cv-button
-              v-if="!loading"
-              :disabled="isAcceptDisabled"
-              class="submit-btn accepted"
-              @click="acceptSubmit">
+            v-if="!loading"
+            :disabled="isAcceptDisabled"
+            class="submit-btn accepted"
+            @click="acceptSubmit">
             Принять
           </cv-button>
           <cv-button-skeleton v-else></cv-button-skeleton>
           <cv-button
-              v-if="!loading"
-              :disabled="isRejectDisabled"
-              class="submit-btn rejected"
-              kind='danger'
-              @click="rejectSubmit">
+            v-if="!loading"
+            :disabled="isRejectDisabled"
+            class="submit-btn rejected"
+            kind='danger'
+            @click="rejectSubmit">
             Отклонить
           </cv-button>
           <cv-button-skeleton v-else></cv-button-skeleton>
@@ -74,11 +74,11 @@
       </div>
     </div>
     <cv-inline-notification
-        v-if="showNotification"
-        :kind="notificationKind"
-        :sub-title="notificationText"
-        class="notification"
-        @close="hideNotification"/>
+      v-if="showNotification"
+      :kind="notificationKind"
+      :sub-title="notificationText"
+      class="notification"
+      @close="hideNotification"/>
   </div>
 </template>
 
@@ -102,7 +102,7 @@ import useNotificationMixin from "@/components/common/NotificationMixinComponent
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
 const props = defineProps({
-  submitId: { type: Number, required: true },
+  submitId: { type: Number, required: false },
   isStaff: { type: Boolean, required: true }
 })
 
@@ -179,7 +179,7 @@ const isAcceptDisabled = computed(() => {
 
 function setNotification() {
   if (file_content.value.length != 0 &&
-      submitEdit.value.content?.length !== 0) {
+    submitEdit.value.content?.length !== 0) {
     notificationKind.value = 'error';
     notificationText.value = `Отправьте либо текст решения либо файл`;
     showNotification.value = true;
@@ -192,10 +192,10 @@ const canSubmit = computed((): boolean => {
   setNotification();
 
   return (((submitEdit.value.content?.length !== 0
-          && isChanged.value) || (file_content.value.length != 0))
-      && submitEdit.value.de_id.length !== 0
-      && cats_account.value) && !(file_content.value.length != 0 &&
-      submitEdit.value.content?.length !== 0);
+      && isChanged.value) || (file_content.value.length != 0))
+    && submitEdit.value.de_id.length !== 0
+    && cats_account.value) && !(file_content.value.length != 0 &&
+    submitEdit.value.content?.length !== 0);
 
 })
 
@@ -249,23 +249,23 @@ function onSubmitIdChanged() {
 function patchSubmit(status: string) {
 
   submitEdit.value = (submit.value)
-      ? { ...submit.value, status: status }
-      : { ...submitStore.defaultSubmit };
+    ? { ...submit.value, status: status }
+    : { ...submitStore.defaultSubmit };
 
 
   api.patch(`/api/submit/${submitEdit.value.id}/`, submitEdit.value)
-      .then((response) => {
-        submitStore.changeSubmitStatus(response.data);
-        submit.value = { ...response.data };
-        submitEdit.value = { ...response.data };
-        notificationKind.value = 'success';
-        notificationText.value = `Работа оценена: ${status}`;
-      })
-      .catch((error: AxiosError) => {
-        notificationKind.value = 'error';
-        notificationText.value = `Что-то пошло не так ${error.message}`
-      })
-      .finally(() => showNotification.value = true);
+    .then((response) => {
+      submitStore.changeSubmitStatus(response.data);
+      submit.value = { ...response.data };
+      submitEdit.value = { ...response.data };
+      notificationKind.value = 'success';
+      notificationText.value = `Работа оценена: ${status}`;
+    })
+    .catch((error: AxiosError) => {
+      notificationKind.value = 'error';
+      notificationText.value = `Что-то пошло не так ${error.message}`
+    })
+    .finally(() => showNotification.value = true);
 }
 
 function acceptSubmit() {
@@ -427,7 +427,7 @@ input
 .bx--dropdown
   border-bottom 0
 
-/deep/ .bx--list-box__field
+:deep() .bx--list-box__field
   display flex
 
   .bx--list-box__field, ui

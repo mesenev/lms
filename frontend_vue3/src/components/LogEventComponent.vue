@@ -58,7 +58,6 @@
           :light="false"
           :password-visible="false"
           :placeholder="'Введите сообщение'"
-          :type="''"
           :value="''"
           class="searchbar"
           v-on:keydown.enter="createMessageHandler">

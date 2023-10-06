@@ -53,45 +53,45 @@ import { type Ref, ref, computed, type PropType } from 'vue';
 import { useRoute } from 'vue-router';
 
 
-  const props = defineProps({
-    taskList: {type :Object as PropType<Array<ProblemModel | CatsProblemModel>>, required: true},
-    isEditing: { type: Boolean, required: false } 
+const props = defineProps({
+  taskList: { type: Object as PropType<Array<ProblemModel | CatsProblemModel>>, required: true },
+  isEditing: { type: Boolean, required: false }
+})
+const emit = defineEmits<{
+  (e: 'update-problem-delete', problemId: number | null): void
+}>()
+const userStore = useUserStore();
+const courseStore = useCourseStore();
+const route = useRoute();
+
+const deletingProblemId: Ref<number | null> = ref(null);
+const modalTrigger: Ref<boolean> = ref(false);
+const approvedText: Ref<string> = ref('');
+
+const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
+
+const isStaff = computed((): boolean => {
+  const courseId = Number(route.params.courseId);
+  return userStore.user.staff_for.includes(courseId);
+})
+
+function showConfirmModal(deletingProblem: ProblemModel) {
+  deletingProblemId.value = deletingProblem.id;
+  approvedText.value = `Удалить задачу: ${deletingProblem.name}`;
+  modalTrigger.value = !modalTrigger.value;
+}
+
+async function deleteProblem() {
+  if (!deletingProblemId.value)
+    throw Error;
+  await api.delete(`/api/problem/${deletingProblemId.value}/`).then(() => {
+    emit('update-problem-delete', deletingProblemId.value);
+  }).catch(error => {
+    notificationKind.value = 'error';
+    notificationText.value = `Что-то пошло не так: ${error.message}`;
+    showNotification.value = true;
   })
-  const emit = defineEmits<{
-    (e: 'update-problem-delete', problemId: number | null) : void
-  }>()
-  const userStore = useUserStore();
-  const courseStore = useCourseStore();
-  const route = useRoute();
-
-  const deletingProblemId: Ref<number | null> = ref(null);
-  const modalTrigger: Ref<boolean> = ref(false);
-  const approvedText: Ref<string> = ref('');
-
-  const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
-
-  const isStaff =computed((): boolean => {
-    const courseId = Number(route.params.courseId);
-    return userStore.user.staff_for.includes(courseId);
-  })
-
-  function showConfirmModal(deletingProblem: ProblemModel) {
-    deletingProblemId.value = deletingProblem.id;
-    approvedText.value = `Удалить задачу: ${deletingProblem.name}`;
-    modalTrigger.value = !modalTrigger.value;
-  }
-
-  async function deleteProblem() {
-    if (!deletingProblemId.value)
-      throw Error;
-    await api.delete(`/api/problem/${deletingProblemId.value}/`).then(() => {
-      emit('update-problem-delete', deletingProblemId.value);
-    }).catch(error => {
-      notificationKind.value = 'error';
-      notificationText.value = `Что-то пошло не так: ${error.message}`;
-      showNotification.value = true;
-    })
-  }
+}
 </script>
 <style lang="stylus">
 .problem-list-component--header

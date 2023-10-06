@@ -10,10 +10,10 @@
             Условие задачи
           </cv-link>
           <cv-modal
-              :visible="displayProblem"
-              class="problem-description-modal"
-              close-aria-label="Закрыть"
-              @modal-hidden="hideProblem">
+            :visible="displayProblem"
+            class="problem-description-modal"
+            close-aria-label="Закрыть"
+            @modal-hidden="hideProblem">
             <template v-slot:title>{{ problem.name }}</template>
             <template v-slot:content>
               <problem-description :problem="problem"/>
@@ -44,12 +44,12 @@
             </template>
             <template v-slot:items>
               <cv-structured-list-item
-                  v-for="student in studentIds"
-                  :key="student"
-                  :checked="checkedStudent(student)"
-                  :value="student.toString()"
-                  class="student-list--item"
-                  name="student">
+                v-for="student in studentIds"
+                :key="student"
+                :checked="checkedStudent(student)"
+                :value="student.toString()"
+                class="student-list--item"
+                name="student">
                 <cv-structured-list-data>
                   <user-component :user-id="Number(student)" class="student-list--item--user-component"/>
                 </cv-structured-list-data>
@@ -61,21 +61,21 @@
       <cv-column :lg="{'span': 8, 'offset': isStaff ? 0 : 2}">
         <div class="solution-container item">
           <submit-component
-              v-if="problem"
-              :is-staff="isStaff" :language-list="problem.language"
-              :submitId="submitId"
-              class="solution-container--submit-component"
-              @submit-created="changeCurrentSubmit"/>
+            v-if="problem"
+            :is-staff="isStaff" :language-list="problem.language"
+            :submitId="submitId"
+            class="solution-container--submit-component"
+            @submit-created="changeCurrentSubmit"/>
           <cv-loading v-else small/>
           <div class="solution-container--submit-list">
             <log-event-component
-                v-if="!!problem"
-                :key="logEventComponentKey"
-                :problemId="problem.id" :selected-submit="submitId"
-                :studentId="studentId"
-                class="log--event--component"
-                @submit-selected="changeCurrentSubmit"
-                @cats-answer="showCatsAnswerModal"
+              v-if="!!problem"
+              :key="logEventComponentKey"
+              :problemId="problem.id" :selected-submit="submitId"
+              :studentId="studentId"
+              class="log--event--component"
+              @submit-selected="changeCurrentSubmit"
+              @cats-answer="showCatsAnswerModal"
             />
             <cv-loading v-else></cv-loading>
           </div>
@@ -165,7 +165,7 @@ const avatarUrl = computed(() => {
 
 const isCompleted = computed((): boolean => {
   return !!submits.value.find((submit: SubmitModel) => (
-      submit.status === 'OK'
+    submit.status === 'OK'
   ));
 })
 
@@ -417,9 +417,7 @@ h1
 aside
   @media (max-width: 1100px)
     display none
-</style>
-<style lang="stylus">
-.student-list--item
-  .bx--structured-list-td
-    vertical-align middle
+
+:deep() .bx--structured-list-td
+  vertical-align middle
 </style>
