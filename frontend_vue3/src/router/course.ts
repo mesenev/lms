@@ -1,6 +1,5 @@
 import CourseView from '@/views/CourseView.vue';
 import CourseEditView from "@/views/managment/CourseEditView.vue";
-import CourseRegistrationView from "@/views/CourseRegistrationView.vue";
 import CourseCalendarView from "@/views/managment/CourseCalendarView.vue";
 import CourseProgressView from "@/views/managment/CourseProgressView.vue";
 import SolutionsListView from "@/views/managment/SolutionsListView.vue"

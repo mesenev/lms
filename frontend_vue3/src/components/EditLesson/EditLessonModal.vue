@@ -14,15 +14,14 @@
       <template v-slot:title>
         Добавить задание
         <cv-content-switcher class="switcher" @selected="actionSelected">
-          <cv-content-switcher-button parent-switcher="task" owner-id="Problems"
-                                      selected>
+          <cv-content-switcher-button owner-id="Problems" selected>
             Импортировать задачу из cats
           </cv-content-switcher-button>
-          <cv-content-switcher-button parent-switcher="task" owner-id="Exams">
+          <cv-content-switcher-button owner-id="Exams">
             Создать тест
           </cv-content-switcher-button>
         </cv-content-switcher>
-        <cv-content-switcher-content parent-switcher="task" owner-id="Problems">
+        <cv-content-switcher-content owner-id="Problems">
           <cv-inline-notification
             v-if="showNotification"
             @close="() => showNotification=false"
@@ -32,7 +31,7 @@
       </template>
       <template v-slot:content>
         <section class="modal--content">
-          <cv-content-switcher-content parent-switcher="task" owner-id="Problems">
+          <cv-content-switcher-content owner-id="Problems">
             <div class="content-1">
               <div class="problem-type-selection">
                 <h5>Выберите способ тестирования</h5>
@@ -90,7 +89,7 @@
               <cv-text-input v-model.trim="currentProblem.description" label="Описание задания"/>
             </div>
           </cv-content-switcher-content>
-          <cv-content-switcher-content parent-switcher="task" owner-id="Exams">
+          <cv-content-switcher-content owner-id="Exams">
             <div class="exam-container">
               <div class="exam-container-head">
                 <p>Настройки теста</p>
@@ -325,7 +324,7 @@ async function addProblem() {
             return element;
           });
           emits("update-problem-list", newProblems as ProblemModel[]);
-          modalHidden();
+          await modalHidden();
           clearData();
           // await this.fetchCatsProblems();
         }
@@ -430,7 +429,7 @@ async function createExam() {
 
 .exam-container
   background-color var(--cds-ui-01)
-  padding 1rem
+  padding 0 0 1rem 0
 
 .exam-container-head
   display flex

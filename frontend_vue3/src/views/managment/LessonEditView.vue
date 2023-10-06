@@ -66,21 +66,21 @@
 
       <div class="bx--col-lg-6 bx--col-md-4">
         <cv-content-switcher>
-          <cv-content-switcher-button class="type-of-task-tab" owner-id="CW" selected>
+          <cv-content-switcher-button parent-switcher="tasks" class="type-of-task-tab" owner-id="CW" selected>
             Классная работа
           </cv-content-switcher-button>
-          <cv-content-switcher-button class="type-of-task-tab" owner-id="HW">
+          <cv-content-switcher-button parent-switcher="tasks" class="type-of-task-tab" owner-id="HW">
             Домашняя работа
           </cv-content-switcher-button>
-          <cv-content-switcher-button class="type-of-task-tab" owner-id="EX">
+          <cv-content-switcher-button parent-switcher="tasks" class="type-of-task-tab" owner-id="EX">
             Доп. задания
           </cv-content-switcher-button>
-          <cv-content-switcher-button class="type-of-task-tab" owner-id="Test">
+          <cv-content-switcher-button parent-switcher="tasks" class="type-of-task-tab" owner-id="Test">
             Тесты
           </cv-content-switcher-button>
         </cv-content-switcher>
         <section class="content-task-list">
-          <cv-content-switcher-content owner-id="CW">
+          <cv-content-switcher-content parent-switcher="tasks" owner-id="CW">
             <div v-if="getClasswork.length > 0">
               <div v-if="!fetchingLesson" class="classwork">
                 <problem-list-component
@@ -95,7 +95,7 @@
             </div>
             <h4 v-else class="empty-tasks">Задания отсутствуют</h4>
           </cv-content-switcher-content>
-          <cv-content-switcher-content owner-id="HW">
+          <cv-content-switcher-content parent-switcher="tasks" owner-id="HW">
             <div v-if="getHomework.length > 0">
               <div v-if="!fetchingLesson" class="homework">
                 <problem-list-component
@@ -110,7 +110,7 @@
             </div>
             <h4 v-else class="empty-tasks">Задания отсутствуют</h4>
           </cv-content-switcher-content>
-          <cv-content-switcher-content owner-id="EX">
+          <cv-content-switcher-content parent-switcher="tasks" owner-id="EX">
             <div v-if="getExtrawork.length > 0">
               <div v-if="!fetchingLesson" class="extrawork">
                 <problem-list-component
@@ -125,7 +125,7 @@
             </div>
             <h4 v-else class="empty-tasks">Задания отсутствуют</h4>
           </cv-content-switcher-content>
-          <cv-content-switcher-content owner-id="Test">
+          <cv-content-switcher-content parent-switcher="tasks" owner-id="Test">
             <div v-if="getExams.length > 0">
               <div v-if="!fetchingLesson" class="extrawork">
                 <exam-list-component

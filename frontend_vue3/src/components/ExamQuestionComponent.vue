@@ -252,7 +252,7 @@ function deleteQuestion() {
 
 <style scoped lang="stylus">
 .invalid-text
-  text-decoration underline
+  font-style italic
 
 .question-container
   line-height var(--cds-body-long-01-line-height, 1.43);
@@ -270,13 +270,13 @@ function deleteQuestion() {
 .question
   width 50%
 
-/deep/ .bx--label
+:deep() .bx--label
   display none
 
-.answer-type /deep/ .bx--dropdown__wrapper.bx--list-box__wrapper
+:deep() .bx--dropdown__wrapper.bx--list-box__wrapper
   max-width 50%
 
-/deep/ .bx--list-box__field
+:deep() .bx--list-box__field
   display flex
 
 .answer-type
@@ -308,7 +308,7 @@ function deleteQuestion() {
   margin-top 1rem
   margin-bottom 1rem
 
-.points-input /deep/ .bx--number
+:deep() .bx--number
   width 11rem
 
 .question-footer
