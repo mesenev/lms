@@ -1,7 +1,7 @@
-import QuestionModel from "@/models/QuestionModel";
-import { BaseModel } from "@/models/BaseModel";
+import type { QuestionModel } from "@/models/QuestionModel";
+import type { BaseModel } from "@/models/BaseModel";
 
-export default interface ExamModel extends BaseModel {
+export interface ExamModel extends BaseModel {
   lesson: number;
   description: string | null;
   questions: Array<QuestionModel>;

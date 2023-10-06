@@ -6,20 +6,19 @@
   </div>
 </template>
 
-<script lang="ts">
-import SubmitModel from "@/models/SubmitModel";
-import { Component, Prop, Vue } from 'vue-property-decorator';
+<script lang="ts" setup>
+import type { SubmitModel } from "@/models/SubmitModel";
 import { statusAssociations } from "@/common/colors";
+import type { PropType } from "vue";
 
-@Component({ components: {} })
-export default class SubmitStatus extends Vue {
-  @Prop({ required: true }) submit!: SubmitModel;
-  @Prop({ required: false, default: false }) statusOnly!: boolean;
+const props = defineProps({
+  submit: { type: Object as PropType<SubmitModel>, required: true },
+  statusOnly: { type: Boolean, required: false, default: false }
+})
 
-  statusColor(status: string): string {
+  function statusColor(status: string): string {
     return statusAssociations[status] || statusAssociations['default'];
   }
-}
 </script>
 
 <style scoped lang="stylus">

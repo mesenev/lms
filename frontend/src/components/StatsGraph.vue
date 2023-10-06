@@ -10,96 +10,94 @@
   </div>
 </template>
 
-<script lang="ts">
-import ProblemModel from '@/models/ProblemModel';
-import { Component, Prop, Vue } from "vue-property-decorator";
-import courseStore from '@/store/modules/course';
-import userStore from '@/store/modules/user';
-import submitStore from '@/store/modules/submit';
-import SubmitModel from "@/models/SubmitModel";
-import { Dictionary } from "vue-router/types/router";
-import UserModel from "@/models/UserModel";
+<script lang="ts" setup>
+import type {ProblemModel} from '@/models/ProblemModel';
+import useCourseStore from '@/stores/modules/course';
+import useUserStore from '@/stores/modules/user';
+import useSubmitStore from '@/stores/modules/submit';
+import type {SubmitModel} from "@/models/SubmitModel";
+import type {UserModel} from "@/models/UserModel";
+import { type PropType, ref, type Ref, computed, onMounted } from 'vue';
 
 interface StatsGraphStyle {
   backgroundColor: string;
   width: string;
 }
 
-@Component({})
-export default class StatsGraph extends Vue {
-  @Prop({required: true}) problem!: ProblemModel;
-  userStore = userStore;
-  submitStore = submitStore;
-  courseStore = courseStore;
-  _submits: SubmitModel[] = [];
-  usersWithSubmits: number[] = [];
-  loading = true;
+const props = defineProps({ problem: { type: Object as PropType<ProblemModel>, required: true } })
 
-  wrongStyle: StatsGraphStyle = {
+  const userStore = useUserStore();
+  const submitStore = useSubmitStore();
+  const courseStore = useCourseStore();
+  const _submits: Ref<SubmitModel[]> = ref([]);
+  const usersWithSubmits: Ref<number[]> = ref([]);
+  const loading: Ref<boolean> = ref(true);
+
+  const students = computed((): Dictionary<UserModel> => {
+    return userStore.currentCourseStudents;
+  })
+
+  
+  const studentsCount = computed((): number => {
+    return Object.keys(students.value).length;
+  })
+
+  const wrongStyle: Ref<StatsGraphStyle> = ref({
     backgroundColor: '#fc4848',
-    width: `${1 / this.studentsCount * 100}%`,
-  };
-  successfulStyle: StatsGraphStyle = {
+    width: `${1 / studentsCount.value * 100}%`,
+  });
+  const successfulStyle: Ref<StatsGraphStyle> = ref({
     backgroundColor: '#2ff306',
-    width: `${1 / this.studentsCount * 100}%`,
-  };
-  testingStyle: StatsGraphStyle = {
+    width: `${1 / studentsCount.value * 100}%`,
+  });
+  const testingStyle: Ref<StatsGraphStyle> = ref({
     backgroundColor: '#fff300',
-    width: `${1 / this.studentsCount * 100}%`,
-  };
-  withoutSolutionStyle: StatsGraphStyle = {
+    width: `${1 / studentsCount.value * 100}%`,
+  });
+  const withoutSolutionStyle: Ref<StatsGraphStyle> = ref({
     backgroundColor: 'var(--cds-ui-01)',
-    width: `${1 / this.studentsCount * 100}%`,
-  };
+    width: `${1 / studentsCount.value * 100}%`,
+  });
 
-  async created() {
-    this._submits = await this.submitStore.fetchProblemStats(this.problem.id);
-    this.usersWithSubmits = this.submits.map(x => x.student);
-    this.loading = false;
+onMounted(async () => {
+    _submits.value = await submitStore.fetchProblemStats(props.problem.id);
+    usersWithSubmits.value = submits.value.map(x => x.student);
+    loading.value = false;
+  })
+
+const submits = computed((): SubmitModel[] => {
+    return _submits.value.filter(x => students.value[x.student] !== undefined);
+  })
+
+const noSubmitsUsers = computed((): Array<UserModel> => {
+    return Object.keys(students.value)
+      .filter(x => !(usersWithSubmits.value.includes(Number(x))))
+      .map(x => students.value[x]);
+  })
+
+function isSuccessfulStatus(studentId: number) {
+    return submits.value.filter(x => x.status === "OK" && x.student === studentId).length > 0;
   }
 
-  get students(): Dictionary<UserModel> {
-    return this.userStore.currentCourseStudents;
-  }
-
-  get studentsCount(): number {
-    return Object.keys(this.students).length;
-  }
-
-  get submits(): SubmitModel[] {
-    return this._submits.filter(x => this.students[x.student] !== undefined);
-  }
-
-  get noSubmitsUsers(): Array<UserModel> {
-    return Object.keys(this.students)
-      .filter(x => !(this.usersWithSubmits.includes(Number(x))))
-      .map(x => this.students[x]);
-  }
-
-  isSuccessfulStatus(studentId: number) {
-    return this.submits.filter(x => x.status === "OK" && x.student === studentId).length > 0;
-  }
-
-  isTestingStatus(studentId: number) {
-    return this.submits.filter(
+function isTestingStatus(studentId: number) {
+    return submits.value.filter(
       x => (x.status === 'AW' || x.status === 'NP') && x.student === studentId
     ).length > 0;
   }
 
-  submitStatusStyle(student: UserModel) {
-    if (this.isWithoutSolution(student))
-      return this.withoutSolutionStyle;
-    else if (this.isSuccessfulStatus(student.id))
-      return this.successfulStyle;
-    else if (this.isTestingStatus(student.id))
-      return this.testingStyle;
-    return this.wrongStyle;
+function submitStatusStyle(student: UserModel) {
+    if (isWithoutSolution(student))
+      return withoutSolutionStyle.value;
+    else if (isSuccessfulStatus(student.id))
+      return successfulStyle.value;
+    else if (isTestingStatus(student.id))
+      return testingStyle.value;
+    return wrongStyle.value;
   }
 
-  isWithoutSolution(student: UserModel) {
-    return this.noSubmitsUsers.includes(student);
+function isWithoutSolution(student: UserModel) {
+    return noSubmitsUsers.value.includes(student);
   }
-}
 </script>
 
 <style lang="stylus" scoped>

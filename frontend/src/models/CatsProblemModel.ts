@@ -1,4 +1,4 @@
-export default interface CatsProblemModel {
+export interface CatsProblemModel {
   id: number;
   name: string;
   code: string;

@@ -4,19 +4,19 @@
       Сменить пароль
     </cv-button>
     <cv-modal
-      :visible="modalVisible"
-      size="small"
-      class="add_cats_modal"
-      @modal-hidden="modalHidden">
-      <template slot="title">
+        :visible="modalVisible"
+        size="small"
+        class="add_cats_modal"
+        @modal-hidden="modalHidden">
+      <template v-slot:title>
         Смена пароля
       </template>
-      <template slot="content">
+      <template v-slot:content>
         <cv-inline-notification
-          v-if="showNotification"
-          :kind="notificationKind"
-          :sub-title="notificationText"
-          @close="() => showNotification=false"
+            v-if="showNotification"
+            :kind="notificationKind"
+            :sub-title="notificationText"
+            @close="() => showNotification=false"
         />
         <div>
           <cv-text-input class="old-pass"
@@ -30,7 +30,7 @@
                          label="Введите новый пароль:"
                          v-model.trim="new_pass">
             <template v-if="!checkNewPassword"
-                      slot="invalid-message">
+                      v-slot:invalid-message>
               Длина пароля должна быть от 8 до 25
             </template>
           </cv-text-input>
@@ -39,7 +39,7 @@
                          label="Введите новый пароль ещё раз:"
                          v-model.trim="new_pass_repeat">
             <template v-if="!checkRepeatPassword"
-                      slot="invalid-message"
+                      v-slot:invalid-message
             >
               Пароли должны совпадать
             </template>
@@ -58,83 +58,78 @@
 
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 
-import api from '@/store/services/api'
-import { Component, Vue } from 'vue-property-decorator';
+import api from '@/stores/services/api'
+import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
+import {computed, ref} from "vue";
 
 
-@Component({components: {}})
+const {notificationText, notificationKind, showNotification, hideNotification} = useNotificationMixin();
+const modalVisible = ref(false);
+const old_pass = ref('');
+const new_pass = ref('');
+const new_pass_repeat = ref('');
 
-export default class ChangePasswordModal extends Vue {
-  modalVisible = false;
-  showNotification = false;
-  notificationText = '';
-  notificationKind = 'success';
-  old_pass = '';
-  new_pass = '';
-  new_pass_repeat = '';
+//TODO: code below is not working
+const checkOldPassword = computed(() => {
+  return false;
+})
 
-  //TODO: code below is not working
-  get checkOldPassword() {
-    return false;
-  }
+const checkNewPassword = computed(() => {
+  if (new_pass.value.length === 0) return true;
+  return new_pass.value.length >= 8 && new_pass.value.length <= 20;
+})
 
-  get checkNewPassword(): boolean {
-    if (this.new_pass.length === 0) return true;
-    return this.new_pass.length >= 8 && this.new_pass.length <= 20;
-  }
+const checkRepeatPassword = computed(() => {
+  if (new_pass_repeat.value.length === 0) return true;
+  return new_pass.value === new_pass_repeat.value;
+})
 
-  get checkRepeatPassword(): boolean {
-    if (this.new_pass_repeat.length === 0) return true;
-    return this.new_pass === this.new_pass_repeat;
-  }
+async function Finished() {
+  const data = {old_password: old_pass.value, new_password: new_pass.value};
+  const request = api.post('/api/change-password/', data);
+  request.then(response => {
+    notificationKind.value = 'success';
+    notificationText.value = "Пароль успешно сменён!";
+    showNotification.value = true;
+    setTimeout(modalHidden, 2000);
+  }).catch(error => {
+    notificationKind.value = 'error';
+    notificationText.value = `Что-то пошло не так: ${error.message}`;
+    showNotification.value = true;
+  })
 
-  async Finished() {
-    const data = { old_password: this.old_pass, new_password: this.new_pass };
-    const request = api.post('/api/change-password/', data);
-    request.then(response => {
-      this.notificationKind = 'success';
-      this.notificationText = "Пароль успешно сменён!";
-      this.showNotification = true;
-      setTimeout(this.modalHidden, 2000);
-    }).catch(error => {
-      this.notificationKind = 'error';
-      this.notificationText = `Что-то пошло не так: ${error.message}`;
-      this.showNotification = true;
-    })
+}
 
-  }
+const correctPassword = computed(() => {
+  return (
+      !!new_pass_repeat.value && !!new_pass.value && !!old_pass.value
+      && checkNewPassword.value && checkRepeatPassword.value
+  );
+})
 
-  get correctPassword() {
-    return (
-      !!this.new_pass_repeat && !!this.new_pass && !!this.old_pass
-      && this.checkNewPassword && this.checkRepeatPassword
-    );
-  }
+function showModal() {
+  modalVisible.value = true;
+}
 
-  showModal() {
-    this.modalVisible = true;
-  }
-
-  modalHidden() {
-    this.modalVisible = false;
-    this.notificationText = '';
-    this.showNotification = false;
-    this.notificationKind = 'success';
-    this.old_pass = this.new_pass = this.new_pass_repeat = '';
-  }
+function modalHidden() {
+  modalVisible.value = false;
+  notificationText.value = '';
+  showNotification.value = false;
+  notificationKind.value = 'success';
+  old_pass.value = new_pass.value = new_pass_repeat.value = '';
 }
 </script>
 
 <style scoped lang="stylus">
-  .add_cats_modal /deep/ .bx--modal-container
-    height 50%
+.add_cats_modal /deep/ .bx--modal-container
+  height 50%
 
-  .new-pass, .new-pass-repeat
-    & /deep/ .bx--text-input__field-wrapper .bx--text-input__invalid-icon
-      transform: translateY(-50%) translateX(-20px)
+.new-pass, .new-pass-repeat
+  & /deep/ .bx--text-input__field-wrapper .bx--text-input__invalid-icon
+    transform: translateY(-50%) translateX(-20px)
 
-  .add_cats_modal /deep/ .cv-text-input.bx--form-item:not(:first-child)
-    margin-top 1rem
+.add_cats_modal /deep/ .cv-text-input.bx--form-item:not(:first-child)
+  margin-top 1rem
 </style>

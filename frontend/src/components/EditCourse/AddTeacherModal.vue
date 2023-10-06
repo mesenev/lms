@@ -5,48 +5,48 @@
     </cv-button>
     <cv-modal :visible="modalVisible"
               class="add_lesson_modal"
-              size="default"
+              :disableTeleport="true"
               @modal-hidden="modalHidden"
               @secondary-click="() => {}">
-      <template slot="title">
+      <template v-slot:title>
         <h3>Выбор преподавателей</h3>
       </template>
-      <template slot="content">
+      <template v-slot:content>
         <cv-inline-notification
-          v-if="showNotification"
-          :kind="notificationKind"
-          :sub-title="notificationText"
-          @close="hideNotification"
+            v-if="showNotification"
+            :kind="notificationKind"
+            :sub-title="notificationText"
+            @close="hideNotification"
         />
         <cv-structured-list>
-          <template slot="headings">
+          <template v-slot:headings>
             <cv-structured-list-heading>
               <cv-search
-                label="label"
-                placeholder="Введите почту прeподавателя"
-                v-model.trim="searchValue"/>
+                  label="label"
+                  placeholder="Введите почту прeподавателя"
+                  v-model:value.trim="searchValue"/>
             </cv-structured-list-heading>
             <cv-structured-list-heading>
               <div class="list-headings">
                 <cv-button
-                  class="heading-btn"
-                  :disabled="teacherNotPicked"
-                  @click="addStuff()">
+                    class="heading-btn"
+                    :disabled="teacherNotPicked"
+                    @click="addStuff()">
                   Добавить
                 </cv-button>
               </div>
             </cv-structured-list-heading>
           </template>
-          <template slot="items">
+          <template v-slot:items>
             <cv-structured-list-item v-for="k in teachersList" :key="k.id" checked>
               <cv-structured-list-data>
                 {{ k.first_name + " " + k.last_name }}
               </cv-structured-list-data>
               <cv-structured-list-data>
                 <cv-checkbox
-                  class="list-checkbox"
-                  value="value"
-                  @click="actionSelected(k)">
+                    class="list-checkbox"
+                    value="value"
+                    @click="actionSelected(k)">
                 </cv-checkbox>
               </cv-structured-list-data>
             </cv-structured-list-item>
@@ -57,121 +57,113 @@
   </div>
 </template>
 
-<script lang="ts">
-
-import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
-import UserModel from "@/models/UserModel";
-import userStore from '@/store/modules/user';
-
-import { Component, Prop, Watch } from 'vue-property-decorator';
+<script lang="ts" setup>
+import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
+import { computed, ref, watch } from "vue";
+import useUserStore from "@/stores/modules/user";
+import type { UserModel } from "@/models/UserModel";
+import api from "@/stores/services/api";
 import { TEACHER } from "@/utils/consts";
-import api from '@/store/services/api';
 
-@Component({})
-export default class AddTeacherModal extends NotificationMixinComponent {
-  @Prop({ required: true }) courseId!: number;
-  searchValue = "";
-  userStore = userStore;
-  teachersArray: UserModel[] = [];
-  pickedTeachers: Set<UserModel> = new Set<UserModel>();
-  modalVisible = false;
-  teacherNotPicked = true;
+const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
-  breakFlag = false;
+const props = defineProps({
+  courseId: { type: Number, required: true }
+})
 
-  @Watch('searchValue')
-  async onSearchBarChange(val: string) {
-    if (val.length >= 4) {
-      await api.get(
-        '/api/users/', { params: { email__icontains: this.searchValue, group: TEACHER } },
-      ).then(response => {
-          this.teachersArray = response.data;
-          this.pickedTeachers.clear();
-          this.teacherNotPicked = true;
+const searchValue = ref("");
+const userStore = useUserStore();
+const teachersArray = ref<UserModel[]>([]);
+const pickedTeachers = ref<Set<UserModel>>(new Set<UserModel>());
+const modalVisible = ref(false);
+const teacherNotPicked = ref(true);
+
+const breakFlag = ref(false);
+
+watch(() => searchValue.value, async (val: string) => {
+  if (val.length >= 4) {
+    await api.get(
+        '/api/users/', { params: { email__icontains: searchValue.value, group: TEACHER } },
+    ).then(response => {
+          teachersArray.value = response.data;
+          pickedTeachers.value.clear();
+          teacherNotPicked.value = true;
         },
-      ).catch(error => {
-        console.log(error);
-      })
-    } else if (val.length === 0) {
-      this.teachersArray = [];
-      this.pickedTeachers.clear();
-      this.teacherNotPicked = true;
-    }
-  };
-
-  get teachersList() {
-    return this.teachersArray.filter(x => !x.staff_for.includes(this.courseId));
+    ).catch(error => {
+      console.log(error);
+    })
+  } else if (val.length === 0) {
+    teachersArray.value = [];
+    pickedTeachers.value.clear();
+    teacherNotPicked.value = true;
   }
+})
 
-  showModal() {
-    this.modalVisible = true;
+const teachersList = computed(() => {
+  return teachersArray.value.filter(x => !x.staff_for.includes(props.courseId));
+})
+
+function showModal() {
+  modalVisible.value = true;
+}
+
+function modalHidden() {
+  modalVisible.value = false;
+}
+
+function isAnyTeacherPicked() {
+  teacherNotPicked.value = pickedTeachers.value.size <= 0;
+}
+
+function setNotificationText() {
+  if (pickedTeachers.value.size > 1) {
+    notificationText.value = "Преподаватели успешно добавлены"
+  } else {
+    notificationText.value = "Преподаватель успешно добавлен"
   }
+}
 
-  modalHidden() {
-    this.modalVisible = false;
-  }
-
-  isAnyTeacherPicked() {
-    this.teacherNotPicked = this.pickedTeachers.size <= 0;
-  }
-
-  setNotificationText() {
-    if (this.pickedTeachers.size > 1) {
-      this.notificationText = "Преподаватели успешно добавлены"
-    } else {
-      this.notificationText = "Преподаватель успешно добавлен"
-    }
-  }
-
-  //ToDo: do it without flag
-  async addStuff() {
-    this.breakFlag = false;
-    for (const teacher of this.pickedTeachers) {
-      if (this.breakFlag)
-        break;
-      await api.post(`/api/course/${this.courseId}/assign-teacher/`, { id: teacher.id })
+//ToDo: do it without flag
+async function addStuff() {
+  breakFlag.value = false;
+  for (const teacher of pickedTeachers.value) {
+    if (breakFlag.value)
+      break;
+    await api.post(`/api/course/${props.courseId}/assign-teacher/`, { id: teacher.id })
         .then(response => {
-          this.notificationKind = 'success';
-          this.setNotificationText();
-          this.showNotification = true;
-          teacher.staff_for.push(this.courseId);
-          this.pickedTeachers.delete(teacher);
-          this.isAnyTeacherPicked();
+          notificationKind.value = 'success';
+          setNotificationText();
+          showNotification.value = true;
+          teacher.staff_for.push(props.courseId);
+          pickedTeachers.value.delete(teacher);
+          isAnyTeacherPicked();
         })
         .catch(error => {
-          this.notificationKind = 'error';
-          this.notificationText = `Что-то пошло не так: ${error.message}`;
-          this.showNotification = true;
-          this.breakFlag = true;
+          notificationKind.value = 'error';
+          notificationText.value = `Что-то пошло не так: ${error.message}`;
+          showNotification.value = true;
+          breakFlag.value = true;
         });
-    }
   }
+}
 
-  actionSelected(user: UserModel) {
-    if (this.pickedTeachers.has(user)) {
-      this.pickedTeachers.delete(user);
-    } else {
-      this.pickedTeachers.add(user);
-    }
-    this.isAnyTeacherPicked();
+function actionSelected(user: UserModel) {
+  if (pickedTeachers.value.has(user)) {
+    pickedTeachers.value.delete(user);
+  } else {
+    pickedTeachers.value.add(user);
   }
+  isAnyTeacherPicked();
 }
 </script>
 
 <style lang="stylus" scoped>
 .list-headings
-  display flex
-  flex-direction column
-  align-items stretch
+  width 5rem
 
 .list-checkbox
   display flex
   flex-direction row
-  justify-content center
-
-.heading-btn
-  padding 5px
-  display flex
   justify-content center
 
 .bx--modal-content:focus
@@ -196,17 +188,10 @@ export default class AddTeacherModal extends NotificationMixinComponent {
   height 3rem
   border none
 
-.add_lesson_modal .bx--btn--secondary
-  background-color var(--cds-hover-secondary)
-
   &:hover, &:active, &:focus
     outline none
     box-shadow none
     border none
-
-.add_lesson_modal .bx--btn--primary[disabled = disabled],
-.add_lesson_modal .bx--btn--primary
-  background-color var(--cds-ui-05)
 
 .modal--content
   height 500px

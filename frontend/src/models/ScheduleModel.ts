@@ -1,5 +1,4 @@
-import { BaseModel } from '@/models/BaseModel';
-import LessonModel from '@/models/LessonModel';
+import type { BaseModel } from '@/models/BaseModel';
 
 export interface ScheduleElement {
   date: number;
@@ -7,7 +6,7 @@ export interface ScheduleElement {
   isSelected: boolean;
 }
 
-export default interface CourseScheduleModel extends BaseModel {
+export interface CourseScheduleModel extends BaseModel {
   lessons: Array<ScheduleElement>;
   course: number;
   start_date: string;

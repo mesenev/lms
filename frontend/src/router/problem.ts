@@ -1,14 +1,12 @@
-import ProblemEditView from '@/views/management/ProblemEditView.vue';
 import ProblemView from '@/views/ProblemView.vue';
-import { RouteConfig } from 'vue-router';
+import ProblemEditView from "@/views/managment/ProblemEditView.vue";
 
-const problemRoutes: Array<RouteConfig> = [
+const problemRoutes = [
   {
     path: '',
     name: 'ProblemView',
     component: ProblemView,
   },
-
   {
     path: 'submit/:submitId',
     name: 'ProblemViewWithSubmit',

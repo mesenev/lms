@@ -5,14 +5,14 @@
         <br>
         <h3>Здравствуйте!</h3>
         <h4>
-          Пожалуйста, заполните поля ниже, чтобы записаться на курс "{{  }}"
+          Пожалуйста, заполните поля ниже, чтобы записаться на курс "{{ }}"
         </h4>
         <br>
         <cv-inline-notification
-        v-if="showNotification"
-        @close="() => showNotification=false"
-        :kind="notificationKind"
-        :sub-title="notificationText"
+          v-if="showNotification"
+          @close="() => showNotification=false"
+          :kind="notificationKind"
+          :sub-title="notificationText"
         />
       </div>
       <div class="bx--col-lg-7">
@@ -30,11 +30,14 @@
           <cv-text-input v-model.trim="login" id="login" label="Придумайте логин" helper-text="">
             <template v-if="checkLoginAlphabet" slot="invalid-message">Введите корректный логин<br></template>
             <!--Todo: сделать отступ-->
-            <template v-if="checkLoginLen" class="test_checkLoginLen" slot="invalid-message">Длина логина должна быть от 4 до 10 символов</template>
+            <template v-if="checkLoginLen" class="test_checkLoginLen" slot="invalid-message">Длина логина должна быть от
+              4 до 10 символов
+            </template>
           </cv-text-input>
           <br>
           <cv-text-input label="Придумайте пароль" v-model.trim="password" helper-text="">
-            <template v-if="checkPasswordLen" slot="invalid-message">Длина пароля должна быть от 8 до 25<p></p></template>
+            <template v-if="checkPasswordLen" slot="invalid-message">Длина пароля должна быть от 8 до 25<p></p>
+            </template>
             <template v-if="checkPassword" slot="invalid-message">Некоректный пароль</template>
           </cv-text-input>
 
@@ -53,7 +56,7 @@
         </label>
       </div>
       <div class="bx--col-lg-4">
-        <input type="file" ref="file1"  accept="image/*" v-on:change="Upload($event.target.files)"/>
+        <input type="file" ref="file1" accept="image/*" v-on:change="Upload($event.target.files)"/>
         <label>Предварительный просмотр</label>
         <img v-bind:src="imagePreview" v-show="showPreview" alt="картинка" class="preview"/>
       </div>
@@ -63,154 +66,149 @@
 
 <!-- TODO: password work w/ backend -->
 
-<script lang="ts">
-import api from '@/store/services/api'
-import Vue from 'vue';
-import Component from 'vue-class-component';
+<script lang="ts" setup>
+import api from '@/stores/services/api'
+import { ref, type Ref, computed, onMounted } from 'vue';
 
-@Component({ components: {} })
-export default class RegistrationView extends Vue {
 
-  showNotification = false;
-  notificationText = '';
-  modalVisible = false;
-  notificationKind = 'success';
+const showNotification: Ref<boolean> = ref(false);
+const notificationText: Ref<string> = ref('');
+const modalVisible: Ref<boolean> = ref(false);
+const notificationKind: Ref<string> = ref('success');
 
-  first_name = '';
-  last_name = '';
-  email = '';
-  password = '';
-  password_repeat = '';
-  login = '';
-  validField = false;
+const first_name: Ref<string> = ref('');
+const last_name: Ref<string> = ref('');
+const email: Ref<string> = ref('');
+const password: Ref<string> = ref('');
+const password_repeat: Ref<string> = ref('');
+const login: Ref<string> = ref('');
+const validField: Ref<boolean> = ref(false);
 
-  file = new Blob();
-  imagePreview: string|null|ArrayBuffer = '';
-  showPreview= false;
+const file: Ref<Blob> = ref(new Blob());
+const imagePreview: Ref<string | null | ArrayBuffer> = ref('');
+const showPreview: Ref<boolean> = ref(false);
 
-  Upload(fileList: never) {
-    this.file = fileList[0] ;
-    const reader = new FileReader();
-    reader.addEventListener("load",  () => {
-      this.showPreview = true;
-      this.imagePreview = reader.result;
-    })
-    if (this.file) {
-      reader.readAsDataURL( this.file );
-    }
+function Upload(fileList: never) {
+  file.value = fileList[0];
+  const reader = new FileReader();
+  reader.addEventListener("load", () => {
+    showPreview.value = true;
+    imagePreview.value = reader.result;
+  })
+  if (file.value) {
+    reader.readAsDataURL(file.value);
   }
+}
 
-  get checkEmail(): boolean {
-    if (this.email) {
-      const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      const res =  !re.test(this.email);
-      if (res) {
-        this.validField = true;
-        return res;
-      }
-      this.validField = false;
+const checkEmail = computed((): boolean => {
+  if (email.value) {
+    const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    const res = !re.test(email.value);
+    if (res) {
+      validField.value = true;
       return res;
     }
-    return false;
+    validField.value = false;
+    return res;
   }
+  return false;
+})
 
-  get checkLoginAlphabet(): boolean{
-    if (this.login) {
-      const re = /^[a-zA-Z0-9]+$/;
-      const res = !re.test(this.login)
-      if (res) {
-        this.validField = true;
-        return res;
-      }
-      this.validField = false;
+const checkLoginAlphabet = computed((): boolean => {
+  if (login.value) {
+    const re = /^[a-zA-Z0-9]+$/;
+    const res = !re.test(login.value)
+    if (res) {
+      validField.value = true;
       return res;
     }
-    return false;
+    validField.value = false;
+    return res;
   }
+  return false;
+})
 
-  get checkLoginLen(): boolean{
-    if (this.login) {
-      return this.login.length < 4 || this.login.length > 10;
-    }
-    return false;
+const checkLoginLen = computed((): boolean => {
+  if (login.value) {
+    return login.value.length < 4 || login.value.length > 10;
   }
+  return false;
+})
 
-  get checkPassword(): boolean {
-    return true;
-    //TODO: code below is not working
-    if (this.password) {
-      const re = /(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{8,20}/g;
-      const res = !re.test(this.password);
-      if (res) {
-        this.validField = true;
-        return res;
-      }
-      this.validField = false;
+const checkPassword = computed((): boolean => {
+  return true;
+  //TODO: code below is not working
+  if (password.value) {
+    const re = /(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{8,20}/g;
+    const res = !re.test(password.value);
+    if (res) {
+      validField.value = true;
       return res;
     }
-    return false;
+    validField.value = false;
+    return res;
   }
+  return false;
+})
 
-  get checkPasswordLen(): boolean {
-    if (this.password){
-      return this.password.length < 8 || this.password.length > 20;
+const checkPasswordLen = computed((): boolean => {
+  if (password.value) {
+    return password.value.length < 8 || password.value.length > 20;
+  }
+  return false;
+})
+
+const checkRepeatPassword = computed((): boolean => {
+  if (password_repeat.value) {
+    return password.value !== password_repeat.value;
+  }
+  return false;
+})
+
+const canAction = computed((): boolean => {
+  return !(login.value && password.value && first_name.value && last_name.value && email.value && password_repeat.value && !validField.value);
+})
+
+function modalHidden() {
+  modalVisible.value = false;
+}
+
+async function action() {
+  const fd = new FormData();
+  fd.append('avatar_url', file.value);
+  fd.append('email', email.value);
+  fd.append('first_name', first_name.value);
+  fd.append('last_name', last_name.value);
+  fd.append('password', password.value);
+  fd.append('username', login.value);
+  //const r = axios.post( '/api/users/', fd)
+  const request = api.post('/api/users/', fd);
+  request.then(() => {
+    notificationKind.value = 'success';
+    notificationText.value = "Пользователь успешно создан";
+    showNotification.value = true;
+  })
+  request.catch(error => {
+    let err = '';
+    if (error.response.data.email) {
+      err = 'пользователь с такой почтой уже существует';
     }
-    return false;
-  }
-
-  get checkRepeatPassword(): boolean {
-    if (this.password_repeat) {
-      return this.password !== this.password_repeat;
+    if (error.response.data.user) {
+      err = 'пользователь с таким логином уже существует';
     }
-    return false;
-  }
-
-  get canAction(): boolean {
-    return !(this.login && this.password && this.first_name && this.last_name && this.email && this.password_repeat && !this.validField);
-  }
-
-  modalHidden() {
-    this.modalVisible = false;
-  }
-
-  async action() {
-    const fd = new FormData();
-    fd.append('avatar_url', this.file);
-    fd.append('email', this.email);
-    fd.append('first_name', this.first_name);
-    fd.append('last_name', this.last_name);
-    fd.append('password', this.password);
-    fd.append('username', this.login);
-    //const r = axios.post( '/api/users/', fd)
-    const request = api.post('/api/users/', fd);
-    request.then(() => {
-      this.notificationKind = 'success';
-      this.notificationText = "Пользователь успешно создан";
-      this.showNotification = true;
-    })
-    request.catch(error => {
-      let err = '';
-      if (error.response.data.email) {
-        err = 'пользователь с такой почтой уже существует';
-      }
-      if (error.response.data.user) {
-        err = 'пользователь с таким логином уже существует';
-      }
-      this.notificationKind = 'error';
-      this.notificationText = `Что-то пошло не так: ${ err }`;
-      this.showNotification = true;
-    })
-  }
-
+    notificationKind.value = 'error';
+    notificationText.value = `Что-то пошло не так: ${err}`;
+    showNotification.value = true;
+  })
 }
 
 </script>
 
 <style scoped lang="stylus">
 .preview
-  object-fit:cover;
-  width:250px;
-  height:250px;
+  object-fit: cover;
+  width: 250px;
+  height: 250px;
   border-radius: 150%;
   margin-top 10px;
   margin-bottom 10px;

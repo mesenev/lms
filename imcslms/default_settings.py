@@ -87,6 +87,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
     "http://0.0.0.0:8000",
+    "http://localhost:5173",
 ]
 
 ROOT_URLCONF = 'imcslms.urls'
@@ -162,7 +163,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = 'media'
 PRIVATE_MEDIA_ROOT = 'private_media'
 
-WEBPACK_DEV_SERVER = 'localhost:8080/static/'
+WEBPACK_DEV_SERVER = '127.0.0.1:5173/'
 AUTH_USER_MODEL = 'users.User'
 CATS_URL = os.getenv('DJANGO_CATS_URL')
 CATS_LOGIN = os.getenv('DJANGO_CATS_LOGIN')

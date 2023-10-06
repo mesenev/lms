@@ -1,34 +1,35 @@
 <template>
-  <transition mode="out-in" name="fade">
-    <router-view v-if="exam" :key="$route.params.examId"/>
-    <div v-else class="loading-out">
-      <cv-loading />
+  <router-view v-slot="{Component}">
+    <transition v-if="exam" mode="out-in" name="fade">
+      <component :is="Component"/>
+    </transition>
+    <div v-else class="loading-container">
+      <cv-loading/>
     </div>
-  </transition>
+  </router-view>
 </template>
 
-<script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
-import ExamModel from "@/models/ExamModel";
-import examStore from '@/store/modules/exam';
-import solutionStore from '@/store/modules/solution';
+<script lang="ts" setup>
+import { onMounted, ref } from "vue";
+import useExamStore from "@/stores/modules/exam";
+import type { ExamModel } from "@/models/ExamModel";
+import useSolutionStore from "@/stores/modules/solution";
 
-@Component({components: {}})
-export default class ExamViewLayout extends Vue {
-  @Prop({required: true}) examId!: number;
+const props = defineProps({
+  examId: { type: String, required: true }
+})
 
-  exam: ExamModel | null = null;
-  examStore = examStore;
-  solutionStore = solutionStore
+const exam = ref<ExamModel | null>(null);
+const examStore = useExamStore();
+const solutionStore = useSolutionStore();
 
-  async created() {
-    this.examStore.changeCurrentExam(null);
-    this.exam = await this.examStore.fetchExamById(this.examId);
-    this.examStore.changeCurrentExam(this.exam);
-    await this.examStore.fetchExamsByLessonId(this.exam.lesson);
-    this.solutionStore.setSolutions(await this.solutionStore.fetchSolutionsByExam(this.examId));
-  }
-}
+onMounted(async () => {
+  examStore.changeCurrentExam(null);
+  exam.value = await examStore.fetchExamById(parseInt(props.examId));
+  examStore.changeCurrentExam(exam.value);
+  await examStore.fetchExamsByLessonId(exam.value.lesson);
+  solutionStore.setSolutions(await solutionStore.fetchSolutionsByExam(parseInt(props.examId)));
+})
 </script>
 
 <style scoped>

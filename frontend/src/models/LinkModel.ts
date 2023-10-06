@@ -1,6 +1,6 @@
-import CourseModel from "@/models/CourseModel";
+import type { CourseModel } from "@/models/CourseModel";
 
-export default interface LinkModel {
+export interface LinkModel {
   course: number;
   link: string;
   usages: number;

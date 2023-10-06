@@ -6,15 +6,15 @@
     <cv-modal
       :primary-button-disabled="addButtonDisabled"
       :visible="modalVisible"
-      class="add_lesson_modal" size="default"
+      :disableTeleport="true"
+      class="add_lesson_modal"
       @modal-hidden="modalHidden"
       @primary-click="primaryHandler">
-      <template slot="label">{{ lesson.name }}</template>
-      <template slot="title">
+      <template v-slot:label>{{ lesson.name }}</template>
+      <template v-slot:title>
         Добавить задание
         <cv-content-switcher class="switcher" @selected="actionSelected">
-          <cv-content-switcher-button owner-id="Problems"
-                                      selected>
+          <cv-content-switcher-button owner-id="Problems" selected>
             Импортировать задачу из cats
           </cv-content-switcher-button>
           <cv-content-switcher-button owner-id="Exams">
@@ -29,7 +29,7 @@
             :sub-title="notificationText"/>
         </cv-content-switcher-content>
       </template>
-      <template slot="content">
+      <template v-slot:content>
         <section class="modal--content">
           <cv-content-switcher-content owner-id="Problems">
             <div class="content-1">
@@ -53,7 +53,7 @@
               <div class="problem-type-selection">
                 <h5>Тип задачи</h5>
                 <cv-radio-group
-                  @change="(newType) => this.problemType = newType"
+                  @change="(newType) => problemType = newType"
                   :vertical="false">
                   <cv-radio-button
                     v-model="problemType"
@@ -72,11 +72,11 @@
               <div>
                 <cv-data-table
                   v-if="!fetchingCatsProblems" ref="table"
-                  v-model="selected" :columns="columns" :data="catsFilteredProblems"
+                  v-model:rowsSelected="selected" :columns="columns" :data="catsFilteredProblems"
                   :stickyHeader="true"
                   class="cats-problems-table" :expanding-search="false"
                   @search="onSearch">
-                  <template slot="batch-actions">
+                  <template v-slot:batch-actions>
                     <div></div>
                   </template>
                 </cv-data-table>
@@ -84,7 +84,7 @@
               </div>
             </div>
             <div class="content-2" hidden>
-              <cv-text-input v-model.trim="lesson.name" disabled label="Название урока"/>
+              <cv-text-input :model-value="lesson.name" disabled label="Название урока"/>
               <cv-text-input v-model.trim="currentProblem.name" label="Название задания"/>
               <cv-text-input v-model.trim="currentProblem.description" label="Описание задания"/>
             </div>
@@ -93,10 +93,10 @@
             <div class="exam-container">
               <div class="exam-container-head">
                 <p>Настройки теста</p>
-                <cv-dropdown v-model="exam.test_mode" class="testing-type-dropdown"
+                <cv-dropdown v-model:value="exam.test_mode" class="testing-type-dropdown"
                              placeholder="Выберите опцию"
                              label="Способ тестирования">
-                  <template slot="invalid-message" v-if="showInvalidMessage && !exam.test_mode">
+                  <template v-slot:invalid-message v-if="showInvalidMessage && !exam.test_mode">
                     Выберите способ тестирования!
                   </template>
                   <cv-dropdown-item value="auto">Auto</cv-dropdown-item>
@@ -105,12 +105,12 @@
                 </cv-dropdown>
               </div>
               <div class="exam-fields">
-                <cv-text-input v-model="exam.name" label="Название теста">
-                  <template slot="invalid-message" v-if="!exam.name && showInvalidMessage">
+                <cv-text-input v-model="exam.name" label="Название теста" placeholder="Введите название теста">
+                  <template v-slot:invalid-message v-if="!exam.name && showInvalidMessage">
                     {{ emptyInputInvalidText }}
                   </template>
                 </cv-text-input>
-                <cv-text-area v-model="exam.description" label="Описание"/>
+                <cv-text-area v-model="exam.description" label="Описание" placeholder="Введите описание теста"/>
               </div>
             </div>
             <cv-inline-notification
@@ -121,259 +121,257 @@
           </cv-content-switcher-content>
         </section>
       </template>
-      <template slot="primary-button">
+      <template v-slot:primary-button>
         {{ isExamsSelected ? 'Создать тест и перейти к редактированию' : 'Добавить задачу' }}
       </template>
     </cv-modal>
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import searchByProblems from '@/common/searchByTutorial';
-import CatsProblemModel from '@/models/CatsProblemModel';
-import LessonModel from '@/models/LessonModel';
-import ProblemModel from '@/models/ProblemModel';
-import problemStore from '@/store/modules/problem';
-import examStore from '@/store/modules/exam';
 import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
 import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
-import { Component, Prop } from 'vue-property-decorator';
-import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
-import api from '@/store/services/api';
-import ExamQuestionComponent from "@/components/ExamQuestionComponent.vue";
-import ExamModel from "@/models/ExamModel";
 import _ from 'lodash';
-import router from "@/router";
+import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
+import type { PropType } from "vue";
+import type { LessonModel } from "@/models/LessonModel";
+import useProblemStore from "@/stores/modules/problem";
+import { computed, onMounted, ref, watch } from "vue";
+import type { ProblemModel } from "@/models/ProblemModel";
+import type { CatsProblemModel } from "@/models/CatsProblemModel";
+import useExamStore from "@/stores/modules/exam";
+import type { ExamModel } from "@/models/ExamModel";
+import api from "@/stores/services/api";
+import { useRouter } from "vue-router";
 
+const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
-@Component({
-  components: {
-    AddAlt20,
-    SubtractAlt20,
-    ExamQuestionComponent,
-  }
+const props = defineProps({
+  lesson: { type: Object as PropType<LessonModel>, required: true }
 })
-export default class EditLessonModal extends NotificationMixinComponent {
-  @Prop({ required: true }) lesson!: LessonModel;
 
-  problemStore = problemStore;
-  currentProblem: ProblemModel = { ...this.problemStore.getNewProblem, lesson: this.lesson.id };
-  selected = [];
-  columns = ['id', 'Название', 'Статус'];
+const emits = defineEmits(['update-problem-list', 'update-exam-list']);
 
-  problems: ProblemModel[] = [];
-  catsProblems: CatsProblemModel[] = [];
-  catsProblemsTruncated: { id: number; name: string; status: string }[] = [];
-  fetchingCatsProblems = true;
-  modalVisible = false;
-  searchQueryForAllProblems = '';
-  testingMode = '';
-  problemType = '';
-  loading = false;
+const router = useRouter();
 
-  contentType = 'Problems';
-  examStore = examStore;
-  exam: ExamModel = { ...this.examStore.newExam, lesson: this.lesson.id };
-  emptyInputInvalidText = 'Заполните поле!';
-  showInvalidMessage = false;
+const problemStore = useProblemStore();
+const currentProblem = ref<ProblemModel>({ ...problemStore.getNewProblem, lesson: props.lesson.id });
+const selected = ref([]);
+const columns = ['id', 'Название', 'Статус'];
+
+const problems = ref<ProblemModel[]>([]);
+const catsProblems = ref<CatsProblemModel[]>([]);
+const catsProblemsTruncated = ref<{ id: number; name: string; status: string }[]>([]);
+const fetchingCatsProblems = ref(true);
+const modalVisible = ref(false);
+const searchQueryForAllProblems = ref('');
+const testingMode = ref('');
+const problemType = ref('');
+const loading = ref(false);
+
+const contentType = ref('Problems');
+const examStore = useExamStore();
+const exam = ref<ExamModel>({ ...examStore.newExam, lesson: props.lesson.id });
+const emptyInputInvalidText = 'Заполните поле!';
+const showInvalidMessage = ref(false);
 
 
-  get catsFilteredProblems() {
-    return searchByProblems(this.searchQueryForAllProblems, this.catsProblemsTruncated);
-  }
+const catsFilteredProblems = computed(() => {
+  return searchByProblems(searchQueryForAllProblems.value, catsProblemsTruncated.value);
+})
 
-  async created() {
-    if (!this.lesson.course) return
-    this.exam = _.cloneDeep(this.exam);
-    await this.fetchCatsProblems()
-  }
+onMounted(async () => {
+  if (!props.lesson.course) return
+  exam.value = _.cloneDeep(exam.value);
+  await fetchCatsProblems()
+})
 
-  async fetchCatsProblems() {
-    this.fetchingCatsProblems = true;
-    await api.get(`/api/cats-problems/${this.lesson.course}/`)
-      .then(response => {
-        this.catsProblems = response.data;
-      })
-      .catch(error => {
-        console.log(error.response);
-        this.notificationKind = 'error';
-        this.notificationText = `Ошибка получения списка задач: ${error.message}`;
-        this.showNotification = true;
-      })
-    this.catsProblems.map(value => {
-      this.catsProblemsTruncated.push(
-        { id: value.id, name: value.name, status: value.status },
-      )
-    });
-    this.catsProblemsTruncated = [...this.catsProblemsTruncated];
-    this.fetchingCatsProblems = false;
-  }
-
-  onSearch(value: string) {
-    this.searchQueryForAllProblems = value;
-  }
-
-  showModal() {
-    this.modalVisible = true;
-    this.showNotification = false;
-    this.currentProblem = { ...this.problemStore.getNewProblem, lesson: this.lesson.id };
-  }
-
-  modalHidden() {
-    this.problemType = '';
-    this.testingMode = '';
-    this.modalVisible = false;
-  }
-
-  actionSelected(type: string) {
-    this.hideNotification();
-    this.setContentType(type);
-  }
-
-  setContentType(type: string) {
-    this.contentType = type;
-  }
-
-  clearData() {
-    this.selected = [];
-  }
-
-  checkCorrectFields() {
-    this.showInvalidMessage = !this.exam.name || !this.exam.test_mode;
-  }
-
-  get isExamsSelected() {
-    return this.contentType === 'Exams';
-  }
-
-  get selectedIds() {
-    return this.selected.map(e => {
-      return (this.catsFilteredProblems[e as number] as unknown as { id: number })['id'];
+async function fetchCatsProblems() {
+  fetchingCatsProblems.value = true;
+  await api.get(`/api/cats-problems/${props.lesson.course}/`)
+    .then(response => {
+      catsProblems.value = response.data;
     })
-  }
+    .catch(error => {
+      console.log(error.response);
+      notificationKind.value = 'error';
+      notificationText.value = `Ошибка получения списка задач: ${error.message}`;
+      showNotification.value = true;
+    })
+  catsProblems.value.map(value => {
+    catsProblemsTruncated.value.push(
+      { id: value.id, name: value.name, status: value.status },
+    )
+  });
+  catsProblemsTruncated.value = [...catsProblemsTruncated.value];
+  fetchingCatsProblems.value = false;
+}
 
-  get addButtonDisabled() {
-    if (this.isExamsSelected)
-      return this.loading;
-    else
-      return !this.selected.length || this.loading;
-  }
+function onSearch(value: string) {
+  searchQueryForAllProblems.value = value;
+}
 
-  get selectedCatsProblems() {
-    return this.catsProblems.filter(element => {
-      return this.selectedIds.find(e => e === element.id);
-    });
-  }
+function showModal() {
+  modalVisible.value = true;
+  showNotification.value = false;
+  currentProblem.value = { ...problemStore.getNewProblem, lesson: props.lesson.id };
+}
 
-  get areUsedTasks() {
-    return this.lesson.problems.filter(element => {
-      return this.selectedCatsProblems.find(e => e.id === element.cats_id)?.id
-        && element.type === this.problemType;
-    }).length > 0;
-  }
+function modalHidden() {
+  problemType.value = '';
+  testingMode.value = '';
+  modalVisible.value = false;
+}
 
-  async primaryHandler() {
-    if (this.isExamsSelected) {
-      this.checkCorrectFields();
-      if (this.showInvalidMessage)
-        return;
-      await this.createExam();
-    } else
-      await this.addProblem();
-  }
+function actionSelected(type: string) {
+  hideNotification();
+  setContentType(type);
+}
 
-  async addProblem() {
-    if (!this.lesson.id) {
-      this.notificationKind = 'error';
-      this.notificationText = 'id урока не указано!';
-      this.showNotification = true;
-      throw new Error('add cats problems  -- course id not found!');
-    }
-    if (this.contentType !== 'Problems')
-      return
-    if (this.testingMode === '') {
-      this.notificationKind = 'error';
-      this.notificationText = 'Выберите режим тестирования';
-      this.showNotification = true;
-      return
-    }
-    if (this.problemType === '') {
-      this.notificationKind = 'error';
-      this.notificationText = 'Выберите тип задачи';
-      this.showNotification = true;
-      return
-    }
-    if (this.areUsedTasks) {
-      this.notificationKind = 'error';
-      this.notificationText = `Урок уже содержит одну из выбранных задач.`;
-      this.showNotification = true;
+function setContentType(type: string) {
+  contentType.value = type;
+}
+
+function clearData() {
+  selected.value = [];
+}
+
+function checkCorrectFields() {
+  showInvalidMessage.value = !exam.value.name || !exam.value.test_mode;
+}
+
+const isExamsSelected = computed(() => {
+  return contentType.value === 'Exams';
+})
+
+const selectedIds = computed(() => {
+  return selected.value.map(e => {
+    return (catsFilteredProblems.value[e as number] as unknown as { id: number })['id'];
+  })
+})
+
+const addButtonDisabled = computed(() => {
+  if (isExamsSelected.value)
+    return loading.value;
+  else
+    return !selected.value.length || loading.value;
+})
+
+const selectedCatsProblems = computed(() => {
+  return catsProblems.value.filter(element => {
+    return selectedIds.value.find(e => e === element.id);
+  });
+})
+
+const areUsedTasks = computed(() => {
+  return props.lesson.problems.filter(element => {
+    return selectedCatsProblems.value.find(e => e.id === element.cats_id)?.id
+      && element.type === problemType.value;
+  }).length > 0;
+})
+
+async function primaryHandler() {
+  if (isExamsSelected.value) {
+    checkCorrectFields();
+    if (showInvalidMessage.value)
       return;
-    }
-    if (this.contentType === 'Problems') {
-      this.loading = true;
-      const data = this.selectedCatsProblems;
-      const problemTypes = new Map<string, number>([['CW', 0], ['HW', 1], ['EX', 2]]);
-      data.forEach(element => element.test_mode = this.testingMode);
-      await api.post(
-        `/api/lesson/${this.lesson.id}/add_cats_problems/`,
-        { problem_data: data, problem_type: problemTypes.get(this.problemType) },
-      )
-        .then(async (answer) => {
-          if (answer.status == 200) {
-            const newProblems = (answer.data as ProblemModel[]).map(element => {
-              element.type = this.problemType;
-              return element;
-            });
-            this.$emit("update-problem-list", newProblems as ProblemModel[]);
-            this.modalHidden();
-            this.clearData();
-            // await this.fetchCatsProblems();
-          }
-        }).catch(answer => {
-          this.notificationKind = 'error';
-          this.notificationText = `Произошла ошибка при добавлении задач. ${answer.message}`;
-          this.showNotification = true;
-        }).finally(() => {
-          this.loading = false;
-        })
-    }
-  }
+    await createExam();
+  } else
+    await addProblem();
+}
 
-  async createExam() {
-    this.loading = true;
-    await api.post('/api/exam/', this.exam).then(async response => {
-      this.notificationKind = 'success';
-      this.notificationText = 'Тест успешно создан';
-      this.$emit('update-exam-list', response.data as ExamModel);
-      await this.modalHidden();
-      await router.push(
-        { name: 'exam-edit', params: { examId: response.data.id.toString() } },
-      );
-    }).catch(error => {
-      this.notificationText = `Что-то пошло не так: ${error.message}`;
-      this.notificationKind = 'error';
-    }).finally(() => {
-      this.loading = false;
-      this.showNotification = true;
-    })
+async function addProblem() {
+  if (!props.lesson.id) {
+    notificationKind.value = 'error';
+    notificationText.value = 'id урока не указано!';
+    showNotification.value = true;
+    throw new Error('add cats problems  -- course id not found!');
   }
+  if (contentType.value !== 'Problems')
+    return
+  if (testingMode.value === '') {
+    notificationKind.value = 'error';
+    notificationText.value = 'Выберите режим тестирования';
+    showNotification.value = true;
+    return
+  }
+  if (problemType.value === '') {
+    notificationKind.value = 'error';
+    notificationText.value = 'Выберите тип задачи';
+    showNotification.value = true;
+    return
+  }
+  if (areUsedTasks.value) {
+    notificationKind.value = 'error';
+    notificationText.value = `Урок уже содержит одну из выбранных задач.`;
+    showNotification.value = true;
+    return;
+  }
+  if (contentType.value === 'Problems') {
+    loading.value = true;
+    const data = selectedCatsProblems.value;
+    const problemTypes = new Map<string, number>([['CW', 0], ['HW', 1], ['EX', 2]]);
+    data.forEach(element => element.test_mode = testingMode.value);
+    await api.post(
+      `/api/lesson/${props.lesson.id}/add_cats_problems/`,
+      { problem_data: data, problem_type: problemTypes.get(problemType.value) },
+    )
+      .then(async (answer) => {
+        if (answer.status == 200) {
+          const newProblems = (answer.data as ProblemModel[]).map(element => {
+            element.type = problemType.value;
+            return element;
+          });
+          emits("update-problem-list", newProblems as ProblemModel[]);
+          await modalHidden();
+          clearData();
+          // await this.fetchCatsProblems();
+        }
+      }).catch(answer => {
+        notificationKind.value = 'error';
+        notificationText.value = `Произошла ошибка при добавлении задач. ${answer.message}`;
+        showNotification.value = true;
+      }).finally(() => {
+        loading.value = false;
+      })
+  }
+}
+
+async function createExam() {
+  loading.value = true;
+  await api.post('/api/exam/', exam.value).then(async response => {
+    notificationKind.value = 'success';
+    notificationText.value = 'Тест успешно создан';
+    emits('update-exam-list', response.data as ExamModel);
+    await modalHidden();
+    await router.push(
+      { name: 'exam-edit', params: { examId: response.data.id.toString() } },
+    );
+  }).catch(error => {
+    notificationText.value = `Что-то пошло не так: ${error.message}`;
+    notificationKind.value = 'error';
+  }).finally(() => {
+    loading.value = false;
+    showNotification.value = true;
+  })
 }
 </script>
 
 <style scoped lang="stylus">
-.add_lesson_modal /deep/ .bx--modal-container
+.add_lesson_modal :deep() .bx--modal-container
   background var(--cds-ui-background)
 
-/deep/ .bx--modal-content:focus
+:deep() .bx--modal-content:focus
   outline none
 
-/deep/ .bx--modal-content
+:deep() .bx--modal-content
   margin-bottom var(--cds-spacing-04)
   padding-top 0
 
-/deep/ .bx--text-input,
-/deep/ .bx--text-area,
-/deep/ .bx--dropdown
+:deep() .bx--text-input,
+:deep() .bx--text-area,
+:deep() .bx--dropdown
   background-color var(--cds-ui-background)
 
 .change-btn
@@ -417,12 +415,12 @@ export default class EditLessonModal extends NotificationMixinComponent {
   margin-bottom 1rem
 
 .testing-type-dropdown
-  /deep/ .bx--dropdown__wrapper.bx--list-box__wrapper
+  :deep() .bx--dropdown__wrapper.bx--list-box__wrapper
     max-width 50%
     align-self end
 
 
-/deep/ .bx--list-box__field
+:deep() .bx--list-box__field
   display flex
 
 .action-container
@@ -431,7 +429,7 @@ export default class EditLessonModal extends NotificationMixinComponent {
 
 .exam-container
   background-color var(--cds-ui-01)
-  padding 1rem
+  padding 0 0 1rem 0
 
 .exam-container-head
   display flex

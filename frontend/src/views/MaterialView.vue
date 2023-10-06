@@ -1,5 +1,7 @@
 <template>
-  <cv-loading v-if="loading"></cv-loading>
+  <div v-if="loading" class="loading-container">
+    <cv-loading/>
+  </div>
   <div v-else class="bx--grid">
     <div class="bx--row header-container">
       <div class="main-title">
@@ -8,15 +10,14 @@
     </div>
     <div class="bx--row">
       <div v-if="isMaterialAVideo" class="material-content-video">
-        <youtube v-if="isYoutubeFormat || !currentMaterial.content"
-                 :video-id="youTubeGetID"
-                 ref="youtube"
-                 player-width="100%"
-                 player-height="540"/>
-        <vue-markdown v-else :html="true" :source="currentMaterial.content" class="md-body"/>
+        <lite-you-tube-embed v-if="isYoutubeFormat || !currentMaterial.content"
+                             :id="youTubeGetID"
+                             title=""
+                             ref="youtube"/>
+        <lms-markdown v-else :source="currentMaterial.content" class="md-body"/>
       </div>
       <div v-else class="less material-content">
-        <vue-markdown :html="true" :source="currentMaterial.content" class="md-body"/>
+        <lms-markdown :source="currentMaterial.content" class="md-body"/>
       </div>
       <div class="bx--col-lg-3 bx--col-md-4">
         <div class="other-materials-container">
@@ -24,7 +25,7 @@
             <h4 class="other-materials-title">Материалы:</h4>
             <div class="other-materials-list-container">
               <cv-structured-list class="other-materials-list">
-                <template slot="items">
+                <template v-slot:items>
                   <cv-structured-list-item
                     v-for="material in materials"
                     :key="material.id"
@@ -43,78 +44,80 @@
   </div>
 </template>
 
-<script lang="ts">
-import MaterialModel from '@/models/MaterialModel';
-import materialStore from '@/store/modules/material';
-import userStore from '@/store/modules/user';
-import lessonStore from '@/store/modules/lesson';
-import VueMarkdown from 'vue-markdown';
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import VueYouTubeEmbed from 'vue-youtube-embed';
-import { getIdFromURL } from "vue-youtube-embed";
+<script lang="ts" setup>
+import useMaterialStore from "@/stores/modules/material";
+import useUserStore from "@/stores/modules/user";
+import useLessonStore from "@/stores/modules/lesson";
+import type { MaterialModel } from "@/models/MaterialModel";
+import { computed, onMounted, ref } from "vue";
 import MaterialListComponent from "@/components/lists/MaterialListComponent.vue";
-import EmptyListComponent from "@/components/EmptyListComponent.vue";
+import LmsMarkdown from "@/components/common/LmsMarkdown.vue";
+import LiteYouTubeEmbed from 'vue-lite-youtube-embed'
+import 'vue-lite-youtube-embed/style.css'
 
-//TODO: check this is ok
-Vue.use(VueYouTubeEmbed);
+const props = defineProps({
+  materialId: { type: String, required: true }
+})
 
-@Component({ components: { EmptyListComponent, VueMarkdown, MaterialListComponent } })
-export default class MaterialView extends Vue {
-  @Prop({ required: true }) materialId!: number;
-  private materialStore = materialStore;
-  userStore = userStore;
-  lessonStore = lessonStore;
-  _materials: Array<MaterialModel> = [];
-  loading = true;
+const materialStore = useMaterialStore();
+const userStore = useUserStore();
+const lessonStore = useLessonStore();
+const _materials = ref<Array<MaterialModel>>([]);
+const loading = ref(true);
 
-  async created() {
-    const material = await this.materialStore.fetchMaterialById(this.materialId);
-    if (material.id) {
-      this.materialStore.setCurrentMaterial(material);
-      this._materials = await this.materialStore.fetchMaterialsByLessonId(material.lesson);
-      this.loading = false;
-    }
+onMounted(async () => {
+  const material = await materialStore.fetchMaterialById(parseInt(props.materialId));
+  if (material.id) {
+    materialStore.setCurrentMaterial(material);
+    _materials.value = await materialStore.fetchMaterialsByLessonId(material.lesson);
+    loading.value = false;
   }
+})
 
-  get isStaff(): boolean {
-    return this.userStore.user.staff_for.includes(Number(this.lessonStore.currentLesson?.course));
-  }
+const isStaff = computed((): boolean => {
+  return userStore.user.staff_for.includes(Number(lessonStore.currentLesson?.course));
+})
 
-  get youTubeGetID() {
-    // const VID_REGEX = (/(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
-    // return (this.materialUrl!.match(VID_REGEX)![1]);
-    return getIdFromURL(this.currentMaterial.content);
-  }
+const youTubeGetID = computed(() => {
+  const regExp =
+    /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
 
-  get isYoutubeFormat() {
-    return this.currentMaterial.content.includes('https://www.youtube.com/');
-  }
+  const match = currentMaterial.value.content.match(regExp);
 
-  get isMaterialAVideo() {
-    if (this.materialStore.currentMaterialType === 'video')
-      return true;
+  if (match && match[2].length === 11) {
+    return match[2];
   }
+  return '';
+})
 
-  get currentMaterial(): MaterialModel {
-    return this.materialStore.currentMaterial;
-  }
+const isYoutubeFormat = computed(() => {
+  return currentMaterial.value.content.includes('https://www.youtube.com/');
+})
 
-  get materials(): Array<MaterialModel> {
-    return this._materials?.sort(
-      (a, b) => {
-        return (a.is_teacher_only === b.is_teacher_only ? 0
-          : b.is_teacher_only ? -1 : 1) || a.id - b.id;
-      });
-  }
+const isMaterialAVideo = computed(() => {
+  return materialStore.currentMaterialType === 'video'
+})
 
-  isMaterialSelected(materialId: number) {
-    return this.currentMaterial.id === materialId;
-  }
+const currentMaterial = computed((): MaterialModel => {
+  return materialStore.currentMaterial;
+})
+
+const materials = computed((): Array<MaterialModel> => {
+  return [..._materials.value].sort(
+    (a, b) => {
+      return (a.is_teacher_only === b.is_teacher_only ? 0
+        : b.is_teacher_only ? -1 : 1) || a.id - b.id;
+    });
+})
+
+function isMaterialSelected(materialId: number) {
+  return currentMaterial.value.id === materialId;
 }
+
 </script>
 
 <style scoped lang="stylus">
-/deep/ .bx--title
+:deep() .bx--title
   background-color var(--cds-ui-background)
 
 .material-title
@@ -155,7 +158,6 @@ export default class MaterialView extends Vue {
 
 code
   color: var(--color-b)
-
 
 </style>
 

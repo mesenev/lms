@@ -1,8 +1,8 @@
-import { RouteConfig } from "vue-router";
 import ExamView from "@/views/ExamView.vue";
-import ExamEditView from "@/views/management/ExamEditView.vue";
+import ExamEditView from "@/views/managment/ExamEditView.vue";
 
-const examRoutes: Array<RouteConfig> = [
+
+const examRoutes = [
   {
     path: '',
     name: 'ExamView',

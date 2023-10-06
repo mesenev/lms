@@ -1,24 +1,21 @@
 <template>
   <div class="bx--grid">
     <div class="bx--row header-container">
-      <div :class="{'bx--offset-lg-1': isStaff, 'bx--offset-lg-2': !isStaff}" class="main-title">
-        <h1 v-if="problem" class="">{{ problem.name }}</h1>
-        <cv-skeleton-text v-else :heading="true" :width="'35%'" class="main-title"/>
+      <div v-if="problem && lesson" :class="{'bx--offset-lg-1': isStaff, 'bx--offset-lg-2': !isStaff}"
+           class="main-title">
+        <h1 class="">{{ problem.name }}</h1>
         <div class="description-container">
-          <cv-link v-if="problem"
-                   class="show-problem-link"
+          <cv-link class="show-problem-link"
                    @click="showProblem">
             Условие задачи
           </cv-link>
-          <cv-skeleton-text v-else class="" width="'35%'"/>
           <cv-modal
-              :visible="displayProblem"
-              class="problem-description-modal"
-              close-aria-label="Закрыть"
-              size="large"
-              @modal-hidden="hideProblem">
-            <template slot="title">{{ problem.name }}</template>
-            <template slot="content">
+            :visible="displayProblem"
+            class="problem-description-modal"
+            close-aria-label="Закрыть"
+            @modal-hidden="hideProblem">
+            <template v-slot:title>{{ problem.name }}</template>
+            <template v-slot:content>
               <problem-description :problem="problem"/>
             </template>
           </cv-modal>
@@ -28,31 +25,33 @@
             <span v-if="lesson.scores[problem.type]">
               Макс. балл <strong>{{ lesson.scores[problem.type] }}</strong>
             </span>
-            <span>Режим тестирования: <strong>{{ this.problem.test_mode }}</strong> </span>
+            <span>Режим тестирования: <strong>{{ problem.test_mode }}</strong> </span>
           </div>
         </div>
       </div>
+      <cv-skeleton-text v-else
+                        :class="{'bx--offset-lg-1': isStaff, 'bx--offset-lg-2': !isStaff}"
+                        :heading="true" :line-count="3" :width="'35%'" class="main-title"/>
     </div>
     <cv-row class="main-items" justify="center">
-      <problem-navigation v-if="!isStaff" :lesson-id="problem.lesson"></problem-navigation>
+      <problem-navigation v-if="!isStaff && problem" :lesson-id="problem.lesson"></problem-navigation>
       <cv-column v-if="isStaff && !displayCatsPackage">
         <div class="item">
           <cv-structured-list class="student-list" condensed selectable @change="changeStudent">
-            <template slot="headings">
-              <cv-structured-list-heading class="pupil-title">Список студентов
+            <template v-slot:headings>
+              <cv-structured-list-heading class="pupil-title">Список учеников
               </cv-structured-list-heading>
             </template>
-            >
-            <template slot="items">
+            <template v-slot:items>
               <cv-structured-list-item
-                  v-for="student in studentIds"
-                  :key="student"
-                  :checked="checkedStudent(student)"
-                  :value="student.toString()"
-                  class="student-list--item"
-                  name="student">
+                v-for="student in studentIds"
+                :key="student"
+                :checked="checkedStudent(student)"
+                :value="student.toString()"
+                class="student-list--item"
+                name="student">
                 <cv-structured-list-data>
-                  <user-component :user-id="student" class="student-list--item--user-component"/>
+                  <user-component :user-id="Number(student)" class="student-list--item--user-component"/>
                 </cv-structured-list-data>
               </cv-structured-list-item>
             </template>
@@ -62,212 +61,192 @@
       <cv-column :lg="{'span': 8, 'offset': isStaff ? 0 : 2}">
         <div class="solution-container item">
           <submit-component
-              v-if="problem"
-              :is-staff="isStaff" :language-list="problem.language"
-              :submitId="submitId" :submit-status-trigger="submitStatusTrigger"
-              class="solution-container--submit-component"
-              @submit-created="(x) => changeCurrentSubmit(x.id)"/>
+            v-if="problem"
+            :is-staff="isStaff" :language-list="problem.language"
+            :submitId="submitId"
+            class="solution-container--submit-component"
+            @submit-created="changeCurrentSubmit"/>
           <cv-loading v-else small/>
           <div class="solution-container--submit-list">
             <log-event-component
-                v-if="!!problem"
-                :key="logEventComponentKey"
-                :problemId="problem.id" :selected-submit="submitId"
-                :studentId="studentId"
-                class="log--event--component"
-                @update-submit-status="() => updateSubmitStatus()"
-                @submit-selected="(x) => changeCurrentSubmit(x.id)"
-                @cats-answer="(x) => showCatsAnswerModal(x.id)"
+              v-if="!!problem"
+              :key="logEventComponentKey"
+              :problemId="problem.id" :selected-submit="submitId"
+              :studentId="studentId"
+              class="log--event--component"
+              @submit-selected="changeCurrentSubmit"
+              @cats-answer="showCatsAnswerModal"
             />
             <cv-loading v-else></cv-loading>
           </div>
         </div>
       </cv-column>
-      <cv-column v-if="displayCatsPackage">
+      <cv-column v-if="displayCatsPackage && catsResultSubmitId">
         <cats-package-window :submit-id-prop="catsResultSubmitId"/>
       </cv-column>
     </cv-row>
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import ProblemDescription from "@/components/ProblemDescription.vue";
 import ProblemNavigation from "@/components/ProblemNavigation.vue";
 import SubmitComponent from '@/components/SubmitComponent.vue';
 import LogEventComponent from '@/components/LogEventComponent.vue';
 import SubmitStatus from "@/components/SubmitStatus.vue";
-import UserComponent from '@/components/UserComponent.vue';
-import SubmitModel from '@/models/SubmitModel';
-import lessonStore from '@/store/modules/lesson';
-import problemStore from '@/store/modules/problem';
-import submitStore from '@/store/modules/submit';
-import userStore from '@/store/modules/user';
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import CatsPackageWindow from "@/components/CatsPackageWindow.vue";
+import UserComponent from '@/components/UserComponent.vue';
+import type { SubmitModel } from '@/models/SubmitModel';
+import useLessonStore from '@/stores/modules/lesson';
+import useProblemStore from '@/stores/modules/problem';
+import useSubmitStore from '@/stores/modules/submit';
+import useUserStore from '@/stores/modules/user';
+import { useRoute, useRouter } from "vue-router";
+import { computed, ref, watch, onMounted, type Ref } from "vue";
 
+const props = defineProps({ submitIdProp: { type: Number, required: false, default: null } });
+const route = useRoute();
+const router = useRouter();
 
-@Component({
-  components: {
-    CatsPackageWindow,
-    SubmitComponent,
-    ProblemDescription,
-    SubmitStatus,
-    UserComponent,
-    LogEventComponent,
-    ProblemNavigation
-  },
+const submitId = ref(props.submitIdProp);
+const studentId = ref(NaN);
+
+const lessonStore = useLessonStore();
+const problemStore = useProblemStore();
+const userStore = useUserStore();
+const submitStore = useSubmitStore();
+
+const user = ref(userStore.user);
+const displayProblem = ref(false);
+const displayCatsPackage = ref(false);
+const catsResultSubmitId: Ref<number | null> = ref(null);
+
+const logEventComponentKey = ref(0);
+
+const lesson = computed(() => {
+  return lessonStore.currentLesson;
 })
-export default class ProblemView extends Vue {
-  @Prop({ required: false, default: null }) submitIdProp!: number | null;
-  public submitId = this.submitIdProp;
-  public studentId = NaN;
 
-  private lessonStore = lessonStore;
-  private problemStore = problemStore;
-  private userStore = userStore;
-  private submitStore = submitStore;
-  private user = this.userStore.user;
-  private readonly courseId = Number(this.$route.params.courseId);
+const problem = computed(() => {
+  return problemStore.currentProblem;
+})
 
-  private displayProblem = false;
-  private displayCatsPackage = false;
-  private catsResultSubmitId: number | null = null;
+const studentIds = computed(() => {
+  if (problem.value && problem.value.students)
+    return Object.keys(problem.value.students)
+  return [];
+})
 
-  private logEventComponentKey = 0;
+const submits = computed((): SubmitModel[] => {
+  return submitStore.submits;
+})
 
-  submitStatusTrigger = 0;
+const userSubmits = computed(() => {
+  return submits.value.filter((x: SubmitModel) => x.student === studentId.value);
+})
 
-  get lesson() {
-    return this.lessonStore.currentLesson;
+const workName = computed(() => {
+  if (problem.value?.type === "CW")
+    return "Классная работа";
+  else if (problem.value?.type === "HW")
+    return "Домашняя работа"
+  else return "Дополнительные задания"
+})
+
+const isStaff = computed((): boolean => {
+  return user.value.staff_for.includes(Number(route.params.courseId));
+})
+
+const avatarUrl = computed(() => {
+  if (user.value && user.value.avatar_url)
+    return user.value.thumbnail;
+  return "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
+})
+
+const isCompleted = computed((): boolean => {
+  return !!submits.value.find((submit: SubmitModel) => (
+    submit.status === 'OK'
+  ));
+})
+
+watch(() => route.params.problemId, async () => {
+  const problem = await problemStore.fetchProblemById(Number(route.params.problemId));
+  problemStore.changeCurrentProblem(problem);
+  recreateLogEventComponent();
+})
+
+function checkedSubmit(submit: SubmitModel): boolean {
+  if (!props.submitIdProp)
+    return submit.id === Math.max(...submits.value.map(s => s.id));
+  return submit.id === props.submitIdProp;
+}
+
+function changeCurrentSubmit(id: number): void {
+  submitId.value = Number(id);
+  if (props.submitIdProp === Number(id))
+    return;
+  router.push({
+    name: 'ProblemViewWithSubmit', params: {
+      courseId: route.params.courseId,
+      lessonId: route.params.lessonId,
+      problemId: route.params.problemId,
+      submitId: Number(id).toString(),
+    },
+  });
+}
+
+function showCatsAnswerModal(id: number): void {
+  catsResultSubmitId.value = Number(id);
+  toggleCatsModal(undefined);
+}
+
+onMounted(async () => {
+  if (isStaff.value && submitId.value && submits.value.length)
+    changeCurrentSubmit(submits.value[submits.value.length - 1].id);
+  if (submitId.value)
+    studentId.value = submits?.value.find(x => x.id === submitId.value)?.student as number;
+  if (!isStaff.value) {
+    studentId.value = Number(userStore.user.id);
+  }
+  if (isNaN(studentId.value)) {
+    studentId.value = userStore.user.id;
   }
 
-  get problem() {
-    return this.problemStore.currentProblem;
-  }
-
-  get studentIds() {
-    if (this.problem && this.problem.students)
-      return Object.keys(this.problem?.students)
-  }
-
-  get submits(): SubmitModel[] {
-    return this.submitStore.submits;
-  }
-
-  get userSubmits() {
-    return this.submits.filter((x: SubmitModel) => x.student === this.studentId);
-  }
-
-  get workName() {
-    if (this.problem?.type === "CW")
-      return "Классная работа";
-    else if (this.problem?.type === "HW")
-      return "Домашняя работа"
-    else if (this.problem?.type === "EX")
-      return "Дополнительные задания"
-  }
-
-  get isStaff(): boolean {
-    return this.user.staff_for.includes(Number(this.courseId));
-  }
-
-  get avatarUrl() {
-    if (this.user && this.user.avatar_url)
-      return this.user.thumbnail;
-    return "https://www.winhelponline.com/blog/wp-content/uploads/2017/12/user.png";
-  }
-
-  get isCompleted(): boolean {
-    return !!this.submits.find((submit: SubmitModel) => (
-        submit.status === 'OK'
-    ));
-  }
-
-  @Watch('$route.params.problemId', { immediate: true, deep: true })
-  async unUrlChange() {
-    const problem = await this.problemStore.fetchProblemById(Number(this.$route.params.problemId));
-    this.problemStore.changeCurrentProblem(problem);
-    this.recreateLogEventComponent();
-  }
-
-  checkedSubmit(submit: SubmitModel): boolean {
-    if (!this.submitIdProp)
-      return submit.id === Math.max(...this.submits.map(s => s.id));
-    return submit.id === this.submitIdProp;
-  }
-
-  changeCurrentSubmit(id: number): void {
-    this.submitId = Number(id);
-    if (this.submitIdProp === Number(id))
-      return;
-    this.$router.push({
-      name: 'ProblemViewWithSubmit', params: {
-        courseId: this.$route.params.courseId,
-        lessonId: this.$route.params.lessonId,
-        problemId: this.$route.params.problemId,
-        submitId: Number(id).toString(),
-      },
-    });
-  }
-
-  updateSubmitStatus() {
-    this.submitStatusTrigger += 1;
-  }
-
-  showCatsAnswerModal(id: number): void {
-    this.catsResultSubmitId = Number(id);
-    this.toggleCatsModal(true);
-  }
-
-  async created() {
-    if (this.isStaff && !this.submitId && this.submits.length)
-      this.changeCurrentSubmit(this.submits[this.submits.length - 1].id);
-    if (this.submitId)
-      this.studentId = this.submits?.find(x => x.id === this.submitId)?.student as number;
-    if (!this.isStaff) {
-      this.studentId = Number(this.userStore.user.id);
+  window.addEventListener("keydown", event => {
+    if (event.key == 'Escape') {
+      toggleCatsModal(false);
     }
-    if (isNaN(this.studentId)) {
-      this.studentId = this.userStore.user.id;
-    }
-  }
+  });
+})
 
-  async mounted() {
-    window.addEventListener("keydown", event => {
-      if (event.key == 'Escape') {
-        this.toggleCatsModal(false);
-      }
-    });
-  }
 
-  toggleCatsModal(target: boolean | undefined = undefined) {
-    if (typeof target === undefined)
-      this.displayCatsPackage = !this.displayCatsPackage;
-    else
-      this.displayCatsPackage = target as boolean;
-  }
+function toggleCatsModal(target: boolean | undefined = undefined) {
+  if (typeof target === 'undefined')
+    displayCatsPackage.value = !displayCatsPackage.value;
+  else
+    displayCatsPackage.value = target as boolean;
+}
 
-  checkedStudent(studentId: string): boolean {
-    return Number(studentId) === this.studentId;
-  }
+function checkedStudent(studentIdparam: string): boolean {
+  return Number(studentIdparam) === studentId.value;
+}
 
-  showProblem() {
-    this.displayProblem = true;
-  }
+function showProblem() {
+  displayProblem.value = true;
+}
 
-  hideProblem() {
-    this.displayProblem = false;
-  }
+function hideProblem() {
+  displayProblem.value = false;
+}
 
-  async changeStudent(id: number) {
-    this.studentId = Number(id);
-    this.changeCurrentSubmit(this.userSubmits[this.userSubmits.length - 1].id);
-    this.recreateLogEventComponent();
-  }
+async function changeStudent(id: number) {
+  studentId.value = Number(id);
+  changeCurrentSubmit(userSubmits.value[userSubmits.value.length - 1].id);
+  recreateLogEventComponent();
+}
 
-  recreateLogEventComponent() {
-    this.logEventComponentKey += 1;
-  }
+function recreateLogEventComponent() {
+  logEventComponentKey.value += 1;
 }
 </script>
 
@@ -438,9 +417,7 @@ h1
 aside
   @media (max-width: 1100px)
     display none
-</style>
-<style lang="stylus">
-.student-list--item
-  .bx--structured-list-td
-    vertical-align middle
+
+:deep() .bx--structured-list-td
+  vertical-align middle
 </style>

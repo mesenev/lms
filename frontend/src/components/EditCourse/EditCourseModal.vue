@@ -3,15 +3,16 @@
     <cv-button class="change-btn" @click="showModal">
       Добавить урок
     </cv-button>
-    <cv-modal size="default"
-              class="add_lesson_modal"
+    <cv-modal class="add_lesson_modal"
+              id="add_lesson_modal"
               :visible="modalVisible"
+              :disableTeleport="true"
               @modal-hidden="modalHidden"
               :primary-button-disabled="primaryButtonDisabled"
               @primary-click="addLesson"
               @secondary-click="() => {}">
-      <template slot="label">{{ course.name }}</template>
-      <template slot="title">
+      <template v-slot:label>{{ course.name }}</template>
+      <template v-slot:title>
         Добавить урок
         <cv-content-switcher class="switcher" @selected="actionSelected">
           <cv-content-switcher-button owner-id="create-lesson" selected>
@@ -22,7 +23,7 @@
           </cv-content-switcher-button>
         </cv-content-switcher>
       </template>
-      <template slot="content">
+      <template v-slot:content>
         <cv-inline-notification
           v-if="showNotification"
           :kind="notificationKind"
@@ -37,14 +38,16 @@
               <cv-text-input class="modal--content--input"
                              label="Автор" v-model.trim="authorUsername" disabled/>
               <cv-text-input class="modal--content--input"
+                             placeholder="Введите название урока"
                              label="Название урока" v-model.trim="currentLesson.name">
-                <template slot="invalid-message" v-if="showInvalidMessage && !currentLesson.name">
+                <template v-slot:invalid-message v-if="showInvalidMessage && !currentLesson.name.length">
                   {{ emptyInputInvalidText }}
                 </template>
               </cv-text-input>
               <cv-text-input class="modal--content--input"
+                             placeholder="Введите описание урока"
                              label="Описание урока" v-model.trim="currentLesson.description"/>
-              <span style="text-decoration-line: underline">
+              <span style="font-style: italic">
               Добавление к уроку материалов и задач доступно после создания урока.
             </span>
             </div>
@@ -53,8 +56,8 @@
             <div class="content-2" hidden>
               <div>
                 <cv-structured-list>
-                  <template slot="items">
-                    <cv-search v-model="searchQueryForAllLessons"></cv-search>
+                  <template v-slot:items>
+                    <cv-search v-model:value="searchQueryForAllLessons"></cv-search>
                     <cv-structured-list-item
                       class="lesson-card"
                       v-for="lesson in allLessons"
@@ -73,7 +76,7 @@
           </cv-content-switcher-content>
         </section>
       </template>
-      <template slot="primary-button">
+      <template v-slot:primary-button>
         Добавить
       </template>
     </cv-modal>
@@ -82,126 +85,122 @@
 
 <!-- TODO: get counts from num-input -->
 
-<script lang="ts">
-
+<script lang="ts" setup>
 import searchByLessons from '@/common/searchByTutorial';
-import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
 import LessonCard from '@/components/EditCourse/LessonCard.vue';
-import CourseModel from '@/models/CourseModel';
-import LessonModel from '@/models/LessonModel';
-import courseStore from '@/store/modules/course';
-import lessonStore from '@/store/modules/lesson';
-import AddAlt20 from '@carbon/icons-vue/es/add--alt/20';
-import SubtractAlt20 from '@carbon/icons-vue/es/subtract--alt/20';
-import api from '@/store/services/api'
-import { Component, Prop, Watch } from 'vue-property-decorator';
+import AddAlt32 from '@carbon/icons-vue/es/add--alt/32';
+import SubtractAlt32 from '@carbon/icons-vue/es/subtract--alt/32';
+import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
+import useCourseStore from "@/stores/modules/course";
+import useLessonStore from "@/stores/modules/lesson";
+import { computed, ref } from "vue";
+import type { LessonModel } from "@/models/LessonModel";
+import api from "@/stores/services/api";
+import type { CourseModel } from "@/models/CourseModel";
 
-@Component({ components: { LessonCard, AddAlt20, SubtractAlt20 } })
-export default class EditCourseModal extends NotificationMixinComponent {
-  @Prop({ required: true }) courseId!: number;
+const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
-  AddAlt32 = AddAlt20;
-  SubtractAlt32 = SubtractAlt20;
-  courseStore = courseStore;
-  lessonStore = lessonStore;
-  currentLesson: LessonModel = { ...this.lessonStore.getNewLesson, course: this.courseId };
-  fetchingLessons = true;
-  selectedNew = true;
-  creationLoader = false;
+const props = defineProps({
+  courseId: { type: Number, required: true }
+})
 
-  lessons: LessonModel[] = [];
-  modalVisible = false;
-  searchQueryForAllLessons = '';
-  showInvalidMessage = false;
-  emptyInputInvalidText = 'Заполните поле!';
 
-  get primaryButtonDisabled(): boolean {
-    return !this.lessons.length && this.creationLoader;
-  }
+const courseStore = useCourseStore();
+const lessonStore = useLessonStore();
+const currentLesson = ref<LessonModel>({ ...lessonStore.getNewLesson, course: props.courseId });
+const fetchingLessons = ref(true);
+const selectedNew = ref(true);
+const creationLoader = ref(false);
 
-  get course() {
-    return this.courseStore.currentCourse || this.courseStore.newCourse;
-  }
+const lessons = ref<LessonModel[]>([]);
+const modalVisible = ref(false);
+const searchQueryForAllLessons = ref('');
+const showInvalidMessage = ref(false);
+const emptyInputInvalidText = 'Заполните поле!';
 
-  get allLessons(): LessonModel[] {
-    return searchByLessons(this.searchQueryForAllLessons, this.freeLessons);
-  }
+const primaryButtonDisabled = computed((): boolean => {
+  return !lessons.value.length && creationLoader.value;
+})
 
-  get freeLessons(): LessonModel[] {
-    // TODO: fix this
-    return [];
-  }
+const course = computed(() => {
+  return courseStore.currentCourse || courseStore.newCourse;
+})
 
-  get authorUsername() {
-    return this.course.author?.username as string;
-  }
+const allLessons = computed((): LessonModel[] => {
+  return searchByLessons(searchQueryForAllLessons.value, freeLessons.value);
+})
 
-  async created() {
-    //
-  }
+const freeLessons = computed((): LessonModel[] => {
+  // TODO: fix this
+  return [];
+})
 
-  showModal() {
-    this.modalVisible = true;
-    this.showNotification = false;
-    this.currentLesson = { ...this.lessonStore.getNewLesson, course: this.courseId };
-    this.creationLoader = false;
-  }
+const authorUsername = computed(() => {
+  return course.value.author?.username as string;
+})
 
-  modalHidden() {
-    this.modalVisible = false;
-  }
+function showModal() {
+  modalVisible.value = true;
+  showNotification.value = false;
+  currentLesson.value = { ...lessonStore.getNewLesson, course: props.courseId };
+  creationLoader.value = false;
+}
 
-  actionSelected(value: string) {
-    this.selectedNew = value === 'create-lesson';
-  }
+function modalHidden() {
+  modalVisible.value = false;
+}
 
-  get getSelected(): string {
-    return this.lessons.concat(this.currentLesson)
-      .map((l) => l.name)
-      .sort((a, b) => a < b ? -1 : 1)
-      .join(' ');
-  }
+function actionSelected(value: string) {
+  selectedNew.value = value === 'create-lesson';
+}
 
-  chooseLesson(lesson: LessonModel) {
-    //
-  }
+const getSelected = computed((): string => {
+  return lessons.value.concat(currentLesson.value)
+    .map((l) => l.name)
+    .sort((a, b) => a < b ? -1 : 1)
+    .join(' ');
+})
 
-  async addLesson() {
-    if (this.selectedNew) {
-      this.checkCorrectFields();
-      if (this.showInvalidMessage)
-        return;
-      this.creationLoader = true;
-      await this.createNewLesson();
-    }
-  }
-
-  checkCorrectFields() {
-    this.showInvalidMessage = !this.currentLesson.name;
-  }
-
-  async createNewLesson() {
-    await api.post('/api/lesson/', this.currentLesson)
-      .then(response => {
-        const course = this.courseStore.currentCourse as CourseModel;
-        course.lessons.push(response.data as LessonModel);
-        this.lessonStore.setLessons({ [course.id]: course.lessons });
-        this.modalHidden();
-      })
-      .catch(error => {
-        this.notificationKind = 'error';
-        this.notificationText = `Что-то пошло не так: ${error.message}`;
-        this.showNotification = true;
-      })
-      .finally(() => {
-        this.creationLoader = false;
-      })
+async function addLesson() {
+  if (selectedNew.value) {
+    checkCorrectFields();
+    if (showInvalidMessage.value)
+      return;
+    creationLoader.value = true;
+    await createNewLesson();
   }
 }
+
+function chooseLesson() {
+  //;
+}
+
+function checkCorrectFields() {
+  showInvalidMessage.value = !currentLesson.value.name.length;
+}
+
+async function createNewLesson() {
+  await api.post('/api/lesson/', currentLesson.value)
+    .then(response => {
+      const course = courseStore.currentCourse as CourseModel;
+      course.lessons.push(response.data as LessonModel);
+      lessonStore.setLessons({ [course.id]: course.lessons });
+      modalHidden();
+    })
+    .catch(error => {
+      notificationKind.value = 'error';
+      notificationText.value = `Что-то пошло не так: ${error.message}`;
+      showNotification.value = true;
+    })
+    .finally(() => {
+      creationLoader.value = false;
+    })
+}
+
 </script>
 
 <style scoped lang="stylus">
-/deep/ .bx--modal-content:focus
+:deep() .bx--modal-content:focus
   outline none
 
 .lesson_list
@@ -213,11 +212,14 @@ export default class EditCourseModal extends NotificationMixinComponent {
 .switcher
   margin-bottom: 5px
 
-.modal--content--input
+.cv-text-input
   margin-bottom 1rem
 
-/deep/ .bx--modal-content
+:deep() .bx--modal-content
   margin-bottom 0
+
+:deep() .bx--text-input:disabled
+  background-color var(--cds-ui-02)
 
 .add_lesson_modal .bx--modal-container
   height 75vh
@@ -240,7 +242,4 @@ export default class EditCourseModal extends NotificationMixinComponent {
 .add_lesson_modal .bx--btn--primary[disabled = disabled],
 .add_lesson_modal .bx--btn--primary
   background-color var(--cds-ui-05)
-
-.modal--content
-  height 500px
 </style>

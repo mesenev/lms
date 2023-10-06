@@ -15,7 +15,7 @@ def hmr_script(path):
     else:
         path = static(path)
     return format_html(
-        mark_safe('<script type="text/javascript" src="{}{}"></script>'),
+        mark_safe('<script type="module" src="{}{}"></script>'),
         script_origin,
         path
     )

@@ -1,12 +1,10 @@
 <template>
-  <cv-loading v-if="isLoading" overlay style="background: white"/>
-  <div v-else-if="isLogin" :class="current_theme" class="layout">
+  <cv-loading v-if="tokenStore.isLoading" overlay style="background: white"/>
+  <div v-else-if="tokenStore.isLogin" :class="current_theme" class="layout">
     <lms-header @toggle-theme="toggleTheme($event)" class="layout-header"/>
     <main class="layout-content">
       <lms-breadcrumb class="main--breadcrumb"/>
-      <transition name="fade" mode="out-in">
-        <router-view/>
-      </transition>
+      <router-view/>
     </main>
     <footer class="layout-footer">
       <div class="layout-footer-label">
@@ -19,9 +17,9 @@
             </cv-link>
           </span>
         </div>
-          <cv-link class="layout-footer-link" href="https://t.me/+FBUuuC4qdvc1ZTIy">
-            <span><b>Чат для обратной связи</b></span>
-          </cv-link>
+        <cv-link class="layout-footer-link" href="https://t.me/+FBUuuC4qdvc1ZTIy">
+          <span><b>Чат для обратной связи</b></span>
+        </cv-link>
       </div>
     </footer>
   </div>
@@ -29,65 +27,48 @@
   <LoginView v-else-if="shouldRedirectToLogin"></LoginView>
 </template>
 
-<script lang="ts">
-import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue';
-import LmsHeader from '@/components/LmsHeader.vue';
+
+<script lang="ts" setup>
+
 import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
 import FaceWink from '@carbon/icons-vue/es/face--wink/16';
-import { Component, Vue, Watch } from 'vue-property-decorator';
-import { THEMES } from "@/utils/consts";
+import {THEMES} from "@/utils/consts";
+
+import {useTokenStore} from "@/stores/modules/token";
+import LmsHeader from "@/components/LmsHeader.vue";
+
 import LoginView from "@/views/LoginView.vue";
-import tokenStore from "@/store/modules/token";
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
+import {useRoute} from 'vue-router'
+import {computed, ref, watch} from "vue";
+import LmsBreadcrumb from "@/components/LmsBreadcrumb.vue";
 
-@Component({ components: {
-  ResetPasswordView, LoginView, LmsHeader, LmsBreadcrumb, LogoGithub, FaceWink
-} })
-export default class App extends Vue {
-  //TODO set transition and styles for loader
-  @Watch('isLogin')
-  onIsLoginChanged(new_val: boolean, old_val: boolean) {
-    if (new_val) {
-        this.$router.push(((this.$route.query.nextUrl) ?? "/") as string);
-    } else {
-      if (this.shouldRedirectToLogin) {
-        this.$router.push('/login');
-      }
-    }
-  }
 
-  current_theme = localStorage.getItem('theme') || THEMES.g10;
+const tokenStore = useTokenStore();
+const route = useRoute();
+tokenStore.setupTokenStore();
 
-  toggleTheme(theme: string) {
-    this.current_theme = theme;
-    localStorage.setItem('theme', theme);
-  }
+const current_theme = ref(localStorage.getItem('theme') || THEMES.g10);
 
-  get isLoading() {
-    return tokenStore.isLoading;
-  }
-
-  get isLogin() {
-    return tokenStore.isAuthenticated;
-  }
-
-  get isResetPassword() {
-    return this.$route.name === 'ResetPasswordView';
-  }
-
-  get shouldRedirectToLogin() {
-    return !this.isLogin && !this.isResetPassword;
-  }
-
-  async created() {
-    await tokenStore.setupTokenStore();
-  }
+function toggleTheme(theme: string) {
+  current_theme.value = theme;
+  localStorage.setItem('theme', theme);
 }
+
+const isResetPassword = computed(() => {
+  return route.name === 'ResetPasswordView';
+})
+
+const shouldRedirectToLogin = computed(() => {
+  return !tokenStore.isLogin && !isResetPassword.value;
+})
+
+
 </script>
 
 <style lang="sass">
-@use '~@carbon/themes'
-@use '~carbon-components/scss/globals/scss/theme-tokens' as carbon
+@use '@carbon/themes'
+@use 'carbon-components/scss/globals/scss/theme-tokens' as carbon
 @import "styles/base"
 @import "styles/carbon"
 
@@ -144,11 +125,14 @@ export default class App extends Vue {
   height: 100%
   display flex
   flex-flow column
+
   &-content
     padding-bottom var(--cds-spacing-05)
     margin-top: 3rem;
+
   &-header, &-footer
     flex-shrink 0
+
   &-footer
     min-height 100px
     background-color #161616
@@ -157,8 +141,10 @@ export default class App extends Vue {
 
     &-link
       color var(--cds-text-05)
+
     &-label
       margin var(--cds-spacing-06) var(--cds-spacing-06)
+
   &-content
     flex-grow 1
     width: 100%

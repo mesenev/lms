@@ -1,36 +1,34 @@
 <template>
-  <transition mode="out-in" name="fade">
-    <router-view v-if="problem" :key="$route.params.problemId"/>
-    <div v-else class="loading-out">
-      <cv-loading />
+  <router-view v-slot="{Component}" :key="route.params.problemId" :submitId="route.params.submitId">
+    <transition v-if="problem" mode="out-in" name="fade">
+      <component :is="Component"/>
+    </transition>
+    <div v-else class="loading-container">
+      <cv-loading class="loading-out"/>
     </div>
-  </transition>
+  </router-view>
 </template>
 
-<script lang="ts">
-import ProblemDescription from "@/components/ProblemDescription.vue";
-import SubmitComponent from '@/components/SubmitComponent.vue';
-import SubmitStatus from "@/components/SubmitStatus.vue";
-import ProblemModel from '@/models/ProblemModel';
-import problemStore from '@/store/modules/problem';
-import submitStore from '@/store/modules/submit';
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import SubmitModel from "@/models/SubmitModel";
+<script lang="ts" setup>
+import type { ProblemModel } from '@/models/ProblemModel';
+import useProblemStore from '@/stores/modules/problem';
+import useSubmitStore from '@/stores/modules/submit';
+import type { SubmitModel } from "@/models/SubmitModel";
+import { ref, onMounted } from 'vue';
+import { useRoute } from "vue-router";
 
-@Component({ components: { SubmitComponent, ProblemDescription, SubmitStatus } })
-export default class ProblemViewLayout extends Vue {
-  @Prop({ required: true }) problemId!: number;
-  problem: ProblemModel | null = null;
-  private problemStore = problemStore;
-  private submitStore = submitStore;
+const props = defineProps({ problemId: {type: String, required: true} })
+const problemStore = useProblemStore();
+const submitStore = useSubmitStore();
+const route = useRoute()
+const problem = ref<ProblemModel | null>(null);
 
-  async created() {
-    this.problemStore.changeCurrentProblem(null);
-    this.problem = await this.problemStore.fetchProblemById(this.problemId);
-    this.problemStore.changeCurrentProblem(this.problem);
-    this.submitStore.setSubmits(this.problemStore.currentProblem?.submits as SubmitModel[]);
-  }
-}
+onMounted( async () => {
+    problemStore.changeCurrentProblem(null);
+    problem.value = await problemStore.fetchProblemById(parseInt(props.problemId));
+    problemStore.changeCurrentProblem(problem.value);
+    submitStore.setSubmits(problemStore.currentProblem?.submits as SubmitModel[]);
+  })
 </script>
 
 <style lang="stylus" scoped>
