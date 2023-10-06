@@ -96,7 +96,7 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 
 class SubmitFilter(django_filters.FilterSet):
-    course = django_filters.ModelChoiceFilter(
+    course_id = django_filters.ModelChoiceFilter(
         label='course', queryset=Course.objects.all(), method='course_filter'
     )
     lesson = django_filters.ModelChoiceFilter(
@@ -196,7 +196,7 @@ class SubmitViewSet(viewsets.ModelViewSet):
         raise exceptions.PermissionDenied
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.filter_queryset(self.get_queryset().order_by('-id'))
 
         page = self.paginate_queryset(queryset)
         if page is not None:
