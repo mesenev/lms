@@ -68,8 +68,6 @@ function authorization() {
 </script>
 
 <style lang="stylus" scoped>
-
-
 .login
   width 20%
   text-align end
@@ -96,8 +94,9 @@ function authorization() {
   text-align center
   padding-bottom 2rem
 
-.log-form
-  padding-bottom 2rem
+:deep() .bx--password-input-wrapper
+  padding-top 1rem
+  padding-bottom 0.25rem
 
 .pass-form
   padding-bottom 0.5rem
@@ -109,6 +108,4 @@ function authorization() {
 .login-form
   padding 3rem
   background-color var(--cds-ui-background)
-
-
 </style>
