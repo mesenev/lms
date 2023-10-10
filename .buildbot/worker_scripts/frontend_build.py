@@ -17,5 +17,5 @@ def build_frontend():
     if exec_code:
         return exec_code, 'npm install failed'
     print('`npm run build` on the run')
-    exec_code = subprocess.run(["npm", "run", "build"]).returncode
+    exec_code = subprocess.run(["npm", "run", "build-only"]).returncode
     return exec_code, build_message(exec_code)
