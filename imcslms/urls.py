@@ -1,8 +1,9 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include, re_path
+from django.urls import path, include, re_path, reverse_lazy
 from rest_framework.routers import DefaultRouter
+from django.views.generic.base import RedirectView
 
 from cathie.views import CatsAccountViewSet
 from course.views import CourseViewSet, LinkViewSet, ScheduleViewSet
@@ -36,6 +37,7 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # urlpatterns += [path('__debug__/', include(debug_toolbar.urls)), ]
 
 urlpatterns += [
+    path('admin', RedirectView.as_view(url=reverse_lazy('admin:index'))),
     path('admin/', admin.site.urls),
     path('', include('cathie.urls')),
     path('', include('users.urls')),
