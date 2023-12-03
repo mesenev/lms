@@ -36,6 +36,13 @@
     </cv-header-nav>
     <cv-header-nav v-if="isStaff && courseSelected && !lessonSelected && !problemSelected">
       <cv-header-menu-item
+          :to="{ name: 'course-groups', params: { courseId: route.params.courseId } }"
+      >
+        Группы
+      </cv-header-menu-item>
+    </cv-header-nav>
+    <cv-header-nav v-if="isStaff && courseSelected && !lessonSelected && !problemSelected">
+      <cv-header-menu-item
           :to="{ name: 'course-edit', params: { courseId: route.params.courseId } }"
       >
         Редактировать курс
@@ -98,6 +105,12 @@
                 :to="{name: 'course-calendar', params: { courseId: route.params.courseId } }"
             >
               Календарь
+            </cv-header-menu-item>
+            <cv-header-menu-item
+                v-if="isStaff && courseSelected && !lessonSelected && !problemSelected"
+                :to="{ name: 'course-groups', params: { courseId: route.params.courseId } }"
+            >
+              Группы
             </cv-header-menu-item>
             <cv-header-menu-item
                 v-if="isStaff && courseSelected && !lessonSelected && !problemSelected"
