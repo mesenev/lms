@@ -16,7 +16,7 @@ from course.models import CourseSchedule, Course, CourseLink
 from course.serializers import CourseSerializer, ScheduleSerializer, LinkSerializer, CourseShortSerializer, \
     AssignTeacherSerializer
 from imcslms.default_settings import TEACHER
-from users.models import User, CourseAssignStudent, CourseAssignTeacher
+#from users.models import User, CourseAssignStudent, CourseAssignTeacher
 from users.permissions import CourseStaffOrReadOnlyForStudents, CourseStaffOrAuthorReadOnly, CourseStaffOrAuthor
 
 
@@ -49,24 +49,24 @@ class CourseViewSet(viewsets.ModelViewSet):
         serializer = CourseShortSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    @action(
-        detail=True, methods=['post'], url_path=r'assign-teacher', url_name='assign-teacher',
-        serializer_class=AssignTeacherSerializer
-    )
-    def assign_teacher(self, request, pk=None):
-        course = self.get_object()
-        if course not in request.user.staff_for.all():
-            raise PermissionDenied()
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = User.objects.get(id=serializer.data['id'])
-        exist = CourseAssignTeacher.objects.filter(course=course, user=user).exists()
-        if exist:
-            return Response(dict(code=1, message='user already assigned'))
-        if not exist:
-            assignment = CourseAssignTeacher(course=course, user=user)
-            assignment.save()
-        return Response(dict(code=0, message='user successfully assigned'))
+    #@action(
+    #    detail=True, methods=['post'], url_path=r'assign-teacher', url_name='assign-teacher',
+    #    serializer_class=AssignTeacherSerializer
+    #)
+    #def assign_teacher(self, request, pk=None):
+    #    course = self.get_object()
+    #    if course not in request.user.staff_for.all():
+    #        raise PermissionDenied()
+    #    serializer = self.get_serializer(data=request.data)
+    #    serializer.is_valid(raise_exception=True)
+    #    user = User.objects.get(id=serializer.data['id'])
+    #    exist = CourseAssignTeacher.objects.filter(course=course, user=user).exists()
+    #    if exist:
+    #        return Response(dict(code=1, message='user already assigned'))
+    #    if not exist:
+    #        assignment = CourseAssignTeacher(course=course, user=user)
+    #        assignment.save()
+    #    return Response(dict(code=0, message='user successfully assigned'))
 
 
 class ScheduleViewSet(

@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from course.models import Course, CourseSchedule, CourseLink
 from lesson.serializers import LessonShortSerializer
-from users.models import CourseAssignTeacher
+from users.models import GroupAssignStudent
 from users.serializers import DefaultUserSerializer
 from utils.dynamic_fields_serializer import DynamicFieldsModelSerializer
 

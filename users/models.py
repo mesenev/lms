@@ -63,26 +63,27 @@ class User(AbstractUser):
         return True
 
 
-class CourseAssignStudent(models.Model):
-    course = models.ForeignKey('course.Course', on_delete=models.CASCADE, null=False)
+class GroupAssignStudent(models.Model):
+    group = models.ForeignKey('group.Group', on_delete=models.CASCADE, null=False)
     user = models.ForeignKey(User, related_name='assigns', on_delete=models.CASCADE, null=False)
 
     def __str__(self):
-        return f"user {self.user} on course {self.course} as student"
+        return f"user {self.user} on group {self.group} as student"
 
     class Meta:
-        constraints = [models.UniqueConstraint(fields=['course', 'user'], name='only_one_assignment_student')]
+        constraints = [models.UniqueConstraint(fields=['group', 'user'], name='only_one_assignment_student')]
 
 
-class CourseAssignTeacher(models.Model):
-    course = models.ForeignKey('course.Course', on_delete=models.CASCADE, null=False)
+
+class GroupAssignTeacher(models.Model):
+    group = models.ForeignKey("group.Group", on_delete=models.CASCADE, null=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
 
     def __str__(self):
-        return f"user {self.user} on course {self.course} as teacher"
+        return f"user {self.user} on group {self.group} as teacher"
 
     class Meta:
-        constraints = [models.UniqueConstraint(fields=['course', 'user'], name='only_one_assignment_teacher')]
+        constraints = [models.UniqueConstraint(fields=['group', 'user'], name='only_one_assignment_teacher')]
 
 
 class ResetPasswordToken(models.Model):
@@ -129,5 +130,5 @@ class ResetPasswordToken(models.Model):
 
 admin.site.register(ResetPasswordToken)
 admin.site.register(StudyGroup)
-admin.site.register(CourseAssignStudent)
-admin.site.register(CourseAssignTeacher)
+admin.site.register(GroupAssignStudent)
+admin.site.register(GroupAssignTeacher)

@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from lesson.models import Lesson
 from problem.models import Submit, Problem
 from rating.models import CourseProgress, LessonProgress
-from users.models import CourseAssignStudent
+from users.models import GroupAssignStudent
 
 
 @receiver(post_save, sender=Submit)
@@ -48,7 +48,7 @@ def calc_lesson_stat(lesson, solved: dict, user):
         i.save()
 
 
-@receiver(post_save, sender=CourseAssignStudent)
+@receiver(post_save, sender=GroupAssignStudent)
 def add_student_to_rating_of_lesson(sender, instance, created, **kwargs):
     if not created:
         return
@@ -59,10 +59,10 @@ def add_student_to_rating_of_lesson(sender, instance, created, **kwargs):
         LessonProgress.objects.create(**validated_data)
 
 
-post_save.connect(add_student_to_rating_of_lesson, sender=CourseAssignStudent)
+post_save.connect(add_student_to_rating_of_lesson, sender=GroupAssignStudent)
 
 
-@receiver(post_save, sender=CourseAssignStudent)
+@receiver(post_save, sender=GroupAssignStudent)
 def add_student_to_rating_course(sender, instance, created, **kwargs):
     if not created:
         return
@@ -73,7 +73,7 @@ def add_student_to_rating_course(sender, instance, created, **kwargs):
     course_progress = CourseProgress.objects.create(**validated_data)
 
 
-post_save.connect(add_student_to_rating_course, sender=CourseAssignStudent)
+post_save.connect(add_student_to_rating_course, sender=GroupAssignStudent)
 
 
 @receiver(post_save, sender=Lesson)
