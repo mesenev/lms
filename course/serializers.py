@@ -22,7 +22,6 @@ class CourseSerializer(DynamicFieldsModelSerializer):
     id = serializers.ReadOnlyField()
     author = DefaultUserSerializer(required=False, read_only=True)
     lessons = LessonShortSerializer(many=True, read_only=True)
-    students = DefaultUserSerializer(many=True, required=False, read_only=True)
     cats_id = serializers.IntegerField(required=False, allow_null=True)
     description = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     schedule = serializers.PrimaryKeyRelatedField(
@@ -39,7 +38,6 @@ class CourseSerializer(DynamicFieldsModelSerializer):
         user = request.user if request and hasattr(request, "user") else None
         instance = Course.objects.create(**validated_data, **{'author': user})
         CourseSchedule.objects.create(course_id=instance.id, lessons=[], week_schedule={}, start_date=None)
-        CourseAssignTeacher.objects.create(user=user, course=instance)
         return instance
 
     def update(self, instance, validated_data):
@@ -58,7 +56,7 @@ class CourseSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = Course
         fields = ['id', 'name', 'description', 'author', 'lessons',
-                  'students', 'cats_id', 'staff', 'schedule', 'de_options']
+                  'cats_id', 'schedule', 'de_options']
 
 
 class ScheduleSerializer(serializers.ModelSerializer):

@@ -26,7 +26,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.select_related(
         'author'
     ).prefetch_related(
-        'staff', 'students', 'lessons', 'lessons__problems'
+        'lessons', 'lessons__problems'
     ).all()
 
     def list(self, request: Request, **kwargs):
