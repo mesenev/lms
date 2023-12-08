@@ -3,7 +3,8 @@ from rest_framework import viewsets
 from group.serializers import GroupSerializer
 from group.models import Group
 from rest_framework.decorators import action
-from users.models import GroupAssignTeacher, GroupAssignStudent
+from users.models import GroupAssignTeacher, GroupAssignStudent, User
+from users.serializers import DefaultUserSerializer
 from rest_framework.response import Response
 
 
@@ -16,12 +17,14 @@ class GroupViewSet(viewsets.ModelViewSet):
     )
     def assign_teacher(self, request, pk=None):
         group = self.get_object()
-        user = request.data
+        user = User.objects.get(id=request.data['id'])
+        if not user:
+            return Response(dict(code=1, message='User not exist'))
         exist = GroupAssignTeacher.objects.filter(group=group, user=user).exists()
         if exist:
             return Response(dict(code=1, message='User already assigned'))
         if not exist:
-            assignment = GroupAssignTeacher(course=course, user=user)
+            assignment = GroupAssignTeacher(group=group, user=user)
             assignment.save()
             return Response(dict(code=0, message='User successfully assigned'))
 
@@ -30,13 +33,13 @@ class GroupViewSet(viewsets.ModelViewSet):
     )
     def assign_student(self, request, pk=None):
         group = self.get_object()
-        user = request.data
+        user = User.objects.get(id=request.data['id'])
+        if not user:
+            return Response(dict(code=1, message='User not exist'))
         exist = GroupAssignStudent.objects.filter(group=group, user=user).exists()
         if exist:
             return Response(dict(code=1, message='User already assigned'))
         if not exist:
-            assigment = GroupAssignStudent(course=course, user=user)
+            assigment = GroupAssignStudent(group=group, user=user)
             assigment.save()
             return Response(dict(code=0, message='User succesfully assigned'))
-
-        return Response(dict(code=0, message='url_allowed'))
