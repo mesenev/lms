@@ -12,6 +12,7 @@ from problem.views import ProblemViewSet, SubmitViewSet, LogEventViewSet
 from rating.views import LessonProgressViewSet, CourseProgressViewSet
 from users.views import index, UsersViewSet
 from exam.views import ExamViewSet, ExamSolutionViewSet
+from group.views import GroupViewSet
 
 router = DefaultRouter()
 router.register('course', CourseViewSet, basename='course')
@@ -29,6 +30,7 @@ router.register('logevents', LogEventViewSet, basename='logevent')
 router.register('cats_account', CatsAccountViewSet, basename='cats_account')
 router.register('exam', ExamViewSet, basename='exam')
 router.register('solution', ExamSolutionViewSet, basename='exam_solution')
+router.register('group', GroupViewSet, basename='group')
 
 urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
