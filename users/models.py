@@ -74,7 +74,6 @@ class GroupAssignStudent(models.Model):
         constraints = [models.UniqueConstraint(fields=['group', 'user'], name='only_one_assignment_student')]
 
 
-
 class GroupAssignTeacher(models.Model):
     group = models.ForeignKey("group.Group", on_delete=models.CASCADE, null=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
