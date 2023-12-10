@@ -63,6 +63,8 @@ const props = defineProps({
   group: { type: Object as PropType<GroupModel>, required: true },
 })
 
+const emits = defineEmits(['update-groups']);
+
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
 const approvedText = ref('');
@@ -85,8 +87,9 @@ function showConfirmModal() {
 }
 
 async function deleteGroup() {
-  await api.delete(`/api/group/${props.group.id}`)
+  await api.delete(`/api/group/${props.group.id}/`)
     .then(async () => {
+      emits('update-groups', props.group.id);
       hideModal();
     })
     .catch(error => {
@@ -127,4 +130,7 @@ async function deleteGroup() {
 .invite-links
   display flex
   gap 1rem
+
+.empty-component
+  text-align center
 </style>

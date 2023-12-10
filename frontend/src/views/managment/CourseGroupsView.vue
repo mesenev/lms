@@ -10,13 +10,17 @@
     </div>
     <div class="bx-row">
       <div class="bx--col-lg-6 bx--col-md-6">
-        <div class="groups-wrapper" id="groups-wrapper">
+        <cv-inline-notification v-if="showNotification"
+                                :kind="notificationKind"
+                                :sub-title="notificationText"
+                                @close="hideNotification"/>
+        <div class="groups-wrapper">
           <cv-accordion v-if="groups.length">
             <cv-accordion-item v-for="group in groups" :key="group.id">
               <template v-slot:title>
                 <div class="group-header">
                   <p>Группа {{ group.id }}</p>
-                  <group-modal :group="group"/>
+                  <group-modal @update-groups="updateGroups" :group="group"/>
                 </div>
               </template>
               <template v-slot:content>
@@ -33,7 +37,7 @@
               </template>
             </cv-accordion-item>
           </cv-accordion>
-          <empty-list-component v-else list-of="groups" text="Создайте группу"/>
+          <empty-list-component v-else class="empty-component" list-of="groups" text="Создайте группу"/>
           <cv-button class="create-group-btn" @click="createGroup">
             Создать группу
           </cv-button>
@@ -44,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, type PropType, ref } from "vue";
+import { onMounted, ref } from "vue";
 import type { CourseModel } from "@/models/CourseModel";
 import useCourseStore from "@/stores/modules/course";
 import UserComponent from "@/components/UserComponent.vue";
@@ -53,10 +57,14 @@ import useGroupStore from "@/stores/modules/group";
 import type { GroupModel } from "@/models/GroupModel";
 import api from "@/stores/services/api";
 import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
+import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
 
 const props = defineProps({
   courseId: { type: Number, required: true }
 });
+
+const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
+
 
 const courseStore = useCourseStore();
 const groupStore = useGroupStore();
@@ -73,12 +81,26 @@ onMounted(async () => {
   loading.value = false;
 })
 
+function updateGroups(payload: Array<GroupModel> | number): void {
+  if (typeof payload !== 'number') {
+    groupStore.setGroups({ [props.courseId]: payload });
+    return;
+  }
+  groups.value = groups.value.filter(el => el.id !== payload);
+  groupStore.setGroups({ [props.courseId]: groups.value });
+}
+
 function createGroup() {
   api.post('/api/group/', { ...groupStore.newGroup, course: props.courseId })
     .then(response => {
-    groupStore.setGroups({ [props.courseId]: [...groupStore.groupsByCourse[props.courseId], response.data] });
-    groups.value.push(response.data);
-  })
+      groups.value.push(response.data);
+      updateGroups(groups.value);
+    })
+    .catch(error => {
+      notificationKind.value = 'error';
+      notificationText.value = `Что-то пошло не так: ${error.message}`;
+      showNotification.value = true;
+    })
 }
 
 </script>
@@ -104,6 +126,9 @@ function createGroup() {
 .create-group-btn
   margin-top 1rem
   align-self end
+
+.empty-component
+  text-align center
 
 /deep/ .bx--accordion__content
   padding-right 3rem
