@@ -232,6 +232,7 @@ import { useTokenStore } from "@/stores/modules/token";
 import { THEMES } from '@/utils/consts'
 import { useRoute } from 'vue-router'
 import { computed, ref, watch } from "vue";
+import useCourseStore from "@/stores/modules/course";
 
 
 const iconLight = Light20;
@@ -239,6 +240,7 @@ const iconDark = Asleep20;
 const themes = THEMES;
 
 const userStore = useUserStore();
+const courseStore = useCourseStore();
 const tokenStore = useTokenStore();
 
 const emit = defineEmits<{ (e: 'toggle-theme', theme: string): void }>();
@@ -281,7 +283,8 @@ watch(() => currentTheme.value, () => {
 })
 
 const isStaff = computed((): boolean => {
-  return userStore.user.staff_for.includes(Number(route.params.courseId));
+  return userStore.user.staff_for.includes(Number(route.params.courseId))
+    || courseSelected.value && courseStore.currentCourse?.author?.id === userStore.user.id;
 })
 
 </script>
