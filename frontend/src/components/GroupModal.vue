@@ -32,8 +32,8 @@
       </div>
       <div class="action-btns">
         <div class="invite-links">
-          <generate-links :course-id="group.course_id"/>
-          <add-teacher-modal :course-id="group.course_id"/>
+          <generate-links :group-id="group.id"/>
+          <add-teacher-modal :group-id="group.id"/>
         </div>
         <div class="delete-btn">
           <cv-button kind="danger" @click="showConfirmModal">

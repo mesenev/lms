@@ -9,7 +9,7 @@ export const useGroupStore = defineStore('group', () => {
     const newGroup = computed(() => {
         return {
             id: NaN,
-            course_id: NaN,
+            course: NaN,
             staff: [],
             students: [],
             group_schedule: null,

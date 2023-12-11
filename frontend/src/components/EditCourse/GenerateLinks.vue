@@ -3,29 +3,34 @@
     <cv-button kind="secondary" @click="showModal">Создать ссылку-приглашение</cv-button>
     <cv-modal :visible="modalVisible"
               size="sm"
-              :disableTeleport="true"
               class="generate-link-modal"
               @modal-hidden="modalHidden">
       <template v-slot:title>Создание ссылки-приглашения</template>
       <template v-slot:content>
         <div class="link-content">
+          <cv-inline-notification
+            v-if="showNotification"
+            :kind="notificationKind"
+            :sub-title="notificationText"
+            @close="hideNotification"
+          />
           <div class="input-link-container">
             <cv-number-input
-                :light="false"
-                :label="'Выберите количество учеников курса'"
-                :min="1"
-                :step="1"
-                v-model="counter"
-                class="create-link-input">
+              :light="false"
+              :label="'Выберите количество учеников'"
+              :min="1"
+              :step="1"
+              v-model="counter"
+              class="create-link-input">
             </cv-number-input>
             <cv-icon-button
-                kind="secondary"
-                :icon="AddAlt24"
-                label="Создать ссылку"
-                tip-position="top"
-                size="field"
-                @click="createNewLink"
-                class="generate-btn"/>
+              kind="secondary"
+              :icon="AddAlt24"
+              label="Создать ссылку"
+              tip-position="top"
+              size="field"
+              @click="createNewLink"
+              class="generate-btn"/>
           </div>
           <div class="headings">
             <p class="heading">Доступные ссылки</p>
@@ -65,10 +70,13 @@ import AddAlt24 from '@carbon/icons-vue/lib/add--alt/24';
 import { onMounted, ref } from "vue";
 import type { LinkModel } from "@/models/LinkModel";
 import api from "@/stores/services/api";
+import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
 
 const props = defineProps({
-  courseId: { type: Number, required: true }
+  groupId: { type: Number, required: true }
 })
+
+const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
 const loading = ref(true);
 const Links = ref<Array<LinkModel>>([]);
@@ -77,10 +85,10 @@ const modalVisible = ref(false);
 
 onMounted(async () => {
   await api.get(
-      '/api/courselink/', { params: { course: props.courseId } },
+    '/api/courselink/', { params: { group: props.groupId } },
   ).then(response => {
-        Links.value = response.data.filter((x: LinkModel) => x.usages > 0);
-      },
+      Links.value = response.data.filter((x: LinkModel) => x.usages > 0);
+    },
   ).catch(error => {
     console.log(error);
   })
@@ -97,19 +105,28 @@ function modalHidden() {
 
 async function createNewLink() {
   api.post('/api/courselink/',
-      { course: props.courseId, usages: counter.value })
-      .then(response => {
-        Links.value.push(response.data);
-        Links.value = [...Links.value];
-      })
-      .catch(error => {
-        console.log(error);
-      });
+    { group: props.groupId, usages: counter.value })
+    .then(response => {
+      Links.value.push(response.data);
+      Links.value = [...Links.value];
+    })
+    .catch(error => {
+      notificationKind.value = 'error';
+      notificationText.value = `Что-то пошло не так: ${error.message}`;
+      showNotification.value = true;
+    });
 }
 
 function deleteLink(link: string) {
-  Links.value = Links.value.filter((x: LinkModel) => x.link != link);
-  api.delete(`/api/delete-link/${link}/`);
+  api.delete(`/api/delete-link/${link}/`)
+    .then(() => {
+      Links.value = Links.value.filter((x: LinkModel) => x.link != link);
+    })
+    .catch(error => {
+      notificationKind.value = 'error';
+      notificationText.value = `Что-то пошло не так: ${error.message}`;
+      showNotification.value = true;
+    });
 }
 
 function copyLink(link: string) {
