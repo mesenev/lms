@@ -44,8 +44,15 @@ class CourseViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     def user_courses(self, request):
         queryset = request.user.author_for.all()
-        queryset = queryset.union(request.user.staff_for.all())
-        queryset = queryset.union(request.user.student_for.all())
+
+        staff_for_groups = request.user.staff_for.all()
+        for group in staff_for_groups:
+            queryset = queryset.union(Course.objects.filter(source_for=group))
+
+        student_for_groups = request.user.student_for.all()
+        for group in student_for_groups:
+            queryset = queryset.union(Course.objects.filter(source_for=group))
+
         serializer = CourseShortSerializer(queryset, many=True)
         return Response(serializer.data)
 
