@@ -50,7 +50,6 @@ import Edit24 from "@carbon/icons-vue/es/edit/24"
 import TrashCan24 from "@carbon/icons-vue/es/trash-can/24";
 import { type PropType, ref } from "vue";
 import UserComponent from "@/components/UserComponent.vue";
-import type { UserModel } from "@/models/UserModel";
 import type { GroupModel } from "@/models/GroupModel";
 import GenerateLinks from "@/components/EditCourse/GenerateLinks.vue";
 import AddTeacherModal from "@/components/EditCourse/AddTeacherModal.vue";
@@ -120,6 +119,8 @@ async function deleteGroup() {
 
 .group-edit
   margin-right 3rem
+  max-height 25rem
+  overflow auto
 
 .action-btns
   margin 1rem 3rem 0 0
