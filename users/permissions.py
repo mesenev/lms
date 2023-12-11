@@ -2,6 +2,7 @@ from rest_framework import permissions
 from course.models import Course
 from lesson.models import LessonContent, Attachment
 from exam.models import ExaminationForm, ExamSolution
+from group.models import Group
 
 from rest_framework.permissions import IsAuthenticated
 
@@ -14,6 +15,8 @@ def object_to_course(obj):
     course = None
     if isinstance(obj, Course):
         course = obj
+    if isinstance(obj, Group):
+        course = obj.course
     if isinstance(obj, Lesson):
         course = obj.course
     if isinstance(obj, Problem):
@@ -49,11 +52,11 @@ class CourseStaffOrReadOnlyForStudents(permissions.IsAuthenticated):
             return False
         course = object_to_course(obj)
 
-        if course in request.user.staff_for.all():
+        if request.user.staff_for.filter(course=course):
             return True
         if course in request.user.author_for.all():
             return True
-        if course not in request.user.student_for.all():
+        if not request.user.student_for.filter(course=course):
             return False
         return request.method in permissions.SAFE_METHODS
 
