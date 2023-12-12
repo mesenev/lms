@@ -1,72 +1,71 @@
 <template>
-  <cv-loading v-if="tokenStore.isLoading" overlay style="background: white"/>
-  <div v-else-if="tokenStore.isLogin" :class="current_theme" class="layout">
-    <lms-header @toggle-theme="toggleTheme($event)" class="layout-header"/>
-    <main class="layout-content">
-      <lms-breadcrumb class="main--breadcrumb"/>
-      <router-view/>
+  <cv-loading v-if='tokenStore.isLoading' overlay style='background: white' />
+  <div v-else-if='tokenStore.isLogin' :class='current_theme' class='layout'>
+    <lms-header @toggle-theme='toggleTheme($event)' class='layout-header' />
+    <main class='layout-content'>
+      <lms-breadcrumb class='main--breadcrumb' />
+      <router-view />
     </main>
-    <footer class="layout-footer">
-      <div class="layout-footer-label">
+    <footer class='layout-footer'>
+      <div class='layout-footer-label'>
         <div>
           <span>dvfu/imcs/staff & Daria-squad</span><br>
           <span>
             feel free to contribute
-            <cv-link href="https://github.com/mesenev/lms">
-              <logo-github/>
+            <cv-link href='https://github.com/mesenev/lms'>
+              <logo-github />
             </cv-link>
           </span>
         </div>
-        <cv-link class="layout-footer-link" href="https://t.me/+FBUuuC4qdvc1ZTIy">
-          <span><b>Чат для обратной связи</b></span>
-        </cv-link>
+        <div>
+          <span>{{ commit_hash }}</span>
+        </div>
       </div>
     </footer>
   </div>
-  <reset-password-view v-else-if="isResetPassword"></reset-password-view>
-  <LoginView v-else-if="shouldRedirectToLogin"></LoginView>
+  <reset-password-view v-else-if='isResetPassword'></reset-password-view>
+  <LoginView v-else-if='shouldRedirectToLogin'></LoginView>
 </template>
 
 
-<script lang="ts" setup>
+<script lang='ts' setup>
 
-import LogoGithub from '@carbon/icons-vue/es/logo--github/16';
-import FaceWink from '@carbon/icons-vue/es/face--wink/16';
-import {THEMES} from "@/utils/consts";
+import LogoGithub from '@carbon/icons-vue/es/logo--github/16'
+import { THEMES } from '@/utils/consts'
 
-import {useTokenStore} from "@/stores/modules/token";
-import LmsHeader from "@/components/LmsHeader.vue";
+import { useTokenStore } from '@/stores/modules/token'
+import LmsHeader from '@/components/LmsHeader.vue'
 
-import LoginView from "@/views/LoginView.vue";
-import ResetPasswordView from "@/views/ResetPasswordView.vue";
-import {useRoute} from 'vue-router'
-import {computed, ref, watch} from "vue";
-import LmsBreadcrumb from "@/components/LmsBreadcrumb.vue";
+import LoginView from '@/views/LoginView.vue'
+import ResetPasswordView from '@/views/ResetPasswordView.vue'
+import { useRoute } from 'vue-router'
+import { computed, ref, watch } from 'vue'
+import LmsBreadcrumb from '@/components/LmsBreadcrumb.vue'
 
+const tokenStore = useTokenStore()
+const route = useRoute()
+tokenStore.setupTokenStore()
 
-const tokenStore = useTokenStore();
-const route = useRoute();
-tokenStore.setupTokenStore();
-
-const current_theme = ref(localStorage.getItem('theme') || THEMES.g10);
+const current_theme = ref(localStorage.getItem('theme') || THEMES.g10)
+const commit_hash = import.meta.env.GIT_HASH
 
 function toggleTheme(theme: string) {
-  current_theme.value = theme;
-  localStorage.setItem('theme', theme);
+  current_theme.value = theme
+  localStorage.setItem('theme', theme)
 }
 
 const isResetPassword = computed(() => {
-  return route.name === 'ResetPasswordView';
+  return route.name === 'ResetPasswordView'
 })
 
 const shouldRedirectToLogin = computed(() => {
-  return !tokenStore.isLogin && !isResetPassword.value;
+  return !tokenStore.isLogin && !isResetPassword.value
 })
 
 
 </script>
 
-<style lang="sass">
+<style lang='sass'>
 @use '@carbon/themes'
 @use 'carbon-components/scss/globals/scss/theme-tokens' as carbon
 @import "styles/base"
@@ -104,7 +103,7 @@ const shouldRedirectToLogin = computed(() => {
 
 </style>
 
-<style scoped lang="stylus">
+<style scoped lang='stylus'>
 @import 'styles/list-elements.styl';
 
 .layout-content
@@ -150,6 +149,6 @@ const shouldRedirectToLogin = computed(() => {
     width: 100%
 </style>
 
-<style lang="stylus">
+<style lang='stylus'>
 @import "styles/list-elements";
 </style>
