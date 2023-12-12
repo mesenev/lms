@@ -10,12 +10,14 @@ from users.permissions import CourseStaffOrReadOnlyForStudents, CourseStaffOrAut
 from rest_framework.request import Request
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
 
 
 class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
     permission_classes = [CourseStaffOrReadOnlyForStudents]
+    filterset_fields = ['course_id']
 
     def create(self, request, *args, **kwargs):
         if not request.user.groups.filter(name=TEACHER).exists():
@@ -67,7 +69,7 @@ class LinkViewSet(viewsets.ModelViewSet):
     def list(self, request: Request, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         if 'course' in request.query_params:
-            queryset = queryset.filter(course=request.query_params['course'])
+            queryset = queryset.filter(group=request.query_params['group'])
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -78,8 +80,8 @@ def link_check(link, user_id):
         is_possible=True, course=None, usages_available=True,
     )
     try:
-        instance = CourseLink.objects.select_related('group') \
-            .prefetch_related('course__staff', 'course__students').get(link=link)
+        instance = GroupLink.objects.select_related('group') \
+            .prefetch_related('group__staff', 'group__students').get(link=link)
         answer['course'] = GroupSerializer(instance.group).data
         answer['usages_available'] = bool(instance.usages)
         if not answer['usages_available']:
