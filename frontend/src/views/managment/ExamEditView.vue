@@ -214,7 +214,7 @@ async function changeExam() {
 span
   margin-bottom 0.25rem
 
-/deep/ .bx
+:deep() .bx
   &--text
     &-input
       background-color var(--cds-ui-background)
@@ -233,7 +233,7 @@ span
     input[type=number]
       background-color var(--cds-ui-background)
 
-/deep/ .bx--date-picker__input
+:deep() .bx--date-picker__input
   background-color var(--cds-ui-background)
   width auto
 

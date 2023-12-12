@@ -130,10 +130,10 @@ function createGroup() {
 .empty-component
   text-align center
 
-/deep/ .bx--accordion__content
+:deep() .bx--accordion__content
   padding-right 3rem
 
-/deep/ .bx--structured-list
+:deep() .bx--structured-list
   margin-bottom 0
 
 </style>

@@ -101,10 +101,10 @@ async function deleteGroup() {
 
 
 <style scoped lang="stylus">
-/deep/ .bx--modal-content:focus
+:deep() .bx--modal-content:focus
   outline none
 
-/deep/ .bx--modal-content
+:deep() .bx--modal-content
   margin-bottom 1rem
 
 .group-create-btn
