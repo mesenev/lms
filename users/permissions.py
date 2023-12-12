@@ -65,7 +65,9 @@ class CourseStaffOrAuthorReadOnly(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
         if not bool(request.user and request.user.is_authenticated):
             return False
-        if object_to_course(obj) in request.user.staff_for.all():
+
+        course = object_to_course(obj)
+        if request.user.staff_for.filter(course=course):
             return True
         if hasattr(obj, 'student') and obj.student == request.user:
             return request.method in permissions.SAFE_METHODS
@@ -76,7 +78,10 @@ class CourseStaffOrAuthor(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
         if not bool(request.user and request.user.is_authenticated):
             return False
-        if object_to_course(obj) in request.user.staff_for.all():
+
+        course = object_to_course(obj)
+
+        if request.user.staff_for.filter(course=course):
             return True
         if hasattr(obj, 'author') and obj.author == request.user:
             return True
@@ -90,20 +95,20 @@ class CourseStaffOrAuthor(permissions.IsAuthenticated):
         if request.method not in permissions.SAFE_METHODS:
             if request.data.get('lesson'):
                 queryset = Course.objects.filter(lessons__id=request.data['lesson'])
-                if queryset.exists() and queryset.first() in request.user.staff_for.all():
+                if queryset.exists() and request.user.staff_for.get(course=queryset.first):
                     return True
         params = {**view.kwargs, **{key: int(value) for key, value in request.query_params.items()}}
         if 'course_id' in params.keys():
             queryset = Course.objects.filter(id=params['course_id'])
-            if queryset.exists() and queryset.first() in request.user.staff_for.all():
+            if queryset.exists() and request.user.staff_for.get(course=queryset.first):
                 return True
         if 'lesson_id' in params.keys():
             queryset = Course.objects.filter(lessons__id=params['lesson_id'])
-            if queryset.exists() and queryset.first() in request.user.staff_for.all():
+            if queryset.exists() and request.user.staff_for.get(course=queryset.first):
                 return True
         if 'problem_id' in params.keys():
             queryset = Course.objects.filter(lessons__problems__id=params['problem_id'])
-            if queryset.exists() and queryset.first() in request.user.staff_for.all():
+            if queryset.exists() and request.user.staff_for.get(course=queryset.first):
                 return True
         return False
 
