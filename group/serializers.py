@@ -2,7 +2,8 @@ from group.models import Group
 from rest_framework import serializers
 from users.models import GroupAssignTeacher
 from group.models import GroupLink
-
+import random
+import string
 
 class GroupSerializer(serializers.ModelSerializer):
 

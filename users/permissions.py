@@ -33,6 +33,8 @@ def object_to_course(obj):
         course = obj.material.lesson.course
     if hasattr(obj, 'course'):
         course = obj.course
+    if hasattr(obj, 'group'):
+        course = obj.group.course
     if hasattr(obj, 'lesson'):
         course = obj.lesson.course
     if hasattr(obj, 'problem'):
@@ -40,7 +42,7 @@ def object_to_course(obj):
     if hasattr(obj, 'exam'):
         course = obj.exam.lesson.course
     if not course:
-        raise Exception
+        raise Exception('No course found')
     return course
 
 
