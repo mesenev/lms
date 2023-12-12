@@ -104,7 +104,7 @@ function modalHidden() {
 }
 
 async function createNewLink() {
-  api.post('/api/courselink/',
+  api.post('/api/grouplink/',
     { group: props.groupId, usages: counter.value })
     .then(response => {
       Links.value.push(response.data);

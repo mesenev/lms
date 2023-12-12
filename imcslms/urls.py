@@ -6,13 +6,13 @@ from rest_framework.routers import DefaultRouter
 from django.views.generic.base import RedirectView
 
 from cathie.views import CatsAccountViewSet
-from course.views import CourseViewSet, LinkViewSet, ScheduleViewSet
+from course.views import CourseViewSet, ScheduleViewSet
 from lesson.views import LessonViewSet, MaterialViewSet, AttachmentViewSet
 from problem.views import ProblemViewSet, SubmitViewSet, LogEventViewSet
 from rating.views import LessonProgressViewSet, CourseProgressViewSet
 from users.views import index, UsersViewSet
 from exam.views import ExamViewSet, ExamSolutionViewSet
-from group.views import GroupViewSet
+from group.views import GroupViewSet, LinkViewSet
 
 router = DefaultRouter()
 router.register('course', CourseViewSet, basename='course')
@@ -25,7 +25,7 @@ router.register('attachments', AttachmentViewSet, basename='attachments')
 router.register('users', UsersViewSet, basename='users')
 router.register('lessonprogress', LessonProgressViewSet, basename='lessonprogress')
 router.register('courseprogress', CourseProgressViewSet, basename='courseprogress')
-router.register('courselink', LinkViewSet, basename='courselink')
+router.register('grouplink', LinkViewSet, basename='grouplink')
 router.register('logevents', LogEventViewSet, basename='logevent')
 router.register('cats_account', CatsAccountViewSet, basename='cats_account')
 router.register('exam', ExamViewSet, basename='exam')
@@ -45,7 +45,7 @@ urlpatterns += [
     path('', include('users.urls')),
     path('', include('lesson.urls')),
     path('', include('problem.urls')),
-    path('', include('course.urls')),
+    path('', include('group.urls')),
     path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls')),
     re_path(r"^.*$", index, name='index'),
