@@ -10,7 +10,8 @@ from users.permissions import CourseStaffOrReadOnlyForStudents, CourseStaffOrAut
 from rest_framework.request import Request
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, NotFound
+from imcslms.default_settings import TEACHER
 
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -21,7 +22,7 @@ class GroupViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         if not request.user.groups.filter(name=TEACHER).exists():
-            raise exceptions.PermissionDenied
+            raise PermissionDenied
         return super().create(request, *args, **kwargs)
 
     @action(
@@ -77,12 +78,12 @@ class LinkViewSet(viewsets.ModelViewSet):
 def link_check(link, user_id):
     answer = dict(
         link_exists=True, student_registered=False, teacher_registered=False,
-        is_possible=True, course=None, usages_available=True,
+        is_possible=True, group=None, usages_available=True,
     )
     try:
         instance = GroupLink.objects.select_related('group') \
             .prefetch_related('group__staff', 'group__students').get(link=link)
-        answer['course'] = GroupSerializer(instance.group).data
+        answer['group'] = GroupSerializer(instance.group).data
         answer['usages_available'] = bool(instance.usages)
         if not answer['usages_available']:
             answer.update(dict(link_exists=False, is_possible=False))
@@ -117,12 +118,12 @@ class GroupRegistrationApi(APIView):
         if not link_check(link, request.user.id)['is_possible']:
             raise PermissionDenied()
         link = GroupLink.objects.select_related('group').get(link=link)
-        assignment = GroupAssignStudent(group=link.course, user=request.user)
+        assignment = GroupAssignStudent(group=link.group, user=request.user)
         assignment.save()
         if link.usages > 0:
             link.usages -= 1
             link.save()
-            return Response(dict(user=assignment.user_id, courseId=assignment.course.id))
+            return Response(dict(user=assignment.user_id, courseId=link.group.course.id))
         else:
             raise NotFound()
 
