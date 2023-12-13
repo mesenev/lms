@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 from users.models import GroupAssignTeacher, GroupAssignStudent, User
 from users.serializers import DefaultUserSerializer
 from rest_framework.response import Response
+from rest_framework import status
 from users.permissions import CourseStaffOrReadOnlyForStudents, CourseStaffOrAuthorReadOnly, CourseStaffOrAuthor
 from rest_framework.request import Request
 from rest_framework.views import APIView
@@ -30,14 +31,14 @@ class GroupViewSet(viewsets.ModelViewSet):
     )
     def assign_teacher(self, request, pk=None):
         group = self.get_object()
-        if group not in request.user.staff_for.all():
+        if group not in request.user.staff_for.all() and group.course not in request.user.author_for:
             raise PermissionDenied()
         user = User.objects.get(id=request.data['id'])
         if not user:
-            return Response(dict(code=1, message='User not exist'))
+            return Response(dict(code=1, message='User not exist'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         exist = GroupAssignTeacher.objects.filter(group=group, user=user).exists()
         if exist:
-            return Response(dict(code=1, message='User already assigned'))
+            return Response(dict(code=1, message='User already assigned'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         if not exist:
             assignment = GroupAssignTeacher(group=group, user=user)
             assignment.save()
