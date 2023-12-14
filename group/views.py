@@ -49,18 +49,52 @@ class GroupViewSet(viewsets.ModelViewSet):
     )
     def assign_student(self, request, pk=None):
         group = self.get_object()
-        if group not in request.user.staff_for.all():
+        if group not in request.user.staff_for.all() and group.course not in request.user.author_for:
             raise PermissionDenied()
         user = User.objects.get(id=request.data['id'])
         if not user:
-            return Response(dict(code=1, message='User not exist'))
+            return Response(dict(code=1, message='User not exist'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         exist = GroupAssignStudent.objects.filter(group=group, user=user).exists()
         if exist:
-            return Response(dict(code=1, message='User already assigned'))
+            return Response(dict(code=1, message='User already assigned'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         if not exist:
             assigment = GroupAssignStudent(group=group, user=user)
             assigment.save()
             return Response(dict(code=0, message='User succesfully assigned'))
+
+    @action(
+        detail=True, methods=['delete'], url_path=r'delete-teacher', url_name='delete-teacher'
+    )
+    def delete_teacher(self, request, pk=None):
+        group = self.get_object()
+        if group not in request.user.staff_for.all() and group.course not in request.user.author_for:
+            raise PermissionDenied()
+        teacher = User.objects.get(id=request.data['id'])
+        if not teacher:
+            return Response(dict(code=1, message='Teacher not exist'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        exist = GroupAssignTeacher.objects.filter(group=group, user=teacher)
+        if not exist:
+            return Response(dict(code=1, message='Teacher not assigned to group'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if exist:
+            exist.delete()
+            return Response(dict(code=0, message='Teacher succesfully deleted from group'))
+
+    @action(
+        detail=True, methods=['delete'], url_path=r'delete-student', url_name='delete-student'
+    )
+    def delete_student(self, request, pk=None):
+        group = self.get_object()
+        if group not in request.user.staff_for.all() and group.course not in request.user.author_for:
+            raise PermissionDenied()
+        student = User.objects.get(id=request.data['id'])
+        if not student:
+            return Response(dict(code=1, message='Student not exist'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        exist = GroupAssignStudent.objects.filter(group=group, user=student)
+        if not exist:
+            return Response(dict(code=1, message='Student not assigned to group'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if exist:
+            exist.delete()
+            return Response(dict(code=0, message='Student succesfully deleted'))
 
 
 class LinkViewSet(viewsets.ModelViewSet):

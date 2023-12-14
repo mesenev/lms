@@ -6,7 +6,7 @@ from group.serializers import GroupSerializer, LinkSerializer
 from model_bakery import baker
 from django.urls import reverse
 from rest_framework import status
-from users.models import GroupAssignTeacher, User
+from users.models import GroupAssignTeacher, User, GroupAssignStudent
 from users.serializers import DefaultUserSerializer
 from django.contrib.auth.models import Group as PermissionsGroup
 
@@ -68,6 +68,57 @@ class GroupTests(MainSetup):
          self.assertEqual(response.status_code, status.HTTP_200_OK)
          self.assertEqual(Group.objects.first(), new_student_user.student_for.first())
          self.assertEqual(new_student_user, Group.objects.first().students.first())
+
+     def test_delete_teacher_from_group(self):
+         self.test_setup()
+
+         baker.make(Course).save()
+         group = baker.make(Group)
+         group.course = Course.objects.first()
+         group.save()
+
+         GroupAssignTeacher.objects.create(user=self.user, group=group).save()
+
+         new_teacher_user = baker.make(User)
+         PermissionsGroup.objects.get(name='teacher').user_set.add(new_teacher_user)
+         GroupAssignTeacher.objects.create(user=new_teacher_user, group=group).save()
+         count = GroupAssignTeacher.objects.count()
+
+         url = reverse('group-detail', kwargs=dict(pk=group.id)) + "delete-teacher/"
+         data = DefaultUserSerializer(new_teacher_user).data
+         response = self.client.delete(url, data, format='json')
+
+         self.assertEqual(response.status_code, status.HTTP_200_OK)
+         self.assertEqual(count-1, GroupAssignTeacher.objects.count())
+         self.assertEqual(Group.objects.get(id=group.id).staff.count(), 1)
+         self.assertEqual(User.objects.get(id=new_teacher_user.id).staff_for.count(), 0)
+
+     def test_delete_student_from_group(self):
+         self.test_setup()
+         baker.make(Course).save()
+         group = baker.make(Group)
+         group.course = Course.objects.first()
+         group.save()
+
+         GroupAssignTeacher.objects.create(user=self.user, group=group).save()
+
+         new_student_user = baker.make(User)
+         PermissionsGroup.objects.get(name='student').user_set.add(new_student_user)
+
+         GroupAssignStudent.objects.create(user=new_student_user, group=group).save()
+
+         data = DefaultUserSerializer(new_student_user).data
+         url = reverse('group-detail', kwargs=dict(pk=group.id)) + "delete-student/"
+         response = self.client.delete(url, data, format='json')
+
+         self.assertEqual(response.status_code, status.HTTP_200_OK)
+         self.assertEqual(User.objects.get(id=new_student_user.id).student_for.count(), 0)
+         self.assertEqual(Group.objects.get(id=group.id).students.count(), 0)
+
+
+
+
+
 
      # def test_create_link(self):
      #     self.test_setup(group='teacher')
