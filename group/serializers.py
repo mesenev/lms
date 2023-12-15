@@ -1,6 +1,6 @@
 from group.models import CourseGroup
 from rest_framework import serializers
-from users.models import GroupAssignTeacher
+from users.models import CourseGroupAssignTeacher
 from group.models import CourseGroupLink
 import random
 import string
@@ -16,7 +16,7 @@ class CourseGroupSerializer(serializers.ModelSerializer):
         instanse = CourseGroup.objects.create(**validated_data)
         request = self.context.get("request")
         user = request.user
-        assign_teacher = GroupAssignTeacher(user=user, group=instanse)
+        assign_teacher = CourseGroupAssignTeacher(user=user, group=instanse)
         assign_teacher.save()
         return instanse
 
@@ -41,3 +41,13 @@ class CourseGroupLinkSerializer(serializers.Serializer):
     class Meta:
         model = CourseGroupLink
         fields = '__all__'
+
+
+class GroupAssignTeacherSerializer(serializers.Serializer):
+    def create(self, validated_data):
+        raise NotImplementedError
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError
+
+    id = serializers.IntegerField(required=True)

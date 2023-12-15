@@ -63,7 +63,7 @@ class User(AbstractUser):
         return True
 
 
-class GroupAssignStudent(models.Model):
+class CourseGroupAssignStudent(models.Model):
     group = models.ForeignKey('group.CourseGroup', on_delete=models.CASCADE, null=False)
     user = models.ForeignKey(User, related_name='assigns', on_delete=models.CASCADE, null=False)
 
@@ -74,7 +74,7 @@ class GroupAssignStudent(models.Model):
         constraints = [models.UniqueConstraint(fields=['group', 'user'], name='only_one_assignment_student')]
 
 
-class GroupAssignTeacher(models.Model):
+class CourseGroupAssignTeacher(models.Model):
     group = models.ForeignKey("group.CourseGroup", on_delete=models.CASCADE, null=False)
     user = models.ForeignKey(User, related_name='assigns_as_teacher', on_delete=models.CASCADE, null=False)
 
@@ -129,5 +129,5 @@ class ResetPasswordToken(models.Model):
 
 admin.site.register(ResetPasswordToken)
 admin.site.register(StudyGroup)
-admin.site.register(GroupAssignStudent)
-admin.site.register(GroupAssignTeacher)
+admin.site.register(CourseGroupAssignStudent)
+admin.site.register(CourseGroupAssignTeacher)

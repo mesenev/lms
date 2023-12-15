@@ -8,8 +8,8 @@ class CourseGroup(models.Model):
     course = models.ForeignKey(Course, related_name='source_for', on_delete=models.SET_NULL, null=True)
     group_schedule = models.JSONField(null=True, default=dict)
     points_for_passing = models.JSONField(null=True, default=dict)
-    students = models.ManyToManyField(User, related_name='student_for', through='users.GroupAssignStudent')
-    staff = models.ManyToManyField(User, related_name='staff_for', through='users.GroupAssignTeacher')
+    students = models.ManyToManyField(User, related_name='student_for', through='users.CourseGroupAssignStudent')
+    staff = models.ManyToManyField(User, related_name='staff_for', through='users.CourseGroupAssignTeacher')
 
 
 class CourseGroupLink(models.Model):

@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from group.serializers import CourseGroupSerializer, CourseGroupLinkSerializer
 from group.models import CourseGroup, CourseGroupLink
 from rest_framework.decorators import action
-from users.models import GroupAssignTeacher, GroupAssignStudent, User
+from users.models import CourseGroupAssignTeacher, CourseGroupAssignStudent, User
 from users.serializers import DefaultUserSerializer
 from rest_framework.response import Response
 from rest_framework import status
@@ -36,11 +36,11 @@ class CourseGroupViewSet(viewsets.ModelViewSet):
         user = User.objects.get(id=request.data['id'])
         if not user:
             return Response(dict(code=1, message='User not exist'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        exist = GroupAssignTeacher.objects.filter(group=group, user=user).exists()
+        exist = CourseGroupAssignTeacher.objects.filter(group=group, user=user).exists()
         if exist:
             return Response(dict(code=1, message='User already assigned'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         if not exist:
-            assignment = GroupAssignTeacher(group=group, user=user)
+            assignment = CourseGroupAssignTeacher(group=group, user=user)
             assignment.save()
             return Response(dict(code=0, message='User successfully assigned'))
 
@@ -54,11 +54,11 @@ class CourseGroupViewSet(viewsets.ModelViewSet):
         user = User.objects.get(id=request.data['id'])
         if not user:
             return Response(dict(code=1, message='User not exist'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        exist = GroupAssignStudent.objects.filter(group=group, user=user).exists()
+        exist = CourseGroupAssignStudent.objects.filter(group=group, user=user).exists()
         if exist:
             return Response(dict(code=1, message='User already assigned'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         if not exist:
-            assigment = GroupAssignStudent(group=group, user=user)
+            assigment = CourseGroupAssignStudent(group=group, user=user)
             assigment.save()
             return Response(dict(code=0, message='User succesfully assigned'))
 

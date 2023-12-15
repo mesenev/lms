@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from course.models import Course, CourseSchedule, CourseLink
 from lesson.serializers import LessonShortSerializer
-from users.models import GroupAssignStudent
+from users.models import CourseGroupAssignStudent
 from users.serializers import DefaultUserSerializer
 from utils.dynamic_fields_serializer import DynamicFieldsModelSerializer
 
@@ -87,12 +87,3 @@ class LinkSerializer(serializers.Serializer):
         model = CourseLink
         fields = '__all__'
 
-
-class AssignTeacherSerializer(serializers.Serializer):
-    def create(self, validated_data):
-        raise NotImplementedError
-
-    def update(self, instance, validated_data):
-        raise NotImplementedError
-
-    id = serializers.IntegerField(required=True)

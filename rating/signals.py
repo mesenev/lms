@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from lesson.models import Lesson
 from problem.models import Submit, Problem
 from rating.models import CourseProgress, LessonProgress
-from users.models import GroupAssignStudent
+from users.models import CourseGroupAssignStudent
 
 
 @receiver(post_save, sender=Submit)

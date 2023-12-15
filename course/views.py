@@ -10,11 +10,10 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
-
+from group.serializers import GroupAssignTeacherSerializer
 from cathie import cats_api
 from course.models import CourseSchedule, Course, CourseLink
-from course.serializers import CourseSerializer, ScheduleSerializer, LinkSerializer, CourseShortSerializer, \
-    AssignTeacherSerializer
+from course.serializers import CourseSerializer, ScheduleSerializer, LinkSerializer, CourseShortSerializer
 from imcslms.default_settings import TEACHER
 from users.permissions import CourseStaffOrReadOnlyForStudents, CourseStaffOrAuthorReadOnly, CourseStaffOrAuthor
 
