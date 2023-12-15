@@ -12,7 +12,7 @@ from problem.views import ProblemViewSet, SubmitViewSet, LogEventViewSet
 from rating.views import LessonProgressViewSet, CourseProgressViewSet
 from users.views import index, UsersViewSet
 from exam.views import ExamViewSet, ExamSolutionViewSet
-from group.views import GroupViewSet, LinkViewSet
+from group.views import CourseGroupViewSet, CourseGroupLinkViewSet
 
 router = DefaultRouter()
 router.register('course', CourseViewSet, basename='course')
@@ -25,12 +25,12 @@ router.register('attachments', AttachmentViewSet, basename='attachments')
 router.register('users', UsersViewSet, basename='users')
 router.register('lessonprogress', LessonProgressViewSet, basename='lessonprogress')
 router.register('courseprogress', CourseProgressViewSet, basename='courseprogress')
-router.register('grouplink', LinkViewSet, basename='grouplink')
+router.register('grouplink', CourseGroupLinkViewSet, basename='grouplink')
 router.register('logevents', LogEventViewSet, basename='logevent')
 router.register('cats_account', CatsAccountViewSet, basename='cats_account')
 router.register('exam', ExamViewSet, basename='exam')
 router.register('solution', ExamSolutionViewSet, basename='exam_solution')
-router.register('group', GroupViewSet, basename='group')
+router.register('group', CourseGroupViewSet, basename='group')
 
 urlpatterns = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

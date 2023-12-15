@@ -1,18 +1,19 @@
-from group.models import Group
+from group.models import CourseGroup
 from rest_framework import serializers
 from users.models import GroupAssignTeacher
-from group.models import GroupLink
+from group.models import CourseGroupLink
 import random
 import string
 
-class GroupSerializer(serializers.ModelSerializer):
+
+class CourseGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Group
+        model = CourseGroup
         fields = '__all__'
 
     def create(self, validated_data):
-        instanse = Group.objects.create(**validated_data)
+        instanse = CourseGroup.objects.create(**validated_data)
         request = self.context.get("request")
         user = request.user
         assign_teacher = GroupAssignTeacher(user=user, group=instanse)
@@ -20,9 +21,9 @@ class GroupSerializer(serializers.ModelSerializer):
         return instanse
 
 
-class LinkSerializer(serializers.Serializer):
+class CourseGroupLinkSerializer(serializers.Serializer):
     id = serializers.ReadOnlyField()
-    group = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all())
+    group = serializers.PrimaryKeyRelatedField(queryset=CourseGroup.objects.all())
     link = serializers.SerializerMethodField(required=False)
     usages = serializers.IntegerField()
 
@@ -34,9 +35,9 @@ class LinkSerializer(serializers.Serializer):
         pass
 
     def create(self, validated_data):
-        return GroupLink.objects.create(**validated_data, link=''.join(
+        return CourseGroupLink.objects.create(**validated_data, link=''.join(
             random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(15)))
 
     class Meta:
-        model = GroupLink
+        model = CourseGroupLink
         fields = '__all__'

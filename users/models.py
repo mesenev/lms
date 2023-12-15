@@ -64,7 +64,7 @@ class User(AbstractUser):
 
 
 class GroupAssignStudent(models.Model):
-    group = models.ForeignKey('group.Group', on_delete=models.CASCADE, null=False)
+    group = models.ForeignKey('group.CourseGroup', on_delete=models.CASCADE, null=False)
     user = models.ForeignKey(User, related_name='assigns', on_delete=models.CASCADE, null=False)
 
     def __str__(self):
@@ -75,8 +75,8 @@ class GroupAssignStudent(models.Model):
 
 
 class GroupAssignTeacher(models.Model):
-    group = models.ForeignKey("group.Group", on_delete=models.CASCADE, null=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    group = models.ForeignKey("group.CourseGroup", on_delete=models.CASCADE, null=False)
+    user = models.ForeignKey(User, related_name='assigns_as_teacher', on_delete=models.CASCADE, null=False)
 
     def __str__(self):
         return f"user {self.user} on group {self.group} as teacher"

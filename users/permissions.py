@@ -2,7 +2,7 @@ from rest_framework import permissions
 from course.models import Course
 from lesson.models import LessonContent, Attachment
 from exam.models import ExaminationForm, ExamSolution
-from group.models import Group
+from group.models import CourseGroup
 
 from rest_framework.permissions import IsAuthenticated
 
@@ -15,7 +15,7 @@ def object_to_course(obj):
     course = None
     if isinstance(obj, Course):
         course = obj
-    if isinstance(obj, Group):
+    if isinstance(obj, CourseGroup):
         course = obj.course
     if isinstance(obj, Lesson):
         course = obj.course

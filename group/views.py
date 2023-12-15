@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from group.serializers import GroupSerializer, LinkSerializer
-from group.models import Group, GroupLink
+from group.serializers import CourseGroupSerializer, CourseGroupLinkSerializer
+from group.models import CourseGroup, CourseGroupLink
 from rest_framework.decorators import action
 from users.models import GroupAssignTeacher, GroupAssignStudent, User
 from users.serializers import DefaultUserSerializer
@@ -15,9 +15,9 @@ from rest_framework.exceptions import PermissionDenied, NotFound
 from imcslms.default_settings import TEACHER
 
 
-class GroupViewSet(viewsets.ModelViewSet):
-    serializer_class = GroupSerializer
-    queryset = Group.objects.all()
+class CourseGroupViewSet(viewsets.ModelViewSet):
+    serializer_class = CourseGroupSerializer
+    queryset = CourseGroup.objects.all()
     permission_classes = [CourseStaffOrReadOnlyForStudents]
     filterset_fields = ['course_id']
 
@@ -97,10 +97,10 @@ class GroupViewSet(viewsets.ModelViewSet):
             return Response(dict(code=0, message='Student succesfully deleted'))
 
 
-class LinkViewSet(viewsets.ModelViewSet):
+class CourseGroupLinkViewSet(viewsets.ModelViewSet):
     permission_classes = [CourseStaffOrAuthorReadOnly]
-    queryset = GroupLink.objects.all()
-    serializer_class = LinkSerializer
+    queryset = CourseGroupLink.objects.all()
+    serializer_class = CourseGroupLinkSerializer
 
     def list(self, request: Request, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -116,14 +116,14 @@ def link_check(link, user_id):
         is_possible=True, group=None, usages_available=True,
     )
     try:
-        instance = GroupLink.objects.select_related('group') \
+        instance = CourseGroupLink.objects.select_related('group') \
             .prefetch_related('group__staff', 'group__students').get(link=link)
-        answer['group'] = GroupSerializer(instance.group).data
+        answer['group'] = CourseGroupSerializer(instance.group).data
         answer['usages_available'] = bool(instance.usages)
         if not answer['usages_available']:
             answer.update(dict(link_exists=False, is_possible=False))
 
-    except GroupLink.DoesNotExist:
+    except CourseGroupLink.DoesNotExist:
         answer.update(dict(link_exists=False, is_possible=False))
         return answer
     try:
@@ -152,7 +152,7 @@ class GroupRegistrationApi(APIView):
     def get(self, request, link):
         if not link_check(link, request.user.id)['is_possible']:
             raise PermissionDenied()
-        link = GroupLink.objects.select_related('group').get(link=link)
+        link = CourseGroupLink.objects.select_related('group').get(link=link)
         assignment = GroupAssignStudent(group=link.group, user=request.user)
         assignment.save()
         if link.usages > 0:
@@ -167,6 +167,6 @@ class LinkDeletionAPi(APIView):
     permission_classes = [CourseStaffOrAuthor]
 
     def delete(self, request, link):
-        group_link = GroupLink.objects.get(link=link)
+        group_link = CourseGroupLink.objects.get(link=link)
         group_link.delete()
         return Response(link)
