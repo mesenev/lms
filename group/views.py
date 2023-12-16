@@ -49,7 +49,7 @@ class CourseGroupViewSet(viewsets.ModelViewSet):
     )
     def assign_student(self, request, pk=None):
         group = self.get_object()
-        if group not in request.user.staff_for.all() and group.course not in request.user.author_for:
+        if group not in request.user.staff_for.all() and group.course not in request.user.author_for.all():
             raise PermissionDenied()
         user = User.objects.get(id=request.data['id'])
         if not user:
@@ -63,13 +63,13 @@ class CourseGroupViewSet(viewsets.ModelViewSet):
             return Response(dict(code=0, message='User succesfully assigned'))
 
     @action(
-        detail=True, methods=['delete'], url_path=r'delete-teacher', url_name='delete-teacher'
+        detail=True, methods=['delete'], url_path=r'delete-teacher/(?P<user_id>\d+)', url_name='delete-teacher'
     )
-    def delete_teacher(self, request, pk=None):
+    def delete_teacher(self, request, user_id, pk=None):
         group = self.get_object()
-        if group not in request.user.staff_for.all() and group.course not in request.user.author_for:
+        if group not in request.user.staff_for.all() and group.course not in request.user.author_for.all():
             raise PermissionDenied()
-        teacher = User.objects.get(id=request.data['id'])
+        teacher = User.objects.get(id=user_id)
         if not teacher:
             return Response(dict(code=1, message='Teacher not exist'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         exist = CourseGroupAssignTeacher.objects.filter(group=group, user=teacher)
@@ -80,13 +80,13 @@ class CourseGroupViewSet(viewsets.ModelViewSet):
             return Response(dict(code=0, message='Teacher succesfully deleted from group'))
 
     @action(
-        detail=True, methods=['delete'], url_path=r'delete-student', url_name='delete-student'
+        detail=True, methods=['delete'], url_path=r'delete-student/(?P<user_id>\d+)', url_name='delete-student'
     )
-    def delete_student(self, request, pk=None):
+    def delete_student(self, request, user_id, pk=None):
         group = self.get_object()
-        if group not in request.user.staff_for.all() and group.course not in request.user.author_for:
+        if group not in request.user.staff_for.all() and group.course not in request.user.author_for.all():
             raise PermissionDenied()
-        student = User.objects.get(id=request.data['id'])
+        student = User.objects.get(id=user_id)
         if not student:
             return Response(dict(code=1, message='Student not exist'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         exist = CourseGroupAssignStudent.objects.filter(group=group, user=student)

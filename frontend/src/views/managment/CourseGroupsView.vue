@@ -102,13 +102,18 @@ onMounted(async () => {
   loading.value = false;
 })
 
-function updateGroups(payload: Array<GroupModel> | number): void {
-  if (typeof payload !== 'number') {
+function updateGroups(payload: Array<GroupModel> | GroupModel | number): void {
+  if (typeof payload === 'number') {
+    groups.value = groups.value.filter(el => el.id !== payload);
+    groupStore.setGroups({ [props.courseId]: groups.value });
+    return;
+  }
+  if (Array.isArray(payload)) {
     groupStore.setGroups({ [props.courseId]: payload });
     return;
   }
-  groups.value = groups.value.filter(el => el.id !== payload);
-  groupStore.setGroups({ [props.courseId]: groups.value });
+  groups.value = groups.value.map(group => group.id !== payload.id ? group : payload);
+  groupStore.setGroups({[props.courseId]: groups.value});
 }
 
 function createGroup() {
@@ -155,6 +160,6 @@ function createGroup() {
   padding-right 3rem
 
 :deep() .bx--structured-list
-  margin-bottom 0
+  margin-bottom 1rem
 
 </style>

@@ -23,7 +23,7 @@
               <cv-search
                   label="label"
                   placeholder="Введите почту прeподавателя"
-                  v-model:value.trim="searchValue"/>
+                  v-model.trim="searchValue"/>
             </cv-structured-list-heading>
             <cv-structured-list-heading>
               <div class="list-headings">
@@ -128,7 +128,7 @@ async function addStuff() {
   for (const teacher of pickedTeachers.value) {
     if (breakFlag.value)
       break;
-    await api.post(`/api/course/${props.groupId}/assign-teacher/`, { id: teacher.id })
+    await api.post(`/api/group/${props.groupId}/assign-teacher/`, { id: teacher.id })
         .then(response => {
           notificationKind.value = 'success';
           setNotificationText();
