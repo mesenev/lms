@@ -72,7 +72,7 @@ class CourseGroupViewSet(viewsets.ModelViewSet):
         teacher = User.objects.get(id=request.data['id'])
         if not teacher:
             return Response(dict(code=1, message='Teacher not exist'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        exist = GroupAssignTeacher.objects.filter(group=group, user=teacher)
+        exist = CourseGroupAssignTeacher.objects.filter(group=group, user=teacher)
         if not exist:
             return Response(dict(code=1, message='Teacher not assigned to group'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         if exist:
@@ -89,7 +89,7 @@ class CourseGroupViewSet(viewsets.ModelViewSet):
         student = User.objects.get(id=request.data['id'])
         if not student:
             return Response(dict(code=1, message='Student not exist'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        exist = GroupAssignStudent.objects.filter(group=group, user=student)
+        exist = CourseGroupAssignStudent.objects.filter(group=group, user=student)
         if not exist:
             return Response(dict(code=1, message='Student not assigned to group'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         if exist:

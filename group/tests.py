@@ -6,7 +6,7 @@ from group.serializers import CourseGroupSerializer, CourseGroupLinkSerializer
 from model_bakery import baker
 from django.urls import reverse
 from rest_framework import status
-from users.models import GroupAssignTeacher, User, GroupAssignStudent
+from users.models import CourseGroupAssignTeacher, User, CourseGroupAssignStudent
 from users.serializers import DefaultUserSerializer
 from django.contrib.auth.models import Group as PermissionsGroup
 
@@ -15,7 +15,7 @@ class GroupTests(MainSetup):
      def test_create_group(self):
          self.test_setup()
          baker.make(Course).save()
-         instance = baker.make(Group)
+         instance = baker.make(CourseGroup)
          instance.course = Course.objects.first()
          instance.save()
          data = CourseGroupSerializer(instance).data
@@ -33,7 +33,7 @@ class GroupTests(MainSetup):
          group.course = Course.objects.first()
          group.save()
 
-         GroupAssignTeacher.objects.create(user=self.user, group=group).save()
+         CourseGroupAssignTeacher.objects.create(user=self.user, group=group).save()
 
          new_teacher_user=baker.make(User)
          PermissionsGroup.objects.get(name='teacher').user_set.add(new_teacher_user)
@@ -54,7 +54,7 @@ class GroupTests(MainSetup):
          group.course = Course.objects.first()
          group.save()
 
-         GroupAssignTeacher.objects.create(user=self.user, group=group).save()
+         CourseGroupAssignTeacher.objects.create(user=self.user, group=group).save()
 
          new_student_user = baker.make(User)
          PermissionsGroup.objects.get(name='student').user_set.add(new_student_user)
@@ -73,23 +73,24 @@ class GroupTests(MainSetup):
          self.test_setup()
 
          baker.make(Course).save()
-         group = baker.make(Group)
+         group = baker.make(CourseGroup)
          group.course = Course.objects.first()
          group.save()
 
-         GroupAssignTeacher.objects.create(user=self.user, group=group).save()
+         CourseGroupAssignTeacher.objects.create(user=self.user, group=group).save()
 
          new_teacher_user = baker.make(User)
          PermissionsGroup.objects.get(name='teacher').user_set.add(new_teacher_user)
-         GroupAssignTeacher.objects.create(user=new_teacher_user, group=group).save()
-         count = GroupAssignTeacher.objects.count()
+         CourseGroupAssignTeacher.objects.create(user=new_teacher_user, group=group).save()
+         count = CourseGroupAssignTeacher.objects.count()
 
          url = reverse('group-detail', kwargs=dict(pk=group.id)) + "delete-teacher/"
+         print('URL: ', url)
          data = DefaultUserSerializer(new_teacher_user).data
          response = self.client.delete(url, data, format='json')
 
          self.assertEqual(response.status_code, status.HTTP_200_OK)
-         self.assertEqual(count-1, GroupAssignTeacher.objects.count())
+         self.assertEqual(count-1, CourseGroupAssignTeacher.objects.count())
          self.assertEqual(CourseGroup.objects.get(id=group.id).staff.count(), 1)
          self.assertEqual(User.objects.get(id=new_teacher_user.id).staff_for.count(), 0)
 
@@ -100,12 +101,12 @@ class GroupTests(MainSetup):
          group.course = Course.objects.first()
          group.save()
 
-         GroupAssignTeacher.objects.create(user=self.user, group=group).save()
+         CourseGroupAssignTeacher.objects.create(user=self.user, group=group).save()
 
          new_student_user = baker.make(User)
          PermissionsGroup.objects.get(name='student').user_set.add(new_student_user)
 
-         GroupAssignStudent.objects.create(user=new_student_user, group=group).save()
+         CourseGroupAssignStudent.objects.create(user=new_student_user, group=group).save()
 
          data = DefaultUserSerializer(new_student_user).data
          url = reverse('group-detail', kwargs=dict(pk=group.id)) + "delete-student/"
