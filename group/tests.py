@@ -84,7 +84,7 @@ class GroupTests(MainSetup):
          CourseGroupAssignTeacher.objects.create(user=new_teacher_user, group=group).save()
          count = CourseGroupAssignTeacher.objects.count()
 
-         url = reverse('group-detail', kwargs=dict(pk=group.id)) + "delete-teacher/"
+         url = reverse('group-delete-teacher', kwargs=dict(pk=group.id, user_id=new_teacher_user.id))
 
          data = DefaultUserSerializer(new_teacher_user).data
          response = self.client.delete(url, data, format='json')
@@ -109,7 +109,7 @@ class GroupTests(MainSetup):
          CourseGroupAssignStudent.objects.create(user=new_student_user, group=group).save()
 
          data = DefaultUserSerializer(new_student_user).data
-         url = reverse('group-detail', kwargs=dict(pk=group.id)) + "delete-student/"
+         url = reverse('group-delete-student', kwargs=dict(pk=group.id, user_id=new_student_user.id))
          response = self.client.delete(url, data, format='json')
 
          self.assertEqual(response.status_code, status.HTTP_200_OK)
