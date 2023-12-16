@@ -31,7 +31,7 @@ class CourseGroupViewSet(viewsets.ModelViewSet):
     )
     def assign_teacher(self, request, pk=None):
         group = self.get_object()
-        if group not in request.user.staff_for.all() and group.course not in request.user.author_for:
+        if group not in request.user.staff_for.all() and group.course not in request.user.author_for.all():
             raise PermissionDenied()
         user = User.objects.get(id=request.data['id'])
         if not user:
@@ -153,7 +153,7 @@ class GroupRegistrationApi(APIView):
         if not link_check(link, request.user.id)['is_possible']:
             raise PermissionDenied()
         link = CourseGroupLink.objects.select_related('group').get(link=link)
-        assignment = GroupAssignStudent(group=link.group, user=request.user)
+        assignment = CourseGroupAssignStudent(group=link.group, user=request.user)
         assignment.save()
         if link.usages > 0:
             link.usages -= 1

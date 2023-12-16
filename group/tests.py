@@ -85,7 +85,7 @@ class GroupTests(MainSetup):
          count = CourseGroupAssignTeacher.objects.count()
 
          url = reverse('group-detail', kwargs=dict(pk=group.id)) + "delete-teacher/"
-         print('URL: ', url)
+
          data = DefaultUserSerializer(new_teacher_user).data
          response = self.client.delete(url, data, format='json')
 

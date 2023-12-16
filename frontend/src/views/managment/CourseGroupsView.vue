@@ -24,15 +24,36 @@
                 </div>
               </template>
               <template v-slot:content>
-                <cv-structured-list v-if="[...group.staff, ...group.students].length">
-                  <template v-slot:items>
-                    <cv-structured-list-item v-for="member in [...group.staff, ...group.students]" :key="member">
-                      <router-link :to="{ name: 'profile-page', params: { userId: member} }">
-                        <user-component class="group-member" :user-id="member"/>
-                      </router-link>
-                    </cv-structured-list-item>
-                  </template>
-                </cv-structured-list>
+                <div v-if="[...group.staff, ...group.students].length">
+                  <cv-structured-list v-if="group.staff.length">
+                    <template v-slot:headings>
+                      <cv-structured-list-heading>
+                        <span>Преподаватели</span>
+                      </cv-structured-list-heading>
+                    </template>
+                    <template v-slot:items>
+                      <cv-structured-list-item v-for="member in group.staff" :key="member">
+                        <router-link :to="{ name: 'profile-page', params: { userId: member} }">
+                          <user-component class="group-member" :user-id="member"/>
+                        </router-link>
+                      </cv-structured-list-item>
+                    </template>
+                  </cv-structured-list>
+                  <cv-structured-list v-if="group.students.length">
+                    <template v-slot:headings>
+                      <cv-structured-list-heading>
+                        <span>Студенты</span>
+                      </cv-structured-list-heading>
+                    </template>
+                    <template v-slot:items>
+                      <cv-structured-list-item v-for="member in group.students" :key="member">
+                        <router-link :to="{ name: 'profile-page', params: { userId: member} }">
+                          <user-component class="group-member" :user-id="member"/>
+                        </router-link>
+                      </cv-structured-list-item>
+                    </template>
+                  </cv-structured-list>
+                </div>
                 <empty-list-component v-else list-of="groupMembers" text="Добавьте участников в группу"/>
               </template>
             </cv-accordion-item>

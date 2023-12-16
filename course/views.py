@@ -15,6 +15,7 @@ from cathie import cats_api
 from course.models import CourseSchedule, Course, CourseLink
 from course.serializers import CourseSerializer, ScheduleSerializer, LinkSerializer, CourseShortSerializer
 from imcslms.default_settings import TEACHER
+from users.models import CourseGroupAssignTeacher
 from users.permissions import CourseStaffOrReadOnlyForStudents, CourseStaffOrAuthorReadOnly, CourseStaffOrAuthor
 
 
@@ -72,7 +73,7 @@ class ScheduleViewSet(
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         course = Course.objects.get(id=(serializer.data['id']))
-        CourseAssignTeacher.objects.create(course=course, user=request.user)
+        CourseGroupAssignTeacher.objects.create(course=course, user=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @action(detail=False, url_path=r'by-course/(?P<course_id>\d+)')  # hate regexes
