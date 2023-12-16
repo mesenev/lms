@@ -31,7 +31,7 @@ class CourseGroupViewSet(viewsets.ModelViewSet):
     )
     def assign_teacher(self, request, pk=None):
         group = self.get_object()
-        if group not in request.user.staff_for.all() and group.course not in request.user.author_for:
+        if group not in request.user.staff_for.all() and group.course not in request.user.author_for.all():
             raise PermissionDenied()
         user = User.objects.get(id=request.data['id'])
         if not user:
@@ -72,7 +72,7 @@ class CourseGroupViewSet(viewsets.ModelViewSet):
         teacher = User.objects.get(id=request.data['id'])
         if not teacher:
             return Response(dict(code=1, message='Teacher not exist'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        exist = GroupAssignTeacher.objects.filter(group=group, user=teacher)
+        exist = CourseGroupAssignTeacher.objects.filter(group=group, user=teacher)
         if not exist:
             return Response(dict(code=1, message='Teacher not assigned to group'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         if exist:
@@ -89,7 +89,7 @@ class CourseGroupViewSet(viewsets.ModelViewSet):
         student = User.objects.get(id=request.data['id'])
         if not student:
             return Response(dict(code=1, message='Student not exist'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        exist = GroupAssignStudent.objects.filter(group=group, user=student)
+        exist = CourseGroupAssignStudent.objects.filter(group=group, user=student)
         if not exist:
             return Response(dict(code=1, message='Student not assigned to group'), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         if exist:
@@ -153,7 +153,7 @@ class GroupRegistrationApi(APIView):
         if not link_check(link, request.user.id)['is_possible']:
             raise PermissionDenied()
         link = CourseGroupLink.objects.select_related('group').get(link=link)
-        assignment = GroupAssignStudent(group=link.group, user=request.user)
+        assignment = CourseGroupAssignStudent(group=link.group, user=request.user)
         assignment.save()
         if link.usages > 0:
             link.usages -= 1
