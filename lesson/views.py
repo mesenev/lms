@@ -5,7 +5,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from cathie.cats_api import cats_get_problem_description_by_url
-from course.models import CourseSchedule
+from course.models import CourseSchedule, Course
 from imcslms.default_settings import TEACHER
 from lesson.models import Lesson, LessonContent, Attachment
 from lesson.serializers import LessonSerializer, MaterialSerializer, LessonShortSerializer, AddCatsProblemSerializer, \
@@ -16,17 +16,28 @@ from users.permissions import CourseStaffOrReadOnlyForStudents
 import base64
 from django.core.files.base import ContentFile
 
+
 class LessonViewSet(viewsets.ModelViewSet):
     permission_classes = [CourseStaffOrReadOnlyForStudents]
     serializer_class = LessonSerializer
     filterset_fields = ['course_id', ]
 
     def get_queryset(self):
+
         user = self.request.user
+        user_courses_as_author = user.author_for.all()
+
+        user_courses_as_student = []
+        for group in user.student_for.all():
+            user_courses_as_student += Course.objects.filter(source_for=group)
+
+        user_courses_as_staff = []
+        for group in user.staff_for.all():
+            user_courses_as_staff += Course.objects.filter(source_for=group)
+
         return Lesson.objects.prefetch_related('problems', 'progress', 'materials', 'exams').filter(
-            (Q(is_hidden=False) & Q(course__in=user.student_for.all()))
-            | Q(course__in=user.staff_for.all())
-            | Q(course__in=user.author_for.all())
+            (Q(is_hidden=False) & Q(course__in=user_courses_as_student) | Q(course__in=user_courses_as_author)
+             |Q(course__in=user_courses_as_staff))
         )
 
     def list(self, request, *args, **kwargs):
