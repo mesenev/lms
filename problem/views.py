@@ -24,10 +24,19 @@ class ProblemViewSet(viewsets.ModelViewSet):
     filterset_fields = ['lesson_id', ]
 
     def get_queryset(self):
+        staff_courses = []
+        for group in self.request.user.staff_for.all():
+            staff_courses += Course.objects.filter(id=group.course.id)
+
+        student_courses = []
+        for group in self.request.user.student_for.all():
+            student_courses += group.course
+
         queryset = Problem.objects.filter(
-            Q(lesson__course__in=self.request.user.staff_for.all())
+            Q(lesson__course__in=staff_courses)
+            | Q(lesson__course__in=self.request.user.author_for.all())
             | (Q(
-                lesson__course__in=self.request.user.student_for.all(),
+                lesson__course__in=student_courses,
                 lesson__is_hidden=False
             ))
         )
@@ -39,7 +48,13 @@ class ProblemViewSet(viewsets.ModelViewSet):
         return ProblemSerializer
 
     def list(self, request, *args, **kwargs):
-        stats_query = ProblemStats.objects.filter(problem__lesson__course__staff=request.user)
+
+        staff_courses = []
+        for group in self.request.user.staff_for.all():
+            staff_courses += Course.objects.filter(id=group.course.id)
+        staff_courses += self.request.user.author_for.all()
+
+        stats_query = ProblemStats.objects.filter(Q(problem__lesson__course__in=staff_courses))
         queryset = self.filter_queryset(self.get_queryset().prefetch_related(
             Prefetch(lookup='problemstats', to_attr='stats', queryset=stats_query)
         ))
