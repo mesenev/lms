@@ -379,26 +379,26 @@ async function updateAfterChangeMaterials(oldMaterial: MaterialModel, newMateria
   justify-content space-between
 
 .cv-text-input
-  /deep/ .bx--label
+  :deep() .bx--label
     margin-top 2px
 
 .material-type-dropdown
   max-width 10rem
 
-  /deep/ .bx--dropdown
+  :deep() .bx--dropdown
     background-color var(--cds-ui-background)
 
-  /deep/ .bx--dropdown__wrapper.bx--list-box__wrapper
+  :deep() .bx--dropdown__wrapper.bx--list-box__wrapper
     align-self end
 
-/deep/ .bx--list-box__field
+:deep() .bx--list-box__field
   display flex
 
-/deep/ .bx--text-input
+:deep() .bx--text-input
   margin-bottom 1rem
   background-color var(--cds-ui-background)
 
-.text-area >>> .bx--text-area
+.text-area :deep() .bx--text-area
   background-color var(--cds-ui-background)
   min-height 13rem
   resize none

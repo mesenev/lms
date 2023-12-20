@@ -10,6 +10,11 @@
           page-view="CourseView"
       />
       <lms-breadcrumb-item
+          v-if="courseGroupsSelected.selected"
+          :model="courseGroupsSelected.value"
+          :page-view="courseGroupsSelected.pageView"
+      />
+      <lms-breadcrumb-item
           v-if="courseProgressSelected.selected"
           :model="courseProgressSelected.value"
           :page-view="courseProgressSelected.pageView"/>
@@ -153,6 +158,14 @@ const examEditSelected = computed(() => {
       'exam-edit',
       'examId',
       'Редактирование теста'
+  );
+})
+
+const courseGroupsSelected = computed(() => {
+  return selectedView(
+      'course-groups',
+      'courseId',
+      'Группы курса'
   );
 })
 

@@ -1,11 +1,10 @@
 <template>
   <div>
     <cv-button class="change-btn" kind="secondary" @click="showModal">
-      Добавить преподавателей в курс
+      Добавить преподавателей
     </cv-button>
     <cv-modal :visible="modalVisible"
               class="add_lesson_modal"
-              :disableTeleport="true"
               @modal-hidden="modalHidden"
               @secondary-click="() => {}">
       <template v-slot:title>
@@ -24,7 +23,7 @@
               <cv-search
                   label="label"
                   placeholder="Введите почту прeподавателя"
-                  v-model:value.trim="searchValue"/>
+                  v-model.trim="searchValue"/>
             </cv-structured-list-heading>
             <cv-structured-list-heading>
               <div class="list-headings">
@@ -68,7 +67,7 @@ import { TEACHER } from "@/utils/consts";
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
 const props = defineProps({
-  courseId: { type: Number, required: true }
+  groupId: { type: Number, required: true }
 })
 
 const searchValue = ref("");
@@ -100,7 +99,7 @@ watch(() => searchValue.value, async (val: string) => {
 })
 
 const teachersList = computed(() => {
-  return teachersArray.value.filter(x => !x.staff_for.includes(props.courseId));
+  return teachersArray.value.filter(x => !x.staff_for.includes(props.groupId));
 })
 
 function showModal() {
@@ -129,12 +128,12 @@ async function addStuff() {
   for (const teacher of pickedTeachers.value) {
     if (breakFlag.value)
       break;
-    await api.post(`/api/course/${props.courseId}/assign-teacher/`, { id: teacher.id })
+    await api.post(`/api/group/${props.groupId}/assign-teacher/`, { id: teacher.id })
         .then(response => {
           notificationKind.value = 'success';
           setNotificationText();
           showNotification.value = true;
-          teacher.staff_for.push(props.courseId);
+          teacher.staff_for.push(props.groupId);
           pickedTeachers.value.delete(teacher);
           isAnyTeacherPicked();
         })

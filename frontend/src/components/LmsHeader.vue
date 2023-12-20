@@ -36,6 +36,13 @@
     </cv-header-nav>
     <cv-header-nav v-if="isStaff && courseSelected && !lessonSelected && !problemSelected">
       <cv-header-menu-item
+          :to="{ name: 'course-groups', params: { courseId: route.params.courseId } }"
+      >
+        Группы
+      </cv-header-menu-item>
+    </cv-header-nav>
+    <cv-header-nav v-if="isStaff && courseSelected && !lessonSelected && !problemSelected">
+      <cv-header-menu-item
           :to="{ name: 'course-edit', params: { courseId: route.params.courseId } }"
       >
         Редактировать курс
@@ -98,6 +105,12 @@
                 :to="{name: 'course-calendar', params: { courseId: route.params.courseId } }"
             >
               Календарь
+            </cv-header-menu-item>
+            <cv-header-menu-item
+                v-if="isStaff && courseSelected && !lessonSelected && !problemSelected"
+                :to="{ name: 'course-groups', params: { courseId: route.params.courseId } }"
+            >
+              Группы
             </cv-header-menu-item>
             <cv-header-menu-item
                 v-if="isStaff && courseSelected && !lessonSelected && !problemSelected"
@@ -219,6 +232,7 @@ import { useTokenStore } from "@/stores/modules/token";
 import { THEMES } from '@/utils/consts'
 import { useRoute } from 'vue-router'
 import { computed, ref, watch } from "vue";
+import useCourseStore from "@/stores/modules/course";
 
 
 const iconLight = Light20;
@@ -226,6 +240,7 @@ const iconDark = Asleep20;
 const themes = THEMES;
 
 const userStore = useUserStore();
+const courseStore = useCourseStore();
 const tokenStore = useTokenStore();
 
 const emit = defineEmits<{ (e: 'toggle-theme', theme: string): void }>();
@@ -268,7 +283,8 @@ watch(() => currentTheme.value, () => {
 })
 
 const isStaff = computed((): boolean => {
-  return userStore.user.staff_for.includes(Number(route.params.courseId));
+  return userStore.user.staff_for.includes(Number(route.params.courseId))
+    || courseSelected.value && courseStore.currentCourse?.author?.id === userStore.user.id;
 })
 
 </script>

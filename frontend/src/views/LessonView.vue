@@ -264,7 +264,7 @@ async function changeLessonVisibility() {
     background-color var(--cds-ui-01)
     padding 1rem
 
-  /deep/ .bx--accordion__heading
+  :deep() .bx--accordion__heading
     align-items center
 
 

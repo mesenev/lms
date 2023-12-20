@@ -124,12 +124,12 @@ function toLesson(lesson: LessonModel) {
   border-bottom 1px solid var(--cds-ui-05)
   cursor pointer
 
-  /deep/ .bx--tag
+  :deep() .bx--tag
     cursor pointer
 
 .icons
   color var(--cds-inverse-02)
 
-/deep/ .bx--search-input
+:deep() .bx--search-input
   background-color var(--cds-ui-background)
 </style>
