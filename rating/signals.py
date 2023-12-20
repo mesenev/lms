@@ -80,7 +80,7 @@ def calc_lesson_stat(lesson, solved: dict, user):
 def add_student_to_rating_lesson(sender, instance, created, **kwargs):
     if not created or instance.course is None:
         return
-    for i in CourseGroupAssignStudent.objects.filter(course=instance.course.id):
+    for i in CourseGroupAssignStudent.objects.filter(group__course=instance.course):
         LessonProgress.objects.create(
             user=i.user, lesson=instance, solved={'CW': {}, 'HW': {}, 'EX': {}}, attendance=False
         )
