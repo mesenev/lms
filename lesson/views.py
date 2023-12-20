@@ -91,9 +91,18 @@ class MaterialViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        student_course = []
+        staff_course = []
+
+        for group in user.student_for.all():
+            student_course.append(group.course)
+
+        for group in user.staff_for.all():
+            staff_course.append(group.course)
+
         return LessonContent.objects.all().filter(
-            (Q(is_teacher_only=False) & Q(lesson__course__in=user.student_for.all()))
-            | Q(lesson__course__in=user.staff_for.all())
+            (Q(is_teacher_only=False) & Q(lesson__course__in=student_course))
+            | Q(lesson__course__in=staff_course)
             | Q(lesson__course__in=user.author_for.all())
         )
 
