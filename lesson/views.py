@@ -119,11 +119,21 @@ class AttachmentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+
+        student_course = []
+        staff_course = []
+
+        for group in user.student_for.all():
+            student_course.append(group.course)
+
+        for group in user.staff_for.all():
+            staff_course.append(group.course)
+
         return Attachment.objects.all().filter(
             (Q(material__is_teacher_only=False)
-             & Q(material__lesson__course__in=user.student_for.all())
+             & Q(material__lesson__course__in=student_course)
              )
-            | Q(material__lesson__course__in=user.staff_for.all())
+            | Q(material__lesson__course__in=staff_course)
             | Q(material__lesson__course__in=user.author_for.all())
         )
 
