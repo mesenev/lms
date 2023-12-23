@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='groupassignstudent',
             name='group',
-            field=models.ForeignKey(default=-1, on_delete=django.db.models.deletion.CASCADE, to='group.group'),
+            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='group.group'),
             preserve_default=False,
         ),
         migrations.AddField(
