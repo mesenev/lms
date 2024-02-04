@@ -58,7 +58,7 @@
       <div class="bx--col-lg-4">
         <input type="file" ref="file1" accept="image/*" v-on:change="Upload($event.target.files)"/>
         <label>Предварительный просмотр</label>
-        <img v-bind:src="imagePreview" v-show="showPreview" alt="картинка" class="preview"/>
+        <img v-bind:src="imagePreview?.toString()" v-show="showPreview" alt="картинка" class="preview"/>
       </div>
     </div>
   </div>

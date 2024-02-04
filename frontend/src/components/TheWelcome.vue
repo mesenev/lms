@@ -5,15 +5,15 @@ import ToolingIcon from './icons/IconTooling.vue'
 import EcosystemIcon from './icons/IconEcosystem.vue'
 import CommunityIcon from './icons/IconCommunity.vue'
 import SupportIcon from './icons/IconSupport.vue'
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
 
-let reactive_item = ref(0)
+let reactive_item: Ref<number> = ref(0)
 
 const non_reactive_item = [1, 2, 3]
 
 
 function method(){
-  reactive_item++
+  reactive_item.value++
 }
 
 
