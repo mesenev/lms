@@ -167,7 +167,7 @@ async function uploadFiles(fileList: File[]) {
     const reader = new FileReader();
     reader.readAsDataURL(element);
     reader.onload = async () => {
-      const encodedFile = reader.result.split(",")[1];
+      const encodedFile = (<string>reader.result).split(",")[1];
       const data = {
         id: '-1',
         name: element.name,
