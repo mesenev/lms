@@ -74,7 +74,7 @@
                  ref="files"
                  multiple
                  :disabled="attachmentLoading"
-                 @change="uploadFiles($event.target.files)"/>
+                 @change="uploadFiles($event)"/>
           <div class="action-btns">
             <cv-button kind="danger" @click="showConfirmModal(material)">
               Удалить
@@ -160,32 +160,34 @@ onMounted(async () => {
   loading.value = false;
 })
 
-async function uploadFiles(fileList: File[]) {
+async function uploadFiles(event: Event) {
   attachmentLoading.value = true;
-
-  for (const element of fileList) {
-    const reader = new FileReader();
-    reader.readAsDataURL(element);
-    reader.onload = async () => {
-      const encodedFile = reader.result.split(",")[1];
-      const data = {
-        id: '-1',
-        name: element.name,
-        material: material.value.id.toString(),
-        file_url: encodedFile,
-        file_format: element.type
+  const fileList = (event.target as HTMLInputElement).files
+  if (fileList) {
+    for (const element of fileList) {
+      const reader = new FileReader();
+      reader.readAsDataURL(element);
+      reader.onload = async () => {
+        const encodedFile = (<string>reader.result).split(",")[1];
+        const data = {
+          id: '-1',
+          name: element.name,
+          material: material.value.id.toString(),
+          file_url: encodedFile,
+          file_format: element.type
+        }
+        await materialStore.createAttachment(data).catch(error => {
+          notificationKind.value = 'error';
+          notificationText.value = `Что-то пошло не так: ${error.message}`;
+          showNotification.value = true;
+        })
       }
-      await materialStore.createAttachment(data).catch(error => {
-        notificationKind.value = 'error';
-        notificationText.value = `Что-то пошло не так: ${error.message}`;
-        showNotification.value = true;
-      })
     }
+    await updateAttachments();
+    const input = window.document.getElementById('files_input') as HTMLInputElement
+    input.value = '';
+    attachmentLoading.value = false;
   }
-  await updateAttachments();
-  const input = window.document.getElementById('files_input') as HTMLInputElement
-  input.value = '';
-  attachmentLoading.value = false;
 }
 
 const currentMaterial = computed((): MaterialModel => {
