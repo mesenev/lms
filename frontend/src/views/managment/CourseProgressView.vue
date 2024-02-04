@@ -37,9 +37,9 @@
                 <div class="tbody-data">
                   <div class="marks">
                     <cv-tooltip tip="Результирующий балл">
-                      <cv-tag class="result-mark" :label="sum(row.progress[les.id]).toString()"/>
+                      <cv-tag class="result-mark" :label="row.progress ? sum(row.progress[les.id]).toString() : 0"/>
                     </cv-tooltip>
-                    <div v-for="(value, name) in row.progress[les.id]" :key="value+name"
+                    <div v-for="(value, name) in row.progress ? row.progress[les.id] : {}" :key="value+name"
                          class="mark">
                       <cv-tooltip :tip="`Балл за: ${name}`">
                         <cv-tag :label="Math.trunc(value).toString()" :kind="color(name)"/>
@@ -72,23 +72,23 @@
 import SubmitStatus from "@/components/SubmitStatus.vue";
 import UserComponent from "@/components/UserComponent.vue";
 import _ from 'lodash';
-import type { UserModel } from "@/models/UserModel";
-import type { Attendance } from "@/models/Attendance";
-import type { UserProgress } from '@/models/UserProgress';
+import type {UserModel} from "@/models/UserModel";
+import type {Attendance} from "@/models/Attendance";
+import type {UserProgress} from '@/models/UserProgress';
 import useCourseStore from '@/stores/modules/course'
 import useProblemStore from "@/stores/modules/problem"
 import useProgressStore from "@/stores/modules/progress"
 import useUserStore from '@/stores/modules/user';
 import useLessonStore from '@/stores/modules/lesson'
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
-import type { CourseModel } from "@/models/CourseModel";
-import type { LessonModel } from "@/models/LessonModel";
+import type {CourseModel} from "@/models/CourseModel";
+import type {LessonModel} from "@/models/LessonModel";
 import api from "@/stores/services/api";
 import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
-import { ref, type Ref, computed, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import {ref, type Ref, computed, onMounted} from "vue";
+import {useRouter, useRoute} from "vue-router";
 
-const props = defineProps({ courseId: { type: Number, required: true } })
+const props = defineProps({courseId: {type: Number, required: true}})
 const userStore = useUserStore();
 const courseStore = useCourseStore();
 const progressStore = useProgressStore();
@@ -103,7 +103,7 @@ const users: Ref<Dictionary<UserModel>> = ref({});
 const student_attendance: Ref<Dictionary<Attendance>> = ref({});
 const student_attendance_copy: Ref<Dictionary<any>> = ref({});
 const lessons: Ref<Array<LessonModel>> = ref([]);
-const course: Ref<CourseModel> = ref({ ...courseStore.newCourse });
+const course: Ref<CourseModel> = ref({...courseStore.newCourse});
 const emptyText: Ref<string> = ref('');
 
 const loading: Ref<boolean> = ref(true);
@@ -117,8 +117,8 @@ const columns = computed(() => {
       name: l.name,
     }
   ))
-  a.unshift({ id: -2, name: "Ученики" })
-  a.push({ id: 0, name: "Рейтинг" })
+  a.unshift({id: -2, name: "Ученики"})
+  a.push({id: 0, name: "Рейтинг"})
   return a
 })
 
@@ -174,7 +174,8 @@ function sum(type: any) {
   return Math.trunc(type['CW'] + type['HW'] + type['EX']);
 }
 
-function average(progress: Dictionary<string>) {
+function average(progress: Dictionary<string> | undefined) {
+  if (!progress) return 0;
   let sum = 0 as any;
   for (const submits of Object.values(progress)) {
     sum += submits['CW' as any];
@@ -239,94 +240,187 @@ function Sort(sortBy: { index: string; order: string }) {
 
 <style scoped lang="stylus">
 .main-header
-  display flex
-  flex-direction row
-  justify-content space-between
-  margin-bottom 1rem
+display flex
+flex-direction row
+justify-content space-between
+margin-bottom
 
+1
+rem
 .main-title
-  margin-left 0
-  margin-bottom 0
+margin-left
+
+0
+margin-bottom
+
+0
 
 .table-wrapper
-  margin-top 1rem
-  border 0.5px solid var(--cds-ui-05)
-  border-collapse separate
-  overflow-x auto
-  width 100%
+margin-top
+
+1
+rem
+border
+
+0.5
+px solid
+
+var
+(
+--cds-ui-05
+
+)
+border-collapse separate
+overflow-x auto
+width
+
+100
+%
 
 .tbody-element, .fixed-col
-  min-width 16rem
-  border-right 0.5px solid var(--cds-ui-05)
-  z-index 0
+min-width
+
+16
+rem
+border-right
+
+0.5
+px solid
+
+var
+(
+--cds-ui-05
+
+)
+z-index
+
+0
 
 .tbody-data
-  display flex
-  flex-direction row
-  justify-content space-around
-
+display flex
+flex-direction row
+justify-content space-around
 .fixed-col:first-child
-  text-align-last left
-  z-index 2
-  position sticky
-  left 0
+text-align-last left
+z-index
+
+2
+position sticky
+left
+
+0
 
 .fixed-col:last-child
-  border-right none
-
+border-right none
 :deep() table
-  text-align-last center
-  border-collapse separate
-
+text-align-last center
+border-collapse separate
 :deep() th
-  padding-top 0.5rem
-  padding-bottom 0.5rem
+padding-top
 
+0.5
+rem
+padding-bottom
+
+0.5
+rem
 :deep() .bx--data-table-container
-  padding-top 0
+padding-top
+
+0
 
 .marks
-  min-width 180px
+min-width
 
+180
+px
 .result-mark
-  color var(--cds-ui-05)
-  background-color var(--cds-ui-background)
-  border var(--cds-ui-05) 0.5px solid
+color
 
+var
+(
+--cds-ui-05
+
+)
+background-color
+
+var
+(
+--cds-ui-background
+
+)
+border
+
+var
+(
+--cds-ui-05
+
+)
+0.5
+px solid
 .mark
-  display: inline-flex
-
+display: inline-flex
 .mark-checkbox
-  display flex
-  align-items center
-
+display flex
+align-items center
 .user-component
-  cursor pointer
-
+cursor pointer
 :deep() .empty-list-wrapper
-  margin-top 5rem
-  text-align center
+margin-top
 
-  h4
-    font-size var(--cds-productive-heading-04-font-size)
+5
+rem
+text-align center
+h4
+font-size
 
-  p
-    font-size var(--cds-productive-heading-03-font-size)
+var
+(
+--cds-productive-heading-04-font-size
+
+)
+
+p
+font-size
+
+var
+(
+--cds-productive-heading-03-font-size
+
+)
 
 .attendance
-  display inline
-
-  label
-    display inline
-
+display inline
+label
+display inline
 .header
-  padding-bottom: 1.5rem
-  padding-top: 1rem
+padding-bottom:
 
+1.5
+rem
+padding-top:
+
+1
+rem
 .items
-  background-color var(--cds-ui-02)
-  padding var(--cds-spacing-05)
+background-color
+
+var
+(
+--cds-ui-02
+
+)
+padding
+
+var
+(
+--cds-spacing-05
+
+)
 
 .item
-  min-height 85px
+min-height
+
+85
+px
 </style>
