@@ -240,187 +240,94 @@ function Sort(sortBy: { index: string; order: string }) {
 
 <style scoped lang="stylus">
 .main-header
-display flex
-flex-direction row
-justify-content space-between
-margin-bottom
+  display flex
+  flex-direction row
+  justify-content space-between
+  margin-bottom  1rem
 
-1
-rem
 .main-title
-margin-left
-
-0
-margin-bottom
-
-0
+  margin-left 0
+  margin-bottom 0
 
 .table-wrapper
-margin-top
-
-1
-rem
-border
-
-0.5
-px solid
-
-var
-(
---cds-ui-05
-
-)
-border-collapse separate
-overflow-x auto
-width
-
-100
-%
+  margin-top 1rem
+  border 0.5 px solid var(--cds-ui-05)
+  border-collapse separate
+  overflow-x auto
+  width 100%
 
 .tbody-element, .fixed-col
-min-width
-
-16
-rem
-border-right
-
-0.5
-px solid
-
-var
-(
---cds-ui-05
-
-)
-z-index
-
-0
+  min-width 16rem
+  border-right 0.5px solid var(--cds-ui-05)
+  z-index 0
 
 .tbody-data
-display flex
-flex-direction row
-justify-content space-around
+  display flex
+  flex-direction row
+  justify-content space-around
+
 .fixed-col:first-child
-text-align-last left
-z-index
-
-2
-position sticky
-left
-
-0
+  text-align-last left
+  z-index 2
+  position sticky
+  left 0
 
 .fixed-col:last-child
-border-right none
+  border-right none
+
 :deep() table
-text-align-last center
-border-collapse separate
+  text-align-last center
+  border-collapse separate
+
 :deep() th
-padding-top
+  padding-top 0.5rem
+  padding-bottom 0.5rem
 
-0.5
-rem
-padding-bottom
-
-0.5
-rem
 :deep() .bx--data-table-container
-padding-top
-
-0
+  padding-top 0
 
 .marks
-min-width
+  min-width 180px
 
-180
-px
 .result-mark
-color
+  color var(--cds-ui-05)
+  background-color var(--cds-ui-background  )
+  border var(--cds-ui-05) 0.5px solid
 
-var
-(
---cds-ui-05
-
-)
-background-color
-
-var
-(
---cds-ui-background
-
-)
-border
-
-var
-(
---cds-ui-05
-
-)
-0.5
-px solid
 .mark
-display: inline-flex
+  display: inline-flex
+
 .mark-checkbox
-display flex
-align-items center
+  display flex
+  align-items center
+
 .user-component
-cursor pointer
+  cursor pointer
+
 :deep() .empty-list-wrapper
-margin-top
+  margin-top 5rem
+  text-align center
 
-5
-rem
-text-align center
 h4
-font-size
-
-var
-(
---cds-productive-heading-04-font-size
-
-)
+  font-size var(--cds-productive-heading-04-font-size)
 
 p
-font-size
-
-var
-(
---cds-productive-heading-03-font-size
-
-)
+  font-size var(--cds-productive-heading-03-font-size)
 
 .attendance
-display inline
+  display inline
+
 label
-display inline
+  display inline
+
 .header
-padding-bottom:
+  padding-bottom: 1.5rem
+  padding-top: 1rem
 
-1.5
-rem
-padding-top:
-
-1
-rem
 .items
-background-color
-
-var
-(
---cds-ui-02
-
-)
-padding
-
-var
-(
---cds-spacing-05
-
-)
+  background-color var(--cds-ui-02)
+  padding var(--cds-spacing-05)
 
 .item
-min-height
-
-85
-px
+  min-height 85px
 </style>
