@@ -39,7 +39,8 @@
 import type {UserModel} from "@/models/UserModel";
 import Edit32 from '@carbon/icons-vue/es/edit/32';
 import api from '@/stores/services/api'
-import {PropType, ref} from "vue";
+import {ref} from "vue";
+import type { PropType } from 'vue';
 import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
 
 const {notificationText, notificationKind, showNotification, hideNotification} = useNotificationMixin();

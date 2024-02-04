@@ -2,7 +2,7 @@ import api from '@/stores/services/api'
 import * as types from "@/models/LogEventModel";
 import {defineStore} from "pinia";
 import {computed} from "vue";
-import type {LogEventModel} from "@/models/LogEventModel";
+import type LogEventModel from "@/models/LogEventModel";
 
 export const useLogEventStore = defineStore('logEvent', () => {
 

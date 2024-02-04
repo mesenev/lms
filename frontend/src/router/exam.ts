@@ -12,7 +12,7 @@ const examRoutes = [
     path: 'solution/:solutionId',
     name: 'ExamViewWithSolution',
     component: ExamView,
-    props: (route) => {
+    props: (route: any) => {
       const solutionId = Number.parseInt(route.params.solutionId as string, 10);
       return { solutionId, ...route.params };
     },
@@ -21,7 +21,7 @@ const examRoutes = [
     path: 'edit/',
     name: 'exam-edit',
     component: ExamEditView,
-    props: (route) => {
+    props: (route: any) => {
       const examId = Number.parseInt(route.params.examId as string, 10);
       return { examId, ...route.params };
     },
