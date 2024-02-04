@@ -5,8 +5,8 @@
         <div>
           <cv-skeleton-text v-if="loading"/>
           <div v-else>
-            <h2>Регистрация на курс {{ currentCourse.name || '' }},
-              преподаватель курса: {{ currentCourse.author.first_name }} {{ currentCourse.author.last_name }}.
+            <h2>Регистрация на курс {{ currentCourse && currentCourse.name || '' }},
+              <span v-if="currentCourse && currentCourse.author">преподаватель курса: {{ currentCourse.author.first_name }} {{ currentCourse.author.last_name }}.</span>
             </h2>
           </div>
           <cv-inline-notification
@@ -79,7 +79,7 @@ onMounted(async () => {
   loading.value = false;
 })
 
-const currentCourse = computed((): CourseModel => {
+const currentCourse = computed((): CourseModel | null => {
   return course.value;
 })
 
