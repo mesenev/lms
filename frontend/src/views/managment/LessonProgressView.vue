@@ -46,9 +46,9 @@
                                   :key="problem.id"
                                   class="mark tbody-element">
                 <div
-                  @click="openSubmitOrProblem(problem.id, user.solved[problem.type][problem.id][1])">
+                  @click="openSubmitOrProblem(problem.id, Number(user.solved[problem.type][problem.id][1]))">
                   <submit-status v-if="userMarks(user,problem.type,problem.id)"
-                                 :submit="create_submit(user.solved[problem.type][problem.id],problem.id,user.user)"/>
+                                 :submit="create_submit(Number(user.solved[problem.type][problem.id]),problem.id,user.user)"/>
                 </div>
               </cv-data-table-cell>
               <cv-data-table-cell>
@@ -174,12 +174,18 @@ function definition(column: number) {
   return `Успешно решило ${column} из ${progress.value.length} студентов`
 }
 
-function create_submit(status_id: never, problemId: number, userid: number) {
+function create_submit(status_id: number, problemId: number, userid: number) {
   return {
     id: Object.values(status_id)[1],
-    problem: problemId,
+    problem: {id: problemId, name: ''},
     student: Number(userid),
-    status: Object.values(status_id)[0]
+    status: Object.values(status_id)[0],
+    lesson: 0,
+    created_at: '',
+    cats_submit: 0,
+    content: '',
+    de_id: '',
+    cats_result: null
   }
 };
 

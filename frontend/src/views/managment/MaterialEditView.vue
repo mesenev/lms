@@ -169,13 +169,13 @@ async function uploadFiles(event: Event) {
       reader.readAsDataURL(element);
       reader.onload = async () => {
         const encodedFile = (<string>reader.result).split(",")[1];
-        const data = {
-          id: '-1',
-          name: element.name,
-          material: material.value.id.toString(),
-          file_url: encodedFile,
-          file_format: element.type
-        }
+        const data = new FormData()
+        data.append('id', '-1');
+        data.append('name', element.name);
+        data.append('material', material.value.id.toString());
+        data.append('file_url', encodedFile);
+        data.append('file_format', element.type);
+
         await materialStore.createAttachment(data).catch(error => {
           notificationKind.value = 'error';
           notificationText.value = `Что-то пошло не так: ${error.message}`;

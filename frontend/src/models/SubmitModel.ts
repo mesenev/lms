@@ -8,7 +8,7 @@ export interface SubmitModel {
   cats_submit?: number;
   content?: string;
   de_id: string;
-  cats_result: object;
+  cats_result: object | null;
 }
 
 export const SUBMIT_STATUS = {

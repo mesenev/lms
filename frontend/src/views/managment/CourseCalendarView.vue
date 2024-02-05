@@ -337,8 +337,8 @@ onMounted(async () => {
   loading.value = false;
 })
 
-watch(startDate, (new_val: string) => {
-  courseSchedule.value.start_date = new_val;
+watch(startDate, (new_val: string | object) =>  {
+  courseSchedule.value.start_date = new_val.toString();
 })
 
 watch(schedule, (new_val: Record<string, string | null>) => {
