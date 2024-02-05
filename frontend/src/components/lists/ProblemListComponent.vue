@@ -107,7 +107,8 @@ async function deleteProblem() {
 
 .accordion
   min-height 3rem
-  /deep/ .bx--accordion__content
+  :deep(.bx--accordion__content) {
     padding-right 0
+  }
 
 </style>

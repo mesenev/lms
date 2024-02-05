@@ -214,28 +214,30 @@ async function changeExam() {
 span
   margin-bottom 0.25rem
 
-/deep/ .bx
-  &--text
-    &-input
-      background-color var(--cds-ui-background)
+:deep(.bx--text-input) {
+  background-color var(--cds-ui-background)
+}
 
-    &-area
-      background-color var(--cds-ui-background)
+:deep(.bx--text-area) {
+  background-color var(--cds-ui-background)
+}
 
-  &--list
-    &-box
-      background-color var(--cds-ui-background)
+:deep(.bx--list-box) {
+  background-color var(--cds-ui-background)
+}
 
-      &__field
-        display flex
+:deep(.bx--list-box__field) {
+  display flex
+}
 
-  &--number
-    input[type=number]
-      background-color var(--cds-ui-background)
+:deep(.bx--number input[type=number]) {
+  background-color var(--cds-ui-background)
+}
 
-/deep/ .bx--date-picker__input
+:deep(.bx--date-picker__input) {
   background-color var(--cds-ui-background)
   width auto
+}
 
 .action-container
   display flex

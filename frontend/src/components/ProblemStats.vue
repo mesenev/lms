@@ -117,8 +117,9 @@ onMounted(async () => {
   margin-bottom 1rem
   padding-left 1rem
 
-  /deep/ .bx--structured-list-tbody
+  :deep(.bx--structured-list-tbody) {
     padding 0 1rem
+  }
 
   .headings
     display flex
@@ -133,16 +134,18 @@ onMounted(async () => {
       margin-right 5px
 
 .sent
-  /deep/ .bx--structured-list-tbody
+  :deep(.bx--structured-list-tbody) {
     display flex
     flex-direction column
-
+  }
+    
 
 .unsent
-  /deep/ .bx--structured-list-tbody
+  :deep(.bx--structured-list-tbody) {
     display flex
     flex-direction row
     flex-wrap wrap
+  }
 
   .cv-structured-list-item
     border 0

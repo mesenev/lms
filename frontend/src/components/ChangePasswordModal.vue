@@ -123,13 +123,16 @@ function modalHidden() {
 </script>
 
 <style scoped lang="stylus">
-.add_cats_modal /deep/ .bx--modal-container
+.add_cats_modal :deep(.bx--modal-container) {
   height 50%
+}
 
 .new-pass, .new-pass-repeat
-  & /deep/ .bx--text-input__field-wrapper .bx--text-input__invalid-icon
+  & :deep(.bx--text-input__field-wrapper .bx--text-input__invalid-icon) {
     transform: translateY(-50%) translateX(-20px)
-
-.add_cats_modal /deep/ .cv-text-input.bx--form-item:not(:first-child)
+  }
+    
+.add_cats_modal :deep(.cv-text-input.bx--form-item:not(:first-child)) {
   margin-top 1rem
+}
 </style>

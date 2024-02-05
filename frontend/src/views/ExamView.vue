@@ -545,14 +545,16 @@ h1
 .answers
   margin-left 1rem
 
-  /deep/ .bx--radio-button-group
+  :deep(.bx--radio-button-group) {
     gap 1.5rem
+  }
 
 .answers-checkbox
   margin-left 1rem
 
-  /deep/ .bx--form-item.bx--checkbox-wrapper:not(:last-of-type)
+  :deep(.bx--form-item.bx--checkbox-wrapper:not(:last-of-type)) {
     margin-bottom 1.5rem
+  }
 
 .cv-text-input
   margin-left 1rem
@@ -561,13 +563,15 @@ h1
 .cv-text-area
   margin-left 1rem
 
-/deep/ .bx--text-input
+:deep(.bx--text-input) {
   border-radius 5px
   border 1px solid var(--cds-ui-05)
-
-/deep/ .bx--text-area
+}
+  
+:deep(.bx--text-area) {
   border-radius 5px
   border 1px solid var(--cds-ui-05)
+}
 
 .empty-list
   padding-top 1rem

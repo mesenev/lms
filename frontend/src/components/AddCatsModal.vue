@@ -122,14 +122,16 @@ async function buttonHandler() {
 
 <style scoped lang="stylus">
 .add_cats_modal
-  /deep/ .bx--modal-container
+  :deep(.bx--modal-container) {
     width: fit-content
+  }
 
-  /deep/ .bx--modal-content
+  :deep(.bx--modal-content) {
     padding 0 4rem 0 0
     margin-left 1rem
     margin-bottom 1rem
     overflow hidden
+  }
 
 .btns
   float left;
