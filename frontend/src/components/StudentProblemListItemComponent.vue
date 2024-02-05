@@ -4,7 +4,7 @@
       <div class="problem-list-component--header">
         <h5 class="problem--title">{{ problem.name }}</h5>
         <div class="tags">
-          <submit-status v-if="!!submit.status" :submit="submit"/>
+          <submit-status v-if="submit && !!submit.status" :submit="submit"/>
           <cv-tag v-else kind="red" label="Не сдано"/>
         </div>
       </div>
@@ -43,7 +43,7 @@ onMounted(async () => {
   })
 
   function target() {
-    if (!!submit.value?.status) {
+    if (submit.value?.status) {
       return {
         name: 'ProblemViewWithSubmit',
         params: {

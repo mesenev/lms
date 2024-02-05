@@ -18,6 +18,11 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "lib": [
+      "ES2021.String",
+      "dom",
+      "dom.iterable"
+    ]
   }
 }

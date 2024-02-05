@@ -26,6 +26,7 @@ import type { ProblemModel } from "@/models/ProblemModel";
 interface StatsGraphStyle {
   backgroundColor: string;
   width: string;
+  [key: string]: string;
 }
 
 const props = defineProps({

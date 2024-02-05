@@ -11,6 +11,11 @@
     "moduleResolution": "node",
     "composite": true,
     "module": "ESNext",
-    "types": ["node"]
+    "types": ["node"],
+    "lib": [
+      "ES2021.String",
+      "dom",
+      "dom.iterable"
+    ]
   }
 }

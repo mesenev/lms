@@ -88,7 +88,7 @@
             <div v-else class="btns">
               <AddTeacherModal
                 v-if="!isNewCourse"
-                :courseId="course.id"
+                :groupId="course.id"
                 class="choose--teacher"/>
               <cv-button
                 :disabled="!isChanged"
@@ -114,7 +114,7 @@
             class="course-props edit--course"/>
           <div class="lessons-modal">
             <GenerateLinks
-              :courseId="course.id"
+              :groupId="course.id"
               class="generate--link"/>
             <EditCourseModal
               :course-id="course.id"

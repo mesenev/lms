@@ -28,7 +28,7 @@
       align="end">
       <staff-problem-list-item-component
         :is-editing="isEditing"
-        :problem="problem"
+        :problem="(problem as ProblemModel)"
         @show-confirm-modal="showConfirmModal($event)">
       </staff-problem-list-item-component>
     </cv-accordion>
@@ -107,7 +107,8 @@ async function deleteProblem() {
 
 .accordion
   min-height 3rem
-  :deep() .bx--accordion__content
+  :deep(.bx--accordion__content) {
     padding-right 0
+  }
 
 </style>

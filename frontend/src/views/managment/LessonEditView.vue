@@ -300,18 +300,22 @@ function updateExamList(new_exam: ExamModel) {
   examStore.setExams({ [props.lessonId]: lessonEdit.value.exams });
 }
 
-function updateProblemDelete(deleted_problem_id: number) {
-  lessonEdit.value.problems = lessonEdit.value.problems
-    .filter(x => x.id != deleted_problem_id);
-  lesson.value.problems = lessonEdit.value.problems;
-  problemStore.setProblems({ [props.lessonId]: lessonEdit.value.problems });
+function updateProblemDelete(deleted_problem_id: number | null) {
+  if (deleted_problem_id) {
+    lessonEdit.value.problems = lessonEdit.value.problems
+      .filter(x => x.id != deleted_problem_id);
+    lesson.value.problems = lessonEdit.value.problems;
+    problemStore.setProblems({[props.lessonId]: lessonEdit.value.problems});
+  }
 }
 
-function updateExamDelete(delete_exam_id: number) {
-  lessonEdit.value.exams = lessonEdit.value.exams
-    .filter(x => x.id != delete_exam_id);
-  lesson.value.exams = lessonEdit.value.exams;
-  examStore.setExams({ [props.lessonId]: lessonEdit.value.exams });
+function updateExamDelete(delete_exam_id: number | null) {
+  if (delete_exam_id){
+    lessonEdit.value.exams = lessonEdit.value.exams
+      .filter(x => x.id != delete_exam_id);
+    lesson.value.exams = lessonEdit.value.exams;
+    examStore.setExams({ [props.lessonId]: lessonEdit.value.exams });
+  }
 }
 
 function updateMaterialDelete() {

@@ -56,9 +56,9 @@
         </label>
       </div>
       <div class="bx--col-lg-4">
-        <input type="file" ref="file1" accept="image/*" v-on:change="Upload($event.target.files)"/>
+        <input type="file" ref="file1" accept="image/*" v-on:change="Upload($event)"/>
         <label>Предварительный просмотр</label>
-        <img v-bind:src="imagePreview" v-show="showPreview" alt="картинка" class="preview"/>
+        <img v-bind:src="imagePreview?.toString()" v-show="showPreview" alt="картинка" class="preview"/>
       </div>
     </div>
   </div>
@@ -88,15 +88,19 @@ const file: Ref<Blob> = ref(new Blob());
 const imagePreview: Ref<string | null | ArrayBuffer> = ref('');
 const showPreview: Ref<boolean> = ref(false);
 
-function Upload(fileList: never) {
-  file.value = fileList[0];
-  const reader = new FileReader();
-  reader.addEventListener("load", () => {
-    showPreview.value = true;
-    imagePreview.value = reader.result;
-  })
-  if (file.value) {
-    reader.readAsDataURL(file.value);
+function Upload(event: Event) {
+  const inputElement = event.target as HTMLInputElement;
+  if (inputElement.files !== null) {
+    const fileList = inputElement.files;
+    file.value = fileList[0];
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      showPreview.value = true;
+      imagePreview.value = reader.result;
+    })
+    if (file.value) {
+      reader.readAsDataURL(file.value);
+    }
   }
 }
 

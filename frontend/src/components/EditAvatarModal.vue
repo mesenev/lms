@@ -22,9 +22,9 @@
               :sub-title="notificationText"
               @close="() => showNotification=false"
           />
-          <input type="file" accept="image/*" @change="Upload($event.target.files)"/>
+          <input type="file" accept="image/*" @change="Upload($event)"/>
           <label>Предварительный просмотр</label>
-          <img :src="imagePreview" v-show="showPreview" alt="avatar" class="preview"/>
+          <img :src="imagePreview?.toString()" v-show="showPreview" alt="avatar" class="preview"/>
         </div>
       </template>
       <template v-slot:primary-button>
@@ -39,7 +39,8 @@
 import type {UserModel} from "@/models/UserModel";
 import Edit32 from '@carbon/icons-vue/es/edit/32';
 import api from '@/stores/services/api'
-import {PropType, ref} from "vue";
+import {ref} from "vue";
+import type { PropType } from 'vue';
 import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
 
 const {notificationText, notificationKind, showNotification, hideNotification} = useNotificationMixin();
@@ -88,8 +89,22 @@ function changeAvatar() {
   return;
 }
 
-function Upload(fileList: never) {
-  file.value = fileList[0];
+function Upload(event: Event) {
+  const inputElement = event.target as HTMLInputElement;
+  if (inputElement.files !== null) {
+    const fileList = inputElement.files;
+    file.value = fileList[0];
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      showPreview.value = true;
+      imagePreview.value = reader.result;
+    })
+    if (file.value) {
+      reader.readAsDataURL(file.value);
+      avatarChanged.value = true;
+    }
+  }
+
   const reader = new FileReader();
   reader.addEventListener("load", () => {
     showPreview.value = true;

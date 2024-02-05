@@ -1,5 +1,5 @@
 <template>
-  <router-view v-slot="{Component}" :key="route.params.problemId" :submitId="route.params.submitId">
+  <router-view v-slot="{Component}" :key="route.params.problemId.toString()" :submitId="route.params.submitId">
     <transition v-if="problem" mode="out-in" name="fade">
       <component :is="Component"/>
     </transition>

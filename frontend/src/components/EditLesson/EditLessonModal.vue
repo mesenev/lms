@@ -53,7 +53,7 @@
               <div class="problem-type-selection">
                 <h5>Тип задачи</h5>
                 <cv-radio-group
-                  @change="(newType) => problemType = newType"
+                  @change="(newType: string) => problemType = newType"
                   :vertical="false">
                   <cv-radio-button
                     v-model="problemType"

@@ -37,9 +37,9 @@
                 <div class="tbody-data">
                   <div class="marks">
                     <cv-tooltip tip="Результирующий балл">
-                      <cv-tag class="result-mark" :label="sum(row.progress[les.id]).toString()"/>
+                      <cv-tag class="result-mark" :label="row.progress ? sum(row.progress[les.id]).toString() : 0"/>
                     </cv-tooltip>
-                    <div v-for="(value, name) in row.progress[les.id]" :key="value+name"
+                    <div v-for="(value, name) in row.progress ? row.progress[les.id] : {}" :key="value+name"
                          class="mark">
                       <cv-tooltip :tip="`Балл за: ${name}`">
                         <cv-tag :label="Math.trunc(value).toString()" :kind="color(name)"/>
@@ -72,23 +72,23 @@
 import SubmitStatus from "@/components/SubmitStatus.vue";
 import UserComponent from "@/components/UserComponent.vue";
 import _ from 'lodash';
-import type { UserModel } from "@/models/UserModel";
-import type { Attendance } from "@/models/Attendance";
-import type { UserProgress } from '@/models/UserProgress';
+import type {UserModel} from "@/models/UserModel";
+import type {Attendance} from "@/models/Attendance";
+import type {UserProgress} from '@/models/UserProgress';
 import useCourseStore from '@/stores/modules/course'
 import useProblemStore from "@/stores/modules/problem"
 import useProgressStore from "@/stores/modules/progress"
 import useUserStore from '@/stores/modules/user';
 import useLessonStore from '@/stores/modules/lesson'
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
-import type { CourseModel } from "@/models/CourseModel";
-import type { LessonModel } from "@/models/LessonModel";
+import type {CourseModel} from "@/models/CourseModel";
+import type {LessonModel} from "@/models/LessonModel";
 import api from "@/stores/services/api";
 import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
-import { ref, type Ref, computed, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import {ref, type Ref, computed, onMounted} from "vue";
+import {useRouter, useRoute} from "vue-router";
 
-const props = defineProps({ courseId: { type: Number, required: true } })
+const props = defineProps({courseId: {type: Number, required: true}})
 const userStore = useUserStore();
 const courseStore = useCourseStore();
 const progressStore = useProgressStore();
@@ -103,7 +103,7 @@ const users: Ref<Dictionary<UserModel>> = ref({});
 const student_attendance: Ref<Dictionary<Attendance>> = ref({});
 const student_attendance_copy: Ref<Dictionary<any>> = ref({});
 const lessons: Ref<Array<LessonModel>> = ref([]);
-const course: Ref<CourseModel> = ref({ ...courseStore.newCourse });
+const course: Ref<CourseModel> = ref({...courseStore.newCourse});
 const emptyText: Ref<string> = ref('');
 
 const loading: Ref<boolean> = ref(true);
@@ -117,8 +117,8 @@ const columns = computed(() => {
       name: l.name,
     }
   ))
-  a.unshift({ id: -2, name: "Ученики" })
-  a.push({ id: 0, name: "Рейтинг" })
+  a.unshift({id: -2, name: "Ученики"})
+  a.push({id: 0, name: "Рейтинг"})
   return a
 })
 
@@ -174,7 +174,8 @@ function sum(type: any) {
   return Math.trunc(type['CW'] + type['HW'] + type['EX']);
 }
 
-function average(progress: Dictionary<string>) {
+function average(progress: Dictionary<string> | undefined) {
+  if (!progress) return 0;
   let sum = 0 as any;
   for (const submits of Object.values(progress)) {
     sum += submits['CW' as any];
@@ -242,7 +243,7 @@ function Sort(sortBy: { index: string; order: string }) {
   display flex
   flex-direction row
   justify-content space-between
-  margin-bottom 1rem
+  margin-bottom  1rem
 
 .main-title
   margin-left 0
@@ -250,7 +251,7 @@ function Sort(sortBy: { index: string; order: string }) {
 
 .table-wrapper
   margin-top 1rem
-  border 0.5px solid var(--cds-ui-05)
+  border 0.5 px solid var(--cds-ui-05)
   border-collapse separate
   overflow-x auto
   width 100%
@@ -290,7 +291,7 @@ function Sort(sortBy: { index: string; order: string }) {
 
 .result-mark
   color var(--cds-ui-05)
-  background-color var(--cds-ui-background)
+  background-color var(--cds-ui-background  )
   border var(--cds-ui-05) 0.5px solid
 
 .mark
@@ -307,17 +308,17 @@ function Sort(sortBy: { index: string; order: string }) {
   margin-top 5rem
   text-align center
 
-  h4
-    font-size var(--cds-productive-heading-04-font-size)
+h4
+  font-size var(--cds-productive-heading-04-font-size)
 
-  p
-    font-size var(--cds-productive-heading-03-font-size)
+p
+  font-size var(--cds-productive-heading-03-font-size)
 
 .attendance
   display inline
 
-  label
-    display inline
+label
+  display inline
 
 .header
   padding-bottom: 1.5rem
