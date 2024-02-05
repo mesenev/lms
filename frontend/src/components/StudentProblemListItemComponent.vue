@@ -43,7 +43,7 @@ onMounted(async () => {
   })
 
   function target() {
-    if (!!submit.value?.status) {
+    if (submit.value?.status) {
       return {
         name: 'ProblemViewWithSubmit',
         params: {
