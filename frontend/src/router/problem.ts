@@ -11,7 +11,7 @@ const problemRoutes = [
     path: 'submit/:submitId',
     name: 'ProblemViewWithSubmit',
     component: ProblemView,
-    props: (route) => {
+    props: (route : any) => {
       const submitIdProp = Number.parseInt(route.params.submitId as string, 10);
       return { submitIdProp, ...route.params };
     },
@@ -20,7 +20,7 @@ const problemRoutes = [
     path: 'edit/',
     name: 'problem-edit',
     component: ProblemEditView,
-    props: (route) => {
+    props: (route : any) => {
       const problemId = Number.parseInt(route.params.submitId as string, 10);
       return { problemId, ...route.params };
     },

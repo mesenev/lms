@@ -15,16 +15,16 @@
         Изменить фото профиля
       </template>
       <template v-slot:content>
-        <div class="bx--col-lg-4, content">
+        <div class="bx--col-lg-4 content">
           <cv-inline-notification
               v-if="showNotification"
               :kind="notificationKind"
               :sub-title="notificationText"
               @close="() => showNotification=false"
           />
-          <input type="file" accept="image/*" @change="Upload($event.target.files)"/>
+          <input type="file" accept="image/*" @change="upload"/>
           <label>Предварительный просмотр</label>
-          <img :src="imagePreview" v-show="showPreview" alt="avatar" class="preview"/>
+          <img :src="imagePreview as string" v-show="showPreview" alt="avatar" class="preview"/>
         </div>
       </template>
       <template v-slot:primary-button>
@@ -34,72 +34,99 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-
+<script lang="ts">
 import type {UserModel} from "@/models/UserModel";
 import Edit32 from '@carbon/icons-vue/es/edit/32';
 import api from '@/stores/services/api'
-import {PropType, ref} from "vue";
+import { ref } from "vue";
+import type { PropType } from "vue";
 import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
 
-const {notificationText, notificationKind, showNotification, hideNotification} = useNotificationMixin();
+export default {
+  props: {
+    user: { type: Object as PropType<UserModel>, required: true }
+  },
+  emits: ['update-user'],
+  components: {
+    Edit32
+  },
+  setup(props, { emit }) {
+    const { notificationText, notificationKind, showNotification } = useNotificationMixin();
 
-const props = defineProps({
-  user: {type: Object as PropType<UserModel>, required: true}
-});
-const emits = defineEmits(['update-user']);
-const imagePreview = ref<String | null | ArrayBuffer>('');
-const showPreview = ref(false);
-const avatarChanged = ref(false);
-const modalVisible = ref(false);
-const file = ref(new Blob());
+    const imagePreview = ref<string | null | ArrayBuffer>('');
+    const showPreview = ref(false);
+    const avatarChanged = ref(false);
+    const modalVisible = ref(false);
+    const file = ref<File | null>(null);
 
-function showModal() {
-  modalVisible.value = true;
-}
+    const showModal = () => {
+      modalVisible.value = true;
+    };
 
-function modalHidden() {
-  modalVisible.value = false;
-  avatarChanged.value = false;
-  showNotification.value = false;
-  showPreview.value = false;
-}
+    const modalHidden = () => {
+      modalVisible.value = false;
+      avatarChanged.value = false;
+      showNotification.value = false;
+      showPreview.value = false;
+    };
 
-function changeAvatar() {
-  const fd = new FormData();
-  fd.append('avatar_url', file.value);
-  api.post('/api/change-avatar/', fd, {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  })
+    const changeAvatar = () => {
+      if (!file.value) return;
+
+      const fd = new FormData();
+      fd.append('avatar_url', file.value);
+      
+      api.post('/api/change-avatar/', fd, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      })
       .then(response => {
         notificationKind.value = 'success';
         notificationText.value = "Фото профиля успешно изменено!";
         showNotification.value = true;
-        emits('update-user', {...props.user, avatar_url: response.data.message});
+        emit('update-user', {...props.user, avatar_url: response.data.message});
         setTimeout(modalHidden, 2000);
       })
       .catch(error => {
         notificationKind.value = 'error';
         notificationText.value = `Что-то пошло не так: ${error.message}`;
         showNotification.value = true;
-      })
-  return;
-}
+      });
+    };
 
-function Upload(fileList: never) {
-  file.value = fileList[0];
-  const reader = new FileReader();
-  reader.addEventListener("load", () => {
-    showPreview.value = true;
-    imagePreview.value = reader.result;
-  })
-  if (file.value) {
-    reader.readAsDataURL(file.value);
-    avatarChanged.value = true;
+    const upload = (event: Event) => {
+      const target = event.target as HTMLInputElement;
+      if (!target.files) return;
+
+      file.value = target.files[0];
+      
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        showPreview.value = true;
+        imagePreview.value = reader.result as string;
+      });
+
+      reader.readAsDataURL(file.value);
+      avatarChanged.value = true;
+    };
+
+    return {
+      Edit32,
+      showModal,
+      modalHidden,
+      changeAvatar,
+      upload,
+      imagePreview,
+      showPreview,
+      avatarChanged,
+      modalVisible,
+      notificationText,
+      notificationKind,
+      showNotification
+    };
   }
-}
+};
 </script>
 
 <style scoped lang="stylus">

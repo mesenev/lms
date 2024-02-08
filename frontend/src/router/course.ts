@@ -10,7 +10,7 @@ const courseRoutes = [
     path: '',
     name: 'CourseView',
     component: CourseView,
-    props: (route) => {
+    props: (route : any) => {
       const courseId = Number(route.params.courseId);
       return { courseId };
     },
@@ -19,7 +19,7 @@ const courseRoutes = [
     path: 'groups',
     name: 'course-groups',
     component: CourseGroupsView,
-    props: (route) => {
+    props: (route : any) => {
       const courseId = Number.parseInt(route.params.courseId as string, 10);
       return { courseId };
     },
@@ -28,7 +28,7 @@ const courseRoutes = [
     path: 'edit',
     name: 'course-edit',
     component: CourseEditView,
-    props: (route) => {
+    props: (route : any) => {
       const courseId = Number.parseInt(route.params.courseId as string, 10);
       return { courseId };
     },
@@ -37,7 +37,7 @@ const courseRoutes = [
     path: 'schedule',
     name: 'course-calendar',
     component: CourseCalendarView,
-    props: (route) => {
+    props: (route : any) => {
       const courseId = Number.parseInt(route.params.courseId as string, 10);
       return { courseId };
     },
@@ -46,7 +46,7 @@ const courseRoutes = [
     path: 'progress',
     name: 'course-progress',
     component: CourseProgressView,
-    props: (route) => {
+    props: (route : any) => {
       const courseId = Number.parseInt(route.params.courseId as string, 10);
       return { courseId };
     },
@@ -55,7 +55,7 @@ const courseRoutes = [
     path: 'solutions-list',
     name: 'course-solutions-list',
     component: SolutionsListView,
-    props: (route) => {
+    props: (route : any) => {
       const courseId = Number.parseInt(route.params.courseId as string, 10);
       return { courseId };
     },

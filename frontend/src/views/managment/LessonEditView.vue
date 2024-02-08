@@ -85,7 +85,7 @@
               <div v-if="!fetchingLesson" class="classwork">
                 <problem-list-component
                   :is-editing="true"
-                  @update-problem-delete="updateProblemDelete($event)"
+                  @update-problem-delete="updateProblemDelete($event!)"
                   :task-list="getClasswork">
                 </problem-list-component>
               </div>
@@ -100,7 +100,7 @@
               <div v-if="!fetchingLesson" class="homework">
                 <problem-list-component
                   :is-editing="true"
-                  @update-problem-delete="updateProblemDelete($event)"
+                  @update-problem-delete="updateProblemDelete($event!)"
                   :task-list="getHomework">
                 </problem-list-component>
               </div>
@@ -115,7 +115,7 @@
               <div v-if="!fetchingLesson" class="extrawork">
                 <problem-list-component
                   :is-editing="true"
-                  @update-problem-delete="updateProblemDelete($event)"
+                  @update-problem-delete="updateProblemDelete($event!)"
                   :task-list="getExtrawork">
                 </problem-list-component>
               </div>

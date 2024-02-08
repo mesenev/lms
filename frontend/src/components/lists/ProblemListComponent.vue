@@ -28,7 +28,7 @@
       align="end">
       <staff-problem-list-item-component
         :is-editing="isEditing"
-        :problem="problem"
+        :problem="(problem as ProblemModel)"
         @show-confirm-modal="showConfirmModal($event)">
       </staff-problem-list-item-component>
     </cv-accordion>
