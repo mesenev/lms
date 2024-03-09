@@ -26,7 +26,7 @@ const props = defineProps({
   submitIdProp: { type: Number, required: true }
 })
 
-const data = ref({});
+const data: { [key: string]: any } = ref({});
 const submitStore = useSubmitStore();
 
 const isLoading = computed((): boolean => {

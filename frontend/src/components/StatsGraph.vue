@@ -18,8 +18,9 @@ import useSubmitStore from '@/stores/modules/submit';
 import type {SubmitModel} from "@/models/SubmitModel";
 import type {UserModel} from "@/models/UserModel";
 import { type PropType, ref, type Ref, computed, onMounted } from 'vue';
+import { type CSSProperties } from 'vue';
 
-interface StatsGraphStyle {
+interface StatsGraphStyle extends CSSProperties {
   backgroundColor: string;
   width: string;
 }

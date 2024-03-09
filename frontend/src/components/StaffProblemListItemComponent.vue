@@ -50,7 +50,7 @@ const emit = defineEmits<{
 }>()
 
 function target(problem: ProblemModel) {
-  if (!!problem.last_submit) {
+  if (problem.last_submit) {
     return {
       name: 'ProblemViewWithSubmit',
       params: {

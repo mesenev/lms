@@ -74,7 +74,7 @@
                  ref="files"
                  multiple
                  :disabled="attachmentLoading"
-                 @change="uploadFiles($event.target.files)"/>
+                 @change="uploadFiles($event)"/>
           <div class="action-btns">
             <cv-button kind="danger" @click="showConfirmModal(material)">
               Удалить
@@ -160,32 +160,34 @@ onMounted(async () => {
   loading.value = false;
 })
 
-async function uploadFiles(fileList: File[]) {
+async function uploadFiles(event: Event) {
   attachmentLoading.value = true;
+  const fileList = (event.target as HTMLInputElement).files
+  if (fileList) {
+    for (const element of fileList) {
+      const reader = new FileReader();
+      reader.readAsDataURL(element);
+      reader.onload = async () => {
+        const encodedFile = (<string>reader.result).split(",")[1];
+        const data = new FormData()
+        data.append('id', '-1');
+        data.append('name', element.name);
+        data.append('material', material.value.id.toString());
+        data.append('file_url', encodedFile);
+        data.append('file_format', element.type);
 
-  for (const element of fileList) {
-    const reader = new FileReader();
-    reader.readAsDataURL(element);
-    reader.onload = async () => {
-      const encodedFile = reader.result.split(",")[1];
-      const data = {
-        id: '-1',
-        name: element.name,
-        material: material.value.id.toString(),
-        file_url: encodedFile,
-        file_format: element.type
+        await materialStore.createAttachment(data).catch(error => {
+          notificationKind.value = 'error';
+          notificationText.value = `Что-то пошло не так: ${error.message}`;
+          showNotification.value = true;
+        })
       }
-      await materialStore.createAttachment(data).catch(error => {
-        notificationKind.value = 'error';
-        notificationText.value = `Что-то пошло не так: ${error.message}`;
-        showNotification.value = true;
-      })
     }
+    await updateAttachments();
+    const input = window.document.getElementById('files_input') as HTMLInputElement
+    input.value = '';
+    attachmentLoading.value = false;
   }
-  await updateAttachments();
-  const input = window.document.getElementById('files_input') as HTMLInputElement
-  input.value = '';
-  attachmentLoading.value = false;
 }
 
 const currentMaterial = computed((): MaterialModel => {
@@ -379,30 +381,37 @@ async function updateAfterChangeMaterials(oldMaterial: MaterialModel, newMateria
   justify-content space-between
 
 .cv-text-input
-  :deep() .bx--label
+  :deep(.bx--label) {
     margin-top 2px
+  }
 
 .material-type-dropdown
   max-width 10rem
 
-  :deep() .bx--dropdown
+  :deep(.bx--dropdown) {
     background-color var(--cds-ui-background)
+  }
 
-  :deep() .bx--dropdown__wrapper.bx--list-box__wrapper
+  :deep(.bx--dropdown__wrapper.bx--list-box__wrapper) {
     align-self end
+  }
 
-:deep() .bx--list-box__field
+:deep(.bx--list-box__field) {
   display flex
+}
 
-:deep() .bx--text-input
+:deep(.bx--text-input) {
   margin-bottom 1rem
   background-color var(--cds-ui-background)
+}
 
-.text-area :deep() .bx--text-area
-  background-color var(--cds-ui-background)
-  min-height 13rem
-  resize none
-  margin-bottom 1rem
+:deep(.text-area),
+:deep(.bx--text-area) {
+  background-color: var(--cds-ui-background);
+  min-height: 13rem;
+  resize: none;
+  margin-bottom: 1rem;
+}
 
 #files_input
   color var(--cds-text-01)

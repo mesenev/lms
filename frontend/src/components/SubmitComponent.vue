@@ -7,7 +7,7 @@
             submitEdit.status
           }}</span></span>
       </div>
-      <span class="submit-date">{{ withoutSeconds(submitEdit.updated_at) }}</span>
+      <span class="submit-date">{{ withoutSeconds(submitEdit.created_at) }}</span>
     </div>
     <cv-skeleton-text v-if="loading"/>
     <div v-else>
