@@ -5,13 +5,13 @@
     </div>
     <div class="list">
       <cv-inline-notification
-          v-if="showNotification"
-          :kind="notificationKind"
-          :sub-title="notificationText"
-          @close="hideNotification"
-        />
+        v-if="showNotification"
+        :kind="notificationKind"
+        :sub-title="notificationText"
+        @close="hideNotification"
+      />
       <cv-structured-list>
-        <template slot="items" class>
+        <template v-slot:items>
           <cv-structured-list-item class="list-item">
             <cv-structured-list-data>Имя</cv-structured-list-data>
             <cv-structured-list-data>
@@ -30,7 +30,7 @@
               <cv-text-input v-model.trim="curUser.username">
                 <template
                   v-if="checkUsername"
-                  slot="invalid-message">
+                  v-slot:invalid-message>
                   Логин должен содержать от 4 до 10 символов
                   и может состоять из латинских букв и цифр
                 </template>
@@ -46,12 +46,12 @@
                 label="Выберите группу"
                 v-model="curUser.study_group"/>
             </cv-structured-list-data>
-          </cv-structured-list-item >
+          </cv-structured-list-item>
           <cv-structured-list-item class="list-item">
             <cv-structured-list-data>Почта</cv-structured-list-data>
             <cv-structured-list-data>
               <cv-text-input v-model.trim="curUser.email">
-                <template v-if="checkEmail" slot="invalid-message">
+                <template v-if="checkEmail" v-slot:invalid-message>
                   Введите корректный Email
                 </template>
               </cv-text-input>
@@ -67,107 +67,122 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
+import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
+import type { PropType } from "vue";
+import type { UserModel } from "@/models/UserModel";
+import { computed, onMounted, ref } from "vue";
+import api from "@/stores/services/api";
+import _ from 'lodash';
 
-import UserModel from "@/models/UserModel";
-import api from '@/store/services/api'
-import {Component, Prop} from 'vue-property-decorator';
-import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
+const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
-@Component({ components: {} })
-export default class EditProfileComponent extends NotificationMixinComponent {
-  @Prop() user!: UserModel;
+const props = defineProps({
+  user: { type: Object as PropType<UserModel>, required: true }
+})
 
-  curUser: UserModel = {...this.user};
+const emits = defineEmits(['updateUser', 'back'])
 
-  isLoginValid = false;
-  isEmailValid = false;
+const curUser = ref<UserModel>(_.cloneDeep(props.user));
 
-  studyGroups = [] as Array<any>;
+const isLoginValid = ref(false);
+const isEmailValid = ref(false);
 
-  async created() {
-    await this.fetch_study_groups();
-    this.studyGroups = this.studyGroups.map(item => {
-      return {
-        name: item.study_group,
-        label: item.study_group,
-        value: item.study_group,
-      };
-    });
-  }
+const studyGroups = ref<Array<any>>([]);
 
-  async fetch_study_groups() {
-    await api.get(`/api/studygroups/`)
-      .then(response => {
-        if (response.data)
-          this.studyGroups = response.data;
-      })
-      .catch(error => {
-        console.log(error);
-      })
-  }
+onMounted(async () => {
+  // await fetch_study_groups();
+  // studyGroups.value = studyGroups.value.map(item => {
+  //   return {
+  //     name: item.study_group,
+  //     label: item.study_group,
+  //     value: item.study_group,
+  //   };
+  // });
+})
 
-  get isDataValid(): boolean {
-    return this.isEmailValid || this.isLoginValid;
-  }
+// async function fetch_study_groups() {
+//   await api.get(`/api/studygroups/`)
+//     .then(response => {
+//       if (response.data)
+//         studyGroups.value = response.data;
+//     })
+//     .catch(error => {
+//       console.log(error);
+//     })
+// }
 
-  get checkUsername(): boolean {
-    if (this.curUser.username) {
-      const valid = !/^[a-zA-Z0-9]+$/.test(this.curUser.username)
-      if (valid || (this.curUser.username.length < 4 || this.curUser.username.length > 10)) {
-        this.isLoginValid = true;
-        return true;
-      }
-      this.isLoginValid = false;
-      return false;
-    }
-    return true;
-  }
-
-  get checkEmail(): boolean {
-    if (this.curUser.email) {
-      const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      const valid = !re.test(this.curUser.email);
-      if (valid) {
-        this.isEmailValid = true;
-        return true;
-      }
-      this.isEmailValid = false;
-      return false;
-    }
-    this.isEmailValid = true;
-    return true;
-  }
-
-  async editButtonHandler() {
-    await api.patch(`/api/users/${this.curUser.id}/`, {
-        first_name: this.curUser.first_name,
-        last_name: this.curUser.last_name,
-        study_group: this.curUser.study_group,
-        username: this.curUser.username,
-        email: this.curUser.email,
-    })
-      .then(response => {
-        this.$emit('updateUser', this.curUser);
-        this.notificationKind = 'success';
-        this.notificationText = "Профиль успешно изменен";
-        this.showNotification = true;
-      })
-      .catch(error => {
-        this.notificationKind = 'error';
-        this.notificationText = `Что-то пошло не так: ${error.message}`;
-        this.showNotification = true;
-      })
-  }
-
-  hideEdit() {
-    this.$emit('back');
-  }
-
+function setLoginValidStatus(status: boolean) {
+  isLoginValid.value = status;
 }
+
+function setEmailValidStatus(status: boolean) {
+  isEmailValid.value = status;
+}
+
+const isDataValid = computed((): boolean => {
+  return isEmailValid.value || isLoginValid.value;
+})
+
+const checkUsername = computed((): boolean => {
+  if (curUser.value.username) {
+    const valid = !/^[a-zA-Z0-9]+$/.test(curUser.value.username)
+    if (valid || (curUser.value.username.length < 4 || curUser.value.username.length > 10)) {
+      setLoginValidStatus(true);
+      return true;
+    }
+    setLoginValidStatus(false);
+    return false;
+  }
+  return true;
+})
+
+const checkEmail = computed((): boolean => {
+  if (curUser.value.email) {
+    const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    const valid = !re.test(curUser.value.email);
+    if (valid) {
+      setEmailValidStatus(true);
+      return true;
+    }
+    setEmailValidStatus(false);
+    return false;
+  }
+  setEmailValidStatus(true);
+  return true;
+})
+
+async function editButtonHandler() {
+  await api.patch(`/api/users/${curUser.value.id}/`, {
+    first_name: curUser.value.first_name,
+    last_name: curUser.value.last_name,
+    study_group: curUser.value.study_group,
+    username: curUser.value.username,
+    email: curUser.value.email,
+  })
+    .then(response => {
+      emits('updateUser', curUser.value);
+      notificationKind.value = 'success';
+      notificationText.value = "Профиль успешно изменен";
+      showNotification.value = true;
+    })
+    .catch(error => {
+      notificationKind.value = 'error';
+      notificationText.value = `Что-то пошло не так: ${error.message}`;
+      showNotification.value = true;
+    })
+}
+
+function hideEdit() {
+  emits('back');
+}
+
 </script>
 
 <style scoped lang="stylus">
+:deep() .bx--text-input,
+:deep() .bx--combo-box
+  background-color var(--cds-ui-background)
 
 .list
   margin-top 2rem

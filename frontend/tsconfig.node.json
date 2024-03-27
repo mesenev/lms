@@ -1,0 +1,21 @@
+{
+  "extends": "@tsconfig/node18/tsconfig.json",
+  "include": [
+    "vite.config.*",
+    "vitest.config.*",
+    "cypress.config.*",
+    "nightwatch.conf.*",
+    "playwright.config.*"
+  ],
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "composite": true,
+    "module": "ESNext",
+    "types": ["node"],
+    "lib": [
+      "ES2021.String",
+      "dom",
+      "dom.iterable"
+    ]
+  }
+}

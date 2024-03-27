@@ -5,253 +5,266 @@
         <router-link :to="{ path: '/', }">Список курсов</router-link>
       </cv-breadcrumb-item>
       <lms-breadcrumb-item
-        v-if="courseSelected.selected"
-        :model="courseStore.currentCourse"
-        page-view="CourseView"
+          v-if="courseSelected.selected"
+          :model="courseStore.currentCourse"
+          page-view="CourseView"
       />
       <lms-breadcrumb-item
-        v-if="courseProgressSelected.selected"
-        :model="courseProgressSelected.value"
-        :page-view="courseProgressSelected.pageView"/>
-      <lms-breadcrumb-item
-        v-if="courseScheduleSelected.selected"
-        :model="courseScheduleSelected.value"
-        :page-view="courseScheduleSelected.pageView"
+          v-if="courseGroupsSelected.selected"
+          :model="courseGroupsSelected.value"
+          :page-view="courseGroupsSelected.pageView"
       />
       <lms-breadcrumb-item
-        v-if="courseSolutionsListSelected.selected"
-        :model="courseSolutionsListSelected.value"
-        :page-view="courseSolutionsListSelected.pageView"
+          v-if="courseProgressSelected.selected"
+          :model="courseProgressSelected.value"
+          :page-view="courseProgressSelected.pageView"/>
+      <lms-breadcrumb-item
+          v-if="courseScheduleSelected.selected"
+          :model="courseScheduleSelected.value"
+          :page-view="courseScheduleSelected.pageView"
       />
       <lms-breadcrumb-item
-        v-if="profileSelected.selected"
-        :model="profileSelected.value"
-        page-view="profile-page"
+          v-if="courseSolutionsListSelected.selected"
+          :model="courseSolutionsListSelected.value"
+          :page-view="courseSolutionsListSelected.pageView"
       />
       <lms-breadcrumb-item
-        v-if="lessonSelected.selected"
-        :model="lessonStore.currentLesson"
-        page-view="LessonView"
+          v-if="profileSelected.selected"
+          :model="profileSelected.value"
+          page-view="profile-page"
       />
       <lms-breadcrumb-item
-        v-if="lessonProgressSelected.selected"
-        :model="lessonProgressSelected.value"
-        :page-view="lessonProgressSelected.pageView"
+          v-if="lessonSelected.selected"
+          :model="lessonStore.currentLesson"
+          page-view="LessonView"
       />
       <lms-breadcrumb-item
-        v-if="examSelected.selected"
-        :model="examStore.currentExam"
-        page-view="ExamView"/>
-      <lms-breadcrumb-item
-        v-if="examSolutionSelected.selected"
-        :model="examSolutionSelected.value"
-        :page-view="examSolutionSelected.pageView"
+          v-if="lessonProgressSelected.selected"
+          :model="lessonProgressSelected.value"
+          :page-view="lessonProgressSelected.pageView"
       />
       <lms-breadcrumb-item
-        v-if="examEditSelected.selected"
-        :model="examEditSelected.value"
-        :page-view="examEditSelected.pageView"
+          v-if="examSelected.selected"
+          :model="examStore.currentExam"
+          page-view="ExamView"/>
+      <lms-breadcrumb-item
+          v-if="examSolutionSelected.selected"
+          :model="examSolutionSelected.value"
+          :page-view="examSolutionSelected.pageView"
       />
       <lms-breadcrumb-item
-        v-if="problemSelected.selected"
-        :model="problemStore.currentProblem"
-        page-view="ProblemView"
+          v-if="examEditSelected.selected"
+          :model="examEditSelected.value"
+          :page-view="examEditSelected.pageView"
       />
       <lms-breadcrumb-item
-        v-if="submitSelected.selected"
-        :model="submitSelected.value"
-        :page-view="submitSelected.pageView"
+          v-if="problemSelected.selected"
+          :model="problemStore.currentProblem"
+          page-view="ProblemView"
       />
       <lms-breadcrumb-item
-        v-if="materialSelected.selected"
-        :model="materialStore.currentMaterial"
-        page-view="MaterialView"
+          v-if="submitSelected.selected"
+          :model="submitSelected.value"
+          :page-view="submitSelected.pageView"
       />
       <lms-breadcrumb-item
-        v-if="courseEditSelected.selected"
-        :model="courseEditSelected.value"
-        :page-view="courseEditSelected.pageView"
+          v-if="materialSelected.selected"
+          :model="materialStore.currentMaterial"
+          page-view="MaterialView"
       />
       <lms-breadcrumb-item
-        v-if="lessonEditSelected.selected"
-        :model="lessonEditSelected.value"
-        :page-view="lessonEditSelected.pageView"
+          v-if="courseEditSelected.selected"
+          :model="courseEditSelected.value"
+          :page-view="courseEditSelected.pageView"
       />
       <lms-breadcrumb-item
-        v-if="problemEditSelected.selected"
-        :model="problemEditSelected.value"
-        :page-view="problemEditSelected.pageView"
+          v-if="lessonEditSelected.selected"
+          :model="lessonEditSelected.value"
+          :page-view="lessonEditSelected.pageView"
       />
       <lms-breadcrumb-item
-        v-if="materialEditSelected.selected"
-        :model="materialEditSelected.value"
-        :page-view="materialEditSelected.pageView"
+          v-if="problemEditSelected.selected"
+          :model="problemEditSelected.value"
+          :page-view="problemEditSelected.pageView"
+      />
+      <lms-breadcrumb-item
+          v-if="materialEditSelected.selected"
+          :model="materialEditSelected.value"
+          :page-view="materialEditSelected.pageView"
       />
     </cv-breadcrumb>
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 
+import useProblemStore from "@/stores/modules/problem";
+import useLessonStore from "@/stores/modules/lesson";
+import useCourseStore from "@/stores/modules/course";
+import useMaterialStore from "@/stores/modules/material";
+import useExamStore from "@/stores/modules/exam";
+import {computed} from "vue";
+import {useRoute} from "vue-router";
 import LmsBreadcrumbItem from "@/components/LmsBreadcrumbItem.vue";
-import courseStore from '@/store/modules/course';
-import lessonStore from '@/store/modules/lesson';
-import materialStore from '@/store/modules/material';
-import problemStore from '@/store/modules/problem';
-import examStore from '@/store/modules/exam';
-import { Component, Vue } from "vue-property-decorator";
 
-@Component({ components: { LmsBreadcrumbItem } })
-export default class LmsBreadcrumb extends Vue {
-  problemStore = problemStore;
-  lessonStore = lessonStore;
-  courseStore = courseStore;
-  materialStore = materialStore;
-  examStore = examStore;
+const problemStore = useProblemStore();
+const lessonStore = useLessonStore();
+const courseStore = useCourseStore();
+const materialStore = useMaterialStore();
+const examStore = useExamStore();
 
-  private isSelected(param: string) {
-    const selected = this.$route.params.hasOwnProperty(param) && !!this.$route.params[param];
-    return {
-      selected,
-      id: selected ? Number(this.$route.params[param]) : NaN,
-    };
+const route = useRoute()
+
+function isSelected(param: string) {
+  const selected = route.params.hasOwnProperty(param) && !!route.params[param];
+  return {
+    selected,
+    id: selected ? Number(route.params[param]) : NaN,
+  };
+}
+
+function selectedView(pageView: string, param: string, crumbName: string) {
+  let selected = false;
+  let value = null;
+  if (route.name === pageView) {
+    selected = true;
+    value = {id: route.params[param], name: crumbName};
   }
+  return {selected, value, pageView};
+}
 
-  selectedView(pageView: string, param: string, crumbName: string) {
-    let selected = false;
-    let value = null;
-    if (this.$route.name === pageView) {
-      selected = true;
-      value = { id: this.$route.params[param], name: crumbName };
-    }
-    return { selected, value, pageView };
-  }
+const courseSelected = computed(() => {
+  return isSelected('courseId');
+})
 
-  get courseSelected() {
-    return this.isSelected('courseId');
-  }
+const lessonSelected = computed(() => {
+  return isSelected('lessonId');
+})
 
-  get lessonSelected() {
-    return this.isSelected('lessonId');
-  }
+const problemSelected = computed(() => {
+  return isSelected('problemId');
+})
 
-  get problemSelected() {
-    return this.isSelected('problemId');
-  }
+const materialSelected = computed(() => {
+  return isSelected('materialId');
+})
 
-  get materialSelected() {
-    return this.isSelected('materialId');
-  }
+const examSelected = computed(() => {
+  return isSelected('examId');
+})
 
-  get examSelected() {
-    return this.isSelected('examId');
-  }
-
-  get examEditSelected() {
-    return this.selectedView(
+const examEditSelected = computed(() => {
+  return selectedView(
       'exam-edit',
       'examId',
       'Редактирование теста'
-    );
-  }
+  );
+})
 
-  get courseEditSelected() {
-    if (this.$route.name === 'course-edit') {
-      return this.selectedView(
+const courseGroupsSelected = computed(() => {
+  return selectedView(
+      'course-groups',
+      'courseId',
+      'Группы курса'
+  );
+})
+
+const courseEditSelected = computed(() => {
+  if (route.name === 'course-edit') {
+    return selectedView(
         'course-edit',
         'courseId',
         'Редактирование курса'
-      );
-    }
-    return this.selectedView(
+    );
+  }
+  return selectedView(
       'course-add',
       'courseId',
       'Создание курса'
-    );
-  }
+  );
+})
 
-  get lessonEditSelected() {
-    return this.selectedView(
+const lessonEditSelected = computed(() => {
+  return selectedView(
       'lesson-edit',
       'lessonId',
       'Редактирование урока'
-    );
-  }
+  );
+})
 
-  get profileSelected() {
-    return this.selectedView(
+const profileSelected = computed(() => {
+  return selectedView(
       'profile-page',
       'userId',
       'Профиль'
-    );
-  }
+  );
+})
 
-  get courseSolutionsListSelected() {
-    return this.selectedView(
+const courseSolutionsListSelected = computed(() => {
+  return selectedView(
       'course-solutions-list',
       'courseId',
       'Отправленные решения'
-    );
-  }
+  );
+})
 
-  get courseProgressSelected() {
-    return this.selectedView(
+const courseProgressSelected = computed(() => {
+  return selectedView(
       'course-progress',
       'courseId',
       'Успеваемость курса'
-    );
-  }
+  );
+})
 
-  get courseScheduleSelected() {
-    return this.selectedView(
+const courseScheduleSelected = computed(() => {
+  return selectedView(
       'course-calendar',
       'courseId',
       'Расписание занятий'
-    );
-  }
+  );
+})
 
-  get lessonProgressSelected() {
-    return this.selectedView(
+const lessonProgressSelected = computed(() => {
+  return selectedView(
       'lesson-progress',
       'lessonId',
       'Успеваемость урока'
-    );
-  }
+  );
+})
 
-  get submitSelected() {
-    const submitId = this.$route.params['submitId'];
-    return this.selectedView(
+const submitSelected = computed(() => {
+  const submitId = route.params['submitId'];
+  return selectedView(
       'ProblemViewWithSubmit',
       'submitId',
       `Решение №${submitId}`
-    );
-  }
+  );
+})
 
-  get examSolutionSelected() {
-    return this.selectedView(
+const examSolutionSelected = computed(() => {
+  return selectedView(
       'ExamViewWithSolution',
       'solutionId',
       'Решение'
-    );
-  }
+  );
+})
 
-  get materialEditSelected() {
-    return this.selectedView(
+const materialEditSelected = computed(() => {
+  return selectedView(
       'material-edit',
       'materialId',
       'Редактирование материала'
-    );
-  }
+  );
+})
 
-  get problemEditSelected() {
-    return this.selectedView(
+const problemEditSelected = computed(() => {
+  return selectedView(
       'problem-edit',
       'problemId',
       'Редактирование задачи'
-    );
-  }
+  );
+})
 
-}
 </script>
 
 <style lang="stylus" scoped>

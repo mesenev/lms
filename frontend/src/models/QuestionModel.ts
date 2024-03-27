@@ -1,4 +1,4 @@
-export default interface QuestionModel {
+export interface QuestionModel {
   index: number;
   text: string;
   description: string | null;

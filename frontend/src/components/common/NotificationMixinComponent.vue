@@ -1,14 +1,18 @@
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
 
-@Component
-export default class NotificationMixinComponent extends Vue {
-  notificationKind = 'success';
-  notificationText = '';
-  showNotification = false;
+import {ref} from "vue";
 
-  hideNotification() {
-    this.showNotification = false;
+export default function () {
+  const notificationKind = ref('success');
+  const notificationText = ref('');
+  const showNotification = ref(false);
+
+  function hideNotification() {
+    showNotification.value = false;
+  }
+
+  return {
+    notificationKind, notificationText, showNotification, hideNotification
   }
 }
 </script>

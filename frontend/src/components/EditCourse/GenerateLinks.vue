@@ -2,16 +2,22 @@
   <div>
     <cv-button kind="secondary" @click="showModal">Создать ссылку-приглашение</cv-button>
     <cv-modal :visible="modalVisible"
+              size="sm"
               class="generate-link-modal"
-              size="small"
               @modal-hidden="modalHidden">
-      <template slot="title">Создание ссылки-приглашения</template>
-      <template slot="content">
+      <template v-slot:title>Создание ссылки-приглашения</template>
+      <template v-slot:content>
         <div class="link-content">
+          <cv-inline-notification
+            v-if="showNotification"
+            :kind="notificationKind"
+            :sub-title="notificationText"
+            @close="hideNotification"
+          />
           <div class="input-link-container">
             <cv-number-input
               :light="false"
-              :label="'Выберите количество учеников курса'"
+              :label="'Выберите количество учеников'"
               :min="1"
               :step="1"
               v-model="counter"
@@ -32,7 +38,7 @@
           </div>
           <div class="links-list-container">
             <cv-structured-list class="links-list">
-              <template slot="items">
+              <template v-slot:items>
                 <cv-structured-list-item v-if="loading">
                 </cv-structured-list-item>
                 <cv-structured-list-item checked v-for="k in Links" :key="k.link" v-else>
@@ -57,73 +63,81 @@
   </div>
 </template>
 
-<script lang="ts">
-import LinkModel from "@/models/LinkModel";
+<script lang="ts" setup>
 import CopyLink16 from '@carbon/icons-vue/lib/copy--link/16';
 import TrashCan16 from '@carbon/icons-vue/lib/trash-can/16';
 import AddAlt24 from '@carbon/icons-vue/lib/add--alt/24';
-import api from '@/store/services/api';
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { onMounted, ref } from "vue";
+import type { LinkModel } from "@/models/LinkModel";
+import api from "@/stores/services/api";
+import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
 
-@Component({})
-export default class LinksManagerComponent extends Vue {
-  @Prop({required: true}) courseId!: number;
-  loading = true;
-  Links: Array<LinkModel> = [];
-  counter = 1;
-  AddAlt24 = AddAlt24
-  TrashCan16 = TrashCan16
-  CopyLink16 = CopyLink16
-  modalVisible = false;
+const props = defineProps({
+  groupId: { type: Number, required: true }
+})
 
-  async created() {
-    await api.get(
-      '/api/courselink/', { params: { course: this.courseId } },
-    ).then(response => {
-        this.Links = response.data.filter((x: LinkModel) => x.usages > 0);
-      },
-    ).catch(error => {
-      console.log(error);
-    })
-    this.loading = false;
-  }
+const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
-  showModal() {
-    this.modalVisible = true;
-  }
+const loading = ref(true);
+const Links = ref<Array<LinkModel>>([]);
+const counter = ref(1);
+const modalVisible = ref(false);
 
-  modalHidden() {
-    this.modalVisible = false;
-  }
+onMounted(async () => {
+  await api.get(
+    '/api/courselink/', { params: { group: props.groupId } },
+  ).then(response => {
+      Links.value = response.data.filter((x: LinkModel) => x.usages > 0);
+    },
+  ).catch(error => {
+    console.log(error);
+  })
+  loading.value = false;
+})
 
-  async createNewLink() {
-    api.post('/api/courselink/',
-      { course: this.courseId, usages: this.counter })
-      .then(response => {
-        this.Links.push(response.data);
-        this.Links = [...this.Links];
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }
-
-  deleteLink(link: string) {
-    this.Links = this.Links.filter((x: LinkModel) => x.link != link);
-    api.delete(`/api/delete-link/${link}/`);
-  }
-
-  copyLink(link: string) {
-    this.$copyText(window.location.origin + '/course-registration/' + link);
-  }
-
+function showModal() {
+  modalVisible.value = true;
 }
+
+function modalHidden() {
+  modalVisible.value = false;
+}
+
+async function createNewLink() {
+  api.post('/api/grouplink/',
+    { group: props.groupId, usages: counter.value })
+    .then(response => {
+      Links.value.push(response.data);
+      Links.value = [...Links.value];
+    })
+    .catch(error => {
+      notificationKind.value = 'error';
+      notificationText.value = `Что-то пошло не так: ${error.message}`;
+      showNotification.value = true;
+    });
+}
+
+function deleteLink(link: string) {
+  api.delete(`/api/delete-link/${link}/`)
+    .then(() => {
+      Links.value = Links.value.filter((x: LinkModel) => x.link != link);
+    })
+    .catch(error => {
+      notificationKind.value = 'error';
+      notificationText.value = `Что-то пошло не так: ${error.message}`;
+      showNotification.value = true;
+    });
+}
+
+function copyLink(link: string) {
+  navigator.clipboard.writeText(window.location.origin + '/course-registration/' + link);
+}
+
 </script>
 
 <style scoped lang="stylus">
-.generate-link-modal >>> .bx--modal-content
-  display flex
-  justify-content center
+:deep() .bx--modal-content:focus
+  outline none
 
 .link-content
   max-width 25rem

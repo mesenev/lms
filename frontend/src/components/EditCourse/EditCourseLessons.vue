@@ -2,10 +2,10 @@
   <div>
     <div class="main-lesson-container" v-if="course.lessons.length">
       <h4 class="lesson--list--title">Уроки</h4>
-      <cv-search v-model="searchQueryForCourseLessons"/>
+      <cv-search v-model:value="searchQueryForCourseLessons"/>
       <div class="lesson--list">
         <cv-structured-list id="lessons">
-          <template slot="items">
+          <template v-slot:items>
             <cv-structured-list-item class="lesson-card"
                                      v-for="lesson in courseLessons"
                                      :key="lesson.id">
@@ -30,48 +30,46 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import searchByLessons from '@/common/searchByTutorial';
-import lessonStore from '@/store/modules/lesson';
-import CourseModel from '@/models/CourseModel';
-import LessonModel from '@/models/LessonModel';
-import {Component, Prop} from 'vue-property-decorator';
-import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
-import ConfirmModal from "@/components/ConfirmModal.vue";
-import router from "@/router";
 import _ from "lodash";
+import type { PropType } from "vue";
+import type { CourseModel } from "@/models/CourseModel";
+import useLessonStore from "@/stores/modules/lesson";
+import { computed, ref } from "vue";
+import type { LessonModel } from "@/models/LessonModel";
+import { useRouter } from "vue-router";
 
-@Component({
-  components: {
-    ConfirmModal
-  },
+const props = defineProps({
+  course: { type: Object as PropType<CourseModel>, required: true }
 })
-export default class EditCourseLessons extends NotificationMixinComponent {
-  @Prop({required: true}) course!: CourseModel;
-  lessonStore = lessonStore;
-  searchQueryForCourseLessons = '';
 
-  get courseLessons(): LessonModel[] {
-    return searchByLessons(this.searchQueryForCourseLessons, this.course.lessons)
+const router = useRouter();
+
+const lessonStore = useLessonStore();
+const searchQueryForCourseLessons = ref("");
+
+const courseLessons = computed((): LessonModel[] => {
+  return searchByLessons(searchQueryForCourseLessons.value, props.course.lessons)
       .sort((a, b) => {
         return a.id - b.id;
       });
-  }
+})
 
-  lessonProblems(lesson: LessonModel) {
-    const problems: string[] = [];
-    for (const [key, value] of Object.entries(lesson)) {
-      if (_.isArrayLike(value) && _.isEmpty(value) && key === 'problems') {
-        problems.push(`Empty ${key}`);
-      }
+function lessonProblems(lesson: LessonModel) {
+  const problems: string[] = [];
+  for (const [key, value] of Object.entries(lesson)) {
+    if (_.isArrayLike(value) && _.isEmpty(value) && key === 'problems') {
+      problems.push(`Empty ${key}`);
     }
-    return problems;
   }
-
-  toLesson(lesson: LessonModel) {
-    router.push({name: 'LessonView', params: {lessonId: lesson.id.toString()}});
-  }
+  return problems;
 }
+
+function toLesson(lesson: LessonModel) {
+  router.push({ name: 'LessonView', params: { lessonId: lesson.id.toString() } });
+}
+
 </script>
 
 <style lang="stylus" scoped>
@@ -125,12 +123,15 @@ export default class EditCourseLessons extends NotificationMixinComponent {
 .lesson-card:hover
   border-bottom 1px solid var(--cds-ui-05)
   cursor pointer
-  /deep/ .bx--tag
-    cursor pointer
 
+  :deep(.bx--tag) {
+    cursor pointer
+  }
+    
 .icons
   color var(--cds-inverse-02)
 
-/deep/.bx--search-input
+:deep(.bx--search-input) {
   background-color var(--cds-ui-background)
+}
 </style>

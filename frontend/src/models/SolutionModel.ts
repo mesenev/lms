@@ -1,6 +1,5 @@
-import { Dictionary } from "vue-router/types/router";
 
-export default interface SolutionModel {
+export interface SolutionModel {
   id: number;
   exam: number;
   student: number;

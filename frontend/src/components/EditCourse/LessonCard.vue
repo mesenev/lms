@@ -22,67 +22,72 @@
   </div>
 </template>
 
-<script lang="ts">
-import LessonModel from "@/models/LessonModel";
-import router from '@/router';
-import _ from 'lodash';
-import {Component, Prop, Vue} from 'vue-property-decorator';
+<script lang="ts" setup>
+import type { PropType } from "vue";
+import type { LessonModel } from "@/models/LessonModel";
+import { computed, ref } from "vue";
+import _ from "lodash";
+import { useRouter } from "vue-router";
 
-@Component({})
-export default class LessonCard extends Vue {
-  @Prop({ required: true }) lesson!: LessonModel;
-  @Prop({ required: true }) manipulation!: Function;
-  @Prop({ required: true }) mainIcon!: object;
-  @Prop({ required: false }) changeMainIcon!: object;
-  @Prop({ required: false }) secondIcon!: object;
+const props = defineProps({
+  lesson: { type: Object as PropType<LessonModel>, required: true },
+  manipulation: { type: Function, required: true },
+  mainIcon: { type: Object, required: true },
+  changeMainIcon: { type: Object, required: false },
+  secondIcon: { type: Object, required: false }
+})
 
-  currentIcon = 0;
+const router = useRouter();
 
-  icons = [this.mainIcon, this.changeMainIcon || this.mainIcon];
+const currentIcon = ref(0);
 
-  get getIcon() {
-    return this.icons[this.currentIcon];
-  }
+const icons = [props.mainIcon, props.changeMainIcon || props.mainIcon];
 
-  changeIcon() {
-    this.currentIcon = (this.currentIcon + 1) % this.icons.length;
-  }
+const getIcon = computed(() => {
+  return icons[currentIcon.value];
+})
 
-  get getLessonProblems() {
-    const problems: string[] = [];
-    for (const [key, value] of Object.entries(this.lesson)) {
-      if (_.isArrayLike(value) && _.isEmpty(value) && key === 'problems') {
-        problems.push(`Empty ${key}`);
-      }
+function changeIcon() {
+  currentIcon.value = (currentIcon.value + 1) % icons.length;
+}
+
+const getLessonProblems = computed(() => {
+  const problems: string[] = [];
+  for (const [key, value] of Object.entries(props.lesson)) {
+    if (_.isArrayLike(value) && _.isEmpty(value) && key === 'problems') {
+      problems.push(`Empty ${key}`);
     }
-    return problems;
   }
+  return problems;
+})
 
-  editLesson() {
-    router.push({name: 'lesson-edit', params: {lessonId: this.lesson.id.toString()}});
-  }
+function editLesson() {
+  router.push({ name: 'lesson-edit', params: { lessonId: props.lesson.id.toString() } });
 }
 </script>
 
 <style scoped lang="stylus">
-  .card
-    padding 20px
-    display flex
-    flex-direction row
-    justify-content space-between
-    align-items center
+.card
+  padding 20px
+  display flex
+  flex-direction row
+  justify-content space-between
+  align-items center
 
-  .title
-    display flex
-    flex-direction row
-    align-items baseline
-    h5
-      margin-right: 5px
+.title
+  display flex
+  flex-direction row
+  align-items baseline
 
-  .icon
-    transition ease-in-out 0.1s
-  .icon:active
-    transform scale(0.9)
-  .icon:nth-child(odd)
-    margin: 0 10px
+  h5
+    margin-right: 5px
+
+.icon
+  transition ease-in-out 0.1s
+
+.icon:active
+  transform scale(0.9)
+
+.icon:nth-child(odd)
+  margin: 0 10px
 </style>

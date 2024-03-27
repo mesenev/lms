@@ -1,11 +1,10 @@
-import { BaseModel } from '@/models/BaseModel';
-import MaterialModel from '@/models/MaterialModel';
-import ProblemModel from '@/models/ProblemModel';
-import UserProgress from '@/models/UserProgress';
-import { Dictionary } from "vue-router/types/router";
-import ExamModel from "@/models/ExamModel";
+import type { BaseModel } from "@/models/BaseModel";
+import type { MaterialModel } from '@/models/MaterialModel';
+import type { ProblemModel } from '@/models/ProblemModel';
+import type { UserProgress } from '@/models/UserProgress';
+import type { ExamModel } from "@/models/ExamModel";
 
-export default interface LessonModel extends BaseModel {
+export interface LessonModel extends BaseModel {
   course: number;
   description: string;
   deadline: string;

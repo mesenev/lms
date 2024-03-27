@@ -4,40 +4,40 @@
   </label>
 </template>
 
-<script lang="js">
-import { Component, Prop, Watch, Vue } from 'vue-property-decorator';
-
+<script lang="ts" setup>
 import { PrismEditor } from 'vue-prism-editor';
-
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
-import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
-@Component({ components: { PrismEditor } })
-export default class CodeEditorComponent extends Vue {
-  @Prop({ required: true }) value;
-  code = 'console.log("Hello World")';
+import 'prismjs/themes/prism-tomorrow.css';
+import { onMounted, ref, watch } from "vue"; // import syntax highlighting styles
 
-  @Watch('code')
-  handler() {
-    this.$emit('input', this.code);
-  }
+const props = defineProps({
+  value: { type: String, required: false, default: 'console.log("Hello World")'}
+});
 
-  created() {
-    this.code = this.value;
-  }
+const emits = defineEmits(['input']);
 
-  highlighter(code) {
-    return highlight(code, languages.js);
-  }
-};
+const code = ref('console.log("Hello World")');
+
+watch(() => code.value, () => {
+  emits('input', code.value);
+})
+
+onMounted(() => {
+  code.value = props.value;
+})
+
+function highlighter(code: string) {
+  return highlight(code, languages.js);
+}
 </script>
 
 <style lang="stylus" scoped>
 .my-editor
   background-color: var(--cds-ui-01);
   height 400px;
-  font-family: Fira code,Fira Mono,Consolas,Menlo,Courier,monospace;
+  font-family: Fira code, Fira Mono, Consolas, Menlo, Courier, monospace;
   font-size: 14px;
   line-height: 1.5;
   padding: 5px 10px;

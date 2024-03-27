@@ -1,45 +1,17 @@
-import Vue from 'vue';
-import * as Sentry from '@sentry/vue';
-import { Integrations } from '@sentry/tracing';
-import App from '@/App.vue';
+import './assets/main.css';
+import 'carbon-components/css/carbon-components.css';
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import CarbonVue3 from "@carbon/vue";
 
-import router from '@/router';
-import store from '@/store';
-import CarbonComponentsVue from '@carbon/vue/src/index';
-import VueClipboard from 'vue-clipboard2';
+import App from './App.vue';
+import router from './router';
 
-if (process.env.VUE_APP_ENVIRONMENT === 'production') {
-    Sentry.init({
-	    Vue,
-	    environment: process.env.VUE_APP_ENVIRONMENT,
-	    release: `${process.env.VUE_APP_NAME}@${process.env.VUE_APP_VERSION}`,
-	    dsn: process.env.SENTRY_FRONTEND_DSN,
-	    integrations: [
-		    new Integrations.BrowserTracing({
-			    tracingOrigins: [process.env.APPLICATION_URL, /^\//],
-			}),
-		],
-		debug: process.env.VUE_APP_ENVIRONMENT  !==  'production',
-		tracesSampleRate: process.env.VUE_APP_ENVIRONMENT === 'production' ? 0.2 : 1,
-		tracingOptions: {
-			trackComponents: true,
-		},
-		// Vue specific
-		logErrors: process.env.VUE_APP_ENVIRONMENT !== 'production',
-		attachProps: true,
-		attachStacktrace: true,
-	});
-}
+const app = createApp(App);
 
-Vue.use(VueClipboard);
-Vue.use(CarbonComponentsVue);
-VueClipboard.config.autoSetContainer = true;
 
-Vue.config.productionTip = false;
-Vue.config.devtools = true;
+app.use(CarbonVue3);
+app.use(createPinia());
+app.use(router);
 
-new Vue({
-  router,
-  store,
-  render(h) { return h(App); },
-}).$mount('#app');
+app.mount('#app');

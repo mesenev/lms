@@ -1,14 +1,14 @@
 <template>
   <div>
     <confirm-modal
-      :modal-trigger="modalTrigger"
-      :approve-handler="deleteExam"
-      :text="approvedText"/>
+        :modal-trigger="modalTrigger"
+        :approve-handler="deleteExam"
+        :text="approvedText"/>
     <cv-inline-notification
-      v-if="showNotification"
-      :sub-title="notificationText"
-      kind="error"
-      @close="() => showNotification=false"/>
+        v-if="showNotification"
+        :sub-title="notificationText"
+        kind="error"
+        @close="() => showNotification=false"/>
     <router-link :to="target(exam)" class="list-element" v-for="exam in examsList" :key="exam.id">
       <div class="title-wrapper">
         <h5 class="list-element--title"> {{ exam.name }} </h5>
@@ -21,54 +21,56 @@
   </div>
 </template>
 
-<script lang="ts">
-import ExamModel from "@/models/ExamModel";
-import { Component, Prop } from 'vue-property-decorator';
+<script lang="ts" setup>
 import trashCan from '@carbon/icons-vue/lib/trash-can/16';
 import settings from '@carbon/icons-vue/lib/settings/16';
+import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
+import type { ExamModel } from "@/models/ExamModel";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import api from "@/stores/services/api";
 import ConfirmModal from "@/components/ConfirmModal.vue";
-import api from "@/store/services/api";
-import NotificationMixinComponent from "@/components/common/NotificationMixinComponent.vue";
-import router from "@/router";
 
-@Component({ components: { ConfirmModal } })
-export default class ExamListComponent extends NotificationMixinComponent {
-  @Prop({ required: true }) examsList!: Array<ExamModel>;
-  @Prop({ required: false, default: false }) isStaff!: boolean;
-  @Prop({ required: false, default: false }) isEditing!: boolean;
+const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
-  trashCan = trashCan;
-  settings = settings;
+const props = defineProps({
+  examsList: { type: Array<ExamModel>, required: true },
+  isStaff: { type: Boolean, required: false },
+  isEditing: { type: Boolean, required: false }
+})
 
-  deletingExamId: number | null = null;
-  modalTrigger = false;
-  approvedText = '';
+const emits = defineEmits(['update-exam-delete'])
 
-  target(exam: ExamModel) {
-    return { name: 'ExamView', params: { examId: exam.id.toString() } };
-  }
+const router = useRouter();
 
-  redirectToEdit(exam: ExamModel) {
-    router.push({name: 'exam-edit', params: {examId: exam.id.toString()}})
-  }
+const deletingExamId = ref<number | null>(null);
+const modalTrigger = ref(false);
+const approvedText = ref('');
 
-  showConfirmModal(deletingExam: ExamModel) {
-    this.deletingExamId = deletingExam.id;
-    this.approvedText = `Удалить тест: ${deletingExam.name}`;
-    this.modalTrigger = !this.modalTrigger;
-  }
+function target(exam: ExamModel) {
+  return { name: 'ExamView', params: { examId: exam.id.toString() } };
+}
 
-  async deleteExam() {
-    if (!this.deletingExamId)
-      throw Error;
-    await api.delete(`/api/exam/${this.deletingExamId}/`).then(() => {
-      this.$emit('update-exam-delete', this.deletingExamId);
-    }).catch(error => {
-      this.notificationKind = 'error';
-      this.notificationText = `Что-то пошло не так: ${error.message}`;
-      this.showNotification = true;
-    })
-  }
+function redirectToEdit(exam: ExamModel) {
+  router.push({ name: 'exam-edit', params: { examId: exam.id.toString() } })
+}
+
+function showConfirmModal(deletingExam: ExamModel) {
+  deletingExamId.value = deletingExam.id;
+  approvedText.value = `Удалить тест: ${deletingExam.name}`;
+  modalTrigger.value = !modalTrigger.value;
+}
+
+async function deleteExam() {
+  if (!deletingExamId.value)
+    throw Error;
+  await api.delete(`/api/exam/${deletingExamId.value}/`).then(() => {
+    emits('update-exam-delete', deletingExamId.value);
+  }).catch(error => {
+    notificationKind.value = 'error';
+    notificationText.value = `Что-то пошло не так: ${error.message}`;
+    showNotification.value = true;
+  })
 }
 </script>
 

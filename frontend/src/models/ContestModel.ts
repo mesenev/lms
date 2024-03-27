@@ -1,4 +1,4 @@
-export default interface CatsContestModel {
+export interface CatsContestModel {
   id: number;
   name: string;
   short_descr: string;

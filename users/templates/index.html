@@ -17,11 +17,9 @@
     </strong>
 </noscript>
 <div id=app></div>
-{% hmr_script "js/app.js" %}
-{% hmr_script "js/chunk-vendors.js" %}
 {% if not is_debug %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/chunk-vendors.css' %}">
+    <script type="module" crossorigin="" src="{% static 'assets/index.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'assets/index.css' %}">
 {% endif %}
 </body>
 </html>

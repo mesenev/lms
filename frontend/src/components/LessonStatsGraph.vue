@@ -12,94 +12,95 @@
   </div>
 </template>
 
-<script lang="ts">
-import ProblemModel from "@/models/ProblemModel";
-import { Component, Prop, Vue } from "vue-property-decorator";
-import UserModel from "@/models/UserModel";
-import SubmitModel from "@/models/SubmitModel";
-import submitStore from "@/store/modules/submit";
-import problemStore from "@/store/modules/problem";
-import { Dictionary } from "vue-router/types/router";
-import LessonModel from "@/models/LessonModel";
+<script lang="ts" setup>
+
+import type { PropType, Ref } from "vue";
+import type { LessonModel } from "@/models/LessonModel";
+import type { UserModel } from "@/models/UserModel";
+import useSubmitStore from "@/stores/modules/submit";
+import useProblemStore from "@/stores/modules/problem";
+import { computed, onMounted, ref } from "vue";
+import type { SubmitModel } from "@/models/SubmitModel";
+import type { ProblemModel } from "@/models/ProblemModel";
 
 interface StatsGraphStyle {
   backgroundColor: string;
   width: string;
+  [key: string]: string;
 }
 
-@Component({})
-export default class LessonStatsGraph extends Vue{
-  @Prop({required: true}) lesson!: LessonModel;
-  @Prop({required: true}) user!: UserModel;
-  submitStore = submitStore;
-  problemStore = problemStore;
-  problemsSubmits: Dictionary<SubmitModel[]> = {};
-  _problems: ProblemModel[] = [];
-  loading = true;
+const props = defineProps({
+  lesson: { type: Object as PropType<LessonModel>, required: true },
+  user: { type: Object as PropType<UserModel> }
+})
 
-  wrongStyle: StatsGraphStyle = {
-    backgroundColor: '#fc4848',
-    width: `${1 / this.problemsCount * 100}%`,
-  };
-  successfulStyle: StatsGraphStyle = {
-    backgroundColor: '#2ff306',
-    width: `${1 / this.problemsCount * 100}%`,
-  };
-  testingStyle: StatsGraphStyle = {
-    backgroundColor: '#fff300',
-    width: `${1 / this.problemsCount * 100}%`,
-  };
-  withoutSolutionStyle: StatsGraphStyle = {
-    backgroundColor: 'var(--cds-ui-01)',
-    width: `${1 / this.problemsCount * 100}%`,
-  };
+const submitStore = useSubmitStore();
+const problemStore = useProblemStore();
+const problemsSubmits = ref<Dictionary<SubmitModel[]>>({});
+const _problems = ref<ProblemModel[]>([]);
+const loading = ref(true);
 
-  async created() {
-    this._problems = await this.problemStore.fetchProblemsByLessonId(this.lesson.id);
-    for (const problem of this.problems) {
-      this.problemsSubmits[problem.id] = await this.submitStore.fetchProblemStats(problem.id);
-    }
-    this.loading = false;
-  }
+const problems = computed(() => {
+  return _problems.value;
+})
 
-  get problems() {
-    return this._problems;
-  }
+const problemsCount = computed((): number => {
+  return props.lesson.problems.length;
+})
 
-  get problemsCount(): number {
-    return this.lesson.problems.length;
-  }
-
-  get lessonStats(): Dictionary<string> {
-    const stats: Dictionary<string> = {};
-    for (const problem of this.problems) {
-      if (this.problemsSubmits[problem.id].filter(x => x.status === 'OK' && x.student === this.user.id).length)
-        stats[problem.id] = 'OK';
-      else if (this.problemsSubmits[problem.id].filter(x => (x.status === 'AW' || x.status === 'NP') && x.student === this.user.id).length)
-        stats[problem.id] = 'NP';
-      else if (this.problemsSubmits[problem.id].filter(x => x.status === 'WA' && x.student === this.user.id).length)
-        stats[problem.id] = 'WA'
-      else
-        stats[problem.id] = '';
-    }
-    return stats;
-  }
-
-  get solvedProblems() {
-    return Object.values(this.lessonStats).filter(x => x === 'OK').length;
-  }
-
-  problemStatStyle(problemId: number) {
-    if(this.lessonStats[problemId.toString()] === '')
-      return this.withoutSolutionStyle;
-    else if (this.lessonStats[problemId.toString()] === 'OK')
-      return this.successfulStyle;
-    else if (this.lessonStats[problemId.toString()] === 'NP')
-      return this.testingStyle;
+const lessonStats = computed((): Dictionary<string> => {
+  const stats: Dictionary<string> = {};
+  for (const problem of problems.value) {
+    if (problemsSubmits.value[problem.id].filter(x => x.status === 'OK' && x.student === props.user?.id).length)
+      stats[problem.id] = 'OK';
+    else if (problemsSubmits.value[problem.id].filter(x => (x.status === 'AW' || x.status === 'NP') && x.student === props.user?.id).length)
+      stats[problem.id] = 'NP';
+    else if (problemsSubmits.value[problem.id].filter(x => x.status === 'WA' && x.student === props.user?.id).length)
+      stats[problem.id] = 'WA'
     else
-      return this.wrongStyle;
+      stats[problem.id] = '';
   }
+  return stats;
+})
 
+const solvedProblems = computed(() => {
+  return Object.values(lessonStats.value).filter(x => x === 'OK').length;
+})
+
+const wrongStyle: StatsGraphStyle = {
+  backgroundColor: '#fc4848',
+  width: `${1 / problemsCount.value * 100}%`,
+};
+const successfulStyle: StatsGraphStyle = {
+  backgroundColor: '#2ff306',
+  width: `${1 / problemsCount.value * 100}%`,
+};
+const testingStyle: StatsGraphStyle = {
+  backgroundColor: '#fff300',
+  width: `${1 / problemsCount.value * 100}%`,
+};
+const withoutSolutionStyle: StatsGraphStyle = {
+  backgroundColor: 'var(--cds-ui-01)',
+  width: `${1 / problemsCount.value * 100}%`,
+};
+
+onMounted(async () => {
+  _problems.value = await problemStore.fetchProblemsByLessonId(props.lesson.id);
+  for (const problem of problems.value) {
+    problemsSubmits.value[problem.id] = await submitStore.fetchProblemStats(problem.id);
+  }
+  loading.value = false;
+})
+
+function problemStatStyle(problemId: number) {
+  if (lessonStats.value[problemId.toString()] === '')
+    return withoutSolutionStyle;
+  else if (lessonStats.value[problemId.toString()] === 'OK')
+    return successfulStyle;
+  else if (lessonStats.value[problemId.toString()] === 'NP')
+    return testingStyle;
+  else
+    return wrongStyle;
 }
 </script>
 

@@ -1,8 +1,8 @@
-import { RouteConfig } from "vue-router";
 import ExamView from "@/views/ExamView.vue";
-import ExamEditView from "@/views/management/ExamEditView.vue";
+import ExamEditView from "@/views/managment/ExamEditView.vue";
 
-const examRoutes: Array<RouteConfig> = [
+
+const examRoutes = [
   {
     path: '',
     name: 'ExamView',
@@ -12,7 +12,7 @@ const examRoutes: Array<RouteConfig> = [
     path: 'solution/:solutionId',
     name: 'ExamViewWithSolution',
     component: ExamView,
-    props: (route) => {
+    props: (route: any) => {
       const solutionId = Number.parseInt(route.params.solutionId as string, 10);
       return { solutionId, ...route.params };
     },
@@ -21,7 +21,7 @@ const examRoutes: Array<RouteConfig> = [
     path: 'edit/',
     name: 'exam-edit',
     component: ExamEditView,
-    props: (route) => {
+    props: (route: any) => {
       const examId = Number.parseInt(route.params.examId as string, 10);
       return { examId, ...route.params };
     },

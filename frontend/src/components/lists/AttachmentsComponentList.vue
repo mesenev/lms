@@ -1,7 +1,7 @@
 <template>
   <div class="attachment-content">
     <div class="attachment-title">
-    {{ attachment.name }}
+      {{ attachment.name }}
     </div>
     <div class="attachment-btns">
       <component class="trash-icon icon" :is="TrashCan" @click.prevent.stop="deleteAttachment"/>
@@ -10,41 +10,38 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Prop } from 'vue-property-decorator';
-import NotificationMixinComponent from '../common/NotificationMixinComponent.vue';
-import AttachmentModel from "@/models/Attachment";
+<script lang="ts" setup>
+import type { PropType } from "vue";
+import type { AttachmentModel } from "@/models/Attachment";
 import TrashCan from '@carbon/icons-vue/es/trash-can/20';
 import Copy from '@carbon/icons-vue/es/copy/20'
 
-@Component({
-  components: { Copy, }
+
+const props = defineProps({
+  attachment: { type: Object as PropType<AttachmentModel>, required: true }
 })
-export default class FileListComponent extends NotificationMixinComponent {
-  @Prop({ required: true }) attachment!: AttachmentModel;
-  TrashCan = TrashCan;
-  Copy = Copy;
 
-  insertAttachment() {
-    let markdown_file_string = '';
+const emits = defineEmits(['show-confirm-modal'])
 
-    if (this.attachment.file_format.includes('image/')) {
-      markdown_file_string = '<img src="' + this.attachment.file_url + '" alt="' +
-        this.attachment.name;
-      markdown_file_string += '" width="" height="">';
-    } else if (this.attachment.file_format.includes('video/')) {
-      markdown_file_string = '<video width="100%" controls="controls">' +
-        '<source src="' + this.attachment.file_url + ' "></video>';
-    } else {
-      markdown_file_string = '<a href="' + this.attachment.file_url + '">' + this.attachment.name
-        + '</a>'
-    }
-    window.navigator.clipboard.writeText(markdown_file_string);
+function insertAttachment() {
+  let markdown_file_string = '';
+
+  if (props.attachment.file_format.includes('image/')) {
+    markdown_file_string = '<img src="' + props.attachment.file_url + '" alt="' +
+      props.attachment.name;
+    markdown_file_string += '" width="" height="">';
+  } else if (props.attachment.file_format.includes('video/')) {
+    markdown_file_string = '<video width="100%" controls="controls">' +
+      '<source src="' + props.attachment.file_url + ' "></video>';
+  } else {
+    markdown_file_string = '<a href="' + props.attachment.file_url + '">' + props.attachment.name
+      + '</a>'
   }
+  window.navigator.clipboard.writeText(markdown_file_string);
+}
 
-  deleteAttachment() {
-    this.$emit('show-confirm-modal', this.attachment);
-  }
+function deleteAttachment() {
+  emits('show-confirm-modal', props.attachment);
 }
 </script>
 <style lang="stylus">
@@ -63,6 +60,7 @@ export default class FileListComponent extends NotificationMixinComponent {
 
 .icon
   transition ease-in-out 0.1s
+
 .icon:active
   transform scale(0.9)
 

@@ -1,8 +1,8 @@
 <template>
   <cv-loading v-if="isLoading"/>
   <div
-    v-else
-    class="cats-package-window">
+      v-else
+      class="cats-package-window">
     <div v-for="message_keys in Object.keys(data)" v-bind:key="message_keys">
       <div class="head_of_message">
         {{ message_keys }}
@@ -15,26 +15,28 @@
   </div>
 </template>
 
-<script lang="ts">
-import SubmitModel from '@/models/SubmitModel';
-import submitStore from '@/store/modules/submit';
-import api from '@/store/services/api'
-import { Component, Prop, Vue } from 'vue-property-decorator';
+<script lang="ts" setup>
 
-@Component({ components: {} })
-export default class CatsPackageWindow extends Vue {
-  @Prop({ required: true }) submitIdProp!: number;
-  private data = {};
-  private submitStore = submitStore;
+import type { SubmitModel } from '@/models/SubmitModel';
+import useSubmitStore from '@/stores/modules/submit';
+import api from '@/stores/services/api';
+import { ref, computed, onMounted } from 'vue';
 
-  get isLoading(): boolean {
-    return Object.keys(this.data).length === 0;
-  }
+const props = defineProps({
+  submitIdProp: { type: Number, required: true }
+})
 
-  async created() {
-    this.data = await this.submitStore.fetchCatsResult(this.submitIdProp);
-  }
-}
+const data: { [key: string]: any } = ref({});
+const submitStore = useSubmitStore();
+
+const isLoading = computed((): boolean => {
+  return Object.keys(data.value).length === 0;
+})
+
+onMounted(async () => {
+  data.value = await submitStore.fetchCatsResult(props.submitIdProp);
+})
+
 </script>
 
 

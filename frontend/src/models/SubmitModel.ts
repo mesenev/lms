@@ -1,4 +1,4 @@
-export default interface SubmitModel {
+export interface SubmitModel {
   id: number;
   lesson: number;
   problem: { id: number; name: string };
@@ -8,7 +8,7 @@ export default interface SubmitModel {
   cats_submit?: number;
   content?: string;
   de_id: string;
-  cats_result: object;
+  cats_result: object | null;
 }
 
 export const SUBMIT_STATUS = {

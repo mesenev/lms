@@ -1,6 +1,6 @@
 <template>
   <router-link
-    :to="{ name: 'CourseView', params: { courseId: this.course.id.toString() } }"
+    :to="{ name: 'CourseView', params: { courseId: course.id.toString() } }"
     class="list-element">
     <div class="list-element--main">
       <h5 class="list-element--title">{{ course.name }}</h5>
@@ -10,30 +10,32 @@
   </router-link>
 </template>
 
-<script lang="ts">
-import CourseModel from '@/models/CourseModel';
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import userStore from '@/store/modules/user';
+<script lang="ts" setup>
 
-@Component
-export default class CourseListComponent extends Vue {
-  @Prop({ required: true }) courseProp!: CourseModel;
-  userStore = userStore;
+import type { PropType } from "vue";
+import type { CourseModel } from "@/models/CourseModel";
+import useUserStore from "@/stores/modules/user";
+import { computed } from "vue";
 
-  get course(): CourseModel {
-    return this.courseProp;
-  }
+const props = defineProps({
+  courseProp: { type: Object as PropType<CourseModel>, required: true }
+})
 
-  get teacher(): string {
-    if (!this.course.author)
-      return '';
-    if (this.course.author.middle_name)
-      return `${this.course.author.first_name} `
-        + `${this.course.author.middle_name} `
-        + `${this.course.author.last_name}`;
-    return `${this.course.author.first_name} ${this.course.author.last_name}`;
-  }
-}
+const userStore = useUserStore();
+
+const course = computed(() => {
+  return props.courseProp;
+})
+
+const teacher = computed(() => {
+  if (!course.value.author)
+    return '';
+  if (course.value.author.middle_name)
+    return `${course.value.author.first_name} `
+      + `${course.value.author.middle_name} `
+      + `${course.value.author.last_name}`;
+  return `${course.value.author.first_name} ${course.value.author.last_name}`;
+})
 </script>
 
 <style scoped lang="stylus">

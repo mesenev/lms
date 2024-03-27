@@ -3,7 +3,6 @@
     :to="openLesson"
     class="list-element"
     v-bind:class="{ 'lesson--hidden': lessonProp.is_hidden, }"
-    v-on:click="openLesson"
   >
     <div class="content-wrapper">
       <div class="title-wrapper">
@@ -19,7 +18,7 @@
           <view-off-icon v-if="lessonProp.is_hidden"/>
           <view-icon v-else/>
       </span>
-      <lesson-stats-graph v-else :lesson="lesson" :user="currentUser"/>
+        <lesson-stats-graph v-else :lesson="lesson" :user="currentUser"/>
     </div>
     <cv-tag v-if="notInSchedule"
             label="Не состоит в расписании"
@@ -28,52 +27,39 @@
   </router-link>
 </template>
 
-<script lang="ts">
-import LessonModel from "@/models/LessonModel";
-import courseStore from '@/store/modules/course';
-import userStore from '@/store/modules/user';
+<script lang="ts" setup>
+import type { PropType } from "vue";
+import type { LessonModel } from "@/models/LessonModel";
+import useUserStore from "@/stores/modules/user";
+import useCourseStore from "@/stores/modules/course";
 import viewOffIcon from '@carbon/icons-vue/es/view--off/16';
 import viewIcon from '@carbon/icons-vue/es/view/16';
 import warningAltFilled from '@carbon/icons-vue/es/warning--alt--filled/16';
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import DateViewComponent from "@/components/common/DateViewComponent.vue"
+import { computed } from "vue";
+import DateViewComponent from "@/components/common/DateViewComponent.vue";
 import LessonStatsGraph from "@/components/LessonStatsGraph.vue";
 
-@Component({
-  components: {
-    viewIcon,
-    viewOffIcon,
-    warningAltFilled,
-    DateViewComponent,
-    LessonStatsGraph
-  }
+const props = defineProps({
+  lessonProp: { type: Object as PropType<LessonModel>, required: true },
+  dateProp: { type: Number, required: false, default: null },
+  notInSchedule: { type: Boolean, required: false, default: false }
 })
-export default class LessonListComponent extends Vue {
-  @Prop({ required: true }) lessonProp!: LessonModel;
-  @Prop({ required: false, default: null }) dateProp!: number | null;
-  @Prop({ required: false }) notInSchedule!: false | boolean;
 
-  userStore = userStore;
-  courseStore = courseStore;
-  warningAltFilled = warningAltFilled;
+const userStore = useUserStore();
+const courseStore = useCourseStore();
 
-  get openLesson() {
-    return { name: 'LessonView', params: { lessonId: this.lesson.id.toString() } };
-  }
+const lesson = computed((): LessonModel => {
+  return props.lessonProp;
+})
 
-  get lesson(): LessonModel {
-    return this.lessonProp;
-  }
+const openLesson = computed(() => {
+  return { name: 'LessonView', params: { lessonId: lesson.value.id } };
+})
 
-  get isStaff(): boolean {
-    const courseId = Number(this.$route.params.courseId);
-    return this.userStore.user.staff_for.includes(courseId);
-  }
+const currentUser = computed(() => {
+  return userStore.user;
+})
 
-  get currentUser() {
-    return this.userStore.user;
-  }
-}
 </script>
 
 <style scoped lang="stylus">

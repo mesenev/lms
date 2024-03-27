@@ -1,8 +1,9 @@
-import { BaseModel } from '@/models/BaseModel';
-import LessonModel from '@/models/LessonModel';
-import UserModel, { AuthorModel } from '@/models/UserModel';
+import type { BaseModel } from "@/models/BaseModel";
+import type { LessonModel } from '@/models/LessonModel';
+import type { UserModel } from '@/models/UserModel';
+import type { AuthorModel } from '@/models/UserModel';
 
-export default interface CourseModel extends BaseModel {
+export interface CourseModel extends BaseModel {
   author: AuthorModel | null;
   cats_id: number | null;
   lessons: Array<LessonModel>;

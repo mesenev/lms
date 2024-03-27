@@ -8,77 +8,93 @@
   </div>
 </template>
 
-<script lang="ts">
-import ProblemModel from '@/models/ProblemModel';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+<script lang="ts" setup>
+import type { PropType } from "vue";
+import type { ProblemModel } from "@/models/ProblemModel"
+import { onMounted, ref } from "vue";
 
-@Component({ components: {} })
-export default class ProblemDescription extends Vue {
-  @Prop({ required: true }) problem!: ProblemModel;
-  description = '';
+const props = defineProps({problem: {type: Object as PropType<ProblemModel>, required: true}})
 
-  async created() {
-    this.description = this.problem.description.replaceAll('download/img', 'https://imcs.dvfu.ru/cats/static/download/img');
-  }
-}
+const description = ref('');
+
+onMounted(async () => {
+    description.value = props.problem.description.replaceAll('download/img', 'https://imcs.dvfu.ru/cats/static/download/img');
+  })
+
 </script>
 
 <style lang="stylus" scoped>
-/deep/ .problem-description-container
+:deep(.problem-description-container) {
   margin 0.5rem
   font-size 1rem
+}
 
-/deep/ .jsonly.problem_menu_trigger.problem_menu_click
+:deep(.jsonly.problem_menu_trigger.problem_menu_click) {
   visibility hidden
+}
 
-/deep/ .button.copy_button
+:deep(.button.copy_button) {
   visibility hidden
+}
 
-/deep/ .nav_container.hidden
+:deep(.nav_container.hidden) {
   visibility hidden
+}
 
-/deep/ .narrow
+:deep(.narrow) {
   width 1px
   padding-right 1rem
+}
 
-/deep/ .problem-header
+:deep(.problem-header) {
   border-collapse separate
   border-spacing 2px
+}
 
-/deep/ .timing
+:deep(.timing) {
   visibility hidden
-
-/deep/ .submit
+}
+  
+:deep(.submit) {
   visibility hidden
+}
 
-/deep/ .nobr
+:deep(.nobr) {
   white-space nowrap
-
-/deep/ .spell
+}
+  
+:deep(.spell) {
   text-decoration underline
   color red
+}
 
-/deep/ .sample th, /deep/ .sample td
+:deep(.sample th), :deep(.sample td) {
   border-collapse collapse;
   border 1px solid black;
   padding 5px
+}
 
-/deep/ hr
+:deep(hr) {
   visibility hidden
+}
 
-/deep/ b
+:deep(b) {
   font-weight bold
+}
 
-/deep/ i
+:deep(i) {
   font-style italic
+}
 
-/deep/ code
+:deep(code) {
   font-family monospace
+}
 
-/deep/ tt
+:deep(tt) {
   font-family monospace
+}
 
-/deep/ ol
+:deep(ol) {
   display block
   list-style-type decimal
   margin-block-start 1em
@@ -86,8 +102,9 @@ export default class ProblemDescription extends Vue {
   margin-inline-start 0px
   margin-inline-end 0px
   padding-inline-start 40px
-
-/deep/ ul
+}
+  
+:deep(ul) {
   display block
   list-style-type disc
   margin-block-start 1em
@@ -97,8 +114,10 @@ export default class ProblemDescription extends Vue {
   padding-inline-start 40px
   margin-top 5px
   margin-bottom 5px
-
-/deep/ h3
+}
+  
+:deep(h3) {
   margin-top 1rem
+}
 
 </style>

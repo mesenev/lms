@@ -2,13 +2,13 @@
   <div class="solution-container">
     <div v-if="loading || problems.length > 0" class="submit-list-data">
       <cv-structured-list
-        v-if="!loading"
-        class="submit-list">
-        <template slot="headings">
+          v-if="!loading"
+          class="submit-list">
+        <template v-slot:headings>
           <cv-structured-list-heading>Задача</cv-structured-list-heading>
           <cv-structured-list-heading>Статус</cv-structured-list-heading>
         </template>
-        <template v-if="problems" slot="items">
+        <template v-if="problems" v-slot:items>
           <cv-structured-list-item v-for="problem in problems" :key="problem.id">
             <cv-structured-list-data>
               <cv-link :to="linkRoute(problem)">{{ problem.name }}</cv-link>
@@ -19,13 +19,12 @@
             </cv-structured-list-data>
           </cv-structured-list-item>
         </template>
-        <template v-else>
+        <template v-if="!problems">
           <cv-structured-list-item>
             <cv-skeleton-text/>
           </cv-structured-list-item>
         </template>
       </cv-structured-list>
-
       <cv-data-table-skeleton v-else :columns="2" :rows="1"/>
     </div>
     <div v-else class="submit-list-empty">
@@ -38,45 +37,47 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import SubmitStatus from '@/components/SubmitStatus.vue';
-import ProblemModel from "@/models/ProblemModel";
-import problemStore from '@/store/modules/problem';
+import type { ProblemModel } from "@/models/ProblemModel";
+import useProblemStore from '@/stores/modules/problem';
 import TaskIcon from '@carbon/icons-vue/es/task/32';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { type Ref, ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 
-@Component({ components: { TaskIcon, SubmitStatus } })
-export default class UserProblemListComponent extends Vue {
-  @Prop({ required: true }) courseId!: number;
+const props = defineProps({
+  courseId: { type: Number, required: true }
+})
 
-  private problemStore = problemStore;
+const problemStore = useProblemStore();
+const route = useRoute();
 
-  problems: Array<ProblemModel> = [];
-  loading = true;
+const problems: Ref<Array<ProblemModel>> = ref([]);
+const loading: Ref<boolean> = ref(true);
 
-  async created() {
-    this.problems = await this.problemStore.fetchProblemsForCourse(this.courseId);
-    this.loading = false;
-  }
+onMounted(async () => {
+  problems.value = await problemStore.fetchProblemsForCourse(props.courseId);
+  loading.value = false;
+})
 
-  linkRoute(data: ProblemModel) {
-    const params = {
-      courseId: this.$route.params.courseId,
-      lessonId: Number(data.lesson).toString(),
-      problemId: data.id.toString(),
-    };
-    if (!data.last_submit) {
-      return {
-        name: 'ProblemView', params: { ...params },
-      };
-    }
+function linkRoute(data: ProblemModel) {
+  const params = {
+    courseId: route.params.courseId,
+    lessonId: Number(data.lesson).toString(),
+    problemId: data.id.toString(),
+  };
+  if (!data.last_submit) {
     return {
-      name: 'ProblemViewWithSubmit', params: {
-        ...params, submitId: Number(data.last_submit.id).toString(),
-      },
+      name: 'ProblemView', params: { ...params },
     };
   }
+  return {
+    name: 'ProblemViewWithSubmit', params: {
+      ...params, submitId: Number(data.last_submit.id).toString(),
+    },
+  };
 }
+
 </script>
 
 
@@ -86,7 +87,7 @@ export default class UserProblemListComponent extends Vue {
   background-color var(--cds-ui-background)
   padding var(--cds-spacing-05)
   width 100%
-  min-height 300px
+  min-height 400px
 
 .user-component-container-main
   height 0
@@ -100,7 +101,7 @@ export default class UserProblemListComponent extends Vue {
   color var(--cds-text-01)
   padding var(--cds-spacing-05)
   display flex
-  height 300px
+  height 400px
 
   &--wrapper
     align-self center

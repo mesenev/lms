@@ -5,23 +5,23 @@
         <div>
           <cv-skeleton-text v-if="loading"/>
           <div v-else>
-            <h2>Регистрация на курс {{ course.name || '' }},
-              преподаватель курса: {{ course.author.first_name }} {{ course.author.last_name }}.
+            <h2>Регистрация на курс {{ currentCourse && currentCourse.name || '' }},
+              <span v-if="currentCourse && currentCourse.author">преподаватель курса: {{ currentCourse.author.first_name }} {{ currentCourse.author.last_name }}.</span>
             </h2>
           </div>
-          <cv-inline-notification
-            v-if="showNotification"
-            :kind="notificationKind"
-            :sub-title="notificationText"
-            @close="hideNotification"/>
-          <div v-if="is_possible">
+          <div v-if="is_possible" style="display:flex; flex-direction: column; align-items: center">
             <h3>Нажав кнопку вы будете зарегистрированы на данный курс.</h3>
+            <cv-inline-notification
+              v-if="showNotification"
+              :kind="notificationKind"
+              :sub-title="notificationText"
+              @close="hideNotification"/>
             <div class="buttons">
               <cv-button-skeleton v-if="registrationProcess"/>
               <cv-button v-else
                          :icon="Education16"
                          kind="secondary"
-                         v-on:click="registration">
+                         @click="registration">
                 Зарегистрироваться
               </cv-button>
             </div>
@@ -48,84 +48,98 @@
   </div>
 </template>
 
-<script lang="ts">
-import NotificationMixinComponent from '@/components/common/NotificationMixinComponent.vue';
-import CourseModel from '@/models/CourseModel';
-import UserModel from "@/models/UserModel";
-import api from '@/store/services/api';
-import { Component, Prop } from 'vue-property-decorator';
+<script lang="ts" setup>
 import Home16 from '@carbon/icons-vue/lib/home/16';
 import Education16 from '@carbon/icons-vue/lib/education/16';
+import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
+import { onMounted, ref, computed } from "vue";
+import type { CourseModel } from "@/models/CourseModel";
+import api from "@/stores/services/api";
+import type { UserModel } from "@/models/UserModel";
+import { useRouter } from "vue-router";
+import type { GroupModel } from "@/models/GroupModel";
+import useCourseStore from "@/stores/modules/course";
 
+const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
-@Component({ components: {} })
-export default class CourseRegistrationView extends NotificationMixinComponent {
-  @Prop({ required: true }) linkProp!: string;
-  course: CourseModel | null = null;
-  loading = true;
-  is_possible = false;
-  student_registered = false;
-  usages_available = false;
-  teacher_registered = false;
-  registrationProcess = false;
-  Home16 = Home16;
-  Education16 = Education16;
+const props = defineProps({
+  linkProp: { type: String, required: true }
+})
 
-  async created() {
-    await this.statusSetup();
-    this.loading = false;
-  }
+const courseStore = useCourseStore();
 
-  async statusSetup() {
-    const answer = await api.get<{
-      is_possible: boolean; usages_available: boolean; student_registered: boolean;
-      teacher_registered: boolean; course: CourseModel; user: UserModel;
-    }>(`/api/check-link/${this.linkProp}/`)
-      .then(result => {
-        this.is_possible = result.data.is_possible;
-        this.usages_available = result.data.usages_available;
-        this.student_registered = result.data.student_registered;
-        this.teacher_registered = result.data.teacher_registered;
-        this.course = result.data.course;
-      })
-      .catch(error => {
-        this.notificationKind = error;
-        this.notificationText = `Произошла ошибка при проверке возможности` +
-          ` регистрации на курс. ${error.message}`;
-        this.showNotification = true;
-      })
-  }
+const router = useRouter();
 
-  async registration() {
-    this.registrationProcess = true;
-    await api.get(`/api/course-registration/${this.linkProp}/`)
-      .then(result => {
-        this.$router.push({
-          name: 'CourseView',
-          params: { courseId: result.data.courseId },
-        })
-        this.registrationProcess = false;
-      }).catch(error => {
-          this.notificationKind = error;
-          this.notificationText = `Произошла ошибка при регистрации на курс. ${error.message}`;
-          this.showNotification = true;
-        },
-      )
-  }
+const course = ref<CourseModel>({ ...courseStore.newCourse });
+const group = ref<GroupModel | null>(null);
+const loading = ref(true);
+const is_possible = ref(false);
+const student_registered = ref(false);
+const usages_available = ref(false);
+const teacher_registered = ref(false);
+const registrationProcess = ref(false);
+
+onMounted(async () => {
+  await statusSetup();
+  course.value = await courseStore.fetchCourseById(group.value!.course);
+  loading.value = false;
+})
+
+const currentCourse = computed((): CourseModel | null => {
+  return course.value;
+})
+
+async function statusSetup() {
+  await api.get<{
+    is_possible: boolean; usages_available: boolean; student_registered: boolean;
+    teacher_registered: boolean; group: GroupModel; user: UserModel;
+  }>(`/api/check-link/${props.linkProp}/`)
+    .then(result => {
+      is_possible.value = result.data.is_possible;
+      usages_available.value = result.data.usages_available;
+      student_registered.value = result.data.student_registered;
+      teacher_registered.value = result.data.teacher_registered;
+      group.value = result.data.group;
+    })
+    .catch(error => {
+      notificationKind.value = 'error';
+      notificationText.value = `Произошла ошибка при проверке возможности` +
+        ` регистрации на курс. ${error.message}`;
+      showNotification.value = true;
+    })
 }
+
+async function registration() {
+  registrationProcess.value = true;
+  await api.get(`/api/group-registration/${props.linkProp}/`)
+    .then(result => {
+      router.push({
+        name: 'CourseView',
+        params: { courseId: result.data.courseId },
+      })
+      registrationProcess.value = false;
+    }).catch(error => {
+        notificationKind.value = 'error';
+        notificationText.value = `Произошла ошибка при регистрации на курс. ${error.message}`;
+        showNotification.value = true;
+      },
+    )
+}
+
 
 </script>
 
-<style lang="stylus">
+<style scoped lang="stylus">
 .header
   padding-bottom: 1.5rem
   padding-top: 1rem
 
 .links
+  color var(--cds-text-01)
   text-align: center
   display: flex
   justify-content: center
-  flex-direction: column
+  align-items center
   height: 400px
   padding: 20px
 
