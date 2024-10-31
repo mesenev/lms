@@ -51,5 +51,5 @@ npm install
 ```
 Now you should be able to run frontend application
 ```shell
-npm run serve
+npm run dev
 ```
