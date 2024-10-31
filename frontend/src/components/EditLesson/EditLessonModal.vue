@@ -93,7 +93,7 @@
             <div class="exam-container">
               <div class="exam-container-head">
                 <p>Настройки теста</p>
-                <cv-dropdown v-model:value="exam.test_mode" class="testing-type-dropdown"
+                <cv-dropdown v-model="exam.test_mode" class="testing-type-dropdown"
                              placeholder="Выберите опцию"
                              label="Способ тестирования">
                   <template v-slot:invalid-message v-if="showInvalidMessage && !exam.test_mode">
