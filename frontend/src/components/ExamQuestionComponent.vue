@@ -8,7 +8,7 @@
           </template>
         </cv-text-area>
         <cv-dropdown
-            v-model:value="question.answer_type"
+            v-model="question.answer_type"
             class="answer-type"
             placeholder="Тип ответа" @change="answerTypeChange">
           <cv-dropdown-item value="input">Короткий ответ</cv-dropdown-item>
