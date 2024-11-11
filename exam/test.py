@@ -7,6 +7,9 @@ from course.models import Course
 from lesson.models import Lesson
 from exam.models import ExaminationForm, ExamSolution
 from exam.serializers import ExamSerializer, ExamSolutionSerializer
+from group.models import CourseGroup
+from users.models import CourseGroupAssignTeacher
+from django.contrib.auth.models import Group as PermissionsGroup
 
 
 class TestExams(MainSetup):
@@ -62,6 +65,15 @@ class TestExamSolution(MainSetup):
     def test_update_solution(self):
         self.test_setup()
         crs = baker.make(Course, author = self.user)
+
+        group = baker.make(CourseGroup)
+        group.course = crs
+        group.save()
+
+        CourseGroupAssignTeacher.objects.create(user=self.user, group=group).save()
+
+        PermissionsGroup.objects.get(name='teacher').user_set.add(self.user)
+
         lsn= baker.make(Lesson, author=self.user, course=crs)
         exam = baker.make(ExaminationForm, lesson=lsn)
 

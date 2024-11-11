@@ -9,6 +9,10 @@ from imcslms.test import MainSetup
 from lesson.models import Lesson, LessonContent, Attachment
 import base64
 from django.core.files.base import ContentFile
+from users.models import CourseGroupAssignTeacher
+from group.models import CourseGroup
+
+from django.contrib.auth.models import Group as PermissionsGroup
 
 
 class LessonTests(MainSetup):
@@ -51,7 +55,9 @@ class LessonTests(MainSetup):
 
     def test_update_lesson(self):
         self.test_setup()
-        (course := baker.make(Course, author=self)).save()
+
+        (course := baker.make(Course, author=self.user)).save()
+
         baker.make(Lesson, course=course).save()
         lesson = Lesson.objects.first()
 
@@ -104,7 +110,7 @@ class MaterialTests(MainSetup):
 
     def test_update_material(self):
         self.test_setup()
-        (course := baker.make(Course, author=self)).save()
+        (course := baker.make(Course, author=self.user)).save()
         (lesson := baker.make(Lesson, course=course)).save()
         baker.make(LessonContent, lesson=lesson, _fill_optional=True).save()
         material = LessonContent.objects.first()
@@ -163,12 +169,11 @@ class AttachmentsTests(MainSetup):
         self.test_setup()
         attachment = AttachmentSerializer(baker.make(Attachment, _fill_optional=True)).data
         test_file = ContentFile(b'test')
-        with test_file.open() as f:
-            test_file_b64 = base64.b64encode(f)
-        print('B64', test_file_b64)
-        attachment['file_url'] = test_file_b64
+        test_file_b64 = base64.b64encode(test_file.read()).decode('utf-8')
+        attachment['file_url'] = f"data:application/octet-stream;base64,{test_file_b64}"
+        attachment['file_format'] = 'application/octet-stream'
         amount = Attachment.objects.count()
-        response = self.client.post('/api/attachments/', data=attachment)
+        response = self.client.post('/api/attachments/', data=attachment, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Attachment.objects.count(), amount + 1)
         Attachment.objects.all().delete()

@@ -117,16 +117,13 @@ class GroupTests(MainSetup):
 
     def test_create_link(self):
         self.test_setup(group='teacher')
-        (group:= baker.make(CourseGroup)).save()
-        instanse = baker.make(CourseGroupLink)
-        instanse.group = group
+        group = baker.make(CourseGroup)
+        instance = baker.make(CourseGroupLink, group=group) 
     
-        data = CourseGroupLinkSerializer(instanse).data
+        data = CourseGroupLinkSerializer(instance).data
         url = reverse('group-list')
         response = self.client.post(url, data, format='json')
         l = [link for link in CourseGroupLink.objects.all()]
-        for item in l:
-            print(CourseGroupLinkSerializer(item).data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(group.id, CourseGroupLink.objects.first().group.id)
 

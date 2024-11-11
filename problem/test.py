@@ -9,7 +9,6 @@ from problem.models import Problem, Submit
 from problem.serializers import ProblemSerializer, ProblemListSerializer
 
 from group.models import CourseGroup
-from users.models import CourseGroupAssignStudent, CourseGroupAssignTeacher
 
 
 class ProblemTests(MainSetup):
