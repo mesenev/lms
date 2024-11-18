@@ -180,35 +180,49 @@ class LessonProgressTests(MainSetup):
     def test_create_lesson_progress(self):
         def check(check_status):
             self.assertEqual(response.status_code, check_status)
-            self.assertEqual(LessonProgress.objects.count(), amount + 1)
+            if check_status == status.HTTP_201_CREATED:
+                self.assertEqual(LessonProgress.objects.count(), amount + 1)
+            else:
+                self.assertEqual(LessonProgress.objects.count(), amount)
+
         self.test_setup()
-        students = [baker.make(User) for i in range(2)]
+        student = baker.make(User)
         self.client.user = self.user
         self.client.force_authenticate(user=self.user)
-        (course := baker.make(Course, author=self.user)).save()
-        (lesson := baker.make(Lesson, course=course)).save()
-        (instance := baker.make(LessonProgress, attendance=True, user=students[0], lesson=lesson)).save()
-        data = LessonProgressSerializer(instance).data
-        data['user'] = students[0].id
+
+        course = baker.make(Course, author=self.user)
+        lesson = baker.make(Lesson, course=course)
+        group = baker.make(CourseGroup, course=course)
+        CourseGroupAssignTeacher(group=group, user=self.user).save()
+
+        data = {
+            'attendance': True,
+            'solved': None,
+            'lesson': lesson.id,
+            'user': student.id
+        }
         url = reverse('lessonprogress-list')
         amount = LessonProgress.objects.count()
-        group = baker.make(CourseGroup)
-        group.course = course
-        group.save()
-        CourseGroupAssignTeacher(group = group, user=self.user).save()
-        #response = self.client.post(url, data, format='json')
-        #check(status.HTTP_201_CREATED)
-        #response = self.client.post(url, data, format='json')
-        #check(status.HTTP_400_BAD_REQUEST)
-        #data['user'] = -1
-        #response = self.client.post(url, data, format='json')
-        #check(status.HTTP_400_BAD_REQUEST)
-        #data['attendance'] = -1
-        #response = self.client.post(url, data, format='json')
-        #check(status.HTTP_400_BAD_REQUEST)
-        #data['solved'] = -1
-        #response = self.client.post(url, data, format='json')
-        #check(status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.post(url, data, format='json')
+        check(status.HTTP_201_CREATED)
+
+        amount = LessonProgress.objects.count()
+
+        response = self.client.post(url, data, format='json')
+        check(status.HTTP_400_BAD_REQUEST)
+
+        data['user'] = -1
+        response = self.client.post(url, data, format='json')
+        check(status.HTTP_400_BAD_REQUEST)
+
+        data['attendance'] = -1
+        response = self.client.post(url, data, format='json')
+        check(status.HTTP_400_BAD_REQUEST)
+
+        data['solved'] = -1
+        response = self.client.post(url, data, format='json')
+        check(status.HTTP_400_BAD_REQUEST)
 
     def test_update_lesson_progress(self):
         def check(check_status, data):
