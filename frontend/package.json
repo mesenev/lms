@@ -13,12 +13,12 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@carbon/icons-vue": "^10.72.1",
-    "@carbon/styles": "^1.34.0",
-    "@carbon/themes": "^11.22.0",
+    "@carbon/icons-vue": "^10.99.1",
+    "@carbon/styles": "^1.69.0",
+    "@carbon/themes": "^11.43.0",
     "@carbon/vue": "^3.0.9-alpha.0",
     "axios": "^1.7.7",
-    "carbon-components": "^10.58.8",
+    "carbon-components": "^10.58.15",
     "markdown-it": "^14.1.0",
     "markdown-it-abbr": "^2.0.0",
     "markdown-it-anchor": "^9.2.0",
