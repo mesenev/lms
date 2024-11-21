@@ -1,4 +1,4 @@
-FROM python:3.9-slim-buster
+FROM python:3.13.0-slim-bookworm
 
 ADD . /application/
 WORKDIR /application
