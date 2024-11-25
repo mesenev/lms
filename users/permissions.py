@@ -97,20 +97,20 @@ class CourseStaffOrAuthor(permissions.IsAuthenticated):
         if request.method not in permissions.SAFE_METHODS:
             if request.data.get('lesson'):
                 queryset = Course.objects.filter(lessons__id=request.data['lesson'])
-                if queryset.exists() and request.user.staff_for.get(course=queryset.first):
+                if queryset.exists() and request.user.staff_for.get(course=queryset.first()):
                     return True
         params = {**view.kwargs, **{key: int(value) for key, value in request.query_params.items()}}
         if 'course_id' in params.keys():
             queryset = Course.objects.filter(id=params['course_id'])
-            if queryset.exists() and request.user.staff_for.get(course=queryset.first):
+            if queryset.exists() and request.user.staff_for.get(course=queryset.first()):
                 return True
         if 'lesson_id' in params.keys():
             queryset = Course.objects.filter(lessons__id=params['lesson_id'])
-            if queryset.exists() and request.user.staff_for.get(course=queryset.first):
+            if queryset.exists() and request.user.staff_for.get(course=queryset.first()):
                 return True
         if 'problem_id' in params.keys():
             queryset = Course.objects.filter(lessons__problems__id=params['problem_id'])
-            if queryset.exists() and request.user.staff_for.get(course=queryset.first):
+            if queryset.exists() and request.user.staff_for.get(course=queryset.first()):
                 return True
         return False
 
