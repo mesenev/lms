@@ -5,5 +5,6 @@ WORKDIR /application
 
 ENV DJANGO_SETTINGS_MODULE imcslms.settings
 
-RUN pip3 install --no-cache-dir -r /application/requirements/requirements.txt
+RUN apt-get update && apt-get install -y gcc && apt-get clean
 
+RUN pip3 install --no-cache-dir -r /application/requirements/requirements.txt
