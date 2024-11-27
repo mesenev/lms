@@ -4,11 +4,11 @@
       <div class="main-title">
         <h1 v-if="!loading && lesson" class=""> Урок: {{ lesson.name }} </h1>
         <cv-skeleton-text v-else :heading="true" class="main-title" width="'35%'"/>
-        <div v-if="!loading && lesson" class="lesson-info">
-          <span>
-            Дедлайн: {{ lesson.deadline }}
-          </span>
-        </div>
+<!--        <div v-if="!loading && lesson" class="lesson-info">-->
+<!--          <span>-->
+<!--            Дедлайн: {{ lesson.deadline }}-->
+<!--          </span>-->
+<!--        </div>-->
         <cv-skeleton-text v-else width="'35%'"/>
         <div class="description-container">
           <span v-if="!loading && lesson" class="lesson-description">

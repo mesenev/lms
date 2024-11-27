@@ -16,7 +16,7 @@ class Lesson(models.Model):
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=500)
     description = models.TextField(blank=True)
-    deadline = models.DateField(blank=True, null=True)
+    # deadline = models.DateField(blank=True, null=True)
     is_hidden = models.BooleanField(default=True)
     scores = models.JSONField(null=False, default=dict)
 
