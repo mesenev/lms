@@ -37,13 +37,13 @@
             class="text_field"
             label="Описание урока"
             v-model.trim="lessonEdit.description"/>
-          <cv-date-picker
-            class="deadLine text_field"
-            kind="single"
-            v-model="lessonEdit.deadline"
-            date-label="Дедлайн"
-            :cal-options=calOptions
-          />
+<!--          <cv-date-picker-->
+<!--            class="deadLine text_field"-->
+<!--            kind="single"-->
+<!--            v-model="lessonEdit.deadline"-->
+<!--            date-label="Дедлайн"-->
+<!--            :cal-options=calOptions-->
+<!--          />-->
           <div class="action-btns">
             <cv-button kind="danger" @click="showConfirmModal(lessonEdit)">
               Удалить
