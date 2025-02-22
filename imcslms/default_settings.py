@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'wsnotifications',
     'exam',
     'group',
+    'testing',
 ]
 
 REST_FRAMEWORK = dict(
