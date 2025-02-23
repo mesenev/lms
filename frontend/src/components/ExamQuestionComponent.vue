@@ -10,11 +10,12 @@
         <cv-dropdown
             v-model:value="question.answer_type"
             class="answer-type"
-            placeholder="Тип ответа" @change="answerTypeChange">
+            placeholder="Тип ответа" @change="answerTypeChange()">
           <cv-dropdown-item value="input">Короткий ответ</cv-dropdown-item>
           <cv-dropdown-item v-if="!autoTestMode" value="text">Параграф</cv-dropdown-item>
           <cv-dropdown-item value="radio">Radio</cv-dropdown-item>
           <cv-dropdown-item value="checkbox">Checkbox</cv-dropdown-item>
+          <cv-dropdown-item value="code">Code</cv-dropdown-item>
         </cv-dropdown>
       </div>
       <cv-text-area placeholder="Описание (опционально)" v-model.trim="question.description"/>
@@ -90,6 +91,17 @@
           <p class="invalid-text" v-else> {{ manualHelpText }} </p>
         </div>
       </div>
+      <div v-if="codeType">
+        <span>Тесты</span>
+        <div v-for="(testCase, index) in question.test_cases" :key="index">
+          <div class="answer-variant">
+          <cv-text-area v-model.trim="testCase.test_input" placeholder="Введите тестовый ввод"/>
+          <cv-text-area v-model.trim="testCase.test_output" placeholder="Введите ожидаемый вывод"/>
+          <component  class="action-btn" :is="closeFilled24" @click="deleteTestCase(index)"/>
+          </div>
+        </div>
+        <cv-link @click="addTestCase">Добавить тестовый случай</cv-link>
+      </div>
       <span>Сумма баллов</span>
       <div class="question-footer">
         <cv-number-input class="points-input" v-model="question.points" :min="0"/>
@@ -106,7 +118,7 @@
 import trashCan24 from "@carbon/icons-vue/lib/trash-can/24"
 import closeFilled24 from "@carbon/icons-vue/lib/close--filled/24"
 import type { PropType } from "vue";
-import type { QuestionModel } from "@/models/QuestionModel";
+import {LANGUAGE_TYPE, type QuestionModel} from "@/models/QuestionModel";
 import type { ExamModel } from "@/models/ExamModel";
 import useQuestionStore from "@/stores/modules/question";
 import { computed, onMounted, onUpdated, ref, watch } from "vue";
@@ -156,6 +168,10 @@ const radioType = computed(() => {
 
 const checkboxType = computed(() => {
   return question.value.answer_type === ANSWER_TYPE.CHECKBOXES;
+})
+
+const codeType = computed(() => {
+  return question.value.answer_type === ANSWER_TYPE.CODE;
 })
 
 const autoTestMode = computed(() => {
@@ -234,6 +250,7 @@ function checkEmptyFields() {
 function answerTypeChange() {
   question.value.correct_answers = [];
   question.value.all_answers = [''];
+  question.value.test_cases = [{ test_input: "", test_output: "" }];
 }
 
 function addAnswer() {
@@ -248,6 +265,15 @@ function deleteAnswer(answer: string) {
 function deleteQuestion() {
   emits('delete-question');
 }
+
+function addTestCase() {
+  question.value.test_cases.push({ test_input: "", test_output: "" });
+}
+
+function deleteTestCase(index: number) {
+  question.value.test_cases.splice(index, 1);
+}
+
 </script>
 
 <style scoped lang="stylus">
