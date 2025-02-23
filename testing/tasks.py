@@ -18,7 +18,7 @@ def check_solutions():
     # Запускаем проверку в Docker-контейнере
     problem = submit.problem
     results = run_code_in_docker(
-        code=submit.content.read(),
+        code=submit.content.read().decode('utf-8'),
         language=problem.language,
         input_output=problem.input_output,
         time_limit=problem.time_limit,

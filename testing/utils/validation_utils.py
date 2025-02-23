@@ -5,5 +5,10 @@ def validate_code(code, language):
             return True
         except SyntaxError:
             return False
-    # TODO # Добавить проверки для других языков
+    elif language == 'cpp':
+        try:
+            return True
+        except Exception:
+            return False
+    # TODO: Добавить проверки для других языков
     return True
