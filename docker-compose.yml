@@ -62,16 +62,6 @@ services:
             - redis
             - backend
 
-    python-runner:
-        build:
-            context: ./testing/testing_docker
-            dockerfile: ./Dockerfile.python-runner
-
-    cpp-runner:
-        build:
-            context: ./testing/testing_docker
-            dockerfile: ./Dockerfile.cpp-runner
-
 networks:
     db-net:
     nginx-net:
