@@ -43,6 +43,11 @@ docker compose up
 
 Don't forget to add superuser to 'teacher' group in admin-panel.
 
+You can run tests with
+```shell
+docker compose exec backend python manage.py test
+```
+
 #### frontend
 Install Node.js & install frontend dependencies via command
 ```shell

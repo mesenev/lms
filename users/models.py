@@ -43,7 +43,7 @@ class User(AbstractUser):
         if not self.avatar_url:
             return
         image = Image.open(self.avatar_url)
-        image.thumbnail((49, 50), Image.ANTIALIAS)
+        image.thumbnail((49, 50), Image.Resampling.LANCZOS)
         thumb_name, thumb_extension = os.path.splitext(self.avatar_url.name)
         thumb_filename = thumb_name + '_thumb' + thumb_extension
 
