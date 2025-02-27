@@ -15,9 +15,29 @@ class CourseProgressViewSet(viewsets.ModelViewSet):
     serializer_class = CourseProgressSerializer
     filterset_fields = ['user_id', 'course_id']
 
-    def get_queryset(self):
-        return CourseProgress.objects.filter(course__in=self.request.user.staff_for.all())
+class CourseProgressViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = CourseProgressSerializer
+    filterset_fields = ['user_id', 'course_id']
 
+    def get_queryset(self):
+        user = self.request.user
+
+        # Если пользователь является преподавателем
+        if user.assigns_as_teacher.exists():  # Проверяем, есть ли у пользователя роль преподавателя
+            # Получаем все группы, где пользователь является преподавателем
+            groups_where_teacher = user.assigns_as_teacher.all()
+            # Извлекаем только связанные CourseGroup
+            course_groups = [assignment.group for assignment in groups_where_teacher]
+            # Получаем все курсы, связанные с этими группами
+            courses_where_teacher = Course.objects.filter(source_for__in=course_groups)
+            # Фильтруем CourseProgress по этим курсам
+            return CourseProgress.objects.filter(course__in=courses_where_teacher)
+
+        # Если пользователь является студентом
+        else:
+            # Студент видит только свой прогресс
+            return CourseProgress.objects.filter(user=user)
 
 class LessonProgressViewSet(viewsets.ModelViewSet):
     permission_classes = [CourseStaffOrAuthor]
