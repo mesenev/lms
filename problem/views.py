@@ -26,11 +26,11 @@ class ProblemViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         staff_courses = []
         for group in self.request.user.staff_for.all():
-            staff_courses += Course.objects.filter(id=group.course.id)
+            staff_courses.append(group.course)  # Добавляем объект Course в список
 
         student_courses = []
         for group in self.request.user.student_for.all():
-            student_courses += group.course
+            student_courses.append(group.course)  # Добавляем объект Course в список
 
         queryset = Problem.objects.filter(
             Q(lesson__course__in=staff_courses)
