@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from django.db import models
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from users.models import User
 
 from problem.models import Submit, ProblemStats, LogEvent
 from problem.serializers import LogEventSerializer
@@ -14,6 +15,8 @@ def update_problem_status(sender, instance, **kwargs):
         stats: ProblemStats = ProblemStats.objects.get(problem=instance.problem)
     except ProblemStats.DoesNotExist:
         stats: ProblemStats = ProblemStats(problem=instance.problem)
+
+    # Фильтруем сабмиты для задачи, включая сабмиты преподавателей
     queryset = Submit.objects.annotate(
         ordering=models.Case(
             models.When(status="OK", then=models.Value(0)),
@@ -21,15 +24,15 @@ def update_problem_status(sender, instance, **kwargs):
             default=models.Value(2),
             output_field=models.IntegerField()
         )
-    ).filter(problem=instance.problem).exclude(
-        student__in=instance.problem.lesson.course.staff.all()
-    ).order_by('student', 'ordering', '-id').distinct('student')
-    stats.green = len(list((filter(lambda x: x.status == Submit.OK, queryset))))
-    stats.yellow = len(list((filter(lambda x: x.status in [Submit.AWAITING_MANUAL, Submit.DEFAULT_STATUS], queryset))))
-    stats.red = len(list((filter(
+    ).filter(problem=instance.problem).order_by('student', 'ordering', '-id').distinct('student')
+
+    # Обновляем статистику
+    stats.green = len(list(filter(lambda x: x.status == Submit.OK, queryset)))
+    stats.yellow = len(list(filter(lambda x: x.status in [Submit.AWAITING_MANUAL, Submit.DEFAULT_STATUS], queryset)))
+    stats.red = len(list(filter(
         lambda x: x.status not in [Submit.OK, Submit.AWAITING_MANUAL, Submit.DEFAULT_STATUS],
         queryset
-    ))))
+    )))
     stats.save()
 
 
