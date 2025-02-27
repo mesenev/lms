@@ -90,7 +90,13 @@ def add_student_to_rating_lesson(sender, instance, created, **kwargs):
 def add_lessons_to_course_rating(sender, instance, created, **kwargs):
     if not created and not instance.course:
         return
+
     for i in CourseProgress.objects.filter(course=instance.course):
+        # Инициализируем progress, если он равен None
+        if i.progress is None:
+            i.progress = {}
+        
+        # Обновляем progress
         i.progress.update({instance.id: {'CW': 0, 'HW': 0, 'EX': 0}})
         i.save()
 
