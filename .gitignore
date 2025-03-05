@@ -104,3 +104,5 @@ pnpm-debug.log*
 
 avatars
 *.sql
+celerybeat-schedule-shm
+celerybeat-schedule-wal

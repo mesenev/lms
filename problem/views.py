@@ -149,8 +149,10 @@ class SubmitViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        # Получаем все курсы, где пользователь является преподавателем
+        staff_courses = Course.objects.filter(source_for__staff=user)
         queryset = Submit.objects.filter(
-            Q(student=user) | Q(problem__lesson__course__in=user.staff_for.all())
+            Q(student=user) | Q(problem__lesson__course__in=staff_courses)
         ).prefetch_related('problem')
         return queryset
 
@@ -202,7 +204,7 @@ class SubmitViewSet(viewsets.ModelViewSet):
     def create(self, request: Request, *args, **kwargs):
         problem = Problem.objects.get(id=request.data['problem'])
         course = object_to_course(problem)
-        if request.user.assigns.filter(course=course).exists():
+        if request.user.assigns.filter(group__course=course).exists():
             if 'status' in request.data:
                 del request.data['status']
             return super().create(request, *args, **kwargs)
