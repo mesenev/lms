@@ -9,12 +9,6 @@ from rating.serializers import LessonProgressSerializer, CourseProgressSerialize
 from users import permissions
 from users.permissions import CourseStaffOrAuthor
 
-
-class CourseProgressViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
-    serializer_class = CourseProgressSerializer
-    filterset_fields = ['user_id', 'course_id']
-
 class CourseProgressViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = CourseProgressSerializer
