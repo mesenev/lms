@@ -8,6 +8,7 @@ from lesson.serializers import LessonShortSerializer
 from users.models import CourseGroupAssignStudent
 from users.serializers import DefaultUserSerializer
 from utils.dynamic_fields_serializer import DynamicFieldsModelSerializer
+from group.serializers import CourseGroupSerializer
 
 
 class CourseShortSerializer(serializers.ModelSerializer):
@@ -27,6 +28,11 @@ class CourseSerializer(DynamicFieldsModelSerializer):
     schedule = serializers.PrimaryKeyRelatedField(
         read_only=True, required=False
     )
+    groups = serializers.SerializerMethodField()
+    def get_groups(self, obj):
+        # Используем related_name 'source_for' для получения всех групп, связанных с курсом
+        groups = obj.source_for.all()
+        return CourseGroupSerializer(groups, many=True).data
 
     def validate_author(self, value):
         return
@@ -56,7 +62,7 @@ class CourseSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = Course
         fields = ['id', 'name', 'description', 'author', 'lessons',
-                  'cats_id', 'schedule', 'de_options']
+                  'cats_id', 'schedule', 'de_options', 'groups']
 
 
 class ScheduleSerializer(serializers.ModelSerializer):
