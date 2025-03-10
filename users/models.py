@@ -16,15 +16,7 @@ def content_file_name(instance, filename):
     return '/'.join(['avatars', 'originals', filename])
 
 
-class StudyGroup(models.Model):
-    study_group = models.CharField(max_length=20, unique=True, blank=True)
-
-    def __str__(self):
-        return self.study_group
-
-
 class User(AbstractUser):
-    study_group = models.ForeignKey(StudyGroup, on_delete=models.SET_NULL, null=True, blank=True)
     avatar_url = models.ImageField(upload_to=content_file_name, null=True, blank=True)
     thumbnail = models.ImageField(upload_to=f'avatars/thumbnail/', null=True, blank=True)
     __original_mode = None
@@ -128,6 +120,5 @@ class ResetPasswordToken(models.Model):
 
 
 admin.site.register(ResetPasswordToken)
-admin.site.register(StudyGroup)
 admin.site.register(CourseGroupAssignStudent)
 admin.site.register(CourseGroupAssignTeacher)

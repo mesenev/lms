@@ -21,13 +21,5 @@ class CourseSchedule(models.Model):
     week_schedule = models.JSONField(null=True, default=dict)
     lessons = models.JSONField(null=True, default=dict)
 
-
-class CourseLink(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    link = models.CharField(max_length=500, null=True)
-    usages = models.IntegerField(default=0)
-
-
 admin.site.register(Course)
 admin.site.register(CourseSchedule)
-admin.site.register(CourseLink)

@@ -43,8 +43,6 @@ urlpatterns += [
     path('admin/', admin.site.urls),
     path('', include('cathie.urls')),
     path('', include('users.urls')),
-    path('', include('lesson.urls')),
-    path('', include('problem.urls')),
     path('', include('group.urls')),
     path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls')),

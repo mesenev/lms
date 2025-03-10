@@ -12,8 +12,8 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from group.serializers import GroupAssignTeacherSerializer
 from cathie import cats_api
-from course.models import CourseSchedule, Course, CourseLink
-from course.serializers import CourseSerializer, ScheduleSerializer, LinkSerializer, CourseShortSerializer
+from course.models import CourseSchedule, Course
+from course.serializers import CourseSerializer, ScheduleSerializer, CourseShortSerializer
 from imcslms.default_settings import TEACHER
 from users.models import CourseGroupAssignTeacher
 from users.permissions import CourseStaffOrReadOnlyForStudents, CourseStaffOrAuthorReadOnly, CourseStaffOrAuthor
@@ -82,78 +82,3 @@ class ScheduleViewSet(
         instance = get_object_or_404(queryset, course__id=course_id)
         serializer = ScheduleSerializer(instance)
         return Response(serializer.data)
-
-
-# class LinkViewSet(viewsets.ModelViewSet):
-#     permission_classes = [CourseStaffOrAuthorReadOnly]
-#     queryset = CourseLink.objects.all()
-#     serializer_class = LinkSerializer
-#
-#     def list(self, request: Request, **kwargs):
-#         queryset = self.filter_queryset(self.get_queryset())
-#         if 'course' in request.query_params:
-#             queryset = queryset.filter(course=request.query_params['course'])
-#         serializer = self.get_serializer(queryset, many=True)
-#         return Response(serializer.data)
-
-
-# def link_check(link, user_id):
-#     answer = dict(
-#         link_exists=True, student_registered=False, teacher_registered=False,
-#         is_possible=True, course=None, usages_available=True,
-#     )
-#     try:
-#         instance = CourseLink.objects.select_related('course') \
-#             .prefetch_related('course__staff', 'course__students').get(link=link)
-#         answer['course'] = CourseShortSerializer(instance.course).data
-#         answer['usages_available'] = bool(instance.usages)
-#         if not answer['usages_available']:
-#             answer.update(dict(link_exists=False, is_possible=False))
-#
-#     except CourseLink.DoesNotExist:
-#         answer.update(dict(link_exists=False, is_possible=False))
-#         return answer
-#     try:
-#         instance.course.students.get(id=user_id)
-#         answer.update(dict(student_registered=True, is_possible=False))
-#     except User.DoesNotExist:
-#         pass
-#     try:
-#         instance.course.staff.get(id=user_id)
-#         answer.update(dict(teacher_registered=True, is_possible=False))
-#     except User.DoesNotExist:
-#         pass
-#     return answer
-#
-#
-# class CheckLinkApi(APIView):
-#     permission_classes = [IsAuthenticated]
-#
-#     def get(self, request: Request, link):
-#         return Response(link_check(link, request.user.id))
-#
-#
-# class CourseRegistrationApi(APIView):
-#     permission_classes = [IsAuthenticated]
-#
-#     def get(self, request, link):
-#         if not link_check(link, request.user.id)['is_possible']:
-#             raise PermissionDenied()
-#         link = CourseLink.objects.select_related('course').get(link=link)
-#         assignment = CourseAssignStudent(course=link.course, user=request.user)
-#         assignment.save()
-#         if link.usages > 0:
-#             link.usages -= 1
-#             link.save()
-#             return Response(dict(user=assignment.user_id, courseId=assignment.course.id))
-#         else:
-#             raise NotFound()
-#
-#
-# class LinkDeletionAPi(APIView):
-#     permission_classes = [CourseStaffOrAuthor]
-#
-#     def delete(self, request, link):
-#         course_link = CourseLink.objects.get(link=link)
-#         course_link.delete()
-#         return Response(link)

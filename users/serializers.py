@@ -7,17 +7,9 @@ from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from users.models import User, StudyGroup, ResetPasswordToken
-
-
-class StudyGroupsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = StudyGroup
-        fields = ['study_group']
-
+from users.models import User, ResetPasswordToken
 
 class DefaultUserSerializer(serializers.ModelSerializer):
-    study_group = serializers.CharField(max_length=20, allow_null=True)
     staff_for = serializers.PrimaryKeyRelatedField(many=True, required=False, read_only=True)
 
     def __init__(self, *args, exclude_staff=False, **kwargs):
@@ -49,7 +41,7 @@ class DefaultUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'study_group', 'id', 'staff_for', 'password',
+        fields = ['username', 'first_name', 'last_name', 'id', 'staff_for', 'password',
                   'email', 'avatar_url', 'thumbnail', 'cats_account']
         extra_kwargs = {'password': {'write_only': True}}
         read_only_fields = ['thumbnail']

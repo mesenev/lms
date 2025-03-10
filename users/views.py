@@ -17,7 +17,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from users.models import ResetPasswordToken
 from users.permissions import UserItselfOrReadonly
-from users.serializers import DefaultUserSerializer, StudyGroupsSerializer, \
+from users.serializers import DefaultUserSerializer, \
     TokenValidationSerializer, PasswordTokenSerializer, EmailSerializer
 from users.utils import *
 from rest_framework.request import Request
@@ -117,10 +117,3 @@ class VerifyTokenExists(APIView):
         data = self.serializer_class(data={"token": request.query_params.get('token')})
         data.is_valid(raise_exception=True)
         return Response(data={"status": "OK"})
-
-# class StudyGroupsViewSet(
-#     GenericViewSet, CreateModelMixin,
-#     RetrieveModelMixin, UpdateModelMixin, ListModelMixin
-# ):
-#     queryset = StudyGroup.objects.all()
-#     serializer_class = StudyGroupsSerializer

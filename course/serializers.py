@@ -3,7 +3,7 @@ import string
 
 from rest_framework import serializers
 
-from course.models import Course, CourseSchedule, CourseLink
+from course.models import Course, CourseSchedule
 from lesson.serializers import LessonShortSerializer
 from users.models import CourseGroupAssignStudent
 from users.serializers import DefaultUserSerializer
@@ -69,27 +69,3 @@ class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseSchedule
         fields = '__all__'
-
-
-class LinkSerializer(serializers.Serializer):
-    # TODO: cleanup this serializer
-    id = serializers.ReadOnlyField()
-    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
-    link = serializers.SerializerMethodField(required=False)
-    usages = serializers.IntegerField()
-
-    @staticmethod
-    def get_link(instance):
-        return instance.link
-
-    def update(self, instance, validated_data):
-        pass
-
-    def create(self, validated_data):
-        return CourseLink.objects.create(**validated_data, link=''.join(
-            random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(15)))
-
-    class Meta:
-        model = CourseLink
-        fields = '__all__'
-
