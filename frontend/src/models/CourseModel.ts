@@ -2,6 +2,7 @@ import type { BaseModel } from "@/models/BaseModel";
 import type { LessonModel } from '@/models/LessonModel';
 import type { UserModel } from '@/models/UserModel';
 import type { AuthorModel } from '@/models/UserModel';
+import type { GroupModel } from "@/models/GroupModel.ts";
 
 export interface CourseModel extends BaseModel {
   author: AuthorModel | null;
@@ -12,4 +13,5 @@ export interface CourseModel extends BaseModel {
   students: Array<UserModel>;
   schedule: number | null;
   de_options: string;
+  groups: Array<GroupModel>;
 }

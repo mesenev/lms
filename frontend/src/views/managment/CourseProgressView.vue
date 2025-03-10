@@ -5,65 +5,61 @@
         <div class="main-title">
           <h2>Успеваемость курса: {{ course.name }}</h2>
         </div>
-        <cv-button :disabled="change" v-on:click="mark" v-if="progress.length">
-          Отметить посещаемость
-        </cv-button>
       </div>
-      <div class="table-wrapper" v-if="progress.length">
-        <cv-data-table @sort="Sort">
-          <template v-slot:headings>
-            <cv-data-table-heading class="fixed-col thead-element"
-                                   v-for="(column, id) in columns" :key="id"
-                                   :sortable=true>
-              <h5 v-if="(column.id === 0)">Результаты</h5>
-              <h5 v-else-if="(column.id === -2)">{{ column.name }}</h5>
-              <div v-else @click="openSubmitOrProblem(column.id)">
-                <h5>{{ column.name }}</h5>
-              </div>
-            </cv-data-table-heading>
-          </template>
-          <template v-slot:data>
-            <cv-data-table-row v-for="row in progress" :key="row.user">
-              <cv-data-table-cell class="fixed-col">
-                <router-link
-                  :to="{ name: 'profile-page', params: { userId: row.user} }"
-                  class="course--title" tag="p">
-                  <UserComponent :userProp="users[row.user]"/>
-                </router-link>
-              </cv-data-table-cell>
-              <cv-data-table-cell v-for="les in lessons"
-                                  :key="les.id"
-                                  class="tbody-element">
-                <div class="tbody-data">
-                  <div class="marks">
-                    <cv-tooltip tip="Результирующий балл">
-                      <cv-tag class="result-mark" :label="row.progress ? sum(row.progress[les.id]).toString() : 0"/>
-                    </cv-tooltip>
-                    <div v-for="(value, name) in row.progress ? row.progress[les.id] : {}" :key="value+name"
-                         class="mark">
-                      <cv-tooltip :tip="`Балл за: ${name}`">
-                        <cv-tag :label="Math.trunc(value).toString()" :kind="color(name)"/>
+
+      <div v-for="group in groups" :key="group.id" class="group-section">
+        <h3>Группа {{ group.id }}</h3>
+        <div class="table-wrapper" v-if="progress.length">
+          <cv-data-table @sort="Sort">
+            <template v-slot:headings>
+              <cv-data-table-heading class="fixed-col thead-element"
+                                     v-for="(column, id) in columns" :key="id"
+                                     :sortable="true">
+                <h5 v-if="(column.id === 0)">Результаты</h5>
+                <h5 v-else-if="(column.id === -2)">{{ column.name }}</h5>
+                <div v-else @click="openSubmitOrProblem(column.id)">
+                  <h5>{{ column.name }}</h5>
+                </div>
+              </cv-data-table-heading>
+            </template>
+            <template v-slot:data>
+              <cv-data-table-row v-for="row in progress.filter(p => group.students.includes(p.user))" :key="row.user">
+                <cv-data-table-cell class="fixed-col">
+                  <router-link
+                    :to="{ name: 'profile-page', params: { userId: row.user } }"
+                    class="course--title" tag="p">
+                    <!-- Отображаем имя и фамилию пользователя -->
+                    <span>{{ users[row.user]?.first_name }} {{ users[row.user]?.last_name }}</span>
+                  </router-link>
+                </cv-data-table-cell>
+                <cv-data-table-cell v-for="les in lessons"
+                                    :key="les.id"
+                                    class="tbody-element">
+                  <div class="tbody-data">
+                    <div class="marks">
+                      <cv-tooltip tip="Результирующий балл">
+                        <cv-tag class="result-mark" :label="row.progress ? sum(row.progress[les.id]).toString() : 0" />
                       </cv-tooltip>
+                      <div v-for="(value, name) in row.progress ? row.progress[les.id] : {}" :key="value + name"
+                           class="mark">
+                        <cv-tooltip :tip="`Балл за: ${name}`">
+                          <cv-tag :label="Math.trunc(value).toString()" :kind="color(name)" />
+                        </cv-tooltip>
+                      </div>
                     </div>
                   </div>
-                  <div class="mark-checkbox">
-                    <cv-checkbox
-                      :checked="student_attendance[`${row.user}-${les.id}`].attendance"
-                      :value="`${row.user}-${les.id}`"
-                      @change="attendanceChange(row.user, les.id)"/>
-                  </div>
-                </div>
-              </cv-data-table-cell>
-              <cv-data-table-cell>
-                {{ average(row.progress).toString() }}
-              </cv-data-table-cell>
-            </cv-data-table-row>
-          </template>
-        </cv-data-table>
+                </cv-data-table-cell>
+                <cv-data-table-cell>
+                  {{ average(row.progress).toString() }}
+                </cv-data-table-cell>
+              </cv-data-table-row>
+            </template>
+          </cv-data-table>
+        </div>
+        <empty-list-component v-else :text="emptyText" list-of="students" />
       </div>
-      <empty-list-component v-else :text="emptyText" list-of="students"/>
     </div>
-    <cv-data-table-skeleton v-else :columns="2" :rows="6"/>
+    <cv-data-table-skeleton v-else :columns="2" :rows="6" />
   </div>
 </template>
 
@@ -80,6 +76,8 @@ import useProblemStore from "@/stores/modules/problem"
 import useProgressStore from "@/stores/modules/progress"
 import useUserStore from '@/stores/modules/user';
 import useLessonStore from '@/stores/modules/lesson'
+import GroupModal from "@/components/GroupModal.vue";
+import useGroupStore from "@/stores/modules/group";
 import UserAvatar20 from '@carbon/icons-vue/es/user--avatar/20';
 import type {CourseModel} from "@/models/CourseModel";
 import type {LessonModel} from "@/models/LessonModel";
@@ -87,10 +85,12 @@ import api from "@/stores/services/api";
 import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
 import {ref, type Ref, computed, onMounted} from "vue";
 import {useRouter, useRoute} from "vue-router";
+import type {GroupModel} from "@/models/GroupModel.ts";
 
 const props = defineProps({courseId: {type: Number, required: true}})
 const userStore = useUserStore();
 const courseStore = useCourseStore();
+const groupStore = useGroupStore();
 const progressStore = useProgressStore();
 const problemStore = useProblemStore();
 const lessonStore = useLessonStore();
@@ -105,6 +105,7 @@ const student_attendance_copy: Ref<Dictionary<any>> = ref({});
 const lessons: Ref<Array<LessonModel>> = ref([]);
 const course: Ref<CourseModel> = ref({...courseStore.newCourse});
 const emptyText: Ref<string> = ref('');
+const groups = ref<Array<GroupModel>>([]);
 
 const loading: Ref<boolean> = ref(true);
 const sortable: Ref<boolean> = ref(true);
@@ -144,19 +145,36 @@ function attendanceChange(userId: number, lessonId: number) {
 
 onMounted(async () => {
   course.value = await courseStore.fetchCourseById(props.courseId);
+  console.log("course value", course.value);
+
+  groups.value = await groupStore.fetchGroupsByCourseId(props.courseId);
+  console.log("groups value", groups.value);
+
+  // Извлекаем уникальные идентификаторы студентов из групп
+  const studentIds = [...new Set(groups.value.flatMap(group => group.students))];
+
+  // Получаем пользователей по их идентификаторам
+  const userPromises = studentIds.map(userId => userStore.fetchUserById(userId));
+
+  // Ждем, пока все промисы завершатся
+  const usersArray = await Promise.all(userPromises);
+
+  // Преобразуем массив пользователей в объект для удобного доступа
+  users.value = usersArray.reduce((acc, user) => {
+    acc[user.id] = user;
+    return acc;
+  }, {});
+  console.log("User value", users.value)
+
   students_progress.value = await progressStore.fetchCourseProgressById(props.courseId);
-  users.value = await userStore.fetchStudentsByCourseId(props.courseId);
+  console.log("students progress", students_progress.value);
+
   lessons.value = await lessonStore.fetchLessonsByCourseId(props.courseId);
-  s.value = await progressStore.fetchAttendance(props.courseId);
-  emptyText.value = 'Ни один студент не записан на данный курс'
+  console.log("lessons value", lessons.value);
 
-  for (const [key, val] of Object.entries(s.value))
-    for (const at of val)
-      student_attendance.value[`${key}-${at.lesson}`] = at;
-
-  student_attendance_copy.value = _.cloneDeep(student_attendance.value);
+  emptyText.value = 'Ни один студент не записан на данный курс';
   loading.value = false;
-})
+});
 
 function color(type: string) {
   if (type === 'CW') {
@@ -170,8 +188,20 @@ function color(type: string) {
   }
 }
 
-function sum(type: any) {
-  return Math.trunc(type['CW'] + type['HW'] + type['EX']);
+function sum(progress) {
+  if (!progress) {
+    console.warn('Progress is undefined or null');
+    return 0; // или любое другое значение по умолчанию
+  }
+
+  // Предполагаем, что progress - это объект с разными ключами
+  let total = 0;
+  for (const key in progress) {
+    if (progress.hasOwnProperty(key)) {
+      total += progress[key]; // или любая другая логика суммирования
+    }
+  }
+  return total;
 }
 
 function average(progress: Dictionary<string> | undefined) {
