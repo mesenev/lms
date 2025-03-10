@@ -22,10 +22,9 @@ class CourseProgressTests(MainSetup):
         (course_group := baker.make(CourseGroup, course=course)).save()
         CourseGroupAssignTeacher(group=course_group, user=teacher).save()
 
-        # Создаём CourseProgress для каждого студента
+        # Добавляем студентов в группу курса (сигнал создаст CourseProgress автоматически)
         for student in students:
             CourseGroupAssignStudent(group=course_group, user=student).save()
-            baker.make(CourseProgress, user=student, course=course).save()
 
         (lesson := baker.make(Lesson, course=course, scores={'CW': 50, 'HW': 50, 'EX': 10})).save()
         (problem := baker.make(Problem, type='CW', lesson=lesson)).save()
@@ -160,21 +159,25 @@ class LessonProgressTests(MainSetup):
         self.client.force_authenticate(user=self.user)
         (course := baker.make(Course, author=teacher)).save()
         (course_group := baker.make(CourseGroup, course=course)).save()
-        CourseGroupAssignTeacher(group = course_group, user=teacher).save()
+        CourseGroupAssignTeacher(group=course_group, user=teacher).save()
         for student in students:
             CourseGroupAssignStudent(group=course_group, user=student).save()
         (lesson := baker.make(Lesson, course=course, scores={'CW': 50, 'HW': 50, 'EX': 10})).save()
         (problem := baker.make(Problem, type='CW', lesson=lesson)).save()
         submits_by_students = []
         for i in range(len(students)):
-            submits_by_students.append(baker.make(Submit, problem=problem, student=students[i], status='OK'))
-            submits_by_students[i].save()
-        for i in range(len(students)):
-            submits_by_students.append(baker.make(Submit, problem=problem, student=students[i], status='WA'))
-            submits_by_students[i].save()
+            # Создаём сабмит с статусом 'OK'
+            submit_ok = baker.make(Submit, problem=problem, student=students[i], status='OK')
+            submit_ok.save()
+            submits_by_students.append(submit_ok)
+            # Создаём сабмит с статусом 'WA'
+            submit_wa = baker.make(Submit, problem=problem, student=students[i], status='WA')
+            submit_wa.save()
+            submits_by_students.append(submit_wa)
         (submit_by_teacher := baker.make(Submit, problem=problem, student=teacher, status='OK')).save()
         self.client.force_authenticate(user=teacher)
         check_access('lesson', lesson.id)
+        # Проверяем первый сабмит (с статусом 'OK')
         check_access('lesson', lesson.id, submit=submits_by_students[0])
         check_access('course', course.id)
         check_access('problem', problem.id)

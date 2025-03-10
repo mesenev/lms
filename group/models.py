@@ -5,7 +5,7 @@ from django.contrib import admin
 
 
 class CourseGroup(models.Model):
-    course = models.ForeignKey(Course, related_name='source_for', on_delete=models.SET_NULL, null=True)
+    course = models.ForeignKey(Course, related_name='source_for', on_delete=models.CASCADE, null=True)
     group_schedule = models.JSONField(null=True, default=dict)
     points_for_passing = models.JSONField(null=True, default=dict)
     students = models.ManyToManyField(User, related_name='student_for', through='users.CourseGroupAssignStudent')
