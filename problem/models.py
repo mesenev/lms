@@ -33,7 +33,7 @@ class Problem(models.Model):
         ('manual', 'Manual only problem testing'),
         ('auto_and_manual', 'Manual then automated problem testing')
     ]
-    lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, related_name='problems', null=True)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='problems', null=True)
     author = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='authored_problems', null=True)
     name = models.CharField(max_length=500)
 
