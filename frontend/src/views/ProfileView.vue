@@ -51,25 +51,6 @@
                   </cv-structured-list-data>
                 </cv-structured-list-item>
                 <cv-structured-list-item>
-                  <cv-structured-list-data>Имя</cv-structured-list-data>
-                  <cv-structured-list-data>
-                    {{ user.first_name }}
-                  </cv-structured-list-data>
-                </cv-structured-list-item>
-                <cv-structured-list-item>
-                  <cv-structured-list-data>Фамилия</cv-structured-list-data>
-                  <cv-structured-list-data>
-                    {{ user.last_name }}
-                  </cv-structured-list-data>
-                </cv-structured-list-item>
-                <cv-structured-list-item>
-                  <cv-structured-list-data>Учебная группа</cv-structured-list-data>
-                  <cv-structured-list-data v-if="user.study_group">
-                    {{ user.study_group }}
-                  </cv-structured-list-data>
-                  <cv-structured-list-data v-else> Не выбрана</cv-structured-list-data>
-                </cv-structured-list-item>
-                <cv-structured-list-item>
                   <cv-structured-list-data>Почта</cv-structured-list-data>
                   <cv-structured-list-data>{{
                       user.email || 'error@mail.ru'

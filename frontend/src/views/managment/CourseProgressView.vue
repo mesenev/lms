@@ -28,7 +28,6 @@
                   <router-link
                     :to="{ name: 'profile-page', params: { userId: row.user } }"
                     class="course--title" tag="p">
-                    <!-- Отображаем имя и фамилию пользователя -->
                     <span>{{ users[row.user]?.first_name }} {{ users[row.user]?.last_name }}</span>
                   </router-link>
                 </cv-data-table-cell>
@@ -150,16 +149,16 @@ onMounted(async () => {
   groups.value = await groupStore.fetchGroupsByCourseId(props.courseId);
   console.log("groups value", groups.value);
 
-  // Извлекаем уникальные идентификаторы студентов из групп
+
   const studentIds = [...new Set(groups.value.flatMap(group => group.students))];
 
-  // Получаем пользователей по их идентификаторам
+
   const userPromises = studentIds.map(userId => userStore.fetchUserById(userId));
 
-  // Ждем, пока все промисы завершатся
+
   const usersArray = await Promise.all(userPromises);
 
-  // Преобразуем массив пользователей в объект для удобного доступа
+
   users.value = usersArray.reduce((acc, user) => {
     acc[user.id] = user;
     return acc;
@@ -191,14 +190,14 @@ function color(type: string) {
 function sum(progress) {
   if (!progress) {
     console.warn('Progress is undefined or null');
-    return 0; // или любое другое значение по умолчанию
+    return 0;
   }
 
-  // Предполагаем, что progress - это объект с разными ключами
+
   let total = 0;
   for (const key in progress) {
     if (progress.hasOwnProperty(key)) {
-      total += progress[key]; // или любая другая логика суммирования
+      total += progress[key];
     }
   }
   return total;

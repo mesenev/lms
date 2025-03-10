@@ -113,9 +113,6 @@
             :course="currentCourse"
             class="course-props edit--course"/>
           <div class="lessons-modal">
-            <GenerateLinks
-              :groupId="course.id"
-              class="generate--link"/>
             <EditCourseModal
               :course-id="course.id"
               class="course-props add--btn"/>
