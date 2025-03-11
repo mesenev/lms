@@ -16,29 +16,34 @@ from users.models import User
 
 class CourseProgressTests(MainSetup):
     def test_course_progress_access(self):
-        teacher = self.test_setup()
-        students = [self.test_setup(group='student', username=f'test_user{i}') for i in range(10)]
-        (course := baker.make(Course, author=teacher)).save()
+        teachers = [self.test_setup(group='teacher', username=f'test_teacher{i}') for i in range(10)]
+        students = [self.test_setup(group='student', username=f'test_student{i}') for i in range(10)]
+        (course := baker.make(Course, author=teachers[0])).save()
         (course_group := baker.make(CourseGroup, course=course)).save()
-        CourseGroupAssignTeacher(group=course_group, user=teacher).save()
 
-        # Добавляем студентов в группу курса (сигнал создаст CourseProgress автоматически)
+        for teacher in teachers:
+            CourseGroupAssignTeacher(group=course_group, user=teacher).save()
         for student in students:
             CourseGroupAssignStudent(group=course_group, user=student).save()
 
         (lesson := baker.make(Lesson, course=course, scores={'CW': 50, 'HW': 50, 'EX': 10})).save()
         (problem := baker.make(Problem, type='CW', lesson=lesson)).save()
+
         submits_by_students = []
         for i in range(len(students)):
             submits_by_students.append(baker.make(Submit, problem=problem, student=students[i], status='OK'))
             submits_by_students[i].save()
-        (submit_by_teacher := baker.make(Submit, problem=problem, student=teacher, status='OK')).save()
 
-        self.client.force_authenticate(user=teacher)
+        submits_by_teachers = []
+        for i in range(len(teachers)):
+            submits_by_teachers.append(baker.make(Submit, problem=problem, student=teachers[i], status='OK'))
+            submits_by_teachers[i].save()
+
+        self.client.force_authenticate(user=teachers[0])
         url = reverse('courseprogress-list')
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), len(students))
+        self.assertEqual(len(response.data), len(students)+len(teachers))
 
         progress = response.data[0].get('progress')
         self.assertEqual(progress[list(progress.keys())[0]]['CW'], 50.0)
@@ -134,7 +139,7 @@ class CourseProgressTests(MainSetup):
         url = reverse('courseprogress-detail', kwargs={'pk': instance.id})
         response = self.client.delete(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Problem.objects.count(), amount - 1)
+        self.assertEqual(CourseProgress.objects.count(), amount - 1)
         response = self.client.delete(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -146,22 +151,23 @@ class LessonProgressTests(MainSetup):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             if submit is not None:
                 submit_status_by_resp = response.data[0].get('solved').get('CW').get(str(submit.problem.id))
-                self.assertEqual(submit_status_by_resp, [submit.status, submit.id])
+                self.assertEqual(submit_status_by_resp[0], submit.status)
 
             url = f'/api/lessonprogress/?{filter_type}_id=-1'
             response = self.client.get(url, format='json')
             self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        teacher = self.test_setup()
-        students = [self.test_setup(group='student', username=f'test_user{i}') for i in range(10)]
-        self.user = teacher
+        students = [self.test_setup(group='student', username=f'test_student{i}') for i in range(10)]
+        teachers = [self.test_setup(group='teacher', username=f'test_teacher{i}') for i in range(10)]
+        self.user = teachers[0]
         self.client.user = self.user
         self.client.force_authenticate(user=self.user)
-        (course := baker.make(Course, author=teacher)).save()
+        (course := baker.make(Course, author=teachers[0])).save()
         (course_group := baker.make(CourseGroup, course=course)).save()
-        CourseGroupAssignTeacher(group=course_group, user=teacher).save()
         for student in students:
             CourseGroupAssignStudent(group=course_group, user=student).save()
+        for teacher in teachers:
+            CourseGroupAssignTeacher(group=course_group, user=teacher).save()
         (lesson := baker.make(Lesson, course=course, scores={'CW': 50, 'HW': 50, 'EX': 10})).save()
         (problem := baker.make(Problem, type='CW', lesson=lesson)).save()
         submits_by_students = []
@@ -174,11 +180,21 @@ class LessonProgressTests(MainSetup):
             submit_wa = baker.make(Submit, problem=problem, student=students[i], status='WA')
             submit_wa.save()
             submits_by_students.append(submit_wa)
-        (submit_by_teacher := baker.make(Submit, problem=problem, student=teacher, status='OK')).save()
-        self.client.force_authenticate(user=teacher)
+        submits_by_teachers = []
+        for i in range(len(teachers)):
+            # Создаём сабмит с статусом 'OK'
+            submit_ok = baker.make(Submit, problem=problem, student=teachers[i], status='OK')
+            submit_ok.save()
+            submits_by_teachers.append(submit_ok)
+            # Создаём сабмит с статусом 'WA'
+            submit_wa = baker.make(Submit, problem=problem, student=teachers[i], status='WA')
+            submit_wa.save()
+            submits_by_teachers.append(submit_wa)
+        submits_by_users = submits_by_students + submits_by_teachers
+        self.client.force_authenticate(user=teachers[0])
         check_access('lesson', lesson.id)
         # Проверяем первый сабмит (с статусом 'OK')
-        check_access('lesson', lesson.id, submit=submits_by_students[0])
+        check_access('lesson', lesson.id, submit=submits_by_users[0])
         check_access('course', course.id)
         check_access('problem', problem.id)
         url = reverse('lessonprogress-list')

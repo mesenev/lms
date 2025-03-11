@@ -43,7 +43,7 @@ class ExaminationForm(models.Model):
     ]
 
     name = models.CharField(max_length=500)
-    lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, related_name='exams', null=True)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='exams', null=True)
     description = models.TextField(blank=True)
     questions = models.JSONField()
     max_points = models.IntegerField()

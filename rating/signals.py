@@ -1,10 +1,10 @@
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, pre_delete, post_delete
 from django.dispatch import receiver
 
 from lesson.models import Lesson
 from problem.models import Submit, Problem
 from rating.models import CourseProgress, LessonProgress
-from users.models import CourseGroupAssignStudent
+from users.models import CourseGroupAssignStudent, CourseGroupAssignTeacher
 
 
 #Прогресс для нового урока
@@ -94,13 +94,18 @@ def calc_lesson_stat(lesson, solved: dict, user):
         i.save()
 
 
-#Создание прогресса для нового студента
+#Создание прогресса для нового студента или учителя
 @receiver(post_save, sender=CourseGroupAssignStudent)
+@receiver(post_save, sender=CourseGroupAssignTeacher)
 def add_student_to_rating_of_lesson(sender, instance, created, **kwargs):
     """
     Создаёт LessonProgress и CourseProgress для нового студента.
     """
     if not created:
+        return
+    
+    # Проверяем, что курс существует
+    if not hasattr(instance.group, 'course') or not instance.group.course:
         return
 
     # Создаём LessonProgress для каждого урока курса
@@ -123,13 +128,8 @@ def add_student_to_rating_of_lesson(sender, instance, created, **kwargs):
     )
 
 #Удаление урока
-@receiver(post_delete, sender=Lesson)
+@receiver(pre_delete, sender=Lesson)
 def delete_lesson_progress(sender, instance, **kwargs):
-    """
-    Удаляет LessonProgress и обновляет CourseProgress при удалении урока.
-    """
-    # Удаляем LessonProgress для этого урока
-    LessonProgress.objects.filter(lesson=instance).delete()
 
     # Удаляем урок из CourseProgress
     for progress in CourseProgress.objects.filter(course=instance.course):
@@ -138,7 +138,7 @@ def delete_lesson_progress(sender, instance, **kwargs):
             progress.save()
 
 #Удаление задачи
-@receiver(post_delete, sender=Problem)
+@receiver(pre_delete, sender=Problem)
 def delete_problem_from_progress(sender, instance, **kwargs):
     """
     Удаляет задачу из поля solved в LessonProgress.
@@ -153,17 +153,17 @@ def delete_problem_from_progress(sender, instance, **kwargs):
             del progress.solved[problem_type][problem_id]
             progress.save()
 
-#Удаление студента из курса
-@receiver(post_delete, sender=CourseGroupAssignStudent)
-def delete_student_progress(sender, instance, **kwargs):
+#Удаление студента или учителя из курса
+@receiver(pre_delete, sender=CourseGroupAssignStudent)
+@receiver(pre_delete, sender=CourseGroupAssignTeacher)
+def delete_user_progress(sender, instance, **kwargs):
     """
-    Удаляет LessonProgress и CourseProgress при удалении студента из курса.
+    Удаляет LessonProgress и CourseProgress при удалении пользователя из курса.
     """
-    # Удаляем LessonProgress для этого студента
-    LessonProgress.objects.filter(user=instance.user, lesson__course=instance.group.course).delete()
-
-    # Удаляем CourseProgress для этого студента
-    CourseProgress.objects.filter(course=instance.group.course, user=instance.user).delete()
+    if hasattr(instance.group, 'course') and (instance.group.course):
+        course = instance.group.course
+        LessonProgress.objects.filter(user=instance.user, lesson__course=course).delete()
+        CourseProgress.objects.filter(course=course, user=instance.user).delete()
 
 #Пересчет прогресса при изменении структуры курса
 def recalculate_course_progress(course):
