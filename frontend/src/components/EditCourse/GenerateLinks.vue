@@ -85,9 +85,10 @@ const modalVisible = ref(false);
 
 onMounted(async () => {
   await api.get(
-    '/api/courselink/', { params: { group: props.groupId } },
+    '/api/grouplink/', { params: { group: props.groupId } },
   ).then(response => {
       Links.value = response.data.filter((x: LinkModel) => x.usages > 0);
+      console.log(Links.value);
     },
   ).catch(error => {
     console.log(error);
@@ -175,3 +176,5 @@ function copyLink(link: string) {
   cursor: pointer;
 }
 </style>
+
+
