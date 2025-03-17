@@ -1,7 +1,9 @@
 <template>
   <div class="attachment-content">
     <div class="attachment-title">
+      <a :href="attachment.file_url" :download="attachment.name" class="attachment-link">
       {{ attachment.name }}
+      </a>
     </div>
     <div class="attachment-btns">
       <component class="trash-icon icon" :is="TrashCan" @click.prevent.stop="deleteAttachment"/>

@@ -8,7 +8,9 @@
         <h1>{{ currentMaterial.name }}</h1>
       </div>
     </div>
+
     <div class="bx--row">
+
       <div v-if="isMaterialAVideo" class="material-content-video">
         <lite-you-tube-embed v-if="isYoutubeFormat || !currentMaterial.content"
                              :id="youTubeGetID"
@@ -16,9 +18,13 @@
                              ref="youtube"/>
         <lms-markdown v-else :source="currentMaterial.content" class="md-body"/>
       </div>
+
       <div v-else class="less material-content">
         <lms-markdown :source="currentMaterial.content" class="md-body"/>
       </div>
+
+
+
       <div class="bx--col-lg-3 bx--col-md-4">
         <div class="other-materials-container">
           <div class="other-materials">
@@ -41,6 +47,26 @@
         </div>
       </div>
     </div>
+
+
+
+    <p class="attachments-list-label">Вложения</p>
+    <div class="attachments-list-container">
+      <cv-structured-list class="attachments-list">
+        <template v-slot:items>
+          <cv-structured-list-item class="attachments-list-item"
+                                   v-for="element in currentAttachments"
+                                   :key="element.id">
+            <attachments-component-list :attachment="element"
+                                        @show-confirm-modal="showConfirmModal">
+            </attachments-component-list>
+          </cv-structured-list-item>
+        </template>
+      </cv-structured-list>
+    </div>
+
+
+
   </div>
 </template>
 
@@ -54,6 +80,8 @@ import MaterialListComponent from "@/components/lists/MaterialListComponent.vue"
 import LmsMarkdown from "@/components/common/LmsMarkdown.vue";
 import LiteYouTubeEmbed from 'vue-lite-youtube-embed'
 import 'vue-lite-youtube-embed/style.css'
+import AttachmentsComponentList from "@/components/lists/AttachmentsComponentList.vue";
+import type {AttachmentModel} from "@/models/Attachment.ts";
 
 const props = defineProps({
   materialId: { type: String, required: true }
@@ -100,6 +128,11 @@ const isMaterialAVideo = computed(() => {
 
 const currentMaterial = computed((): MaterialModel => {
   return materialStore.currentMaterial;
+})
+
+const currentAttachments = computed((): Array<AttachmentModel> => {
+  console.log(materialStore.currentAttachments);
+  return materialStore.currentAttachments;
 })
 
 const materials = computed((): Array<MaterialModel> => {
