@@ -5,9 +5,7 @@
         <h2>Успеваемость урока: {{ currentLesson.name }}</h2>
       </div>
       <div class="table-actions" v-if="progress.length">
-        <cv-toggle v-model="dontSolved"
-                   :hideLabel="true"
-                   value="value">
+        <cv-toggle v-model="dontSolved" :hideLabel="true" value="value">
           <template v-slot:text-left>Отображать только студентов без решений</template>
           <template v-slot:text-right>Отображать только студентов без решений</template>
         </cv-toggle>
@@ -19,47 +17,46 @@
           </cv-dropdown>
         </div>
       </div>
-      <div class="table-wrapper" v-if="progress.length">
-        <cv-data-table @sort="Sort">
-          <template v-slot:headings>
-            <cv-data-table-heading class="fixed-col thead-element"
-                                   v-for="(column, id) in columns" :key="id"
-                                   :sortable="true">
-              <h5 v-if="(column.id === 0)">Результаты</h5>
-              <h5 v-else-if="(column.id === -2)">{{ column.name }}</h5>
-              <div v-else @click="openSubmitOrProblem(column.id)">
-                <cv-definition-tooltip :definition="definition(column.id)"
-                                       :term="column.name"
-                                       direction="bottom"/>
-              </div>
-            </cv-data-table-heading>
-          </template>
-          <template v-slot:data>
-            <cv-data-table-row v-for="user in progress" :key="user.id">
-              <cv-data-table-cell class="fixed-col">
-                <router-link :to="{ name: 'profile-page', params: { userId: user.user } }"
-                             class="course--title" >
-                  <UserComponent :userId="user.user"/> {{ user.user }}
-                </router-link>
-              </cv-data-table-cell>
-              <cv-data-table-cell v-for="problem in problems"
-                                  :key="problem.id"
-                                  class="mark tbody-element">
-                <div
-                  @click="openSubmitOrProblem(problem.id, Number(user.solved[problem.type][problem.id][1]))">
-                  <submit-status v-if="userMarks(user,problem.type,problem.id)"
-                                 :submit="create_submit(Number(user.solved[problem.type][problem.id]),problem.id,user.user)"/>
+      <div v-for="group in groups" :key="group.id" class="group-section">
+        <h3>Группа {{ group.id }}</h3>
+        <div class="table-wrapper" v-if="progress.length">
+          <cv-data-table @sort="Sort">
+            <template v-slot:headings>
+              <cv-data-table-heading class="fixed-col thead-element"
+                                     v-for="(column, id) in columns" :key="id"
+                                     :sortable="true">
+                <h5 v-if="(column.id === 0)">Результаты</h5>
+                <h5 v-else-if="(column.id === -2)">{{ column.name }}</h5>
+                <div v-else @click="openSubmitOrProblem(column.id)">
+                  <cv-definition-tooltip :definition="definition(column.id)"
+                                         :term="column.name"
+                                         direction="bottom"/>
                 </div>
-              </cv-data-table-cell>
-              <cv-data-table-cell>
-                {{ average(user).toString() + '%' }}
-              </cv-data-table-cell>
-            </cv-data-table-row>
-          </template>
-          >
-        </cv-data-table>
+              </cv-data-table-heading>
+            </template>
+            <template v-slot:data>
+              <cv-data-table-row v-for="user in progress.filter(u => group.students.includes(u.user))" :key="user.user">
+                <cv-data-table-cell class="fixed-col">
+                  <router-link :to="{ name: 'profile-page', params: { userId: user.user } }" class="course--title">
+                    <User Component :userId="user.user"/>
+                    {{ users[user.user]?.first_name }} {{ users[user.user]?.last_name }}
+                  </router-link>
+                </cv-data-table-cell>
+                <cv-data-table-cell v-for="problem in problems" :key="problem.id" class="mark tbody-element">
+                  <div @click="openSubmitOrProblem(problem.id, Number(user.solved[problem.type][problem.id][1]))">
+                    <submit-status v-if="userMarks(user, problem.type, problem.id)"
+                                   :submit="create_submit(Number(user.solved[problem.type][problem.id]), problem.id, user.user)"/>
+                  </div>
+                </cv-data-table-cell>
+                <cv-data-table-cell>
+                  {{ average(user).toString() + '%' }}
+                </cv-data-table-cell>
+              </cv-data-table-row>
+            </template>
+          </cv-data-table>
+        </div>
+        <empty-list-component v-else :text="emptyText" list-of="students"/>
       </div>
-      <empty-list-component v-else :text="emptyText" list-of="students"/>
     </div>
     <cv-data-table-skeleton v-else :columns="2" :rows="6"/>
   </div>
@@ -69,21 +66,22 @@
 <script lang="ts" setup>
 import SubmitStatus from "@/components/SubmitStatus.vue";
 import UserComponent from "@/components/UserComponent.vue";
-import type { LessonModel } from '@/models/LessonModel';
-import type { ProblemModel } from "@/models/ProblemModel";
-import type { UserModel } from "@/models/UserModel";
-import type { UserProgress } from '@/models/UserProgress';
+import type {LessonModel} from '@/models/LessonModel';
+import type {ProblemModel} from "@/models/ProblemModel";
+import type {UserModel} from "@/models/UserModel";
+import type {UserProgress} from '@/models/UserProgress';
 import useLessonStore from "@/stores/modules/lesson";
 import useProblemStore from "@/stores/modules/problem";
 import useProgressStore from "@/stores/modules/progress";
 import useUserStore from '@/stores/modules/user';
 import useSubmitStore from '@/stores/modules/submit';
-import type { SubmitModel } from "@/models/SubmitModel";
+import type {SubmitModel} from "@/models/SubmitModel";
 import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
-import { ref, type Ref, computed, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import {ref, type Ref, computed, onMounted} from "vue";
+import {useRoute, useRouter} from "vue-router";
+import useGroupStore from "@/stores/modules/group.ts";
 
-const props = defineProps({ lessonId: { type: Number, required: true } })
+const props = defineProps({lessonId: {type: Number, required: true}})
 
 
 const students: Ref<Array<UserProgress>> = ref([]);
@@ -110,6 +108,7 @@ const lessonStore = useLessonStore();
 const progressStore = useProgressStore();
 const problemStore = useProblemStore();
 const submitStore = useSubmitStore();
+const groupStore = useGroupStore();
 
 const route = useRoute();
 const router = useRouter();
@@ -118,6 +117,7 @@ const loading: Ref<boolean> = ref(true);
 const dontSolved: Ref<boolean> = ref(false);
 const problemsType: Ref<string> = ref('CW');
 const emptyText: Ref<string> = ref('');
+const groups: Ref<Array<number>> = ref([]);
 
 const columns = computed(() => {
   const a = problems.value.map(l => (
@@ -126,8 +126,8 @@ const columns = computed(() => {
       name: l.name,
     }
   ))
-  a.unshift({ id: -2, name: "Ученики" })
-  a.push({ id: 0, name: "Рейтинг" })
+  a.unshift({id: -2, name: "Ученики"})
+  a.push({id: 0, name: "Рейтинг"})
   return a
 })
 
@@ -149,15 +149,33 @@ const currentLesson = computed(() => {
 
 onMounted(async () => {
   lesson.value = await lessonStore.fetchLessonById(props.lessonId);
-  users.value = await userStore.fetchStudentsByCourseId(lesson.value.course);
+  console.log(lesson.value);
+
+  groups.value = await groupStore.fetchGroupsByCourseId(lesson.value.course);
+  console.log(groups.value)
+
+  const studentIds = [...new Set(groups.value.flatMap(group => group.students))];
+  const userPromises = studentIds.map(userId => userStore.fetchUserById(userId));
+  const usersArray = await Promise.all(userPromises);
+
+  users.value = usersArray.reduce((acc, user) => {
+    acc[user.id] = user;
+    return acc;
+  }, {});
+
+  console.log("User value", users.value)
+
   _problems.value = await problemStore.fetchProblemsByLessonId(props.lessonId);
   for (const problem of _problems.value) {
     submits.value[problem.id] = await submitStore.fetchProblemStats(problem.id);
   }
-  students.value = (await progressStore.fetchLessonProgressByLessonId(props.lessonId));
+
+  students.value = await progressStore.fetchLessonProgressByLessonId(props.lessonId);
+
   emptyText.value = 'Ни один студент не записан на курс';
   loading.value = false;
-})
+});
+
 
 function openSubmitOrProblem(problem: number, submit?: number) {
   if (submit)
@@ -187,7 +205,7 @@ function create_submit(status_id: number, problemId: number, userid: number) {
     de_id: '',
     cats_result: null
   }
-};
+}
 
 function userMarks(userId: UserProgress, problemType: string, problemId: number) {
   return userId.solved[problemType][problemId];
