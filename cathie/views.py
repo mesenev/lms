@@ -97,6 +97,7 @@ class CatsContest(APIView):
 
 class CatsCompilers(APIView):
     permission_classes = [CourseStaffOrReadOnlyForStudents]
+
     def get(self, request: Request):
         """Return list of Contest Compilers from cats"""
         cpid = request.GET.get('cpid')

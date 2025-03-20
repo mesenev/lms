@@ -80,7 +80,6 @@ def cats_get_problems_from_contest(contest_id):
     cats_answer = requests.get(url, params=data, headers=headers)
     if cats_answer.status_code != 200:
         raise CatsAnswerCodeException(cats_answer)
-    print((cats_answer).json())
     cats_problems = cats_answer.json()['problems']
     problems.extend(cats_problems)
     while len(cats_problems) == 20:
@@ -141,14 +140,14 @@ def get_problem_compilers(problem_id):
         return compilers
     url = f'{settings.CATS_URL}problem_text?'
     data = {
+        'lang': 'en',
         'cpid': problem_id,
         'sid': authorization.cats_sid(),
     }
     compilers_html = requests.post(url, data=data, headers=headers)
+    if compilers_html.status_code != status.HTTP_200_OK:
+        raise CatsAnswerCodeException(compilers_html)
     compilers = parse_html(compilers_html)
-    print(compilers)
-    if compilers.status_code != status.HTTP_200_OK:
-        raise CatsAnswerCodeException(compilers)
     return compilers
 
 @authorization.check_authorization_for_cats
@@ -163,7 +162,6 @@ def add_users_to_contest(students: list, contest_id: int):
     url = f'{settings.CATS_URL}users_add_participants?'
     answer = requests.post(url, params=params, headers=headers)
     if answer.status_code != 200:
-        print(answer.json())
         raise CatsAnswerCodeException(answer)
     return answer.status_code
 
