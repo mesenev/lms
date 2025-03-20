@@ -99,8 +99,7 @@ class CatsCompilers(APIView):
     permission_classes = [CourseStaffOrReadOnlyForStudents]
     def get(self, request: Request):
         """Return list of Contest Compilers from cats"""
-        cid = request.GET.get('cid')
         cpid = request.GET.get('cpid')
-        if cid and cpid:
-            return Response(get_problem_compilers(cid, cpid))
+        if cpid:
+            return Response(get_problem_compilers(cpid))
         return Response(status=404)

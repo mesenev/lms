@@ -125,7 +125,7 @@ def get_contests_from_cats(cats_id: int):
     ))
 
 @authorization.check_authorization_for_cats
-def get_problem_compilers(contest_id, problem_id):
+def get_problem_compilers(problem_id):
     def parse_html(html_response):
         html_content = html_response.text
         pattern = re.compile(r"add_option\('([^']+)',\s*'([^']*)',\s*'([^']*)'\)")
@@ -141,7 +141,6 @@ def get_problem_compilers(contest_id, problem_id):
         return compilers
     url = f'{settings.CATS_URL}problem_text?'
     data = {
-        'cid' : contest_id,
         'cpid': problem_id,
         'sid': authorization.cats_sid(),
     }
