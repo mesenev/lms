@@ -16,7 +16,7 @@ from cathie import cats_api
 from cathie.authorization import cats_sid_setter, cats_sid
 from cathie.cats_api import cats_get_problems_from_contest, cats_get_problem_description_by_url, cats_user_login, \
     get_user_id
-from cathie.cats_api import get_contests_from_cats
+from cathie.cats_api import get_contests_from_cats, get_problem_compilers
 from cathie.exceptions import CatsAuthorizationException
 from cathie.models import CatsAccount
 from cathie.serializers import CatsAccountSerializer
@@ -94,3 +94,13 @@ class CatsContest(APIView):
         contest_id = request.data['contest_id']
         logins_to_add = request.data['logins_to_add']
         return Response(status=cats_api.add_users_to_contest(logins_to_add, contest_id))
+
+class CatsCompilers(APIView):
+    permission_classes = [CourseStaffOrReadOnlyForStudents]
+    def get(self, request: Request):
+        """Return list of Contest Compilers from cats"""
+        cid = request.GET.get('cid')
+        cpid = request.GET.get('cpid')
+        if cid and cpid:
+            return Response(get_problem_compilers(cid, cpid))
+        return Response(status=404)

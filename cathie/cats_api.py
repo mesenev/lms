@@ -80,6 +80,7 @@ def cats_get_problems_from_contest(contest_id):
     cats_answer = requests.get(url, params=data, headers=headers)
     if cats_answer.status_code != 200:
         raise CatsAnswerCodeException(cats_answer)
+    print((cats_answer).json())
     cats_problems = cats_answer.json()['problems']
     problems.extend(cats_problems)
     while len(cats_problems) == 20:
@@ -123,6 +124,33 @@ def get_contests_from_cats(cats_id: int):
         get_my_contests.json()['contests']
     ))
 
+@authorization.check_authorization_for_cats
+def get_problem_compilers(contest_id, problem_id):
+    def parse_html(html_response):
+        html_content = html_response.text
+        pattern = re.compile(r"add_option\('([^']+)',\s*'([^']*)',\s*'([^']*)'\)")
+        matches = pattern.findall(html_content)
+        compilers = []
+        for match in matches:
+            compiler_id, language, description = match
+            compilers.append({
+                'id': compiler_id,
+                'language': language,
+                'description': description
+            })
+        return compilers
+    url = f'{settings.CATS_URL}problem_text?'
+    data = {
+        'cid' : contest_id,
+        'cpid': problem_id,
+        'sid': authorization.cats_sid(),
+    }
+    compilers_html = requests.post(url, data=data, headers=headers)
+    compilers = parse_html(compilers_html)
+    print(compilers)
+    if compilers.status_code != status.HTTP_200_OK:
+        raise CatsAnswerCodeException(compilers)
+    return compilers
 
 @authorization.check_authorization_for_cats
 def add_users_to_contest(students: list, contest_id: int):
