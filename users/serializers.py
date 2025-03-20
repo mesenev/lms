@@ -10,13 +10,19 @@ from rest_framework.exceptions import ValidationError
 from users.models import User, ResetPasswordToken
 
 class DefaultUserSerializer(serializers.ModelSerializer):
-    staff_for = serializers.PrimaryKeyRelatedField(many=True, required=False, read_only=True)
+    staff_for = serializers.SerializerMethodField()
 
     def __init__(self, *args, exclude_staff=False, **kwargs):
         # Instantiate the superclass normally
         super().__init__(*args, **kwargs)
         if exclude_staff:
             self.fields.pop('staff_for')
+
+    def get_staff_for(self, obj):
+        assigns = obj.assigns_as_teacher.all()
+        course_groups = [assign.group for assign in assigns]
+        courses = [group.course for group in course_groups]
+        return [course.id for course in courses]
 
     def create(self, validated_data):
         password = validated_data['password']

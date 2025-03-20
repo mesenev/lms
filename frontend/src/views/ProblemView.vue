@@ -101,6 +101,7 @@ import useLessonStore from '@/stores/modules/lesson';
 import useProblemStore from '@/stores/modules/problem';
 import useSubmitStore from '@/stores/modules/submit';
 import useUserStore from '@/stores/modules/user';
+import useCourseStore from '@/stores/modules/course' 
 import { useRoute, useRouter } from "vue-router";
 import { computed, ref, watch, onMounted, type Ref } from "vue";
 
@@ -115,6 +116,7 @@ const lessonStore = useLessonStore();
 const problemStore = useProblemStore();
 const userStore = useUserStore();
 const submitStore = useSubmitStore();
+const courseStore = useCourseStore();
 
 const user = ref(userStore.user);
 const displayProblem = ref(false);
@@ -154,7 +156,8 @@ const workName = computed(() => {
 })
 
 const isStaff = computed((): boolean => {
-  return user.value.staff_for.includes(Number(route.params.courseId));
+  return user.value.staff_for.includes(Number(route.params.courseId))
+  || courseStore.currentCourse?.author?.id === userStore.user.id;
 })
 
 const avatarUrl = computed(() => {
@@ -202,7 +205,7 @@ function showCatsAnswerModal(id: number): void {
 
 onMounted(async () => {
   if (isStaff.value && submitId.value && submits.value.length)
-    changeCurrentSubmit(submits.value[submits.value.length - 1].id);
+    changeCurrentSubmit(submitId.value);
   if (submitId.value)
     studentId.value = submits?.value.find(x => x.id === submitId.value)?.student as number;
   if (!isStaff.value) {
