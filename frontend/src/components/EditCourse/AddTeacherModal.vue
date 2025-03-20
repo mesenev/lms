@@ -23,7 +23,7 @@
               <cv-search
                   label="label"
                   placeholder="Введите почту прeподавателя"
-                  v-model.trim="searchValue"/>
+                  v-model:value="searchValue"/>
             </cv-structured-list-heading>
             <cv-structured-list-heading>
               <div class="list-headings">
