@@ -44,7 +44,7 @@
 
           <cv-button-skeleton v-else></cv-button-skeleton>
           <cv-link
-            v-if="!cats_account"
+            v-if="!cats_account && problem.test_mode !== 'manual'"
             :to="{
             name: 'profile-page',
             params: { userId: userStore.user.id }
@@ -194,7 +194,7 @@ const canSubmit = computed((): boolean => {
   return (((submitEdit.value.content?.length !== 0
       && isChanged.value) || (file_content.value.length != 0))
     && submitEdit.value.de_id.length !== 0
-    && cats_account.value) && !(file_content.value.length != 0 &&
+    && (cats_account.value || problem.value.test_mode == "manual")) && !(file_content.value.length != 0 &&
     submitEdit.value.content?.length !== 0);
 
 })
