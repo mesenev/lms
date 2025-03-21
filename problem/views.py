@@ -232,7 +232,7 @@ class SubmitViewSet(viewsets.ModelViewSet):
             return
 
         if validated_data['problem'].test_mode == 'manual':
-            model = serializer.save(student=request.user, status=Submit.DEFAULT_STATUS)
+            model = serializer.save(student=request.user, status=Submit.AWAITING_MANUAL)
             log_event = LogEvent(
                 problem=validated_data['problem'], student=request.user, type=LogEvent.TYPE_AWAITING_MANUAL,
                 submit=model,
