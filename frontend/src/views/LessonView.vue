@@ -93,6 +93,7 @@ import useMaterialStore from '@/stores/modules/material';
 import useProblemStore from '@/stores/modules/problem';
 import useUserStore from '@/stores/modules/user';
 import useExamStore from '@/stores/modules/exam';
+import useGroupStore from '@/stores/modules/group';
 import viewOff from '@carbon/icons-vue/es/view--off/32';
 import view from '@carbon/icons-vue/es/view/32';
 import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
@@ -106,6 +107,7 @@ const props = defineProps({ lessonId: { type: Number, required: true } })
 
 const lessonStore = useLessonStore();
 const problemStore = useProblemStore();
+const groupStore = useGroupStore();
 const userStore = useUserStore();
 const materialStore = useMaterialStore();
 const examStore = useExamStore();
@@ -134,7 +136,19 @@ const isMaterialsEmpty = computed(() => {
 })
 
 const isStaff = computed((): boolean => {
-  return userStore.user.staff_for.includes(Number(lesson.value?.course));
+  const staffCourses: number[] = [];
+  for (const groupList of Object.values(groupStore.groupsByCourse)) {
+    for (const group of groupList) {
+      if (group.staff && group.staff.includes(userStore.user.id)) {
+        if (group.course && !staffCourses.includes(group.course)) {
+          staffCourses.push(group.course);
+        }
+      }
+    }
+  }
+  return (
+    staffCourses.includes(Number(lesson.value?.course))
+  );
 })
 
 const hiddenIcon = computed(() => {

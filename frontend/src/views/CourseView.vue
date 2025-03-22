@@ -71,6 +71,7 @@ import type { UserModel } from "@/models/UserModel";
 import useCourseStore from "@/stores/modules/course";
 import useLessonStore from "@/stores/modules/lesson";
 import useUserStore from '@/stores/modules/user';
+import useGroupStore from '@/stores/modules/group';
 import { ref, onMounted, computed } from 'vue';
 import type { ScheduleElement } from "@/models/ScheduleModel";
 import type { CourseScheduleModel } from "@/models/ScheduleModel";
@@ -85,6 +86,7 @@ const props = defineProps({
 const courseStore = useCourseStore()
 const lessonStore = useLessonStore()
 const userStore = useUserStore()
+const groupStore = useGroupStore()
 
 const searchValue = ref<string>("")
 const loading = ref<boolean>(true)
@@ -98,8 +100,20 @@ onMounted(async () => {
   loading.value = false;
 })
 
-const isStaff = computed(() => {
-  return user.value.staff_for.includes(Number(props.courseId));
+const isStaff = computed((): boolean => {
+  const staffCourses: number[] = [];
+  for (const groupList of Object.values(groupStore.groupsByCourse)) {
+    for (const group of groupList) {
+      if (group.staff && group.staff.includes(userStore.user.id)) {
+        if (group.course && !staffCourses.includes(group.course)) {
+          staffCourses.push(group.course);
+        }
+      }
+    }
+  }
+  return (
+    staffCourses.includes(Number(props.courseId))
+  );
 })
 
 const course = computed(() => {

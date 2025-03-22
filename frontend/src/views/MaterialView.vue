@@ -74,6 +74,7 @@
 import useMaterialStore from "@/stores/modules/material";
 import useUserStore from "@/stores/modules/user";
 import useLessonStore from "@/stores/modules/lesson";
+import useGroupStore from "@/stores/modules/group";
 import type { MaterialModel } from "@/models/MaterialModel";
 import { computed, onMounted, ref } from "vue";
 import MaterialListComponent from "@/components/lists/MaterialListComponent.vue";
@@ -89,6 +90,7 @@ const props = defineProps({
 
 const materialStore = useMaterialStore();
 const userStore = useUserStore();
+const groupStore = useGroupStore();
 const lessonStore = useLessonStore();
 const _materials = ref<Array<MaterialModel>>([]);
 const loading = ref(true);
@@ -103,7 +105,19 @@ onMounted(async () => {
 })
 
 const isStaff = computed((): boolean => {
-  return userStore.user.staff_for.includes(Number(lessonStore.currentLesson?.course));
+  const staffCourses: number[] = [];
+  for (const groupList of Object.values(groupStore.groupsByCourse)) {
+    for (const group of groupList) {
+      if (group.staff && group.staff.includes(userStore.user.id)) {
+        if (group.course && !staffCourses.includes(group.course)) {
+          staffCourses.push(group.course);
+        }
+      }
+    }
+  }
+  return (
+    staffCourses.includes(Number(lessonStore.currentLesson?.course))
+  );
 })
 
 const youTubeGetID = computed(() => {

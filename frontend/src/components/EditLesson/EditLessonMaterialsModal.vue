@@ -94,6 +94,7 @@ import useNotificationMixin from "@/components/common/NotificationMixinComponent
 import { useRoute } from "vue-router";
 import MaterialListComponent from "@/components/lists/MaterialListComponent.vue";
 import EmptyListComponent from "@/components/lists/EmptyListComponent.vue";
+import useGroupStore from '@/stores/modules/group';
 
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
@@ -106,6 +107,7 @@ const route = useRoute();
 const lesson = ref<LessonModel>(props._lesson)
 const materialStore = useMaterialStore();
 const userStore = useUserStore();
+const groupStore = useGroupStore();
 const currentMaterial = ref<MaterialModel>({ ...materialStore.getNewMaterial, lesson: lesson.value.id });
 const creationLoader = ref(false);
 const modalVisible = ref(false);
@@ -173,8 +175,20 @@ async function createNewMaterial() {
   })
 }
 
-const isStaff = computed(() => {
-  return userStore.user.staff_for.includes(Number(route.params.courseId));
+const isStaff = computed((): boolean => {
+  const staffCourses: number[] = [];
+  for (const groupList of Object.values(groupStore.groupsByCourse)) {
+    for (const group of groupList) {
+      if (group.staff && group.staff.includes(userStore.user.id)) {
+        if (group.course && !staffCourses.includes(group.course)) {
+          staffCourses.push(group.course);
+        }
+      }
+    }
+  }
+  return (
+    staffCourses.includes(Number(route.params.courseId))
+  );
 })
 
 const isButtonDisabled = computed(() => {

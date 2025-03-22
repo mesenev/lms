@@ -43,6 +43,7 @@ import type { ProblemModel } from '@/models/ProblemModel';
 import Launch from '@carbon/icons-vue/es/launch/16';
 import useUserStore from '@/stores/modules/user';
 import useCourseStore from '@/stores/modules/course';
+import useGroupStore from '@/stores/modules/group';
 import type { CatsProblemModel } from "@/models/CatsProblemModel";
 import StudentProblemListItemComponent from "@/components/StudentProblemListItemComponent.vue";
 import StaffProblemListItemComponent from "@/components/StaffProblemListItemComponent.vue";
@@ -62,6 +63,7 @@ const emit = defineEmits<{
 }>()
 const userStore = useUserStore();
 const courseStore = useCourseStore();
+const groupStore = useGroupStore();
 const route = useRoute();
 
 const deletingProblemId: Ref<number | null> = ref(null);
@@ -71,8 +73,19 @@ const approvedText: Ref<string> = ref('');
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
 const isStaff = computed((): boolean => {
-  const courseId = Number(route.params.courseId);
-  return userStore.user.staff_for.includes(courseId);
+  const staffCourses: number[] = [];
+  for (const groupList of Object.values(groupStore.groupsByCourse)) {
+    for (const group of groupList) {
+      if (group.staff && group.staff.includes(userStore.user.id)) {
+        if (group.course && !staffCourses.includes(group.course)) {
+          staffCourses.push(group.course);
+        }
+      }
+    }
+  }
+  return (
+    staffCourses.includes(Number(route.params.courseId))
+  );
 })
 
 function showConfirmModal(deletingProblem: ProblemModel) {

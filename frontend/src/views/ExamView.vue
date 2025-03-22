@@ -162,6 +162,7 @@ import { useRoute, useRouter } from "vue-router";
 import useExamStore from "@/stores/modules/exam";
 import useSolutionStore from "@/stores/modules/solution";
 import useUserStore from "@/stores/modules/user";
+import useGroupStore from '@/stores/modules/group';
 import { computed, onMounted, ref, watch } from "vue";
 import type { SolutionModel } from "@/models/SolutionModel";
 import type { QuestionModel } from "@/models/QuestionModel";
@@ -182,6 +183,7 @@ const route = useRoute();
 
 const examStore = useExamStore();
 const solutionStore = useSolutionStore();
+const groupStore = useGroupStore();
 const userStore = useUserStore();
 const changingVisibility = ref(false);
 const loading = ref(true);
@@ -249,8 +251,21 @@ const isExamEmpty = computed(() => {
 })
 
 const isStaff = computed((): boolean => {
-  return userStore.user.staff_for.includes(Number(route.params.courseId));
+  const staffCourses: number[] = [];
+  for (const groupList of Object.values(groupStore.groupsByCourse)) {
+    for (const group of groupList) {
+      if (group.staff && group.staff.includes(userStore.user.id)) {
+        if (group.course && !staffCourses.includes(group.course)) {
+          staffCourses.push(group.course);
+        }
+      }
+    }
+  }
+  return (
+    staffCourses.includes(Number(route.params.courseId))
+  );
 })
+
 
 const questions = computed(() => {
   if (isStaff.value &&

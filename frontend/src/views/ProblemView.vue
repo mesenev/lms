@@ -102,6 +102,7 @@ import useProblemStore from '@/stores/modules/problem';
 import useSubmitStore from '@/stores/modules/submit';
 import useUserStore from '@/stores/modules/user';
 import useCourseStore from '@/stores/modules/course' 
+import useGroupStore from "@/stores/modules/group";
 import { useRoute, useRouter } from "vue-router";
 import { computed, ref, watch, onMounted, type Ref } from "vue";
 
@@ -117,6 +118,7 @@ const problemStore = useProblemStore();
 const userStore = useUserStore();
 const submitStore = useSubmitStore();
 const courseStore = useCourseStore();
+const groupStore = useGroupStore();
 
 const user = ref(userStore.user);
 const displayProblem = ref(false);
@@ -156,8 +158,20 @@ const workName = computed(() => {
 })
 
 const isStaff = computed((): boolean => {
-  return user.value.staff_for.includes(Number(route.params.courseId))
-  || courseStore.currentCourse?.author?.id === userStore.user.id;
+  const staffCourses: number[] = [];
+  for (const groupList of Object.values(groupStore.groupsByCourse)) {
+    for (const group of groupList) {
+      if (group.staff && group.staff.includes(user.value.id)) {
+        if (group.course && !staffCourses.includes(group.course)) {
+          staffCourses.push(group.course);
+        }
+      }
+    }
+  }
+  return (
+    staffCourses.includes(Number(route.params.courseId)) ||
+    courseStore.currentCourse?.author?.id === userStore.user.id
+  );
 })
 
 const avatarUrl = computed(() => {
