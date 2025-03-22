@@ -20,17 +20,17 @@
           <cv-text-area v-model.trim="problemEdit.description" label="Описание"/>
           <div>
             <br>
-            <cv-multi-select
-                v-model:value="deChecks"
-                :options="deOptions"
-                class="course--de"
-                label="Выберите среды разработки"
-                title="Доступные среды для отправки решений"
-                @change="deChanged">
-              <template v-slot:helper-text>
-                <cv-tooltip direction="right" tip="При пустом списке будет использованы настройки курса"/>
-              </template>
-            </cv-multi-select>
+<!--            <cv-multi-select-->
+<!--                v-model:value="deChecks"-->
+<!--                :options="deOptions"-->
+<!--                class="course&#45;&#45;de"-->
+<!--                label="Выберите среды разработки"-->
+<!--                title="Доступные среды для отправки решений"-->
+<!--                @change="deChanged">-->
+<!--              <template v-slot:helper-text>-->
+<!--                <cv-tooltip direction="right" tip="При пустом списке будет использованы настройки курса"/>-->
+<!--              </template>-->
+<!--            </cv-multi-select>-->
           </div>
         </div>
         <span style="padding-top: 20px">Выберите способ тестирования</span>
@@ -111,22 +111,23 @@ const catsProblemLoading = ref(true);
 const catsProblem = ref<CatsProblemModel | null>(null);
 const problemUpdating = ref(false);
 const testingMode = ref('');
-const deChecks = ref<string[]>([]);
-const deOptions = [
-  {
-    value: '3', label: 'Cross-platform C/C++ compiler',
-    name: 'Cross-platform C/C++ compiler', disabled: false,
-  },
-  {
-    value: '681949', label: 'Python 3.8.1',
-    name: 'Python 3.8.1', disabled: false,
-  },
-];
+// const deChecks = ref<string[]>([]);
+// const deOptions = [
+//   {
+//     value: '3', label: 'Cross-platform C/C++ compiler',
+//     name: 'Cross-platform C/C++ compiler', disabled: false,
+//   },
+//   {
+//     value: '681949', label: 'Python 3.8.1',
+//     name: 'Python 3.8.1', disabled: false,
+//   },
+// ];
 
 
-function deChanged() {
-  problemEdit.value = { ...problemEdit.value, de_options: deChecks.value.sort().join(',') };
-}
+
+// function deChanged() {
+//   problemEdit.value = { ...problemEdit.value, de_options: deChecks.value.sort().join(',') };
+// }
 
 function modChanged() {
   problemEdit.value = { ...problemEdit.value, test_mode: testingMode.value }

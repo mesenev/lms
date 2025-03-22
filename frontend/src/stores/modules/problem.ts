@@ -3,6 +3,7 @@ import {defineStore} from "pinia";
 import {computed, ref} from "vue";
 import type {ProblemModel} from "@/models/ProblemModel";
 import type {CatsProblemModel} from "@/models/CatsProblemModel";
+import type { CompilersModel } from "@/models/CompilersModel.ts";
 
 export const useProblemStore = defineStore('problem', () => {
 
@@ -83,10 +84,25 @@ export const useProblemStore = defineStore('problem', () => {
         return await api.patch(`/api/problem/${problem.id}/`, problem);
     }
 
+
+
+  async function fetchCatsCompilersProblemById(catsId: number): Promise<CompilersModel[]> {
+    let answer = { data: [] }; // Измените на пустой массив
+    await api.get(`/api/cats-compilers?cpid=${catsId}/`)
+      .then(response => answer = response)
+      .catch(error => {
+        console.log(error, "fetchCatsCompilersProblemById");
+        return [];
+      });
+    return answer.data as Array<CompilersModel>;
+  }
+
+
+
     return {
         problemsByLesson, catsProblems, currentProblem, getNewProblem, changeCurrentProblem,
         setProblems, fetchProblems, fetchProblemById, fetchCatsProblemById, fetchProblemsByLessonId,
-        fetchProblemsForCourse, patchProblem
+        fetchProblemsForCourse, patchProblem, fetchCatsCompilersProblemById
     }
 })
 

@@ -21,7 +21,6 @@
           </cv-modal>
           <div class="problem-information">
             <span>{{ workName }}</span>
-            <span>Дедлайн: <strong>{{ lesson.deadline }}</strong></span>
             <span v-if="lesson.scores[problem.type]">
               Макс. балл <strong>{{ lesson.scores[problem.type] }}</strong>
             </span>
@@ -62,7 +61,8 @@
         <div class="solution-container item">
           <submit-component
             v-if="problem"
-            :is-staff="isStaff" :language-list="problem.language"
+            :is-staff="isStaff"
+            :language-list="compilers"
             :submitId="submitId"
             class="solution-container--submit-component"
             @submit-created="changeCurrentSubmit"/>
@@ -105,6 +105,8 @@ import useCourseStore from '@/stores/modules/course'
 import useGroupStore from "@/stores/modules/group";
 import { useRoute, useRouter } from "vue-router";
 import { computed, ref, watch, onMounted, type Ref } from "vue";
+import type {CatsProblemModel} from "@/models/CatsProblemModel.ts";
+import type {CompilersModel} from "@/models/CompilersModel.ts";
 
 const props = defineProps({ submitIdProp: { type: Number, required: false, default: null } });
 const route = useRoute();
@@ -124,6 +126,7 @@ const user = ref(userStore.user);
 const displayProblem = ref(false);
 const displayCatsPackage = ref(false);
 const catsResultSubmitId: Ref<number | null> = ref(null);
+const compilers = ref<CompilersModel[]>([]);
 
 const logEventComponentKey = ref(0);
 
@@ -190,6 +193,7 @@ watch(() => route.params.problemId, async () => {
   const problem = await problemStore.fetchProblemById(Number(route.params.problemId));
   problemStore.changeCurrentProblem(problem);
   recreateLogEventComponent();
+  console.log(problem)
 })
 
 function checkedSubmit(submit: SubmitModel): boolean {
@@ -228,6 +232,9 @@ onMounted(async () => {
   if (isNaN(studentId.value)) {
     studentId.value = userStore.user.id;
   }
+
+  compilers.value = await problemStore.fetchCatsCompilersProblemById(problem.value.cats_material_url.match(/cpid-(\d+)/)[1]);
+  console.log(compilers.value)
 
   window.addEventListener("keydown", event => {
     if (event.key == 'Escape') {

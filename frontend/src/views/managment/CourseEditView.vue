@@ -75,14 +75,6 @@
           <cv-dropdown-skeleton
             v-if="fetchingCourse"
             :inline="true"/>
-          <cv-multi-select
-            v-else
-            v-model:value="deChecks"
-            :options="deOptions"
-            class="course--de"
-            label="Выберите среды разработки"
-            title="Доступные среды для отправки решений"
-            @change="deChanged"/>
           <div class="btns--container">
             <cv-button-skeleton v-if="fetchingCourse"/>
             <div v-else class="btns">
@@ -138,7 +130,6 @@ import ConfirmModal from "@/components/ConfirmModal.vue";
 import AddTeacherModal from "@/components/EditCourse/AddTeacherModal.vue";
 import EditCourseLessons from "@/components/EditCourse/EditCourseLessons.vue";
 import EditCourseModal from "@/components/EditCourse/EditCourseModal.vue";
-import GenerateLinks from "@/components/EditCourse/GenerateLinks.vue";
 
 const props = defineProps({
   courseId: { type: Number, required: false }
@@ -156,21 +147,8 @@ const emptyInputInvalidText = ref('Заполните поле!');
 const confirmModalTrigger = ref(false);
 const course = ref<CourseModel>({ ...courseStore.newCourse });
 const courseEdit = ref({ ...course.value });
-const deChecks = ref<string[]>([]);
-const deOptions = [
-  {
-    value: '3', label: 'Cross-platform C/C++ compiler',
-    name: 'Cross-platform C/C++ compiler', disabled: false,
-  },
-  {
-    value: '681949', label: 'Python 3.8.1',
-    name: 'Python 3.8.1', disabled: false,
-  },
-];
 const contestsFromCats = ref<ContestModel[]>([]);
 const isShownInvalidMessage = ref(false);
-
-watch(() => deChecks.value, () => deChanged());
 
 onMounted(async () => {
   if (userStore.user.cats_account)
@@ -189,7 +167,6 @@ onMounted(async () => {
 
   course.value = await courseStore.fetchCourseById(props.courseId as number);
   courseEdit.value = { ...course.value };
-  deChecks.value = courseEdit.value.de_options.split(',');
   fetchingCourse.value = false;
 })
 
@@ -228,9 +205,7 @@ function showConfirmModal() {
   confirmModalTrigger.value = !confirmModalTrigger.value;
 }
 
-function deChanged() {
-  courseEdit.value = { ...courseEdit.value, de_options: deChecks.value.sort().join(',') };
-}
+
 
 function hideSuccess() {
   showNotification.value = false;

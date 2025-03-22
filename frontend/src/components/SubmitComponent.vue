@@ -16,12 +16,13 @@
         <div>Среда разработки:</div>
         <cv-dropdown
           v-model:value="submitEdit.de_id"
-          :disabled="deOptions.length === 0"
-          :items="deOptions"
+          :disabled="languageList.length === 0"
+          :items="languageList"
           class="lang-choice"
           placeholder="Выберите язык программирования">
-          <cv-dropdown-item v-for="de in deOptions" :key="de.value" :value="de.value">
-            <span>{{ de.name }}</span>
+          <cv-dropdown-item v-for="compiler in languageList" :key="compiler.id" :value="compiler.id">
+            <span>{{ compiler.language }}</span>
+            <span v-if="compiler.description"> - {{compiler.description}}</span>
           </cv-dropdown-item>
         </cv-dropdown>
       </div>
@@ -98,12 +99,14 @@ import _ from 'lodash';
 import TrashCan from '@carbon/icons-vue/es/trash-can/20';
 import { ref, computed, onMounted, watch } from 'vue'
 import useNotificationMixin from "@/components/common/NotificationMixinComponent.vue";
+import type {CompilersModel} from "@/models/CompilersModel.ts";
 
 const { notificationText, notificationKind, showNotification, hideNotification } = useNotificationMixin();
 
 const props = defineProps({
   submitId: { type: Number, required: false },
-  isStaff: { type: Boolean, required: true }
+  isStaff: { type: Boolean, required: true },
+  languageList: {type: Array as () => CompilersModel[], required: true},
 })
 
 const emit = defineEmits<{
@@ -233,8 +236,8 @@ async function updateSubmit() {
     submit.value = null;
   }
   submitEdit.value = (submit.value) ? { ...submit.value } : { ...submitStore.defaultSubmit };
-  if (submitEdit.value.de_id === '' && deOptions.value.length === 1)
-    submitEdit.value.de_id = deOptions.value[0].value;
+  if (submitEdit.value.de_id === '' && props.languageList.length === 1)
+    submitEdit.value.de_id = props.languageList[0].id;
   loading.value = false;
 }
 
@@ -277,32 +280,38 @@ function rejectSubmit() {
 }
 
 function confirmSubmit() {
-
-  submitEdit.value = {
-    ...submitEdit.value
+  if (!submitEdit.value.content && !file_content.value.length) {
+    notificationKind.value = 'error';
+    notificationText.value = 'Пожалуйста, введите код или загрузите файл.';
+    showNotification.value = true;
+    return;
   }
 
-  if (file_content.value.length != 0) {
-    submitEdit.value.content = file_content.value
-    deleteFile();
+  if (!submitEdit.value.de_id) {
+    notificationKind.value = 'error';
+    notificationText.value = 'Пожалуйста, выберите язык программирования.';
+    showNotification.value = true;
+    return;
   }
 
   api.post('/api/submit/', {
-    ...submitEdit.value, 'content': submitEdit.value.content,
-    'problem': problemStore.currentProblem?.id as number,
-  }).then((response: AxiosResponse<SubmitModel>) => {
-    submitStore.addSubmitToArray(response.data);
-    emit('submit-created', response.data.id);
-    submit.value = { ...response.data };
-    submitEdit.value = { ...submit.value };
-    problem.value.last_submit = submit.value;
-    problemStore.changeCurrentProblem(problem.value)
-    notificationKind.value = 'success';
-    notificationText.value = 'Попытка отправлена';
-  }).catch((error: AxiosError) => {
-    notificationKind.value = 'error';
-    notificationText.value = `Что-то пошло не так ${error.message}`;
-  }).finally(() => showNotification.value = true);
+    ...submitEdit.value,
+    content: file_content.value.length > 0 ? file_content.value : submitEdit.value.content,
+    problem: problemStore.currentProblem?.id as number,
+  })
+    .then((response: AxiosResponse<SubmitModel>) => {
+      submitStore.addSubmitToArray(response.data);
+      emit('submit-created', response.data.id);
+      submit.value = { ...response.data };
+      submitEdit.value = { ...submit.value };
+      notificationKind.value = 'success';
+      notificationText.value = 'Попытка отправлена';
+    })
+    .catch((error: AxiosError) => {
+      notificationKind.value = 'error';
+      notificationText.value = `Что-то пошло не так: ${error.message}`;
+    })
+    .finally(() => showNotification.value = true);
 }
 
 </script>
