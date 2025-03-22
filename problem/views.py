@@ -209,11 +209,13 @@ class SubmitViewSet(viewsets.ModelViewSet):
     def create(self, request: Request, *args, **kwargs):
         problem = Problem.objects.get(id=request.data['problem'])
         course = object_to_course(problem)
+        staff_groups = request.user.staff_for.all()
+        courses = [group.course for group in staff_groups]
         if request.user.assigns.filter(group__course=course).exists():
             if 'status' in request.data:
                 del request.data['status']
             return super().create(request, *args, **kwargs)
-        elif course in list(request.user.staff_for.all()) + list(request.user.author_for.all()):
+        elif course in list(courses) + list(request.user.author_for.all()):
             return super().create(request, *args, **kwargs)
         raise exceptions.PermissionDenied
 
