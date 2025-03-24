@@ -314,6 +314,7 @@ class LogEventViewSet(viewsets.ModelViewSet):
         # Получаем все группы, в которых пользователь является сотрудником или студентом
         staff_groups = user.staff_for.all()
         student_groups = user.student_for.all()
+        author_courses = user.author_for.all()
 
         # Получаем все курсы, связанные с этими группами
         staff_courses = Course.objects.filter(source_for__in=staff_groups)
@@ -323,6 +324,7 @@ class LogEventViewSet(viewsets.ModelViewSet):
         queryset = LogEvent.objects.filter(
             Q(problem__lesson__course__in=staff_courses)
             | Q(problem__lesson__course__in=student_courses)
+            | Q(problem__lesson__course__in = author_courses)
         )
         return queryset
 

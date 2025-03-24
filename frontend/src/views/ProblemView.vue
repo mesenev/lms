@@ -232,9 +232,7 @@ onMounted(async () => {
   if (isNaN(studentId.value)) {
     studentId.value = userStore.user.id;
   }
-
-  compilers.value = await problemStore.fetchCatsCompilersProblemById(problem.value.cats_material_url.match(/cpid-(\d+)/)[1]);
-  console.log(compilers.value)
+  compilers.value = await problemStore.fetchCatsCompilersProblemById(problem.value.cats_material_url.match(/cpid[=-](\d+)/));
 
   window.addEventListener("keydown", event => {
     if (event.key == 'Escape') {
