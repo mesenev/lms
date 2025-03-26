@@ -49,6 +49,10 @@ docker compose exec backend python manage.py test
 ```
 
 #### frontend
+Change directory to frontend
+```shell
+cd frontend
+```
 Install Node.js & install frontend dependencies via command
 ```shell
 npm install
