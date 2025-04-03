@@ -80,6 +80,9 @@ def cats_get_problems_from_contest(contest_id):
     cats_answer = requests.get(url, params=data, headers=headers)
     if cats_answer.status_code != 200:
         raise CatsAnswerCodeException(cats_answer)
+    response_json = cats_answer.json()
+    if 'problems' not in response_json:
+        raise CatsAnswerCodeException(cats_answer)
     cats_problems = cats_answer.json()['problems']
     problems.extend(cats_problems)
     while len(cats_problems) == 20:
