@@ -97,6 +97,7 @@ const loading = ref(true);
 
 onMounted(async () => {
   const material = await materialStore.fetchMaterialById(parseInt(props.materialId));
+  await materialStore.fetchAttachmentsByMaterialId(parseInt(props.materialId));
   if (material.id) {
     materialStore.setCurrentMaterial(material);
     _materials.value = await materialStore.fetchMaterialsByLessonId(material.lesson);
