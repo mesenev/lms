@@ -31,7 +31,7 @@ class LessonContent(models.Model):
         ('url', 'Url'),
     ]
 
-    lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, related_name='materials', null=True)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='materials', null=True)
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=500)
     content_type = models.CharField(max_length=5, choices=CONTENT_TYPE, blank=True, null=True)
@@ -44,7 +44,7 @@ class LessonContent(models.Model):
 
 class Attachment(models.Model):
     name = models.CharField(max_length=50)
-    material = models.ForeignKey(LessonContent, on_delete=models.SET_NULL, related_name='attachments', null=True)
+    material = models.ForeignKey(LessonContent, on_delete=models.CASCADE, related_name='attachments', null=True)
     file_url = models.FileField(upload_to=attachment_file_name)
     file_format = models.CharField(max_length=100, default='')
 

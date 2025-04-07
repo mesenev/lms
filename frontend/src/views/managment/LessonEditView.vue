@@ -196,8 +196,15 @@ const changingVisibility = ref(false);
 onMounted(async () => {
   if (props.lessonId) {
     lesson.value = lessonStore.currentLesson ?? await lessonStore.fetchLessonById(props.lessonId);
-    await materialStore.fetchMaterialsByLessonId(lesson.value.id);
+    await materialStore.fetchMaterialsByLessonId(lesson.value.id); 
     await examStore.fetchExamsByLessonId(lesson.value.id);
+
+    lesson.value = {
+      ...lesson.value,
+      materials: lesson.value.materials || [],
+      exams: lesson.value.exams || [],
+      problems: lesson.value.problems || []
+    };
   }
   lessonEdit.value = { ...lesson.value };
   fetchingLesson.value = false;
