@@ -72,9 +72,12 @@ class MaterialSerializer(serializers.Serializer):
     def _get_file_content(instance):
         if not instance.content.name:
             return ""
-
-        with instance.content.file.open('r') as temp:
-            return temp.read()
+        
+        try:
+            with instance.content.file.open('r') as temp:
+                return temp.read()
+        except FileNotFoundError:
+            return "[File not found]"
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
@@ -96,7 +99,6 @@ class LessonShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lesson
-        # fields = ['id', 'name', 'deadline', 'problems', 'is_hidden', 'scores']
         fields = ['id', 'name', 'problems', 'is_hidden', 'scores']
 
 

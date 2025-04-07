@@ -1,6 +1,5 @@
 version: "3.3"
 
-
 services:
   nginx:
     container_name: nginx
@@ -19,6 +18,12 @@ services:
       - type: volume
         source: v-media
         target: /application/media
+        read_only: true
+        volume:
+          nocopy: true
+      - type: volume
+        source: v-private-media
+        target: /application/private_media
         read_only: true
         volume:
           nocopy: true
@@ -54,6 +59,7 @@ services:
     volumes:
       - v-media:/application/media
       - v-static:/application/static
+      - v-private-media:/application/private_media
     working_dir: /application
     depends_on:
       - database
@@ -68,7 +74,6 @@ services:
     networks:
       - db-net
       - nginx-net
-
 
   redis:
     container_name: redis
@@ -103,3 +108,4 @@ volumes:
   v-redis:
   v-static:
   v-media:
+  v-private-media:
