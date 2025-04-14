@@ -97,9 +97,9 @@ const loading = ref(true);
 
 onMounted(async () => {
   const material = await materialStore.fetchMaterialById(parseInt(props.materialId));
-  await materialStore.fetchAttachmentsByMaterialId(parseInt(props.materialId));
   if (material.id) {
     materialStore.setCurrentMaterial(material);
+    await materialStore.fetchAttachmentsByMaterialId(material.id);
     _materials.value = await materialStore.fetchMaterialsByLessonId(material.lesson);
     loading.value = false;
   }
@@ -146,7 +146,6 @@ const currentMaterial = computed((): MaterialModel => {
 })
 
 const currentAttachments = computed((): Array<AttachmentModel> => {
-  console.log(materialStore.currentAttachments);
   return materialStore.currentAttachments;
 })
 

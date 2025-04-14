@@ -74,7 +74,10 @@ const material = computed((): MaterialModel => {
 })
 
 async function openMaterial() {
-  materialStore.setCurrentMaterial(material.value);
+  await materialStore.fetchMaterialById(material.value.id).then(async (newMaterial) => {
+    materialStore.setCurrentMaterial(newMaterial);
+    await materialStore.fetchAttachmentsByMaterialId(newMaterial.id);
+  });
   await emits('modal-hidden');
   if (!isCurrentMaterialSelected.value)
     await router.push({
