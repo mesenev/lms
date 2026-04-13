@@ -1,3 +1,5 @@
 from django.shortcuts import render
+from generate_study_materials.AiModel import client
 
-# Create your views here.
+def generate_course(request):
+    return 200
