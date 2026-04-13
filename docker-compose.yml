@@ -12,7 +12,7 @@ services:
         networks:
             - db-net
         ports:
-            - "5432:5432"
+            - "7777:5432"
 
     backend:
         container_name: backend
