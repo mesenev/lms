@@ -1,4 +1,3 @@
-version: "3.3"
 
 services:
 
@@ -34,6 +33,7 @@ services:
             PYTHONUNBUFFERED: 1
         ports:
             - "8000:8000"
+            - "3003:3003"
         networks:
             - db-net
             - nginx-net

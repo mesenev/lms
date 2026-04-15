@@ -8,6 +8,8 @@ from wsnotifications import routing
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'imcslms.settings')
 
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(URLRouter(routing.websockets)),
+    "http":
+    get_asgi_application(),
+    "websocket":
+    AuthMiddlewareStack(URLRouter(routing.websockets)),
 })
