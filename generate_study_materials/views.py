@@ -10,11 +10,11 @@ from lesson.models import Lesson, LessonContent
 from lesson.storages import gen_hash_name
 from django.core.files.base import ContentFile
 
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.decorators.http import require_http_methods
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.request import Request
+from celery_app.tasks import generate_notes_for_lesson
+
 
 class CourseGenerationApi(APIView):
     permission_classes = [IsAuthenticated]
@@ -23,31 +23,21 @@ class CourseGenerationApi(APIView):
         aiModel = AiModel()
 
         response = aiModel.generateCourse(
-            CourseRequestDto(1, request.data.get('courseName'), "practice", 2, 0))
+            CourseRequestDto(1, request.data.get('courseName'), "practice", 2,
+                             0))
         parsed_response = json.loads(response.text)
-        newCourse = Course(
-            name=parsed_response["courseTitle"],
-            description=parsed_response["courseSummary"],
-            cats_id=-1,
-            author = request.user
-        )
+        newCourse = Course(name=parsed_response["courseTitle"],
+                           description=parsed_response["courseSummary"],
+                           cats_id=-1,
+                           author=request.user)
         newCourse.save()
 
         for chapter in parsed_response['chapters']:
-            newLesson =  Lesson(course=newCourse,
-                           name=chapter["chapterTitle"],
-                           description=chapter["chapterSummary"], author=request.user)
+            newLesson = Lesson(course=newCourse,
+                               name=chapter["chapterTitle"],
+                               description=chapter["chapterSummary"],
+                               author=request.user)
             newLesson.save()
-
-            for topic in chapter["topics"]:
-                newMaterial = LessonContent(name=topic["topicTitle"],
-                                        lesson=newLesson,
-                                        content_type="text", author=request.user, is_teacher_only=False)
-                newMaterial.content.save(gen_hash_name(topic["content"] + '.txt'),
-                                     ContentFile(topic["content"]))
-                newMaterial.save()
+            generate_notes_for_lesson.delay(newLesson.id, request.user.id)
 
         return HttpResponse("OK", status=200)
-
-
-    

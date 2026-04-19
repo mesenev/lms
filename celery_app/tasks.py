@@ -5,31 +5,64 @@ from cathie.cats_api import cats_check_solution_status, cats_submit_solution
 from cathie.exceptions import CatsAnswerCodeException, CatsNormalErrorException
 from celery_app.celery_settings import app
 from problem.models import Submit, CatsSubmit, LogEvent, Problem
+from generate_study_materials.AiModel import AiModel
+from lesson.models import Lesson, LessonContent
+import json
+from lesson.storages import gen_hash_name
+from django.core.files.base import ContentFile
+from users.models import User
 
 logger = get_task_logger(__name__)
 
 PROCESSED_STATUSES = [
-    status for status, description in Submit.SUBMIT_STATUS if status not in ('NP', 'AW')
+    status for status, description in Submit.SUBMIT_STATUS
+    if status not in ('NP', 'AW')
 ]
+
+
+@app.task
+def generate_notes_for_lesson(lessonId: int, userId: int):
+
+    lesson = Lesson.objects.filter(id=lessonId).first()
+    user = User.objects.filter(id=userId).first()
+
+    aiModel = AiModel()
+    response = aiModel.generateNote(lesson.name)
+    parsed_response = json.loads(response.text)
+
+    for topic in parsed_response["topics"]:
+        newMaterial = LessonContent(name=topic["topicTitle"],
+                                    lesson=lesson,
+                                    content_type="text",
+                                    author=user,
+                                    is_teacher_only=False)
+        newMaterial.content.save(gen_hash_name(topic["content"] + '.txt'),
+                                 ContentFile(topic["content"]))
+        newMaterial.save()
 
 
 @app.task
 def send_submit_to_cats():
     print('sending sol. tasks', end=' ')
-    cats_submit: CatsSubmit = CatsSubmit.objects.filter(is_sent=False).order_by('id').first()
+    cats_submit: CatsSubmit = CatsSubmit.objects.filter(
+        is_sent=False).order_by('id').first()
     print(len(list(CatsSubmit.objects.filter(is_sent=False))))
     if not cats_submit:
         return
     # TODO: check correctness of the response
     cats_account = cats_submit.submit.student.cats_account.username
     try:
-        ids, response = cats_submit_solution(**cats_submit.data, cats_account=cats_account)
+        ids, response = cats_submit_solution(**cats_submit.data,
+                                             cats_account=cats_account)
     except (CatsAnswerCodeException, CatsNormalErrorException) as exception:
         print('exception below')
         cats_submit.is_error = True
         cats_submit.is_sent = True
         cats_submit.sending_result = dict(
-            data={**cats_submit.data, 'submit_as': cats_account, },
+            data={
+                **cats_submit.data,
+                'submit_as': cats_account,
+            },
             response=dict(
                 headers=exception.response.headers.__dict__,
                 content=exception.response.json(),
@@ -41,12 +74,9 @@ def send_submit_to_cats():
             student=cats_submit.submit.student,
             submit=cats_submit.submit,
             type=LogEvent.TYPE_CATS_ERROR,
-            data=dict(
-                message='Ошибка при отправке в cats',
-                content=exception.response.content.decode('utf-8'),
-                reason=exception.response.reason
-            )
-        )
+            data=dict(message='Ошибка при отправке в cats',
+                      content=exception.response.content.decode('utf-8'),
+                      reason=exception.response.reason))
         log_event.save()
         return
 
@@ -55,10 +85,11 @@ def send_submit_to_cats():
     if ids:
         cats_submit.is_sent = True
         log_event = LogEvent(
-            problem=cats_submit.submit.problem, student=cats_submit.submit.student, type=LogEvent.TYPE_CATS_SUBMIT,
+            problem=cats_submit.submit.problem,
+            student=cats_submit.submit.student,
+            type=LogEvent.TYPE_CATS_SUBMIT,
             submit=cats_submit.submit,
-            data=dict(message='Отправлено на проверку в cats')
-        )
+            data=dict(message='Отправлено на проверку в cats'))
         log_event.save()
     cats_submit.save()
 
@@ -79,10 +110,11 @@ def update_submit_status():
             continue
 
         log_event = LogEvent(
-            problem=cats_submit.submit.problem, student=cats_submit.submit.student,
+            problem=cats_submit.submit.problem,
+            student=cats_submit.submit.student,
             submit=cats_submit.submit,
-            type=LogEvent.TYPE_CATS_ANSWER, data=dict(message='Результат тестирования получен')
-        )
+            type=LogEvent.TYPE_CATS_ANSWER,
+            data=dict(message='Результат тестирования получен'))
         log_event.save()
         if new_status == Submit.OK and \
                 cats_submit.submit.problem.test_mode == Problem.TEST_MODE_TYPES[2][0]:
@@ -92,7 +124,8 @@ def update_submit_status():
 
         cats_submit.submit.updated_by = None
         cats_submit.submit.save(update_fields=['status', 'updated_by'])
-        cats_submit.testing_result = data[0]  # Todo: investigate why the hell its a list
+        cats_submit.testing_result = data[
+            0]  # Todo: investigate why the hell its a list
         cats_submit.save()
 
 
@@ -102,9 +135,5 @@ def send_email(token, email, hostname):
     Ссылка для восстановления пароля: 
     {hostname.strip('/')}/reset?token={token}"""
 
-    send_mail(
-        "Password Reset for dvfu lms",
-        email_plaintext_message,
-        "learn@dvfu.ru",
-        [email]
-    )
+    send_mail("Password Reset for dvfu lms", email_plaintext_message,
+              "learn@dvfu.ru", [email])
