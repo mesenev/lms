@@ -9,6 +9,7 @@ import lessonRoutes from "@/router/lesson";
 import LessonViewLayout from "@/views/LessonViewLayout.vue";
 import RegistrationView from "@/views/RegistrationView.vue"
 import CourseRegistrationView from "@/views/CourseRegistrationView.vue";
+import GenerateCourseView from '@/views/GenerateCourseView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,6 +34,11 @@ const router = createRouter({
       props: () => {
       return { courseId: null };
         },
+    },
+    {
+      path: '/generate-course',
+      name: 'generate-course',
+      component: GenerateCourseView,
     },
     {
       path: '/reset',

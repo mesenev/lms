@@ -184,6 +184,16 @@
               Создать курс
             </cv-switcher-item-link>
           </cv-switcher-item>
+
+          <cv-switcher-item>
+              <cv-switcher-item-link :to="{
+                  name: 'generate-course',
+                  params:  { courseId: null }
+                }"
+            >
+              Сгенерировать курс
+              </cv-switcher-item-link>
+            </cv-switcher-item>
           <cv-switcher-item>
             <cv-switcher-item-link @click="logout"> Выйти</cv-switcher-item-link>
           </cv-switcher-item>
