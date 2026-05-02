@@ -11,6 +11,7 @@ import json
 from lesson.storages import gen_hash_name
 from django.core.files.base import ContentFile
 from users.models import User
+from exam.models import ExaminationForm
 
 logger = get_task_logger(__name__)
 
@@ -18,6 +19,44 @@ PROCESSED_STATUSES = [
     status for status, description in Submit.SUBMIT_STATUS
     if status not in ('NP', 'AW')
 ]
+
+
+@app.task
+def generate_exam_for_lesson(lessonId: int):
+
+    lesson = Lesson.objects.filter(id=lessonId).first()
+    aiModel = AiModel()
+
+    exam = aiModel.generateExam(lessonName=lesson.name)
+
+    parsed_exam = json.loads(exam.text)
+    questions = []
+
+    i = 0
+
+    for question in parsed_exam["questions"]:
+        questions.append({
+                "text": question["text"],
+                "index": i,
+                "points": question["points"],
+                "all_answers": question["all_answers"],
+                "answer_type": question["answer_type"],
+                "description": question["description"],
+                "attachment_url": "",
+                "correct_answers": question["correct_answers"]
+            })
+        i+=1
+
+    newExam = ExaminationForm(
+            lesson=lesson,
+            name=parsed_exam["name"],
+            description=parsed_exam["description"],
+            questions=questions,
+            test_mode="manual",
+            max_points=100
+        )
+
+    newExam.save()
 
 
 @app.task

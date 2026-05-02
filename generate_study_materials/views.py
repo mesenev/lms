@@ -9,11 +9,12 @@ from course.models import Course
 from lesson.models import Lesson, LessonContent
 from lesson.storages import gen_hash_name
 from django.core.files.base import ContentFile
+from exam.models import ExaminationForm
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.request import Request
-from celery_app.tasks import generate_notes_for_lesson
+from celery_app.tasks import generate_notes_for_lesson, generate_exam_for_lesson
 
 
 class CourseGenerationApi(APIView):
@@ -38,6 +39,10 @@ class CourseGenerationApi(APIView):
                                description=chapter["chapterSummary"],
                                author=request.user)
             newLesson.save()
+
             generate_notes_for_lesson.delay(newLesson.id, request.user.id)
+            generate_exam_for_lesson.delay(newLesson.id)
+
+
 
         return HttpResponse("OK", status=200)
