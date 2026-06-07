@@ -126,14 +126,19 @@ function addProtocolDomain() {
 
 .material-wrapper
   cursor pointer
-  padding 0.5rem 0 0.5rem
+  margin-bottom .45rem
+  padding .55rem .7rem
+  border-radius 5px
+  background rgba(255, 255, 255, .68)
+  color #161616
 
 .material-wrapper:hover
-  background-color var(--cds-ui-02)
+  background rgba(255, 255, 255, .82)
 
 .material
   display flex
   flex-direction row
+  color #161616
 
 .action-buttons
   display flex

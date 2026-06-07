@@ -80,11 +80,17 @@ async function deleteExam() {
   flex-direction row
   justify-content space-between
   align-items center
-  border-top 1px solid var(--cds-ui-03)
-  border-bottom 1px solid var(--cds-ui-03)
+  margin-bottom .45rem
+  border 0
+  border-radius 5px
+  background rgba(255, 255, 255, .68)
+  color #161616
 
 .list-element:hover
-  background-color var(--cds-ui-03)
+  background rgba(255, 255, 255, .82)
+
+.list-element--title
+  color #111
 
 .icons
   display flex

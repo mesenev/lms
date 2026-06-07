@@ -247,12 +247,16 @@ async function changeLessonVisibility() {
   &-info
     height 100%
     margin-bottom 1rem
+    background rgba(118, 118, 118, .34)
+    backdrop-filter blur(2px)
 
     &-empty
       margin-bottom 1rem
       height 400px
       display flex
       align-items center
+      background rgba(118, 118, 118, .34)
+      backdrop-filter blur(2px)
 
     &-title
       color var(--cds-text-01)
@@ -261,7 +265,6 @@ async function changeLessonVisibility() {
       margin 1rem 0
 
   &-tasks, &-info
-    background-color var(--cds-ui-01)
     padding 1rem
 
   :deep(.bx--accordion__heading) {
@@ -279,7 +282,8 @@ async function changeLessonVisibility() {
     margin 1rem 0
 
 .empty-items
-  background-color var(--cds-ui-01)
+  background rgba(118, 118, 118, .34)
+  backdrop-filter blur(2px)
   display flex
   align-items center
   padding-top 1rem
@@ -288,7 +292,8 @@ async function changeLessonVisibility() {
   padding-bottom 1rem
 
 .items
-  background-color: var(--cds-ui-01)
+  background rgba(118, 118, 118, .34)
+  backdrop-filter blur(2px)
   padding-top 1rem
   padding-bottom 1rem
   margin-bottom 1rem
