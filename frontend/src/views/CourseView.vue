@@ -16,7 +16,7 @@
       <div :class="(lessons.length) ? 'items bx--col-lg-6 bx--col-md-6'
       : 'empty-items bx--col-lg-6 bx--col-md-6'">
         <cv-data-table-skeleton v-if="loading" :columns="1" :rows="6"/>
-        <div v-else-if="lessons.length">
+        <div v-else-if="lessons.length" class="lessons-panel">
           <cv-search
               v-model:value.trim="searchValue"
               class="search"
@@ -51,7 +51,7 @@
             </cv-structured-list>
           </div>
         </div>
-        <div v-else class="empty-list-wrapper">
+        <div v-else class="empty-list-wrapper lessons-panel lessons-panel--empty">
           <empty-list-component list-of="lessons" :text="emptyText"/>
         </div>
       </div>
@@ -171,14 +171,65 @@ function dateForLesson(lesson_id: number) {
   margin-top var(--cds-spacing-03)
 
 .items
-  padding-top 1rem
-  padding-bottom 1rem
+  padding 0
   margin-bottom 1rem
   margin-right 1rem
-  background-color var(--cds-ui-01)
+  background transparent
 
-  :deep() .bx--search-input
-    background-color var(--cds-ui-background)
+.lessons-panel
+  min-height 28rem
+  padding 1rem
+  border-radius 8px
+  background rgba(118, 118, 118, .34)
+  box-shadow 0 18px 40px rgba(0, 0, 0, .08)
+  backdrop-filter blur(2px)
+
+.lessons-panel--empty
+  display flex
+  align-items flex-start
+
+.lessons-panel :deep(.bx--search)
+  margin-bottom 1.5rem
+
+.lessons-panel :deep(.bx--search-input)
+  height 1.55rem
+  border 1px solid #9f9f9f
+  border-radius 5px
+  background rgba(255, 255, 255, .88)
+  color #222
+
+.lessons-panel :deep(.bx--search-input::placeholder)
+  color #b5b5b5
+
+.lessons-panel :deep(.bx--structured-list)
+  margin-bottom 0
+  background transparent
+
+.lessons-panel :deep(.bx--structured-list-row)
+  border 0
+
+.lessons-panel :deep(.list-element)
+  min-height 3rem
+  align-items center
+  margin-bottom .45rem
+  padding .45rem .9rem
+  border-radius 5px
+  background rgba(255, 255, 255, .78)
+  color #161616
+  box-shadow 0 1px 0 rgba(255, 255, 255, .4) inset
+
+.lessons-panel :deep(.list-element:hover)
+  background rgba(255, 255, 255, .9)
+
+.lessons-panel :deep(.list-element--title)
+  margin 0
+  color #111
+  font-size .95rem
+  font-weight 700
+
+.lessons-panel :deep(.list-element--info)
+  color #353535
+  font-size .86rem
 
 .lessons-list-wrapper
   max-height 50vh;
@@ -192,12 +243,12 @@ function dateForLesson(lesson_id: number) {
     background-color var(--cds-ui-01)
 
 .empty-items
-  background-color var(--cds-ui-01)
+  background transparent
   display flex
   align-items center
   margin-bottom 1rem
   margin-right 1rem
-  padding-bottom 1rem
+  padding 0
 
 .lessons-list
   margin-bottom 0

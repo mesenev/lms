@@ -107,7 +107,7 @@ const shouldRedirectToLogin = computed(() => {
 @import 'styles/list-elements.styl';
 
 .layout-content
-  background-color var(--cds-ui-background)
+  background transparent
 
 .main--breadcrumb
   margin-top var(--cds-spacing-06);
@@ -121,18 +121,33 @@ const shouldRedirectToLogin = computed(() => {
   color: var(--cds-support-02)
 
 .layout
-  height: 100%
-  display flex
-  flex-flow column
+  min-height: 100%
+  display grid
+  grid-template-columns 10.75rem minmax(0, 1fr)
+  grid-template-rows auto minmax(0, 1fr) auto
+  gap .75rem
+  padding 1rem
+  background:
+    radial-gradient(circle at 78% 86%, rgba(245, 82, 43, .96) 0, rgba(245, 82, 43, .72) 17%, rgba(223, 113, 91, .38) 37%, rgba(226, 226, 226, .72) 63%, rgba(247, 247, 247, .96) 100%),
+    linear-gradient(135deg, #f8f8f8 0%, #eeeeee 47%, #f7d8d1 100%)
+  background-attachment fixed
 
   &-content
     padding-bottom var(--cds-spacing-05)
-    margin-top: 3rem;
+    grid-column 2
+    grid-row 2
+    min-width 0
+    min-height 36rem
+    padding 2rem 2rem 3rem
+    border-radius 2px
+    background transparent
 
   &-header, &-footer
     flex-shrink 0
 
   &-footer
+    grid-column 1 / -1
+    grid-row 3
     min-height 100px
     background-color #161616
     color var(--cds-text-05)
@@ -145,8 +160,22 @@ const shouldRedirectToLogin = computed(() => {
       margin var(--cds-spacing-06) var(--cds-spacing-06)
 
   &-content
-    flex-grow 1
     width: 100%
+
+@media (max-width: 900px)
+  .layout
+    grid-template-columns minmax(0, 1fr)
+    grid-template-rows auto auto minmax(0, 1fr) auto
+    padding .5rem
+
+    &-content
+      grid-column 1
+      grid-row 3
+      padding 1.25rem 1rem 2rem
+
+    &-footer
+      grid-column 1
+      grid-row 4
 </style>
 
 <style lang='stylus'>
