@@ -2,9 +2,8 @@
   <div class="course-generator">
     <div class="generator-card">
       <h2 class="title">Генератор курсов</h2>
-      
-      <div class="form-group">
-        <label for="courseName" class="label">Название курса</label>
+
+      <div class="generator-form">
         <input
           id="courseName"
           v-model="courseName"
@@ -13,30 +12,24 @@
           placeholder="Например: Введение в Python, Основы маркетинга..."
           @keyup.enter="generateCourse"
         />
+
+        <button
+          @click="generateCourse"
+          :disabled="!courseName.trim() || isLoading"
+          class="generate-btn"
+          :class="{ 'loading': isLoading }"
+        >
+          <span v-if="!isLoading">Сгенерировать курс</span>
+          <span v-else>
+            <span class="spinner"></span>
+            Генерация...
+          </span>
+        </button>
       </div>
-      
-      <button 
-        @click="generateCourse" 
-        :disabled="!courseName.trim() || isLoading"
-        class="generate-btn"
-        :class="{ 'loading': isLoading }"
-      >
-        <span v-if="!isLoading">✨ Сгенерировать курс</span>
-        <span v-else>
-          <span class="spinner"></span>
-          Генерация...
-        </span>
-      </button>
-      
+
       <!-- Отображение ошибки -->
       <div v-if="error" class="error-message">
-        ⚠️ {{ error }}
-      </div>
-      
-            
-      <!-- Счетчик символов -->
-      <div class="character-counter" v-if="courseName">
-        {{ courseName.length }}/100
+        {{ error }}
       </div>
     </div>
   </div>
@@ -46,14 +39,10 @@
 import api from '@/stores/services/api'
 import { ref, watch } from 'vue'
 
-// Определение emits
-const emit = defineEmits(['course-generated'])
-
 // Реактивные данные
 const courseName = ref('')
 const isLoading = ref(false)
 const error = ref(null)
-const generatedCourse = ref(null)
 
 // Валидация и ограничение длины названия
 watch(courseName, (newVal) => {
@@ -93,92 +82,99 @@ const generateCourse = async () => {
   }
 }
 
-// Очистка результата
-const clearResult = () => {
-  generatedCourse.value = null
-  courseName.value = ''
-  error.value = null
-}
 </script>
 
 <style scoped>
 .course-generator {
-  max-width: 800px;
+  width: min(100%, 64rem);
+  min-height: 31rem;
   margin: 0 auto;
-  padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  padding: 1.4rem 2.1rem 10.75rem;
+  border-radius: 8px;
+  background: rgba(118, 118, 118, .34);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .08);
+  box-sizing: border-box;
+  backdrop-filter: blur(2px);
 }
 
 .generator-card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .title {
   text-align: center;
-  color: #2c3e50;
-  margin-bottom: 30px;
-  font-size: 28px;
-  font-weight: 600;
+  color: #050505;
+  margin: 0 0 1.45rem;
+  font-size: 2rem;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
 }
 
-.form-group {
-  margin-bottom: 25px;
-}
-
-.label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: #4a5568;
-  font-size: 14px;
+.generator-form {
+  width: 100%;
+  min-height: 13.8rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2.6rem;
+  padding: 2rem 1.5rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .72);
+  box-sizing: border-box;
 }
 
 .input {
   width: 100%;
-  padding: 12px 16px;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: all 0.3s ease;
+  height: 2.65rem;
+  padding: 0 1.25rem;
+  border: 1px solid #8f8f8f;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, .82);
+  color: #202020;
+  font-size: 1rem;
   box-sizing: border-box;
 }
 
 .input:focus {
   outline: none;
-  border-color: #4299e1;
-  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+  border-color: #575757;
+  box-shadow: 0 0 0 2px rgba(87, 87, 87, .14);
+}
+
+.input::placeholder {
+  color: #c7c7c7;
 }
 
 .generate-btn {
-  width: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  width: 14.7rem;
+  min-height: 2.4rem;
+  align-self: center;
+  background: #8c8c8c;
   color: white;
   border: none;
-  padding: 14px 24px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
+  padding: 0 1rem;
+  border-radius: 3px;
+  font-size: .95rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
+  transition: background .2s ease, transform .2s ease;
 }
 
 .generate-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  background: #737373;
 }
 
 .generate-btn:disabled {
-  opacity: 0.6;
+  opacity: .62;
   cursor: not-allowed;
 }
 
 .generate-btn.loading {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #737373;
 }
 
 .spinner {
@@ -198,147 +194,36 @@ const clearResult = () => {
 }
 
 .error-message {
-  background-color: #fed7d7;
-  color: #c53030;
-  padding: 12px;
-  border-radius: 8px;
-  margin-top: 20px;
-  border-left: 4px solid #c53030;
-}
-
-.result-section {
-  margin-top: 30px;
-  background: #f7fafc;
-  border-radius: 12px;
-  overflow: hidden;
-  animation: slideIn 0.5s ease;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.result-header {
-  background: #edf2f7;
-  padding: 15px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.result-header h3 {
-  margin: 0;
-  color: #2d3748;
-  font-size: 18px;
-}
-
-.clear-btn {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  color: #718096;
-  transition: color 0.3s ease;
-}
-
-.clear-btn:hover {
-  color: #e53e3e;
-}
-
-.result-content {
-  padding: 20px;
-}
-
-.result-content h4 {
-  color: #2c3e50;
-  margin: 0 0 15px 0;
-  font-size: 20px;
-}
-
-.course-description {
-  background: white;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  border-left: 4px solid #4299e1;
-}
-
-.course-description p {
-  margin: 0;
-  line-height: 1.6;
-  color: #4a5568;
-}
-
-.course-modules {
-  margin-bottom: 20px;
-}
-
-.course-modules h5 {
-  color: #2d3748;
-  margin: 0 0 12px 0;
-  font-size: 16px;
-}
-
-.course-modules ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.course-modules li {
-  background: white;
-  margin-bottom: 10px;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-}
-
-.course-modules li strong {
-  color: #2c3e50;
-  display: block;
-  margin-bottom: 5px;
-}
-
-.course-duration {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.badge {
-  background: #e2e8f0;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 14px;
-  color: #4a5568;
-}
-
-.character-counter {
-  text-align: right;
-  font-size: 12px;
-  color: #a0aec0;
-  margin-top: 8px;
+  width: 100%;
+  max-width: 42rem;
+  background: rgba(255, 232, 232, .9);
+  color: #8f1f1f;
+  padding: .75rem 1rem;
+  border-radius: 5px;
+  margin-top: 1rem;
 }
 
 @media (max-width: 640px) {
-  .generator-card {
-    padding: 20px;
+  .course-generator {
+    padding: 1rem;
   }
-  
+
+  .generator-form {
+    min-height: 11rem;
+    gap: 1.5rem;
+    padding: 1.25rem;
+  }
+
   .title {
-    font-size: 24px;
+    font-size: 1.6rem;
   }
-  
+
+  .generate-btn {
+    width: 100%;
+  }
+
   .input {
-    font-size: 14px;
+    font-size: .9rem;
   }
 }
 </style>
