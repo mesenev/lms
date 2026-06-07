@@ -328,7 +328,7 @@ function setVerdict(question_index: number, question_verdict: boolean) {
 function setVerdictBorder(question_index: string) {
   const CORRECT_BORDER = 'border: 2px solid yellowgreen';
   const INCORRECT_BORDER = 'border: 2px solid red';
-  const AWAIT_BORDER = 'border: 2px solid var(--cds-ui-01)';
+  const AWAIT_BORDER = 'border: 0';
   if (isStaff.value && solutionId.value) {
     if (teacherSolution.value.question_verdicts[question_index] === 'correct')
       return CORRECT_BORDER;
@@ -521,14 +521,24 @@ h1
   display flex
   flex-direction column
   gap 1rem
-  max-width 45rem
-  padding-left 1rem
-  padding-right 1rem
+  width min(100%, 52rem)
+  max-width 52rem
+  padding 1rem
+  border-radius 8px
+  background rgba(118, 118, 118, .34)
+  backdrop-filter blur(2px)
+  box-shadow 0 18px 40px rgba(0, 0, 0, .08)
+  box-sizing border-box
 
 .question-container
-  background-color var(--cds-ui-01)
+  background rgba(226, 226, 226, .82)
   border-radius 5px
   padding 1rem
+  color #111
+  box-sizing border-box
+
+.question-container:hover
+  background rgba(236, 236, 236, .9)
 
 .question-header
   margin-bottom 0.5rem
