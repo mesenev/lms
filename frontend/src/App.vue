@@ -71,6 +71,34 @@ const shouldRedirectToLogin = computed(() => {
 @import "styles/base"
 @import "styles/carbon"
 
+h1
+  font-size: 2rem
+
+
+
+body
+  font-family: 'IBM Plex Sans', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif
+
+.main-title,
+.lms-sidebar-logo,
+.content-info-title,
+.content-tasks-title,
+.other-materials-title,
+.lesson--list--title,
+.materials-title,
+.empty-title,
+.no-lessons-title,
+.title
+  font-family: 'Medium Cyrillic', 'IBM Plex Sans', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif
+  font-weight: 500
+
+.list-element--title,
+.problem--title,
+.submit-title,
+.material-title
+  font-family: 'IBM Plex Sans', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif
+
+
 .theme
   &-white
     //@include themes.theme($white)
@@ -105,6 +133,7 @@ const shouldRedirectToLogin = computed(() => {
 
 <style scoped lang='stylus'>
 @import 'styles/list-elements.styl';
+
 
 .layout-content
   background transparent

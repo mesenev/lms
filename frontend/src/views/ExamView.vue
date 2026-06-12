@@ -599,4 +599,7 @@ h1
   .submit
     width fit-content
 
+.description-container
+  font-family: 'IBM Plex Sans', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif
+
 </style>

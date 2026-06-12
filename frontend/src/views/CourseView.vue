@@ -242,6 +242,9 @@ function dateForLesson(lesson_id: number) {
   :deep() .submit-list-data
     background-color var(--cds-ui-01)
 
+.course-description
+    font-family: 'IBM Plex Sans', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif
+
 .empty-items
   background transparent
   display flex

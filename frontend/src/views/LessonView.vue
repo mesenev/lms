@@ -298,4 +298,7 @@ async function changeLessonVisibility() {
   padding-bottom 1rem
   margin-bottom 1rem
   margin-right 1rem
+
+.lesson-description
+  font-family: 'IBM Plex Sans', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif
 </style>
