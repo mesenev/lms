@@ -1,6 +1,6 @@
 from celery.utils.log import get_task_logger
 from django.core.mail import send_mail
-
+import re
 from cathie.cats_api import cats_check_solution_status, cats_submit_solution
 from cathie.exceptions import CatsAnswerCodeException, CatsNormalErrorException
 from celery_app.celery_settings import app
@@ -28,8 +28,8 @@ def generate_exam_for_lesson(lessonId: int):
     aiModel = AiModel()
 
     exam = aiModel.generateExam(lessonName=lesson.name)
-
-    parsed_exam = json.loads(exam.text)
+    clean_json = re.sub(r'^```json\s*|\s*```$', '', exam.text.strip())
+    parsed_exam = json.loads(clean_json)
     questions = []
 
     i = 0
@@ -62,12 +62,19 @@ def generate_exam_for_lesson(lessonId: int):
 @app.task
 def generate_notes_for_lesson(lessonId: int, userId: int):
 
-    lesson = Lesson.objects.filter(id=lessonId).first()
+    lesson = Lesson.objects.select_related("course").filter(id=lessonId).first()
     user = User.objects.filter(id=userId).first()
 
     aiModel = AiModel()
-    response = aiModel.generateNote(lesson.name)
-    parsed_response = json.loads(response.text)
+    course = lesson.course
+    response = aiModel.generateNote(
+        courseName=course.name if course else "",
+        courseDescription=course.description if course else "",
+        lessonName=lesson.name,
+        lessonDescription=lesson.description,
+    )
+    clean_json = re.sub(r'^```json\s*|\s*```$', '', response.text.strip())
+    parsed_response = json.loads(clean_json)
 
     for topic in parsed_response["topics"]:
         newMaterial = LessonContent(name=topic["topicTitle"],

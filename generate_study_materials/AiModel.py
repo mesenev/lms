@@ -2,10 +2,12 @@ import os
 from google import genai
 from google.genai.chats import Chat
 from google.genai import types
-
+from openai import OpenAI
 from dotenv import load_dotenv
 from .CourseRequestDto import CourseRequestDto
 
+
+MODEL = "gemini-2.5-flash-lite"
 
 class AiModel:
 
@@ -16,6 +18,7 @@ class AiModel:
 
     def __init__(self):
         load_dotenv()
+        
 
         self.__client = genai.Client(
             api_key=os.getenv('PUBLIC_GEMINI_API_KEY'))
@@ -26,7 +29,7 @@ class AiModel:
 
     def generateCourse(self, courseRequest: CourseRequestDto):
 
-        prompt = f"Generate a study material with course title for ${courseRequest.topic} for ${courseRequest.courseType} and level of difficulty will be ${courseRequest.difficultyLevel} with summary of course, List of Chapters along with summary and Emoji icon for each chapter, Topic list in each chapter in JSON format. There should be no Markdown quotes at the beginning."
+        prompt = f"Always answer in russian. Generate a study material with course title for ${courseRequest.topic} for ${courseRequest.courseType} and level of difficulty will be ${courseRequest.difficultyLevel} with summary of course, List of Chapters along with summary and Emoji icon for each chapter, Topic list in each chapter in JSON format. There should be no Markdown quotes at the beginning. Dont wrap asnwers json as markdown. Markdown can be only inside json"
         response = self.__courseGenerateChat.send_message(prompt)
         # return self.__client.models.list()
         return response
@@ -54,7 +57,7 @@ Always double check for errors and correct json structure   """)
 
         self.__examGenerateChat = self.__client.chats.create(
             history=[contents_notest_1, contents_notest_2],
-            model="gemini-2.5-flash")
+            model=MODEL)
         return
 
     def __createNotesGenerateChat(self):
@@ -78,7 +81,7 @@ Always double check for errors and correct json structure   """)
 
         self.__noteGenerateChat = self.__client.chats.create(
             history=[contents_notest_1, contents_notest_2],
-            model="gemini-3-flash-preview")
+            model=MODEL)
 
     def __createCourseGenerateChat(self):
         contents_course_outline_1 = types.Content(
@@ -99,11 +102,11 @@ Always double check for errors and correct json structure   """)
 
         self.__courseGenerateChat = self.__client.chats.create(
             history=[contents_course_outline_1, contents_course_outline_2],
-            model="gemini-3-flash-preview")
+            model=MODEL)
 
 
     def generateExam(self, lessonName: str):
-         promptForExam = f""" Generate a Json object that  represent a test for a lesson with name {lessonName}. The JSON should meet the following requirements:
+         promptForExam = f"""Always answer in russian. Generate a Json object that  represent a test for a lesson with name {lessonName}. The JSON should meet the following requirements:
          1. Structure:
 name:  title of the test.\n description: A brief summary of the test\nemoji: A relevant emoji to visually represent the chapter.
 \nquestions: A list of questions of test. Each question must be an object with:\n text (string): the text of the question.\n points (int):   number of points for question .\n\n    answer_type (string): one of those values (input, radio, checkbox). all_answers(string[]): array of strings with answer options, for answer type "input" should be empty. correct_answers(string[]): array of strings, contains only one value for types "input" and "radio", and should contains several for "checkbox" 
@@ -111,18 +114,26 @@ name:  title of the test.\n description: A brief summary of the test\nemoji: A r
 {{\n      "name": "Test name",\n      "description": "description of test",\n      "emoji": "🌱",\n      "questions": [{{"text": "вопрос 1", "points": 5,  "all_answers": [], "answer_type": "input", "description": "описание вопроса 1", "correct_answers": ["правильный ответ"]}}, {{"text": "вопрос 2", "points": 5, "all_answers": [""], "answer_type": "input", "description": "описание вопроса 2", "correct_answers": ["правильный ответ"]}}, {{"text": "Вопрос 3", "points": 6, "all_answers": ["вариант 1", "вариант 2"], "answer_type": "radio", "description": "описание вопроса 3", "correct_answers": ["вариант 1"]}}, {{"text": "вопрос 4", "points": 2, "all_answers": ["1 вариант", "2 вариант", "3 вариант"], "answer_type": "checkbox", "description": "описание вопроса 4","correct_answers": ["3 вариант", "1 вариант"]}}]\n    }}
 
           **Avoid Common Errors:**  
-   - Double-check for mismatched brackets, missing fields, or improperly formatted strings. There should be no Markdown quotes at the beginning.
+   - Double-check for mismatched brackets, missing fields, or improperly formatted strings. Never forget add description field to every question. There should be no Markdown quotes at the beginning.Dont wrap asnwers json as markdown. Markdown can be only inside json
          """
 
-         response =self.__courseGenerateChat.send_message(promptForExam)
+         response =self.__examGenerateChat.send_message(promptForExam)
          return response 
 
-    def generateNote(self, chapterName: str):
-        promptForNote = f"""Generate a JSON object that represents study notes for a course chapter. The JSON should meet the following requirements:
-        0. Provided Chapters:
-        {chapterName}
+    def generateNote(
+            self,
+            courseName: str,
+            courseDescription: str,
+            lessonName: str,
+            lessonDescription: str):
+        promptForNote = f"""Always answer in russian. Generate a JSON object that represents study notes for a course chapter. The JSON should meet the following requirements:
+        0. Provided Context:
+        Course name: {courseName}
+        Course description: {courseDescription}
+        Lesson name: {lessonName}
+        Lesson description: {lessonDescription}
 
-
+Note should include minimum 1,000 words.
 1. Structure:
 The JSON must include the following fields:
 chapterTitle: The title of the chapter.
@@ -162,9 +173,6 @@ OUTPUT SHOULD BE LIKE :
 }}
 
 
-2. Content Formatting:
-Give me in .md format
-
 
 **IMPORTANT**
 There should be an emoji
@@ -180,7 +188,7 @@ Give me in .md format
    - All generated content should be focused on clarity and exam preparation, with minimal redundancy.  
 
  8. **Avoid Common Errors:**  
-   - Double-check for mismatched brackets, missing fields, or improperly formatted strings. There should be no Markdown quotes at the beginning.  """
+   - Double-check for mismatched brackets, missing fields, or improperly formatted strings. There should be no Markdown quotes at the beginning. Dont wrap asnwers json as markdown. Markdown can be only inside json """
 
-        response = self.__courseGenerateChat.send_message(promptForNote)
+        response = self.__noteGenerateChat.send_message(promptForNote)
         return response

@@ -26,7 +26,9 @@
           </span>
         </button>
       </div>
-
+      <div v-if="success" class="success-message">
+        Курс успешно сгенерирован
+      </div>
       <!-- Отображение ошибки -->
       <div v-if="error" class="error-message">
         {{ error }}
@@ -43,6 +45,7 @@ import { ref, watch } from 'vue'
 const courseName = ref('')
 const isLoading = ref(false)
 const error = ref(null)
+const success = ref(false)
 
 // Валидация и ограничение длины названия
 watch(courseName, (newVal) => {
@@ -71,11 +74,14 @@ const generateCourse = async () => {
   
   error.value = null
   isLoading.value = true
-  
+  success.value = false  
+
+
   try {
-    await api.post('generate-course', {"courseName": courseName.value})   
+    await api.post('generate-course', {"courseName": courseName.value})
+    success.value = true
   } catch (err) {
-    error.value = 'Ошибка при генерации курса. Пожалуйста, попробуйте снова.'
+    error.value = `Ошибка при генерации курса: ${err}. Пожалуйста, попробуйте снова.`
     console.error('Generation error:', err)
   } finally {
     isLoading.value = false
@@ -198,6 +204,17 @@ const generateCourse = async () => {
   max-width: 42rem;
   background: rgba(255, 232, 232, .9);
   color: #8f1f1f;
+  padding: .75rem 1rem;
+  border-radius: 5px;
+  margin-top: 1rem;
+}
+
+.success-message {
+  text-align: center;
+  width: 100%;
+  max-width: 42rem;
+  background: rgba(138, 219, 146, .9);
+  color: #087513;
   padding: .75rem 1rem;
   border-radius: 5px;
   margin-top: 1rem;

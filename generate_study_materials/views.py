@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from generate_study_materials.AiModel import AiModel
+from generate_study_materials.OpenAiModel import OpenAiModel
 from django.http import HttpResponse
-from google.genai import types
 import os
+import re
 from .CourseRequestDto import CourseRequestDto
 import json
 from course.models import Course
@@ -26,7 +27,8 @@ class CourseGenerationApi(APIView):
         response = aiModel.generateCourse(
             CourseRequestDto(1, request.data.get('courseName'), "practice", 2,
                              0))
-        parsed_response = json.loads(response.text)
+        clean_json = re.sub(r'^```json\s*|\s*```$', '', response.text.strip())
+        parsed_response = json.loads(clean_json)
         newCourse = Course(name=parsed_response["courseTitle"],
                            description=parsed_response["courseSummary"],
                            cats_id=-1,

@@ -50,7 +50,7 @@
         :class="(!loading && isMaterialsEmpty) ? ('bx--col-lg-4 bx--col-md-4 content-info-empty')
          : ('bx--col-lg-4 bx--col-md-4 content-info')">
         <div v-if="!loading">
-          <div v-if="isMaterialsEmpty" class="content-info-empty">
+          <div v-if="isMaterialsEmpty" >
             <empty-list-component :text="emptyMaterialsText" list-of="materials"/>
           </div>
           <div v-else>
